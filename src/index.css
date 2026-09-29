@@ -1,0 +1,595 @@
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+@import "tailwindcss";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  overscroll-behavior: none;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+html.dark,
+html.dark body {
+  background-color: #020617;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+}
+
+/* Guarantee identical 1:1 render scale and prevent mobile font auto-inflation across devices */
+html,
+body,
+#preview-target,
+#preview-target *,
+[data-preview-canvas="true"],
+[data-preview-canvas="true"] * {
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Universal Global Typography Override across all preview mockups and text elements across all modules.
+   EXCEPT: WhatsApp Status text (.wa-status-text-target) which strictly maintains its own dedicated font family */
+#preview-target:not(.wa-status-text-target),
+#preview-target *:not(svg):not(path):not(.wa-status-text-target):not(.wa-status-text-target *),
+.global-preview-font-apply:not(.wa-status-text-target),
+.global-preview-font-apply *:not(svg):not(path):not(.wa-status-text-target):not(.wa-status-text-target *),
+[id^="export-"]:not(.wa-status-text-target),
+[id^="export-"] *:not(svg):not(path):not(.wa-status-text-target):not(.wa-status-text-target *) {
+  font-family: var(--selected-global-font, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif) !important;
+}
+
+/* Strict Isolation for WhatsApp Status Text: Never overridden by global typography */
+.wa-status-text-target,
+.wa-status-text-target * {
+  font-family: inherit;
+}
+
+/* Custom smooth thin scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Hide scrollbar visually while preserving scrolling functionality across all modern and legacy browsers (Split Screen Dual-Scroll & Previews) */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+.dual-scroll-panel::-webkit-scrollbar,
+.customization-editor-panel::-webkit-scrollbar,
+.preview-column-panel::-webkit-scrollbar,
+#customization-panel::-webkit-scrollbar,
+#preview-panel::-webkit-scrollbar,
+#preview-target *::-webkit-scrollbar,
+#preview-target::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.no-scrollbar,
+.scrollbar-none,
+.dual-scroll-panel,
+.customization-editor-panel,
+.preview-column-panel,
+#customization-panel,
+#preview-panel,
+#preview-target,
+#preview-target * {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
+/* TikTok Marquee Music Animation */
+@keyframes tiktokMarquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-tiktok-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: tiktokMarquee 8s linear infinite;
+}
+.animate-tiktok-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ==========================================================================
+   AU TOOLKIT: ABSOLUTE SEPARATION OF GLOBAL UI THEME & LIVE PREVIEW THEME
+   - Global Master Button (top right) exclusively controls the Editor UI
+     (#customization-panel, header, dialogs).
+   - Module Theme Mode buttons in forms exclusively control the Live Preview
+     (#preview-canvas-container).
+   - Editor dark mode styles are strictly scoped to #customization-panel,
+     .customization-editor-panel, and editor modals, and NEVER affect the
+     Live Preview card or canvas.
+   ========================================================================== */
+
+/* Full Dark Mode Styles for Form Cards & Panels when .theme-dark or html.dark is active */
+html.dark,
+body.dark,
+.theme-dark,
+.dark {
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   1. STRICT LIGHT MODE FOR EDITOR PANEL
+   When master global theme is Light (html does NOT have .dark), ensure
+   all container cards, input panels, wrapper boxes, and theme controls
+   are crisp pure white or clean light slate, with ZERO residual dark tones
+   and ZERO unwanted shadow effects.
+   ========================================================================== */
+html:not(.dark) #customization-panel,
+html:not(.dark) .customization-editor-panel {
+  background-color: transparent !important;
+}
+
+/* Remove all shadows in editor in light mode */
+html:not(.dark) #customization-panel *,
+html:not(.dark) .customization-editor-panel * {
+  box-shadow: none !important;
+}
+
+/* Primary cards in light mode */
+html:not(.dark) #customization-panel .bg-white,
+html:not(.dark) .customization-editor-panel .bg-white,
+html:not(.dark) #customization-panel [class*="bg-white"],
+html:not(.dark) .customization-editor-panel [class*="bg-white"],
+html:not(.dark) #customization-panel .theme-panel-card,
+html:not(.dark) .customization-editor-panel .theme-panel-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Sub-panels, inner boxes, quote cards, and secondary wrappers in light mode */
+html:not(.dark) #customization-panel [class*="bg-slate-50"],
+html:not(.dark) #customization-panel [class*="bg-slate-100"],
+html:not(.dark) #customization-panel [class*="bg-gray-50"],
+html:not(.dark) #customization-panel [class*="bg-gray-100"],
+html:not(.dark) #customization-panel [class*="bg-zinc-50"],
+html:not(.dark) .customization-editor-panel [class*="bg-slate-50"],
+html:not(.dark) .customization-editor-panel [class*="bg-slate-100"],
+html:not(.dark) .customization-editor-panel [class*="bg-gray-50"],
+html:not(.dark) .customization-editor-panel [class*="bg-gray-100"],
+html:not(.dark) .customization-editor-panel [class*="bg-zinc-50"] {
+  background-color: #f8fafc !important; /* clean light slate-50 */
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* Override any accidental dark background classes in editor when in Light mode */
+html:not(.dark) #customization-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
+html:not(.dark) #customization-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
+html:not(.dark) #customization-panel [class*="bg-slate-950"]:not(button):not([role="button"]),
+html:not(.dark) #customization-panel [class*="bg-zinc-900"]:not(button):not([role="button"]),
+html:not(.dark) #customization-panel [class*="bg-zinc-800"]:not(button):not([role="button"]),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-950"]:not(button):not([role="button"]) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) #customization-panel [class*="bg-purple-950"],
+html:not(.dark) .customization-editor-panel [class*="bg-purple-950"] {
+  background-color: #faf5ff !important;
+  border-color: #e9d5ff !important;
+  color: #581c87 !important;
+}
+
+/* Text colors in light mode */
+html:not(.dark) #customization-panel label,
+html:not(.dark) #customization-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
+html:not(.dark) #customization-panel h4,
+html:not(.dark) .customization-editor-panel label,
+html:not(.dark) .customization-editor-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
+html:not(.dark) .customization-editor-panel h4 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #customization-panel .text-slate-800,
+html:not(.dark) #customization-panel .text-slate-900,
+html:not(.dark) .customization-editor-panel .text-slate-800,
+html:not(.dark) .customization-editor-panel .text-slate-900 {
+  color: #0f172a !important;
+}
+
+/* Form inputs, textareas, selects in light mode */
+html:not(.dark) #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html:not(.dark) .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html:not(.dark) #customization-panel textarea,
+html:not(.dark) .customization-editor-panel textarea,
+html:not(.dark) #customization-panel select,
+html:not(.dark) .customization-editor-panel select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+html:not(.dark) #customization-panel input::placeholder,
+html:not(.dark) .customization-editor-panel input::placeholder,
+html:not(.dark) #customization-panel textarea::placeholder,
+html:not(.dark) .customization-editor-panel textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   2. STRICT DARK MODE FOR EDITOR PANEL
+   When master global theme is Dark, all container cards, input panels,
+   wrapper boxes, and theme controls switch seamlessly to dark tones.
+   ========================================================================== */
+html.dark .customization-editor-panel,
+.dark .customization-editor-panel,
+html.dark #customization-panel,
+.dark #customization-panel {
+  background-color: #0b1120 !important;
+}
+
+/* Remove shadows in dark mode */
+html.dark #customization-panel *,
+html.dark .customization-editor-panel * {
+  box-shadow: none !important;
+}
+
+html.dark #customization-panel [class*="bg-white"],
+.dark #customization-panel [class*="bg-white"],
+html.dark .customization-editor-panel [class*="bg-white"],
+.dark .customization-editor-panel [class*="bg-white"],
+html.dark [role="dialog"] [class*="bg-white"],
+.dark [role="dialog"] [class*="bg-white"],
+html.dark .editor-modal [class*="bg-white"],
+.dark .editor-modal [class*="bg-white"],
+html.dark .theme-panel-card,
+.dark .theme-panel-card {
+  background-color: #0f172a !important; /* slate-900 */
+  border-color: #1e293b !important; /* slate-800 */
+  color: #f8fafc !important;
+}
+
+html.dark #customization-panel [class*="bg-slate-50"],
+html.dark #customization-panel [class*="bg-gray-50"],
+html.dark #customization-panel [class*="bg-zinc-50"],
+.dark #customization-panel [class*="bg-slate-50"],
+.dark #customization-panel [class*="bg-gray-50"],
+.dark #customization-panel [class*="bg-zinc-50"],
+html.dark .customization-editor-panel [class*="bg-slate-50"],
+html.dark .customization-editor-panel [class*="bg-gray-50"],
+html.dark .customization-editor-panel [class*="bg-zinc-50"],
+.dark .customization-editor-panel [class*="bg-slate-50"],
+.dark .customization-editor-panel [class*="bg-gray-50"],
+.dark .customization-editor-panel [class*="bg-zinc-50"],
+html.dark #customization-panel [class*="bg-slate-100"],
+html.dark #customization-panel [class*="bg-gray-100"],
+html.dark #customization-panel [class*="bg-zinc-100"],
+.dark #customization-panel [class*="bg-slate-100"],
+.dark #customization-panel [class*="bg-gray-100"],
+.dark #customization-panel [class*="bg-zinc-100"],
+html.dark .customization-editor-panel [class*="bg-slate-100"],
+html.dark .customization-editor-panel [class*="bg-gray-100"],
+html.dark .customization-editor-panel [class*="bg-zinc-100"],
+.dark .customization-editor-panel [class*="bg-slate-100"],
+.dark .customization-editor-panel [class*="bg-gray-100"],
+.dark .customization-editor-panel [class*="bg-zinc-100"] {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important; /* slate-700 */
+  color: #f8fafc !important;
+}
+
+html.dark #customization-panel .text-slate-900,
+html.dark #customization-panel .text-slate-800,
+html.dark #customization-panel .text-slate-700,
+html.dark #customization-panel .text-gray-900,
+html.dark #customization-panel .text-gray-800,
+html.dark #customization-panel .text-gray-700,
+html.dark #customization-panel .text-zinc-900,
+html.dark #customization-panel .text-zinc-800,
+.dark #customization-panel .text-slate-900,
+.dark #customization-panel .text-slate-800,
+.dark #customization-panel .text-slate-700,
+.dark #customization-panel .text-gray-900,
+.dark #customization-panel .text-gray-800,
+html.dark .customization-editor-panel .text-slate-900,
+html.dark .customization-editor-panel .text-slate-800,
+html.dark .customization-editor-panel .text-slate-700,
+html.dark .customization-editor-panel .text-gray-900,
+html.dark .customization-editor-panel .text-gray-800,
+html.dark .customization-editor-panel .text-gray-700,
+html.dark .customization-editor-panel .text-zinc-900,
+html.dark .customization-editor-panel .text-zinc-800,
+.dark .customization-editor-panel .text-slate-900,
+.dark .customization-editor-panel .text-slate-800,
+.dark .customization-editor-panel .text-slate-700,
+.dark .customization-editor-panel .text-gray-900,
+.dark .customization-editor-panel .text-gray-800,
+html.dark [role="dialog"] .text-slate-900,
+html.dark [role="dialog"] .text-slate-800,
+.dark [role="dialog"] .text-slate-900,
+.dark [role="dialog"] .text-slate-800 {
+  color: #f8fafc !important; /* high contrast white */
+}
+
+html.dark #customization-panel .text-slate-600,
+html.dark #customization-panel .text-slate-500,
+html.dark #customization-panel .text-gray-600,
+html.dark #customization-panel .text-gray-500,
+.dark #customization-panel .text-slate-600,
+.dark #customization-panel .text-slate-500,
+html.dark .customization-editor-panel .text-slate-600,
+html.dark .customization-editor-panel .text-slate-500,
+html.dark .customization-editor-panel .text-gray-600,
+html.dark .customization-editor-panel .text-gray-500,
+.dark .customization-editor-panel .text-slate-600,
+.dark .customization-editor-panel .text-slate-500 {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+
+html.dark #customization-panel .text-slate-400,
+html.dark #customization-panel .text-gray-400,
+.dark #customization-panel .text-slate-400,
+html.dark .customization-editor-panel .text-slate-400,
+html.dark .customization-editor-panel .text-gray-400,
+.dark .customization-editor-panel .text-slate-400 {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+html.dark #customization-panel [class*="border-slate-200"],
+html.dark #customization-panel [class*="border-slate-300"],
+html.dark #customization-panel [class*="border-gray-200"],
+html.dark #customization-panel [class*="border-slate-100"],
+html.dark #customization-panel [class*="border-gray-100"],
+.dark #customization-panel [class*="border-slate-200"],
+.dark #customization-panel [class*="border-slate-300"],
+.dark #customization-panel [class*="border-gray-200"],
+.dark #customization-panel [class*="border-slate-100"],
+html.dark .customization-editor-panel [class*="border-slate-200"],
+html.dark .customization-editor-panel [class*="border-slate-300"],
+html.dark .customization-editor-panel [class*="border-gray-200"],
+html.dark .customization-editor-panel [class*="border-slate-100"],
+html.dark .customization-editor-panel [class*="border-gray-100"],
+.dark .customization-editor-panel [class*="border-slate-200"],
+.dark .customization-editor-panel [class*="border-slate-300"],
+.dark .customization-editor-panel [class*="border-gray-200"],
+.dark .customization-editor-panel [class*="border-slate-100"] {
+  border-color: #334155 !important; /* slate-700 */
+}
+
+/* Form Inputs, Textareas, Selects in Dark Mode (Strictly inside editor panel & dialogs) */
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark #customization-panel select,
+.dark #customization-panel select,
+html.dark .customization-editor-panel select,
+.dark .customization-editor-panel select,
+html.dark [role="dialog"] select,
+.dark [role="dialog"] select,
+html.dark #customization-panel textarea,
+.dark #customization-panel textarea,
+html.dark .customization-editor-panel textarea,
+.dark .customization-editor-panel textarea,
+html.dark [role="dialog"] textarea,
+.dark [role="dialog"] textarea {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
+html.dark #customization-panel select:focus,
+.dark #customization-panel select:focus,
+html.dark .customization-editor-panel select:focus,
+.dark .customization-editor-panel select:focus,
+html.dark #customization-panel textarea:focus,
+.dark #customization-panel textarea:focus,
+html.dark .customization-editor-panel textarea:focus,
+.dark .customization-editor-panel textarea:focus,
+html.dark #customization-panel [class*="focus:bg-white"]:focus,
+.dark #customization-panel [class*="focus:bg-white"]:focus,
+html.dark .customization-editor-panel [class*="focus:bg-white"]:focus,
+.dark .customization-editor-panel [class*="focus:bg-white"]:focus {
+  background-color: #1e293b !important;
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4) !important;
+}
+
+html.dark #customization-panel select option,
+.dark #customization-panel select option,
+html.dark .customization-editor-panel select option,
+.dark .customization-editor-panel select option {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html.dark #customization-panel input::placeholder,
+.dark #customization-panel input::placeholder,
+html.dark .customization-editor-panel input::placeholder,
+.dark .customization-editor-panel input::placeholder,
+html.dark #customization-panel textarea::placeholder,
+.dark #customization-panel textarea::placeholder,
+html.dark .customization-editor-panel textarea::placeholder,
+.dark .customization-editor-panel textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark #customization-panel input[type="checkbox"],
+.dark #customization-panel input[type="checkbox"],
+html.dark .customization-editor-panel input[type="checkbox"],
+.dark .customization-editor-panel input[type="checkbox"],
+html.dark #customization-panel input[type="radio"],
+.dark #customization-panel input[type="radio"],
+html.dark .customization-editor-panel input[type="radio"],
+.dark .customization-editor-panel input[type="radio"] {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  accent-color: #9333ea !important;
+}
+
+html.dark #customization-panel [class*="bg-purple-50"],
+.dark #customization-panel [class*="bg-purple-50"],
+html.dark .customization-editor-panel [class*="bg-purple-50"],
+.dark .customization-editor-panel [class*="bg-purple-50"],
+html.dark #customization-panel [class*="bg-purple-100"],
+.dark #customization-panel [class*="bg-purple-100"],
+html.dark .customization-editor-panel [class*="bg-purple-100"],
+.dark .customization-editor-panel [class*="bg-purple-100"] {
+  background-color: rgba(147, 51, 234, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark #customization-panel [class*="border-purple-200"],
+.dark #customization-panel [class*="border-purple-200"],
+html.dark .customization-editor-panel [class*="border-purple-200"],
+.dark .customization-editor-panel [class*="border-purple-200"],
+html.dark #customization-panel [class*="border-purple-300"],
+.dark #customization-panel [class*="border-purple-300"],
+html.dark .customization-editor-panel [class*="border-purple-300"],
+.dark .customization-editor-panel [class*="border-purple-300"] {
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark #customization-panel [class*="text-purple-950"],
+.dark #customization-panel [class*="text-purple-950"],
+html.dark .customization-editor-panel [class*="text-purple-950"],
+.dark .customization-editor-panel [class*="text-purple-950"],
+html.dark #customization-panel [class*="text-purple-900"],
+.dark #customization-panel [class*="text-purple-900"],
+html.dark .customization-editor-panel [class*="text-purple-900"],
+.dark .customization-editor-panel [class*="text-purple-900"],
+html.dark #customization-panel [class*="text-purple-800"],
+.dark #customization-panel [class*="text-purple-800"],
+html.dark .customization-editor-panel [class*="text-purple-800"],
+.dark .customization-editor-panel [class*="text-purple-800"],
+html.dark #customization-panel [class*="text-purple-700"],
+.dark #customization-panel [class*="text-purple-700"],
+html.dark .customization-editor-panel [class*="text-purple-700"],
+.dark .customization-editor-panel [class*="text-purple-700"] {
+  color: #e9d5ff !important;
+}
+
+/* ==========================================================================
+   STRICT LIVE PREVIEW SANCTUARY
+   The Live Preview canvas on the right is completely self-contained and
+   immune to global editor UI dark mode.
+   ========================================================================== */
+#preview-canvas-container,
+#preview-canvas-container *,
+[data-preview-canvas="true"],
+[data-preview-canvas="true"] * {
+  color-scheme: normal;
+}
+
+/* Protection against Android Chrome / Webview Auto-Darkening inversion to pitch black */
+#preview-target,
+#preview-target *,
+.wa-chat-target,
+.wa-chat-target * {
+  forced-color-adjust: none !important;
+}
+
+/* Global Form Focus Outline Standard to Purple */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline-color: #a855f7 !important;
+}
+
+/* Hide scrollbar across all preview containers while maintaining full scrolling capability */
+.hide-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+div::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+  display: none !important;
+}
+
+.hide-scrollbar,
+.no-scrollbar,
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+/* ==========================================================================
+   AU TOOLKIT: HIGH-CONTRAST LOCKED STATE BUTTON (YELLOW / AMBER)
+   Ensures text and icons inside the locked button are completely solid,
+   high-contrast black (#000000) with zero transparency or washing out
+   in both Light and Dark mode.
+   ========================================================================== */
+.btn-locked-amber,
+.btn-locked-amber *,
+button.btn-locked-amber,
+button.btn-locked-amber span,
+button.btn-locked-amber svg {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+button.btn-locked-amber svg {
+  stroke: #000000 !important;
+  stroke-width: 2.5px !important;
+  color: #000000 !important;
+}
+
+.instagram-icon {
+  background:
+    radial-gradient(
+      circle at 30% 107%,
+      #fdf497 0%,
+      #fdf497 5%,
+      #fd5949 45%,
+      #d6249f 60%,
+      #285AEB 90%
+    );
+}
+
+

@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isLegacyOwner(userId) {
+      return isAuthenticated() &&
+        request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/users/$(userId)) &&
+        get(/databases/$(database)/documents/users/$(userId)).data.userEmail == request.auth.token.email;
+    }
+
+    // Startup connection health check (read-only for single test document)
+    match /test/{docId} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    // Secure User-Level Data Isolation:
+    // Strictly permits authenticated users to access their own workspace and subcollections
+    match /users/{userId} {
+      allow get, list: if isOwner(userId) || isLegacyOwner(userId);
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
+
+      // Partitioned tabs (Twitter, Instagram Feed, Story, DM, WhatsApp, etc.)
+      match /tabs/{tabKey} {
+        allow get, list: if isOwner(userId) || isLegacyOwner(userId);
+        allow create, update, delete: if isOwner(userId);
+      }
+
+      // User-isolated character preset folders
+      match /folders/{folderId} {
+        allow get, list: if isOwner(userId) || isLegacyOwner(userId);
+        allow create, update, delete: if isOwner(userId);
+      }
+
+      // Device slot registry (mobile and desktop slots)
+      match /devices/{deviceSlot} {
+        allow get, list, create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Legacy migration compatibility: /workspaces/{userId} (read-only for migration)
+    match /workspaces/{userId} {
+      allow get, list: if isAuthenticated();
+      allow write: if false;
+
+      match /{allSubpaths=**} {
+        allow get, list: if isAuthenticated();
+        allow write: if false;
+      }
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

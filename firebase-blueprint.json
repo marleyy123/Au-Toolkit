@@ -1,0 +1,203 @@
+{
+  "entities": {
+    "userFolder": {
+      "title": "UserFolder",
+      "description": "A saved AU character preset or folder containing template state and character metadata.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the folder."
+        },
+        "voucherCode": {
+          "type": "string",
+          "description": "Voucher or user identifier."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Google account email of the folder owner."
+        },
+        "userId": {
+          "type": "string",
+          "description": "User identifier (Google UID or sanitized email)."
+        },
+        "platform": {
+          "type": "string",
+          "description": "Platform identifier (e.g. twitter, instagram, whatsapp, tiktok, ios, line)."
+        },
+        "subFeature": {
+          "type": "string",
+          "description": "Sub-feature identifier (e.g. feed, story, dm, chat, fyp)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Character or contact display name."
+        },
+        "handle": {
+          "type": "string",
+          "description": "Character username or handle."
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Avatar image URL."
+        },
+        "verified": {
+          "type": "string",
+          "description": "Verified badge status."
+        },
+        "profileData": {
+          "type": "object",
+          "description": "Saved generator form state data."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when this folder was last updated."
+        }
+      },
+      "required": ["id", "platform", "subFeature"]
+    },
+    "userWorkspace": {
+      "title": "UserWorkspace",
+      "description": "User account workspace bundle storing character presets, drafts, and active form states permanently tied to Google Account email.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "User unique identifier (Google UID or sanitized email)."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Google Account email."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name."
+        },
+        "lastActiveTab": {
+          "type": "string",
+          "description": "Last active tab platform."
+        },
+        "lastActiveCategory": {
+          "type": "string",
+          "description": "Last active category."
+        },
+        "characters": {
+          "type": "object",
+          "description": "Map of character presets by platform."
+        },
+        "formStates": {
+          "type": "object",
+          "description": "Active form state and drafts across platforms."
+        },
+        "folderStates": {
+          "type": "object",
+          "description": "Map of folder-specific isolated state data."
+        },
+        "preferences": {
+          "type": "object",
+          "description": "User custom settings (font, theme, radius)."
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "Client session ID that triggered the update."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when workspace was last synced."
+        }
+      },
+      "required": ["userId", "userEmail"]
+    },
+    "workspaceTab": {
+      "title": "WorkspaceTab",
+      "description": "Granular tab partition for user workspace keeping individual documents well under the 1MB Firestore limit.",
+      "type": "object",
+      "properties": {
+        "tabKey": {
+          "type": "string",
+          "description": "Platform tab key identifier."
+        },
+        "characters": {
+          "type": "array",
+          "description": "Array of character presets for this platform tab."
+        },
+        "formState": {
+          "type": "object",
+          "description": "Current form state data for this platform tab."
+        },
+        "folderStates": {
+          "type": "object",
+          "description": "Saved folder states specific to this platform tab."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when this tab document was last updated."
+        }
+      },
+      "required": ["tabKey"]
+    },
+    "userDevice": {
+      "title": "UserDevice",
+      "description": "Device registration record enforcing max 2 devices (1 mobile + 1 laptop).",
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "string",
+          "description": "Unique device identifier."
+        },
+        "deviceSlot": {
+          "type": "string",
+          "description": "Device slot: mobile or desktop."
+        },
+        "deviceLabel": {
+          "type": "string",
+          "description": "Device label/browser name."
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "User agent string."
+        },
+        "registeredAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when device was registered."
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when device last logged in."
+        }
+      },
+      "required": ["deviceId", "deviceSlot"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userWorkspace",
+      "description": "Root document of persistent user workspace state strictly isolated per Google Sign-In UID or email."
+    },
+    "/users/{userId}/tabs/{tabId}": {
+      "schema": "workspaceTab",
+      "description": "Subcollection storing user-isolated tab-specific form states, character presets, and folder states under 1MB limit."
+    },
+    "/users/{userId}/folders/{folderId}": {
+      "schema": "userFolder",
+      "description": "Private subcollection of saved character folders and template configurations for this active user account."
+    },
+    "/users/{userId}/devices/{deviceType}": {
+      "schema": "userDevice",
+      "description": "Subcollection tracking registered mobile and desktop devices for 2-device policy."
+    },
+    "/workspaces/{userId}": {
+      "schema": "userWorkspace",
+      "description": "Legacy workspace collection preserved for seamless user migration."
+    },
+    "/workspaces/{userId}/tabs/{tabId}": {
+      "schema": "workspaceTab",
+      "description": "Legacy tab subcollection preserved for seamless user migration."
+    }
+  }
+}

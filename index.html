@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AU Toolkit</title>
+    <meta name="description" content="Fake social media generator for Alternate Universe (AU) writers & storytellers to craft X (Twitter) posts, Instagram feeds, and Instagram stories." />
+    <meta property="og:title" content="AU Toolkit" />
+    <meta property="og:description" content="Fake social media generator for Alternate Universe (AU) writers & storytellers to craft X (Twitter) posts, Instagram feeds, and Instagram stories." />
+    <script>
+      // Global error safeguard to intercept unhandled exceptions and prevent bubbling to parent frame as cross-origin "Script error."
+      (function () {
+        window.onerror = function (msg, url, lineno, colno, error) {
+          console.warn('Safely intercepted error:', { msg, url, lineno, colno, error: error?.stack || error });
+          return true; // Suppress default browser and cross-origin error reporting
+        };
+
+        window.addEventListener(
+          'error',
+          function (e) {
+            console.warn('Safely captured error event:', e && (e.message || e.type), e);
+            if (e) {
+              if (typeof e.preventDefault === 'function') e.preventDefault();
+              if (typeof e.stopPropagation === 'function') e.stopPropagation();
+              if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            }
+            return true;
+          },
+          true
+        );
+
+        window.addEventListener(
+          'unhandledrejection',
+          function (e) {
+            console.warn('Safely captured unhandled promise rejection:', e && e.reason);
+            if (e) {
+              if (typeof e.preventDefault === 'function') e.preventDefault();
+              if (typeof e.stopPropagation === 'function') e.stopPropagation();
+              if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            }
+            return true;
+          },
+          true
+        );
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Cinzel:wght@400..900&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Remix Remix Remix Remix AU Toolkit 1",
+  "description": "Fake social media generator for Alternate Universe (AU) writers \u0026 storytellers to craft X (Twitter) posts, Instagram feeds, and Instagram stories.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

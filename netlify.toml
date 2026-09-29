@@ -1,0 +1,24 @@
+[build]
+  command = "node node_modules/vite/bin/vite.js build && node scripts/build-netlify-functions.mjs"
+  publish = "dist"
+  functions = "netlify/functions-dist"
+
+[functions]
+  node_bundler = "nft"
+
+[[redirects]]
+  from = "/api/verify-buyer"
+  to = "/.netlify/functions/verify-buyer"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/export-render"
+  to = "/.netlify/functions/export-render"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
