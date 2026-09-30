@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { PlatformTab, PlatformGroup, TwitterPostData, InstagramFeedData, InstagramStoryData, InstagramProfileData, InstagramLiveData, InstagramNotesData, InstagramActivityData, InstagramDMData, InstagramDMInboxData, InstagramStoryReplyData, InstagramStoryViewersData, InstagramFeedCommentsData, WhatsAppChatData, WhatsAppCallData, WhatsAppStatusData, WhatsAppViewersData, TikTokProfileData, TikTokFeedLiveData, TikTokFypData, IOSLockscreenData, LineChatData, AUFolder, NotesData, PushNotificationData, SpotifyData } from './types';
-import { DEFAULT_AVATAR, INITIAL_TWITTER_DATA, INITIAL_INSTAGRAM_FEED_DATA, INITIAL_INSTAGRAM_STORY_DATA, INITIAL_INSTAGRAM_PROFILE_DATA, INITIAL_INSTAGRAM_LIVE_DATA, INITIAL_INSTAGRAM_NOTES_DATA, INITIAL_INSTAGRAM_ACTIVITY_DATA, INITIAL_INSTAGRAM_DM_DATA, INITIAL_INSTAGRAM_DM_INBOX_DATA, INITIAL_INSTAGRAM_STORY_REPLY_DATA, INITIAL_INSTAGRAM_STORY_VIEWERS_DATA, INITIAL_INSTAGRAM_FEED_COMMENTS_DATA, INITIAL_WHATSAPP_CHAT_DATA, INITIAL_WHATSAPP_CALL_DATA, INITIAL_WHATSAPP_STATUS_DATA, INITIAL_WHATSAPP_VIEWERS_DATA, INITIAL_TIKTOK_PROFILE_DATA, INITIAL_TIKTOK_FEED_LIVE_DATA, INITIAL_TIKTOK_FYP_DATA, INITIAL_IOS_LOCKSCREEN_DATA, INITIAL_LINE_CHAT_DATA, INITIAL_NOTES_DATA, INITIAL_PUSH_NOTIFICATION_DATA, INITIAL_SPOTIFY_DATA } from './data/defaultTemplates';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { AUFolder } from './types';
+import { DEFAULT_AVATAR } from './data/defaultTemplates';
 import { PreviewRegistry } from './export/PreviewRegistry';
 import { MobileFloatingPreview } from './components/MobileFloatingPreview';
 import { Login } from './features/auth/components/Login';
@@ -14,7 +14,6 @@ import {
   getStoredAuthUser,
   setStoredAuthUser,
   saveUserWorkspaceToFirestore,
-  loadUserWorkspaceFromFirestore,
   loadFoldersFromFirestore,
   flushPendingWorkspaceSaves,
   getUserDocumentId,
@@ -26,21 +25,15 @@ import {
 import {
   detectDeviceSlot,
   getDeviceFriendlyLabel,
-  verifyAndRegisterDevice,
   subscribeDeviceSlotSession,
 } from './utils/deviceAuthService';
-import {
-  checkBuyerEntitlement,
-  EntitlementCheckResult,
-} from './services/buyerEntitlementService';
+import { EntitlementCheckResult } from './services/buyerEntitlementService';
 import { AccessGuard } from './features/auth/components/AccessGuard';
 import { AppLoadingScreen, AuthLifecycleStage } from './features/auth/components/AppLoadingScreen';
 import {
   isCategoryLive,
   isTabLive,
-  getLiveCategories,
   getFirstLiveTabForCategory,
-  getCategoryForTab,
 } from './config/featureFlags';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeContext, UiTheme } from './context/ThemeContext';
@@ -54,7 +47,6 @@ import {
   getUserAccountStorageKey,
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
-  loadStoredFormState,
   markLocalWorkspaceUpdated,
 } from './features/workspace/workspaceStorage';
 import { WorkspaceFeedback } from './features/workspace/components/WorkspaceFeedback';
@@ -82,6 +74,10 @@ import { useWorkspaceLocalStateSync } from './features/workspace/hooks/useWorksp
 import { useAdminFeatureGate } from './features/admin/hooks/useAdminFeatureGate';
 import { useRegisteredPreviewHandlers } from './features/editor/hooks/useRegisteredPreviewHandlers';
 import { useMiscFormHandlers } from './features/misc/hooks/useMiscFormHandlers';
+import { useEntitlementLifecycle } from './features/auth/hooks/useEntitlementLifecycle';
+import { useGeneratorFormStates } from './features/workspace/hooks/useGeneratorFormStates';
+import { useWorkspaceNavigationState } from './features/workspace/hooks/useWorkspaceNavigationState';
+import { useAuthGateActions } from './features/auth/hooks/useAuthGateActions';
 
 export default function App() {
   // Firebase avatar URLs remain in state/Firestore even when an image request
@@ -415,253 +411,19 @@ export default function App() {
     }
   };
 
-  // In-flight debounce & lock protection for real-time entitlement revalidation
-  const isRevalidatingRef = useRef<boolean>(false);
-  const lastRevalidatedAtRef = useRef<number>(0);
-  const initialBootExecutedRef = useRef<boolean>(false);
-
-  // Synchronized refs to decouple revalidateEntitlement from state re-render triggers
-  const authUserRef = useRef(authUser);
-  authUserRef.current = authUser;
-  const authLifecycleStageRef = useRef(authLifecycleStage);
-  authLifecycleStageRef.current = authLifecycleStage;
-  const languageRef = useRef(language);
-  languageRef.current = language;
-  const buyerEntitlementRef = useRef(buyerEntitlement);
-  buyerEntitlementRef.current = buyerEntitlement;
-
-  // Centralized Real-Time Entitlement Revalidation function (Strict Lifecycle & Decoupled State)
-  const revalidateEntitlement = useCallback(async (isInitial = false) => {
-    // In-flight lock protection
-    if (isRevalidatingRef.current) {
-      console.log('[Entitlement] Revalidation already in-flight, skipping.');
-      return;
-    }
-
-    const stored = getStoredAuthUser();
-    const localEmail = localStorage.getItem('au_user_email');
-    const emailToCheck = (stored?.email || localEmail || authUserRef.current?.email || '').trim().toLowerCase();
-
-    if (!emailToCheck) {
-      console.log('[Entitlement] No email found to check. Setting UNAUTHENTICATED.');
-      if (isInitial) {
-        setIsAuthenticated(false);
-        setAuthLifecycleStage('UNAUTHENTICATED');
-      }
-      return;
-    }
-
-    // Debounce: don't make network calls within 15 seconds unless it's initial or manual retry
-    const now = Date.now();
-    if (!isInitial && now - lastRevalidatedAtRef.current < 15000) {
-      return;
-    }
-
-    isRevalidatingRef.current = true;
-    try {
-      if (isInitial) {
-        setLoadingErrorMessage(null);
-        setAuthLifecycleStage('CHECK_ACCESS');
-      }
-
-      console.log('[Entitlement] Checking buyer entitlement for:', emailToCheck, { isInitial });
-      const entitlement = await checkBuyerEntitlement(emailToCheck);
-      lastRevalidatedAtRef.current = Date.now();
-
-      // 2. Temporary backend / API response failure / Apps Script unavailable
-      if (
-        entitlement.status === 'BACKEND_ERROR' ||
-        entitlement.status === 'INVALID_API_RESPONSE' ||
-        entitlement.status === 'APPS_SCRIPT_UNAVAILABLE'
-      ) {
-        console.warn('[Entitlement] Temporary API/backend error:', entitlement.status);
-        if (isInitial) {
-          // Check if previously authorized with an unexpired cached entitlement and real Firebase session
-          const cached = buyerEntitlementRef.current;
-          const isCachedValid = Boolean(
-            cached && cached.isValid && cached.status === 'ACTIVE' && cached.email?.toLowerCase() === emailToCheck
-          );
-          if (isCachedValid && (auth.currentUser || getStoredAuthUser())) {
-            console.log('[Entitlement] Using cached valid entitlement with active Firebase session, proceeding to LOAD_USER_DATA');
-            setAuthLifecycleStage('LOAD_USER_DATA');
-          } else {
-            console.warn('[Entitlement] No active authenticated session or valid cached entitlement. Access blocked.');
-            setLoadingErrorMessage(
-              entitlement.message ||
-                (languageRef.current === 'id'
-                  ? 'Server verifikasi spreadsheet sedang tidak dapat dijangkau. Silakan coba lagi.'
-                  : 'Spreadsheet verification server is currently unreachable. Please try again.')
-            );
-          }
-        }
-        return;
-      }
-
-      // 3. Auth required / Invalid token -> Prompt user to sign in
-      if (entitlement.status === 'AUTH_REQUIRED' || entitlement.status === 'INVALID_FIREBASE_TOKEN') {
-        console.log('[Entitlement] Auth session required:', entitlement.status);
-        if (isInitial) {
-          setIsAuthenticated(false);
-          setAuthLifecycleStage('UNAUTHENTICATED');
-        }
-        return;
-      }
-
-      // 4. Authoritative check: ACCOUNT_EXPIRED, INACTIVE, DEVICE_MISMATCH, or ORDER_NOT_SUCCESS
-      const isStatusExpired = String(entitlement.statusAccount || '').trim().toLowerCase() === 'expired';
-      const isExpiredOrLocked =
-        entitlement.status === 'EXPIRED' ||
-        isStatusExpired ||
-        entitlement.status === 'INACTIVE' ||
-        entitlement.statusAccount === 'Inactive' ||
-        entitlement.status === 'DEVICE_MISMATCH' ||
-        entitlement.status === 'ORDER_NOT_SUCCESS' ||
-        entitlement.status === 'INVALID_PURCHASE_DATA';
-
-      if (isExpiredOrLocked) {
-        console.warn('[Entitlement] Access denied/expired:', entitlement.status, entitlement.statusAccount);
-        setBuyerEntitlement(entitlement);
-        setAuthLifecycleStage('ACCESS_EXPIRED');
-        try {
-          localStorage.setItem('au_is_authenticated', 'false');
-          if (entitlement.expirationDate) {
-            localStorage.setItem('au_buyer_expiration_date', entitlement.expirationDate);
-          }
-          if (entitlement.statusAccount) {
-            localStorage.setItem('au_buyer_status_account', entitlement.statusAccount);
-          }
-        } catch {}
-        return;
-      }
-
-      // 5. BUYER_NOT_FOUND
-      if (entitlement.status === 'NOT_REGISTERED' || !entitlement.isRegisteredBuyer) {
-        console.warn('[Entitlement] Buyer not found in sheet:', emailToCheck);
-        setBuyerEntitlement(entitlement);
-        handleAutoLogout(
-          entitlement.message ||
-            (languageRef.current === 'id'
-              ? 'Email tidak terdaftar sebagai pembeli aktif.'
-              : 'Email is not registered as an active buyer.')
-        );
-        setAuthLifecycleStage('UNAUTHENTICATED');
-        return;
-      }
-
-      // 6. ACCESS_GRANTED -> ACTIVE & VALID BUYER
-      console.log('[Entitlement] ACCESS_GRANTED for:', emailToCheck);
-      setBuyerEntitlement(entitlement);
-      try {
-        localStorage.setItem('au_is_authenticated', 'true');
-        if (entitlement.purchaseDate) localStorage.setItem('au_buyer_purchase_date', entitlement.purchaseDate);
-        if (entitlement.expirationDate) localStorage.setItem('au_buyer_expiration_date', entitlement.expirationDate);
-        if (entitlement.statusAccount) localStorage.setItem('au_buyer_status_account', entitlement.statusAccount);
-      } catch {}
-
-      // Step 4 of Lifecycle: Validate Firebase client Google Auth session
-      const currentUser = auth.currentUser;
-      if (currentUser && currentUser.email) {
-        const googleEmail = (currentUser.email || '').trim().toLowerCase();
-        const buyerEmail = (emailToCheck || '').trim().toLowerCase();
-        if (googleEmail !== buyerEmail) {
-          console.warn('[Auth] EMAIL_ACCOUNT_MISMATCH on revalidation:', { googleEmail, buyerEmail });
-          await signOutUser();
-          setIsAuthenticated(false);
-          setAuthLifecycleStage('UNAUTHENTICATED');
-          setLoadingErrorMessage(
-            `Email akun Google (${googleEmail}) tidak cocok dengan email pembelian (${buyerEmail}) [EMAIL_ACCOUNT_MISMATCH]. Silakan masuk dengan akun Google ${buyerEmail}.`
-          );
-          return;
-        }
-      }
-
-      const activeFirebaseUser: any = currentUser || getStoredAuthUser();
-      if (!activeFirebaseUser || !currentUser) {
-        console.log('[Auth] Google Sign-In required for verified buyer:', emailToCheck);
-        setIsAuthenticated(false);
-        setAuthLifecycleStage('UNAUTHENTICATED');
-        return;
-      }
-
-      const userSession = {
-        uid: currentUser.uid,
-        email: emailToCheck,
-        displayName: currentUser.displayName || emailToCheck.split('@')[0],
-        photoURL: currentUser.photoURL || null,
-      };
-
-      setIsAuthenticated(true);
-      setStoredAuthUser(userSession);
-      setAuthUser(userSession);
-
-      if (isInitial) {
-        try {
-          await verifyAndRegisterDevice(activeFirebaseUser);
-        } catch (err) {
-          console.warn('Device slot registration notice:', err);
-        }
-        // Step 5 of Lifecycle: Transition to LOAD_USER_DATA (Never jump directly to READY!)
-        console.log('[Lifecycle] Transitioning from CHECK_ACCESS -> LOAD_USER_DATA');
-        setAuthLifecycleStage('LOAD_USER_DATA');
-      } else {
-        if (authLifecycleStageRef.current === 'ACCESS_EXPIRED') {
-          setAuthLifecycleStage('READY');
-        }
-      }
-    } catch (err: any) {
-      console.error('[Entitlement] Verification unexpected error:', err);
-      if (isInitial) {
-        setLoadingErrorMessage(
-          err?.message || 'Terjadi kesalahan saat memverifikasi hak akses. Silakan coba lagi.'
-        );
-      }
-    } finally {
-      isRevalidatingRef.current = false;
-    }
-  }, []);
-
-  // 1. Initial Authentication & Entitlement Lifecycle Evaluation (Mount / Page Refresh / Session Restore)
-  useEffect(() => {
-    if (initialBootExecutedRef.current) return;
-    initialBootExecutedRef.current = true;
-    console.log('[Lifecycle] Initial boot started, evaluating access...');
-    revalidateEntitlement(true);
-  }, [revalidateEntitlement]);
-
-  // 2. Real-Time Entitlement Revalidation: Tab Visibility & Window Focus checks
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isAuthenticated) {
-        revalidateEntitlement(false);
-      }
-    };
-    const handleFocus = () => {
-      if (isAuthenticated) {
-        revalidateEntitlement(false);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [isAuthenticated, revalidateEntitlement]);
-
-  // 3. Periodic Entitlement Revalidation while Logged In (Approximately every 5 minutes)
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const intervalId = setInterval(() => {
-      revalidateEntitlement(false);
-    }, 5 * 60 * 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [isAuthenticated, revalidateEntitlement]);
-
+  const { revalidateEntitlement } = useEntitlementLifecycle({
+    authUser,
+    authLifecycleStage,
+    isAuthenticated,
+    language,
+    buyerEntitlement,
+    setAuthUser,
+    setIsAuthenticated,
+    setAuthLifecycleStage,
+    setLoadingErrorMessage,
+    setBuyerEntitlement,
+    handleAutoLogout,
+  });
   // 2. Real-time Device Limit Subscription: Detect if another device replaces this slot (1 Mobile + 1 Desktop limit rule)
   useEffect(() => {
     if (!isAuthenticated || !authUser) return;
@@ -702,49 +464,75 @@ export default function App() {
     triggerCloudWorkspaceSyncRef,
   });
 
-  // Active Generator Tab with localStorage persistence
-  const [activeTab, setActiveTab] = useState<PlatformTab>(() => {
-    try {
-      const saved = localStorage.getItem('au_last_active_tab') as PlatformTab;
-      if (saved && ALL_PLATFORM_TABS.includes(saved)) {
-        return saved;
-      }
-    } catch {}
-    return 'twitter';
+  const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
+  const [isFeatureFlagModalOpen, setIsFeatureFlagModalOpen] = useState<boolean>(false);
+  const [featureFlagsVersion, setFeatureFlagsVersion] = useState<number>(0);
+  const { handleSecretFooterClick } = useAdminFeatureGate({
+    setIsPinModalOpen,
+    setFeatureFlagsVersion,
   });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('au_last_active_tab', activeTab);
-    } catch {}
-  }, [activeTab]);
+  const {
+    activeTab,
+    setActiveTab,
+    activeCategory,
+    setActiveCategory,
+  } = useWorkspaceNavigationState({
+    featureFlagsVersion,
+    syncDebounceTimerRef,
+    forceCloudWorkspaceSyncNowRef,
+  });
 
-  // Generator States initialized with stored form data or active folder data
-  const [twitterData, setTwitterData] = useState<TwitterPostData>(() => loadStoredFormState(userAccountKey, 'twitter', INITIAL_TWITTER_DATA));
-  const [instagramFeedData, setInstagramFeedData] = useState<InstagramFeedData>(() => loadStoredFormState(userAccountKey, 'instagram-feed', INITIAL_INSTAGRAM_FEED_DATA));
-  const [instagramStoryData, setInstagramStoryData] = useState<InstagramStoryData>(() => loadStoredFormState(userAccountKey, 'instagram-story', INITIAL_INSTAGRAM_STORY_DATA));
-  const [instagramProfileData, setInstagramProfileData] = useState<InstagramProfileData>(() => loadStoredFormState(userAccountKey, 'instagram-profile', INITIAL_INSTAGRAM_PROFILE_DATA));
-  const [instagramLiveData, setInstagramLiveData] = useState<InstagramLiveData>(() => loadStoredFormState(userAccountKey, 'instagram-live', INITIAL_INSTAGRAM_LIVE_DATA));
-  const [instagramNotesData, setInstagramNotesData] = useState<InstagramNotesData>(() => loadStoredFormState(userAccountKey, 'instagram-notes', INITIAL_INSTAGRAM_NOTES_DATA));
-  const [instagramActivityData, setInstagramActivityData] = useState<InstagramActivityData>(() => loadStoredFormState(userAccountKey, 'instagram-activity', INITIAL_INSTAGRAM_ACTIVITY_DATA));
-  const [instagramDMData, setInstagramDMData] = useState<InstagramDMData>(() => loadStoredFormState(userAccountKey, 'instagram-dm', INITIAL_INSTAGRAM_DM_DATA));
-  const [instagramDMInboxData, setInstagramDMInboxData] = useState<InstagramDMInboxData>(() => loadStoredFormState(userAccountKey, 'instagram-dm-inbox', INITIAL_INSTAGRAM_DM_INBOX_DATA));
-  const [instagramFeedCommentsData, setInstagramFeedCommentsData] = useState<InstagramFeedCommentsData>(() => loadStoredFormState(userAccountKey, 'instagram-feed-comments', INITIAL_INSTAGRAM_FEED_COMMENTS_DATA));
-  const [instagramStoryReplyData, setInstagramStoryReplyData] = useState<InstagramStoryReplyData>(() => loadStoredFormState(userAccountKey, 'instagram-story-reply', INITIAL_INSTAGRAM_STORY_REPLY_DATA));
-  const [instagramStoryViewersData, setInstagramStoryViewersData] = useState<InstagramStoryViewersData>(() => loadStoredFormState(userAccountKey, 'instagram-story-viewers', INITIAL_INSTAGRAM_STORY_VIEWERS_DATA));
-  const [whatsAppChatData, setWhatsAppChatData] = useState<WhatsAppChatData>(() => loadStoredFormState(userAccountKey, 'whatsapp-chat', INITIAL_WHATSAPP_CHAT_DATA));
-  const [whatsAppCallData, setWhatsAppCallData] = useState<WhatsAppCallData>(() => loadStoredFormState(userAccountKey, 'whatsapp-call', INITIAL_WHATSAPP_CALL_DATA));
-  const [whatsAppStatusData, setWhatsAppStatusData] = useState<WhatsAppStatusData>(() => loadStoredFormState(userAccountKey, 'whatsapp-status', INITIAL_WHATSAPP_STATUS_DATA));
-  const [whatsAppViewersData, setWhatsAppViewersData] = useState<WhatsAppViewersData>(() => loadStoredFormState(userAccountKey, 'whatsapp-viewers', INITIAL_WHATSAPP_VIEWERS_DATA));
-  const [tikTokProfileData, setTikTokProfileData] = useState<TikTokProfileData>(() => loadStoredFormState(userAccountKey, 'tiktok-profile', INITIAL_TIKTOK_PROFILE_DATA));
-  const [tikTokFeedLiveData, setTikTokFeedLiveData] = useState<TikTokFeedLiveData>(() => loadStoredFormState(userAccountKey, 'tiktok-feed-live', INITIAL_TIKTOK_FEED_LIVE_DATA));
-  const [tikTokFypData, setTikTokFypData] = useState<TikTokFypData>(() => loadStoredFormState(userAccountKey, 'tiktok-fyp', INITIAL_TIKTOK_FYP_DATA));
-  const [iosLockscreenData, setIosLockscreenData] = useState<IOSLockscreenData>(() => loadStoredFormState(userAccountKey, 'ios-lockscreen', INITIAL_IOS_LOCKSCREEN_DATA));
-  const [lineChatData, setLineChatData] = useState<LineChatData>(() => loadStoredFormState(userAccountKey, 'line-chat', INITIAL_LINE_CHAT_DATA));
-  const [notesData, setNotesData] = useState<NotesData>(() => loadStoredFormState(userAccountKey, 'notes', INITIAL_NOTES_DATA));
-  const [pushNotificationData, setPushNotificationData] = useState<PushNotificationData>(() => loadStoredFormState(userAccountKey, 'push-notification', INITIAL_PUSH_NOTIFICATION_DATA));
-  const [spotifyData, setSpotifyData] = useState<SpotifyData>(() => loadStoredFormState(userAccountKey, 'spotify-card', INITIAL_SPOTIFY_DATA));
-
+  const {
+    twitterData,
+    instagramFeedData,
+    instagramStoryData,
+    instagramProfileData,
+    instagramLiveData,
+    instagramNotesData,
+    instagramActivityData,
+    instagramDMData,
+    instagramDMInboxData,
+    instagramFeedCommentsData,
+    instagramStoryReplyData,
+    instagramStoryViewersData,
+    whatsAppChatData,
+    whatsAppCallData,
+    whatsAppStatusData,
+    whatsAppViewersData,
+    tikTokProfileData,
+    tikTokFeedLiveData,
+    tikTokFypData,
+    iosLockscreenData,
+    lineChatData,
+    notesData,
+    pushNotificationData,
+    spotifyData,
+    setTwitterData,
+    setInstagramFeedData,
+    setInstagramStoryData,
+    setInstagramProfileData,
+    setInstagramLiveData,
+    setInstagramNotesData,
+    setInstagramActivityData,
+    setInstagramDMData,
+    setInstagramDMInboxData,
+    setInstagramFeedCommentsData,
+    setInstagramStoryReplyData,
+    setInstagramStoryViewersData,
+    setWhatsAppChatData,
+    setWhatsAppCallData,
+    setWhatsAppStatusData,
+    setWhatsAppViewersData,
+    setTikTokProfileData,
+    setTikTokFeedLiveData,
+    setTikTokFypData,
+    setIosLockscreenData,
+    setLineChatData,
+    setNotesData,
+    setPushNotificationData,
+    setSpotifyData,
+  } = useGeneratorFormStates(userAccountKey);
   // Quick AU Characters / Folders State (Clean immutable map: tab -> folders list)
   const [moduleFolders, setModuleFolders] = useState<Record<string, AUFolder[]>>(() => loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS));
   // Active Folder ID per module: tab -> active folder id
@@ -771,84 +559,6 @@ export default function App() {
     activeFolderIdsRef.current = { ...activeFolderIds, [activeTab]: currentTabActiveFolderId };
     moduleFoldersRef.current = moduleFolders;
   }, [currentTabActiveFolderId, activeFolderIds, activeTab, moduleFolders]);
-
-  // Active Category State for Grouped Navigation
-  const [activeCategory, setActiveCategory] = useState<PlatformGroup>(() => {
-    try {
-      const savedCategory = localStorage.getItem('au_last_active_category') as PlatformGroup;
-      if (savedCategory) return savedCategory;
-    } catch {}
-    if (activeTab === 'twitter') return 'x';
-    if (activeTab === 'whatsapp-chat' || activeTab === 'whatsapp-call' || activeTab === 'whatsapp-status' || activeTab === 'whatsapp-viewers') return 'whatsapp';
-    if (activeTab === 'tiktok-profile' || activeTab === 'tiktok-feed-live' || activeTab === 'tiktok-fyp') return 'tiktok';
-    if (activeTab === 'ios-lockscreen') return 'ios';
-    if (activeTab === 'line-chat') return 'line';
-    if (activeTab === 'notes') return 'notes';
-    if (activeTab === 'push-notification') return 'notifications';
-    if (activeTab === 'spotify-card') return 'spotify';
-    return 'instagram';
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('au_last_active_category', activeCategory);
-    } catch {}
-  }, [activeCategory]);
-
-  // Sync category if activeTab changes
-  useEffect(() => {
-    const cat = getCategoryForTab(activeTab);
-    setActiveCategory(cat);
-  }, [activeTab]);
-
-  // Immediate flush of debounced cloud saves when switching active tab or category
-  useEffect(() => {
-    if (syncDebounceTimerRef.current) {
-      clearTimeout(syncDebounceTimerRef.current);
-      syncDebounceTimerRef.current = null;
-      forceCloudWorkspaceSyncNowRef.current?.();
-    }
-  }, [activeTab, activeCategory]);
-
-  // Feature Flag State & Sync with PIN Security Gate
-  const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
-  const [isFeatureFlagModalOpen, setIsFeatureFlagModalOpen] = useState<boolean>(false);
-  const [featureFlagsVersion, setFeatureFlagsVersion] = useState<number>(0);
-  const { handleSecretFooterClick } = useAdminFeatureGate({
-    setIsPinModalOpen,
-    setFeatureFlagsVersion,
-  });
-
-  // Ensure active category and active tab are always synchronized and LIVE
-  useEffect(() => {
-    const expectedCategory = getCategoryForTab(activeTab);
-    if (activeCategory !== expectedCategory && isCategoryLive(expectedCategory)) {
-      setActiveCategory(expectedCategory);
-      return;
-    }
-
-    const liveCategories = getLiveCategories();
-    if (liveCategories.length === 0) return;
-
-    if (!isCategoryLive(activeCategory)) {
-      const fallbackCategory = liveCategories[0];
-      setActiveCategory(fallbackCategory);
-      const fallbackTab = getFirstLiveTabForCategory(fallbackCategory);
-      if (fallbackTab) {
-        setActiveTab(fallbackTab);
-      }
-    } else if (!isTabLive(activeTab, activeCategory)) {
-      const fallbackTab = getFirstLiveTabForCategory(activeCategory);
-      if (fallbackTab) {
-        setActiveTab(fallbackTab);
-      } else if (liveCategories.length > 0) {
-        const fallbackCategory = liveCategories[0];
-        setActiveCategory(fallbackCategory);
-        const fbTab = getFirstLiveTabForCategory(fallbackCategory);
-        if (fbTab) setActiveTab(fbTab);
-      }
-    }
-  }, [activeCategory, activeTab, featureFlagsVersion]);
 
   const {
     previewViewportRef,
@@ -1275,6 +985,27 @@ export default function App() {
     setResetSuccessToast,
     loadTabFormData,
   });
+  const {
+    handleBackToLogin,
+    handleContextAwareRetry,
+    handleLoginSuccess,
+    handleAccessExpired,
+  } = useAuthGateActions({
+    authUser,
+    authLifecycleStage,
+    applyCloudWorkspaceDataRef,
+    isHydratedRef,
+    setAccessCode,
+    setIsAuthenticated,
+    setLogoutReason,
+    setAuthUser,
+    setBuyerEntitlement,
+    setAuthLifecycleStage,
+    setIsHydrated,
+    setIsInitialCloudLoading,
+    setLoadingErrorMessage,
+    revalidateEntitlement,
+  });
   // 1. Check if 30-day access has expired or account is locked/mismatched -> render AccessGuard
   // Backend errors and invalid API responses must NEVER render the expiration screen!
   if (
@@ -1297,52 +1028,6 @@ export default function App() {
       />
     );
   }
-
-  // Context-aware retry handler
-  const handleContextAwareRetry = () => {
-    setLoadingErrorMessage(null);
-    if (authLifecycleStage === 'CHECK_ACCESS' || authLifecycleStage === 'AUTH_LOADING') {
-      console.log('[Retry] Retrying entitlement verification for stage:', authLifecycleStage);
-      revalidateEntitlement(true);
-    } else if (authLifecycleStage === 'LOAD_USER_DATA' || authLifecycleStage === 'HYDRATE_DATA') {
-      console.log('[Retry] Retrying Firestore workspace load for stage:', authLifecycleStage);
-      const userEmailOrId = authUser?.uid || auth.currentUser?.uid;
-      if (userEmailOrId) {
-        const requestedUid = userEmailOrId;
-        setIsInitialCloudLoading(true);
-        loadUserWorkspaceFromFirestore(userEmailOrId)
-          .then((cloudWorkspace) => {
-            if (auth.currentUser?.uid !== requestedUid) return;
-            setIsInitialCloudLoading(false);
-            if (cloudWorkspace?.hasLoadedData) {
-              applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
-            }
-            setAuthLifecycleStage('READY');
-          })
-          .catch((err) => {
-            console.error('[Retry] Firestore load error:', err);
-            setIsInitialCloudLoading(false);
-            setLoadingErrorMessage('Gagal memuat workspace dari cloud. Silakan coba lagi.');
-          });
-      } else {
-        handleBackToLogin();
-      }
-    } else {
-      revalidateEntitlement(true);
-    }
-  };
-
-  const handleBackToLogin = () => {
-    console.log('[Auth] User navigating back to login from loading screen');
-    setLoadingErrorMessage(null);
-    setIsAuthenticated(false);
-    setAuthUser(null);
-    setStoredAuthUser(null);
-    setAuthLifecycleStage('UNAUTHENTICATED');
-    try {
-      localStorage.removeItem('au_is_authenticated');
-    } catch {}
-  };
 
   // 2. Structured App Lifecycle Loading Screen (AUTH_LOADING -> CHECK_ACCESS -> LOAD_USER_DATA -> HYDRATE_DATA)
   if (
@@ -1367,34 +1052,8 @@ export default function App() {
   if (!isAuthenticated || authLifecycleStage === 'UNAUTHENTICATED') {
     return (
       <Login
-        onLoginSuccess={async (code, user, entitlement) => {
-          setAccessCode(code);
-          setIsAuthenticated(true);
-          setLogoutReason(null);
-          if (user) {
-            setAuthUser(user);
-          }
-          if (entitlement) {
-            setBuyerEntitlement(entitlement);
-          }
-          setAuthLifecycleStage('LOAD_USER_DATA');
-          verifyAndRegisterDevice(user || code).catch(() => {});
-          // Firebase UID effect owns hydration/listener setup. Avoid a second
-          // email/code-based load racing the canonical UID subscription.
-          if (!user?.uid) {
-            setIsHydrated(true);
-            isHydratedRef.current = true;
-            setIsInitialCloudLoading(false);
-            setAuthLifecycleStage('READY');
-          }
-          setTimeout(() => {
-            revalidateEntitlement(false);
-          }, 800);
-        }}
-        onAccessExpired={(email, entitlement) => {
-          setBuyerEntitlement(entitlement);
-          setAuthLifecycleStage('ACCESS_EXPIRED');
-        }}
+        onLoginSuccess={handleLoginSuccess}
+        onAccessExpired={handleAccessExpired}
         initialErrorMessage={logoutReason}
       />
     );
@@ -2767,4 +2426,8 @@ export default function App() {
     </ThemeContext.Provider>
   );
 }
+
+
+
+
 
