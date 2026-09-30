@@ -50,12 +50,7 @@ import { USER_ASSETS_SYNC_EVENT } from './utils/userAssets';
 import {
   ALL_PLATFORM_TABS,
   getFloatingPreviewTitle,
-  getFormStorageKey,
   getInitialTabData,
-  getLocalUpdateStorageKey,
-  getModuleActiveFolderKey,
-  getModuleFolderItemKey,
-  getModuleFoldersKey,
   getUserAccountStorageKey,
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
@@ -83,6 +78,10 @@ import { useWorkspaceUiSettings } from './features/workspace/hooks/useWorkspaceU
 import { useMobilePreviewNavigation } from './features/editor/hooks/useMobilePreviewNavigation';
 import { useTabFormDataRegistry } from './features/workspace/hooks/useTabFormDataRegistry';
 import { useWorkspaceCloudHydration } from './features/workspace/hooks/useWorkspaceCloudHydration';
+import { useWorkspaceLocalStateSync } from './features/workspace/hooks/useWorkspaceLocalStateSync';
+import { useAdminFeatureGate } from './features/admin/hooks/useAdminFeatureGate';
+import { useRegisteredPreviewHandlers } from './features/editor/hooks/useRegisteredPreviewHandlers';
+import { useMiscFormHandlers } from './features/misc/hooks/useMiscFormHandlers';
 
 export default function App() {
   // Firebase avatar URLs remain in state/Firestore even when an image request
@@ -815,64 +814,10 @@ export default function App() {
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isFeatureFlagModalOpen, setIsFeatureFlagModalOpen] = useState<boolean>(false);
   const [featureFlagsVersion, setFeatureFlagsVersion] = useState<number>(0);
-
-  // Secret Click Tracker for Footer Triple-Click
-  const secretClickCountRef = useRef<number>(0);
-  const secretLastClickTimeRef = useRef<number>(0);
-
-  const handleSecretFooterClick = () => {
-    const now = Date.now();
-    if (now - secretLastClickTimeRef.current < 1500) {
-      secretClickCountRef.current += 1;
-    } else {
-      secretClickCountRef.current = 1;
-    }
-    secretLastClickTimeRef.current = now;
-
-    if (secretClickCountRef.current >= 3) {
-      secretClickCountRef.current = 0;
-      setIsPinModalOpen(true);
-    }
-  };
-
-  // Secret Trigger 1: Global Shortcut (Ctrl+Shift+F or Cmd+Shift+F or Ctrl+Alt+F)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
-      if (isCmdOrCtrl && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
-        e.preventDefault();
-        setIsPinModalOpen(true);
-      } else if (isCmdOrCtrl && e.altKey && (e.key === 'F' || e.key === 'f')) {
-        e.preventDefault();
-        setIsPinModalOpen(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Secret Trigger 2: Secret URL Parameter (?admin=true, ?admin=ff, ?flag=admin)
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (
-        params.get('admin') === 'true' ||
-        params.get('admin') === 'ff' ||
-        params.get('flag') === 'admin' ||
-        params.get('ff') === 'admin'
-      ) {
-        setIsPinModalOpen(true);
-      }
-    } catch (e) {}
-  }, []);
-
-  useEffect(() => {
-    const handleFlagsUpdated = () => {
-      setFeatureFlagsVersion((v) => v + 1);
-    };
-    window.addEventListener('feature_flags_updated', handleFlagsUpdated);
-    return () => window.removeEventListener('feature_flags_updated', handleFlagsUpdated);
-  }, []);
+  const { handleSecretFooterClick } = useAdminFeatureGate({
+    setIsPinModalOpen,
+    setFeatureFlagsVersion,
+  });
 
   // Ensure active category and active tab are always synchronized and LIVE
   useEffect(() => {
@@ -904,132 +849,6 @@ export default function App() {
       }
     }
   }, [activeCategory, activeTab, featureFlagsVersion]);
-
-  // Hydrate all form states and module folders from localStorage on mount / user change
-  useEffect(() => {
-    const loadForm = <T,>(tab: PlatformTab, defaultVal: T): T => {
-      return loadStoredFormState(userAccountKey, tab, defaultVal);
-    };
-
-    const initialTwitter = loadForm('twitter', INITIAL_TWITTER_DATA);
-    const initialIgFeed = loadForm('instagram-feed', INITIAL_INSTAGRAM_FEED_DATA);
-    const initialIgStory = loadForm('instagram-story', INITIAL_INSTAGRAM_STORY_DATA);
-    const initialIgStoryReply = loadForm('instagram-story-reply', INITIAL_INSTAGRAM_STORY_REPLY_DATA);
-    const initialIgStoryViewers = loadForm('instagram-story-viewers', INITIAL_INSTAGRAM_STORY_VIEWERS_DATA);
-    const initialIgProfile = loadForm('instagram-profile', INITIAL_INSTAGRAM_PROFILE_DATA);
-    const initialIgLive = loadForm('instagram-live', INITIAL_INSTAGRAM_LIVE_DATA);
-    const initialIgNotes = loadForm('instagram-notes', INITIAL_INSTAGRAM_NOTES_DATA);
-    const initialIgActivity = loadForm('instagram-activity', INITIAL_INSTAGRAM_ACTIVITY_DATA);
-    const initialIgDM = loadForm('instagram-dm', INITIAL_INSTAGRAM_DM_DATA);
-    const initialIgDMInbox = loadForm('instagram-dm-inbox', INITIAL_INSTAGRAM_DM_INBOX_DATA);
-    const initialIgFeedComments = loadForm('instagram-feed-comments', INITIAL_INSTAGRAM_FEED_COMMENTS_DATA);
-    const initialWhatsAppChat = loadForm('whatsapp-chat', INITIAL_WHATSAPP_CHAT_DATA);
-    const initialWhatsAppCall = loadForm('whatsapp-call', INITIAL_WHATSAPP_CALL_DATA);
-    const initialWhatsAppStatus = loadForm('whatsapp-status', INITIAL_WHATSAPP_STATUS_DATA);
-    const initialWhatsAppViewers = loadForm('whatsapp-viewers', INITIAL_WHATSAPP_VIEWERS_DATA);
-    const initialTikTokProfile = loadForm('tiktok-profile', INITIAL_TIKTOK_PROFILE_DATA);
-    const initialTikTokFeedLive = loadForm('tiktok-feed-live', INITIAL_TIKTOK_FEED_LIVE_DATA);
-    const initialTikTokFyp = loadForm('tiktok-fyp', INITIAL_TIKTOK_FYP_DATA);
-    const initialIosLockscreen = loadForm('ios-lockscreen', INITIAL_IOS_LOCKSCREEN_DATA);
-    const initialLineChat = loadForm('line-chat', INITIAL_LINE_CHAT_DATA);
-    const initialNotes = loadForm('notes', INITIAL_NOTES_DATA);
-    const initialPushNotification = loadForm('push-notification', INITIAL_PUSH_NOTIFICATION_DATA);
-    const initialSpotify = loadForm('spotify-card', INITIAL_SPOTIFY_DATA);
-    if (initialSpotify) {
-      initialSpotify.style = 'blur';
-      if (!['dark', 'pink', 'blue'].includes(initialSpotify.theme)) {
-        initialSpotify.theme = 'dark';
-      }
-      if (initialSpotify.progressPercent === undefined) {
-        initialSpotify.progressPercent = 51;
-      }
-      if (initialSpotify.volumePercent === undefined) {
-        initialSpotify.volumePercent = 75;
-      }
-    }
-
-    setTwitterData(initialTwitter);
-    setInstagramFeedData(initialIgFeed);
-    setInstagramStoryData(initialIgStory);
-    setInstagramStoryReplyData(initialIgStoryReply);
-    setInstagramStoryViewersData(initialIgStoryViewers);
-    setInstagramProfileData(initialIgProfile);
-    setInstagramLiveData(initialIgLive);
-    setInstagramNotesData(initialIgNotes);
-    setInstagramActivityData(initialIgActivity);
-    setInstagramDMData(initialIgDM);
-    setInstagramDMInboxData(initialIgDMInbox);
-    setInstagramFeedCommentsData(initialIgFeedComments);
-    setWhatsAppChatData(initialWhatsAppChat);
-    setWhatsAppCallData(initialWhatsAppCall);
-    setWhatsAppStatusData(initialWhatsAppStatus);
-    setWhatsAppViewersData(initialWhatsAppViewers);
-    setTikTokProfileData(initialTikTokProfile);
-    setTikTokFeedLiveData(initialTikTokFeedLive);
-    setTikTokFypData(initialTikTokFyp);
-    setIosLockscreenData(initialIosLockscreen);
-    setLineChatData(initialLineChat);
-    setNotesData(initialNotes);
-    setPushNotificationData(initialPushNotification);
-    setSpotifyData(initialSpotify);
-
-    const loadedFolders = loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS);
-    const loadedActiveIds = loadAllStoredActiveFolderIds(userAccountKey, ALL_PLATFORM_TABS);
-
-    setModuleFolders(loadedFolders);
-    moduleFoldersRef.current = loadedFolders;
-    setActiveFolderIds(loadedActiveIds);
-    activeFolderIdsRef.current = loadedActiveIds;
-
-    // Hydrate all tabs with their active folder data, guaranteeing zero desync across all 24 modules
-    ALL_PLATFORM_TABS.forEach((tab) => {
-      const tabFolders = loadedFolders[tab] || [];
-      const tabFolderId = loadedActiveIds[tab] || tabFolders[0]?.id;
-      const currentFolder = tabFolders.find((f) => f.id === tabFolderId) || tabFolders[0];
-      if (currentFolder && currentFolder.data) {
-        loadTabFormData(tab, currentFolder.data);
-      }
-    });
-  }, [userAccountKey]);
-
-  // Tab switching: isolate data safely, flush previous tab's form state to its active folder
-  const previousTabRef = useRef<PlatformTab>(activeTab);
-  useEffect(() => {
-    const prevTab = previousTabRef.current;
-    if (prevTab !== activeTab) {
-      // 1. Flush and save previous tab's form data to its active folder
-      const prevFormData = getCurrentTabFormData(prevTab);
-      if (prevFormData) {
-        const clonedPrevData = JSON.parse(JSON.stringify(prevFormData));
-        const prevActiveId = activeFolderIdsRef.current[prevTab] || activeFolderIds[prevTab] || 'folder-1';
-        setModuleFolders((prev) => {
-          const list = prev[prevTab] || moduleFoldersRef.current[prevTab];
-          if (!list || list.length === 0) return prev;
-          const updated = list.map((f) => (f.id === prevActiveId ? { ...f, data: clonedPrevData } : f));
-          moduleFoldersRef.current[prevTab] = updated;
-          try {
-            localStorage.setItem(getModuleFoldersKey(userAccountKey, prevTab), JSON.stringify(updated));
-            localStorage.setItem(getFormStorageKey(userAccountKey, prevTab), JSON.stringify(clonedPrevData));
-            markLocalWorkspaceUpdated(userAccountKey);
-          } catch {}
-          return { ...prev, [prevTab]: updated };
-        });
-      }
-
-      // 2. Load active folder's data for the new activeTab
-      const tabFolders = moduleFoldersRef.current[activeTab] || moduleFolders[activeTab];
-      if (tabFolders && tabFolders.length > 0) {
-        const activeId = activeFolderIdsRef.current[activeTab] || activeFolderIds[activeTab] || tabFolders[0].id;
-        const folder = tabFolders.find((f) => f.id === activeId) || tabFolders[0];
-        if (folder && folder.data) {
-          loadTabFormData(activeTab, folder.data);
-        }
-      }
-
-      previousTabRef.current = activeTab;
-      triggerCloudWorkspaceSyncRef.current?.();
-    }
-  }, [activeTab, userAccountKey, moduleFolders, activeFolderIds]);
 
   const {
     previewViewportRef,
@@ -1112,29 +931,44 @@ export default function App() {
     setPushNotificationData,
     setSpotifyData,
   });
-  const handleRegisteredPreviewChange = (next: any) => {
-    switch (activeTab) {
-      case 'twitter': return handleTwitterDataChange(next);
-      case 'instagram-dm': return handleInstagramDMDataChange(next);
-      case 'whatsapp-chat': return handleWhatsAppChatDataChange(next);
-      case 'whatsapp-call': return handleWhatsAppCallDataChange(next);
-      case 'whatsapp-status': return handleWhatsAppStatusDataChange(next);
-      case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(next);
-      case 'tiktok-profile': return handleTikTokProfileDataChange(next);
-      case 'ios-lockscreen': return handleIosLockscreenDataChange(next);
-      case 'line-chat': return handleLineChatDataChange(next);
-      case 'notes': return handleNotesDataChange(next);
-      case 'push-notification': return handlePushNotificationDataChange(next);
-      case 'spotify-card': return handleSpotifyDataChange(next);
-      default: return undefined;
-    }
-  };
 
-  const handleRegisteredMessageText = (id: string, text: string) => {
-    if (activeTab === 'instagram-dm') return handleUpdateInstagramDMMessageText(id, text);
-    if (activeTab === 'whatsapp-chat') return handleUpdateWhatsAppMessageText(id, text);
-    if (activeTab === 'line-chat') return handleUpdateLineMessageText(id, text);
-  };
+  useWorkspaceLocalStateSync({
+    userAccountKey,
+    activeTab,
+    moduleFolders,
+    activeFolderIds,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    triggerCloudWorkspaceSyncRef,
+    setModuleFolders,
+    setActiveFolderIds,
+    getCurrentTabFormData,
+    loadTabFormData,
+    setTwitterData,
+    setInstagramFeedData,
+    setInstagramStoryData,
+    setInstagramStoryReplyData,
+    setInstagramStoryViewersData,
+    setInstagramProfileData,
+    setInstagramLiveData,
+    setInstagramNotesData,
+    setInstagramActivityData,
+    setInstagramDMData,
+    setInstagramDMInboxData,
+    setInstagramFeedCommentsData,
+    setWhatsAppChatData,
+    setWhatsAppCallData,
+    setWhatsAppStatusData,
+    setWhatsAppViewersData,
+    setTikTokProfileData,
+    setTikTokFeedLiveData,
+    setTikTokFypData,
+    setIosLockscreenData,
+    setLineChatData,
+    setNotesData,
+    setPushNotificationData,
+    setSpotifyData,
+  });
 
   const handleResetActiveTabState = () => {
     const initialData = getInitialTabData(activeTab);
@@ -1371,26 +1205,40 @@ export default function App() {
     updateActiveFolderData,
   });
 
-  // Form Change Handlers (auto-syncs to active folder preset and storage with strict tab isolation)
-  const handleIosLockscreenDataChange = (updated: IOSLockscreenData) => {
-    setIosLockscreenData(updated);
-    updateActiveFolderData('ios-lockscreen', updated);
-  };
+  const {
+    handleIosLockscreenDataChange,
+    handleNotesDataChange,
+    handlePushNotificationDataChange,
+    handleSpotifyDataChange,
+  } = useMiscFormHandlers({
+    setIosLockscreenData,
+    setNotesData,
+    setPushNotificationData,
+    setSpotifyData,
+    updateActiveFolderData,
+  });
 
-  const handleNotesDataChange = (updated: NotesData) => {
-    setNotesData(updated);
-    updateActiveFolderData('notes', updated);
-  };
-
-  const handlePushNotificationDataChange = (updated: PushNotificationData) => {
-    setPushNotificationData(updated);
-    updateActiveFolderData('push-notification', updated);
-  };
-
-  const handleSpotifyDataChange = (updated: SpotifyData) => {
-    setSpotifyData(updated);
-    updateActiveFolderData('spotify-card', updated);
-  };
+  const {
+    handleRegisteredPreviewChange,
+    handleRegisteredMessageText,
+  } = useRegisteredPreviewHandlers({
+    activeTab,
+    handleTwitterDataChange,
+    handleInstagramDMDataChange,
+    handleUpdateInstagramDMMessageText,
+    handleWhatsAppChatDataChange,
+    handleWhatsAppCallDataChange,
+    handleWhatsAppStatusDataChange,
+    handleWhatsAppViewersDataChange,
+    handleUpdateWhatsAppMessageText,
+    handleTikTokProfileDataChange,
+    handleIosLockscreenDataChange,
+    handleLineChatDataChange,
+    handleUpdateLineMessageText,
+    handleNotesDataChange,
+    handlePushNotificationDataChange,
+    handleSpotifyDataChange,
+  });
 
   useWorkspaceAutoSaveProtection({
     activeTab,
