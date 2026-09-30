@@ -3,7 +3,7 @@ import { VerifiedType, CharacterPreset } from '../types';
 import { User, Upload, Plus, Trash2, Image as ImageIcon, X, Crop, Loader2, Folder, Edit2, Check } from 'lucide-react';
 import { DEFAULT_AVATAR } from '../data/defaultTemplates';
 import { ImageCropperModal } from './ImageCropperModal';
-import { UniversalFolderItem } from './UniversalFolderItem';
+import { UniversalFolderItem } from '../features/workspace/components/UniversalFolderItem';
 import { compressAndReadAsDataURL } from '../utils/imageCompressor';
 import {
   fileToBase64,

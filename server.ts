@@ -134,9 +134,10 @@ function isSameDeviceId(currentDeviceId: string, registeredId: string | null | u
 
 async function startServer() {
   const app = express();
+  const HOST = process.env.HOST || 'localhost';
   const PORT = Number(process.env.PORT || 3000);
 
-  app.use(express.json());
+  const jsonParser = express.json();
 
   // CORS configuration
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -612,9 +613,9 @@ async function startServer() {
   // deployed Netlify Function, so verification remains enforced and no
   // server secret is exposed to the client bundle.
   if (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig) {
-    app.post('/api/verify-buyer', optionalFirebaseToken, handleBuyerVerification);
+    app.post('/api/verify-buyer', jsonParser, optionalFirebaseToken, handleBuyerVerification);
   }
-  app.post('/api/verify-code', optionalFirebaseToken, handleBuyerVerification);
+  app.post('/api/verify-code', jsonParser, optionalFirebaseToken, handleBuyerVerification);
 
   // API endpoint to fetch and parse Google Drive public folder contents
   app.get('/api/gdrive-folder', optionalFirebaseToken, async (req, res) => {
@@ -804,7 +805,11 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        host: HOST,
+        port: PORT,
+        middlewareMode: true,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -816,8 +821,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
   });
 }
 

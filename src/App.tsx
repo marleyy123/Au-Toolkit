@@ -1,40 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { PlatformTab, PlatformGroup, TwitterPostData, InstagramFeedData, InstagramStoryData, InstagramProfileData, InstagramLiveData, InstagramNotesData, InstagramActivityData, InstagramDMData, InstagramDMInboxData, InstagramStoryReplyData, InstagramStoryViewersData, InstagramFeedCommentsData, WhatsAppChatData, WhatsAppCallData, WhatsAppStatusData, WhatsAppViewersData, TikTokProfileData, TikTokFeedLiveData, TikTokFypData, IOSLockscreenData, LineChatData, CharacterPreset, AUFolder, NotesData, PushNotificationData, SpotifyData, ViewportTransform } from './types';
+import { PlatformTab, PlatformGroup, TwitterPostData, InstagramFeedData, InstagramStoryData, InstagramProfileData, InstagramLiveData, InstagramNotesData, InstagramActivityData, InstagramDMData, InstagramDMInboxData, InstagramStoryReplyData, InstagramStoryViewersData, InstagramFeedCommentsData, WhatsAppChatData, WhatsAppCallData, WhatsAppStatusData, WhatsAppViewersData, TikTokProfileData, TikTokFeedLiveData, TikTokFypData, IOSLockscreenData, LineChatData, AUFolder, NotesData, PushNotificationData, SpotifyData } from './types';
 import { DEFAULT_AVATAR, INITIAL_TWITTER_DATA, INITIAL_INSTAGRAM_FEED_DATA, INITIAL_INSTAGRAM_STORY_DATA, INITIAL_INSTAGRAM_PROFILE_DATA, INITIAL_INSTAGRAM_LIVE_DATA, INITIAL_INSTAGRAM_NOTES_DATA, INITIAL_INSTAGRAM_ACTIVITY_DATA, INITIAL_INSTAGRAM_DM_DATA, INITIAL_INSTAGRAM_DM_INBOX_DATA, INITIAL_INSTAGRAM_STORY_REPLY_DATA, INITIAL_INSTAGRAM_STORY_VIEWERS_DATA, INITIAL_INSTAGRAM_FEED_COMMENTS_DATA, INITIAL_WHATSAPP_CHAT_DATA, INITIAL_WHATSAPP_CALL_DATA, INITIAL_WHATSAPP_STATUS_DATA, INITIAL_WHATSAPP_VIEWERS_DATA, INITIAL_TIKTOK_PROFILE_DATA, INITIAL_TIKTOK_FEED_LIVE_DATA, INITIAL_TIKTOK_FYP_DATA, INITIAL_IOS_LOCKSCREEN_DATA, INITIAL_LINE_CHAT_DATA, INITIAL_NOTES_DATA, INITIAL_PUSH_NOTIFICATION_DATA, INITIAL_SPOTIFY_DATA } from './data/defaultTemplates';
 import { PreviewRegistry } from './export/PreviewRegistry';
 import { MobileFloatingPreview } from './components/MobileFloatingPreview';
-import { TwitterForm } from './components/TwitterForm';
-import { InstagramFeedForm } from './components/InstagramFeedForm';
-import { InstagramStoryForm } from './components/InstagramStoryForm';
-import { InstagramStoryReplyForm } from './components/InstagramStoryReplyForm';
-import { InstagramStoryViewersForm } from './components/InstagramStoryViewersForm';
-import { InstagramProfileForm } from './components/InstagramProfileForm';
-import { InstagramLiveForm } from './components/InstagramLiveForm';
-import { InstagramNotesForm } from './components/InstagramNotesForm';
-import { InstagramActivityForm } from './components/InstagramActivityForm';
-import { InstagramDMForm } from './components/InstagramDMForm';
-import { InstagramDMInboxForm } from './components/InstagramDMInboxForm';
-import { InstagramFeedCommentsForm } from './components/InstagramFeedCommentsForm';
-import { WhatsAppChatForm } from './components/WhatsAppChatForm';
-import { WhatsAppCallForm } from './components/WhatsAppCallForm';
-import { WhatsAppStatusForm } from './components/WhatsAppStatusForm';
-import { WhatsAppViewersForm } from './components/WhatsAppViewersForm';
-import { TikTokProfileForm } from './components/TikTokProfileForm';
-import { TikTokFeedLiveForm } from './components/TikTokFeedLiveForm';
-import { TikTokFypForm } from './components/TikTokFypForm';
-import { IOSLockscreenForm } from './components/IOSLockscreenForm';
-import { LineChatForm } from './components/LineChatForm';
-import { NotesForm } from './components/NotesForm';
-import { PushNotificationForm } from './components/PushNotificationForm';
-import { SpotifyPlayerForm } from './components/SpotifyPlayerForm';
-import { GlobalFontManager, FontOptionKey, getFontCssValue, FONT_OPTIONS, injectGlobalCustomFonts } from './components/GlobalFontManager';
-import { Login } from './components/Login';
-import { AccountPasswordModal } from './components/AccountPasswordModal';
-import { downloadElementAsPng, downloadElementAsJpg, copyElementToClipboard, exportPreviewToPNG } from './utils/exportUtils';
-import { XLogo, VerifiedBadgeBlue, InstagramVerifiedBadge } from './components/Icons';
-import { Download, Copy, Sparkles, RefreshCw, Check, CheckCircle2, AlertCircle, Loader2, Smartphone, Monitor, Eye, Sun, Moon, LogOut, KeyRound, Ticket, User, Plus, ZoomIn, ZoomOut, RotateCcw, Maximize2, PictureInPicture2, Square, Trash2, AlertTriangle, Globe, Languages, Cloud, CloudOff, Upload, Move, Hand, Lock, Unlock, X } from 'lucide-react';
+import { Login } from './features/auth/components/Login';
+import { AccountPasswordModal } from './features/auth/components/AccountPasswordModal';
+import { Download, Copy, Sparkles, RefreshCw, Check, CheckCircle2, AlertCircle, Loader2, Smartphone, Monitor, Eye, Sun, Moon, LogOut, KeyRound, Ticket, User, Plus, ZoomIn, ZoomOut, RotateCcw, Maximize2, PictureInPicture2, Square, Globe, Languages, CloudOff, Upload, Move, Hand, Lock, Unlock } from 'lucide-react';
 import {
-  clearAllFirebaseData,
   clearWorkspaceFingerprintCache,
   signInWithGoogle,
   signOutUser,
@@ -43,9 +15,6 @@ import {
   setStoredAuthUser,
   saveUserWorkspaceToFirestore,
   loadUserWorkspaceFromFirestore,
-  subscribeUserWorkspaceFromFirestore,
-  syncFolderToFirestore,
-  deleteFolderFromFirestore,
   loadFoldersFromFirestore,
   flushPendingWorkspaceSaves,
   getUserDocumentId,
@@ -64,8 +33,8 @@ import {
   checkBuyerEntitlement,
   EntitlementCheckResult,
 } from './services/buyerEntitlementService';
-import { AccessGuard } from './components/AccessGuard';
-import { AppLoadingScreen, AuthLifecycleStage } from './components/AppLoadingScreen';
+import { AccessGuard } from './features/auth/components/AccessGuard';
+import { AppLoadingScreen, AuthLifecycleStage } from './features/auth/components/AppLoadingScreen';
 import {
   isCategoryLive,
   isTabLive,
@@ -73,406 +42,47 @@ import {
   getFirstLiveTabForCategory,
   getCategoryForTab,
 } from './config/featureFlags';
-import { FeatureFlagManagerModal } from './components/FeatureFlagManagerModal';
-import { PinAuthModal } from './components/PinAuthModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeContext, UiTheme } from './context/ThemeContext';
 import { useLanguage } from './context/LanguageContext';
-import { CloudConnectionState } from './components/CloudSyncIndicator';
+import type { CloudConnectionState } from './features/workspace/components/CloudSyncIndicator';
+import { USER_ASSETS_SYNC_EVENT } from './utils/userAssets';
 import {
-  persistUserAssets,
-  readPersistentUserAssets,
-  USER_ASSETS_SYNC_EVENT,
-} from './utils/userAssets';
-
-// Helper to get platform and subFeature for a given activeTab
-const getPlatformAndSubFeature = (tab: PlatformTab): { platform: string; subFeature: string } => {
-  switch (tab) {
-    case 'twitter':
-      return { platform: 'x', subFeature: 'feed' };
-    case 'instagram-feed':
-      return { platform: 'instagram', subFeature: 'feed' };
-    case 'instagram-feed-comments':
-      return { platform: 'instagram', subFeature: 'feed-comments' };
-    case 'instagram-story':
-      return { platform: 'instagram', subFeature: 'story' };
-    case 'instagram-story-reply':
-      return { platform: 'instagram', subFeature: 'story-reply' };
-    case 'instagram-story-viewers':
-      return { platform: 'instagram', subFeature: 'story-viewers' };
-    case 'instagram-profile':
-      return { platform: 'instagram', subFeature: 'profile' };
-    case 'instagram-live':
-      return { platform: 'instagram', subFeature: 'live' };
-    case 'instagram-notes':
-      return { platform: 'instagram', subFeature: 'notes' };
-    case 'instagram-activity':
-      return { platform: 'instagram', subFeature: 'activity' };
-    case 'instagram-dm-inbox':
-      return { platform: 'instagram', subFeature: 'dm-inbox' };
-    case 'instagram-dm':
-      return { platform: 'instagram', subFeature: 'dm' };
-    case 'whatsapp-chat':
-      return { platform: 'whatsapp', subFeature: 'chat' };
-    case 'whatsapp-call':
-      return { platform: 'whatsapp', subFeature: 'call' };
-    case 'whatsapp-status':
-      return { platform: 'whatsapp', subFeature: 'status' };
-    case 'whatsapp-viewers':
-      return { platform: 'whatsapp', subFeature: 'viewers' };
-    case 'tiktok-profile':
-      return { platform: 'tiktok', subFeature: 'profile' };
-    case 'tiktok-feed-live':
-      return { platform: 'tiktok', subFeature: 'feed-live' };
-    case 'tiktok-fyp':
-      return { platform: 'tiktok', subFeature: 'fyp' };
-    case 'ios-lockscreen':
-      return { platform: 'ios', subFeature: 'lockscreen' };
-    case 'line-chat':
-      return { platform: 'line', subFeature: 'chat' };
-    case 'notes':
-      return { platform: 'notes', subFeature: 'notepad' };
-    case 'push-notification':
-      return { platform: 'notifications', subFeature: 'banner' };
-    case 'spotify-card':
-      return { platform: 'spotify', subFeature: 'card' };
-    default:
-      return { platform: 'custom', subFeature: tab };
-  }
-};
-
-const getFloatingPreviewTitle = (tab: PlatformTab): string => ({
-  twitter: 'X / Twitter',
-  'instagram-dm': 'Instagram DM',
-  'instagram-feed': 'Instagram Feed',
-  'instagram-story': 'Instagram Story',
-  'whatsapp-chat': 'WhatsApp Chat',
-  'line-chat': 'LINE Chat',
-  notes: 'Notes',
-  'push-notification': 'Notification',
-  'spotify-card': 'Spotify',
-} as Partial<Record<PlatformTab, string>>)[tab] || tab
-  .split('-')
-  .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-  .join(' ');
-
-// Storage Reset Key for Hard Reset Versioning
-const STORAGE_RESET_KEY = 'au_hard_reset_v5';
-
-// Permanent storage key derived from Google Account / user email, or access code
-export const getUserAccountStorageKey = (userOrEmail?: any): string => {
-  let email = '';
-  if (typeof userOrEmail === 'string') {
-    email = userOrEmail;
-  } else if (userOrEmail && typeof userOrEmail === 'object') {
-    email = userOrEmail.uid || userOrEmail.email || '';
-  }
-  if (!email) {
-    try {
-      const stored = getStoredAuthUser();
-      email = stored?.uid || stored?.email || '';
-    } catch {}
-  }
-  if (!email) {
-    try {
-      const userEmail = localStorage.getItem('au_user_email');
-      if (userEmail && userEmail.trim()) {
-        email = userEmail.trim();
-      } else {
-        const code = localStorage.getItem('au_access_code');
-        if (code) {
-          email = `code_${code.trim()}`;
-        }
-      }
-    } catch {}
-  }
-  const clean = (email || 'shared_user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-  return `acc_${clean}`;
-};
-
-const getLocalUpdateStorageKey = (userKey: string): string =>
-  `au_last_local_update_time_${userKey.replace(/[^A-Za-z0-9_-]/g, '_')}`;
-
-const getPendingCloudSyncStorageKey = (userKey: string): string =>
-  `au_pending_cloud_sync_${userKey.replace(/[^A-Za-z0-9_-]/g, '_')}`;
-
-const markLocalWorkspaceUpdated = (userKey: string): void => {
-  try {
-    localStorage.setItem(getLocalUpdateStorageKey(userKey), String(Date.now()));
-    localStorage.setItem(getPendingCloudSyncStorageKey(userKey), 'true');
-  } catch {}
-};
-
-const clearPendingCloudSync = (userKey: string): void => {
-  try { localStorage.removeItem(getPendingCloudSyncStorageKey(userKey)); } catch {}
-};
-
-// Helper to build dynamic localStorage key for form data
-const getFormStorageKey = (userKey: string, tab: PlatformTab): string => {
-  const cleanUser = userKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
-  const { platform, subFeature } = getPlatformAndSubFeature(tab);
-  return `au_toolkit_${cleanUser}_${platform}_${subFeature}_form_data`;
-};
-
-// Clean per-module folders storage keys (immutable React state per tab)
-const getModuleFoldersKey = (userKey: string, tab: PlatformTab): string => {
-  const cleanUser = userKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
-  return `au_folders_${cleanUser}_${tab}`;
-};
-
-const getModuleActiveFolderKey = (userKey: string, tab: PlatformTab): string => {
-  const cleanUser = userKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
-  return `au_active_folder_${cleanUser}_${tab}`;
-};
-
-const getModuleFolderItemKey = (userKey: string, tab: PlatformTab, folderId: string): string => {
-  const cleanUser = userKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
-  const cleanFolder = folderId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'folder-1';
-  return `au_folder_${cleanUser}_${tab}_${cleanFolder}`;
-};
-
-// Helper to get initial fresh data for each tab (Deep Cloned)
-export const getInitialTabData = (tab: PlatformTab): any => {
-  let base: any;
-  switch (tab) {
-    case 'twitter': base = INITIAL_TWITTER_DATA; break;
-    case 'instagram-feed': base = INITIAL_INSTAGRAM_FEED_DATA; break;
-    case 'instagram-story': base = INITIAL_INSTAGRAM_STORY_DATA; break;
-    case 'instagram-story-reply': base = INITIAL_INSTAGRAM_STORY_REPLY_DATA; break;
-    case 'instagram-story-viewers': base = INITIAL_INSTAGRAM_STORY_VIEWERS_DATA; break;
-    case 'instagram-profile': base = INITIAL_INSTAGRAM_PROFILE_DATA; break;
-    case 'instagram-live': base = INITIAL_INSTAGRAM_LIVE_DATA; break;
-    case 'instagram-notes': base = INITIAL_INSTAGRAM_NOTES_DATA; break;
-    case 'instagram-activity': base = INITIAL_INSTAGRAM_ACTIVITY_DATA; break;
-    case 'instagram-dm': base = INITIAL_INSTAGRAM_DM_DATA; break;
-    case 'instagram-dm-inbox': base = INITIAL_INSTAGRAM_DM_INBOX_DATA; break;
-    case 'instagram-feed-comments': base = INITIAL_INSTAGRAM_FEED_COMMENTS_DATA; break;
-    case 'whatsapp-chat': base = INITIAL_WHATSAPP_CHAT_DATA; break;
-    case 'whatsapp-call': base = INITIAL_WHATSAPP_CALL_DATA; break;
-    case 'whatsapp-status': base = INITIAL_WHATSAPP_STATUS_DATA; break;
-    case 'whatsapp-viewers': base = INITIAL_WHATSAPP_VIEWERS_DATA; break;
-    case 'tiktok-profile': base = INITIAL_TIKTOK_PROFILE_DATA; break;
-    case 'tiktok-feed-live': base = INITIAL_TIKTOK_FEED_LIVE_DATA; break;
-    case 'tiktok-fyp': base = INITIAL_TIKTOK_FYP_DATA; break;
-    case 'ios-lockscreen': base = INITIAL_IOS_LOCKSCREEN_DATA; break;
-    case 'line-chat': base = INITIAL_LINE_CHAT_DATA; break;
-    case 'notes': base = INITIAL_NOTES_DATA; break;
-    case 'push-notification': base = INITIAL_PUSH_NOTIFICATION_DATA; break;
-    case 'spotify-card': base = INITIAL_SPOTIFY_DATA; break;
-    default: base = INITIAL_TWITTER_DATA;
-  }
-  return JSON.parse(JSON.stringify(base));
-};
-
-// All Platform Tabs list for comprehensive multi-device workspace sync & persistence
-export const ALL_PLATFORM_TABS: PlatformTab[] = [
-  'twitter',
-  'instagram-feed',
-  'instagram-feed-comments',
-  'instagram-story',
-  'instagram-story-reply',
-  'instagram-story-viewers',
-  'instagram-profile',
-  'instagram-live',
-  'instagram-notes',
-  'instagram-activity',
-  'instagram-dm-inbox',
-  'instagram-dm',
-  'whatsapp-chat',
-  'whatsapp-status',
-  'whatsapp-viewers',
-  'whatsapp-call',
-  'tiktok-profile',
-  'tiktok-feed-live',
-  'tiktok-fyp',
-  'ios-lockscreen',
-  'line-chat',
-  'notes',
-  'push-notification',
-  'spotify-card',
-];
-
-// Robust loader to read form state from active folder or localStorage candidates on first render
-export const loadStoredFormState = <T,>(userKey: string, tab: PlatformTab, defaultVal: T): T => {
-  if (typeof window === 'undefined' || !window.localStorage) return JSON.parse(JSON.stringify(defaultVal));
-
-  const isUserScoped = Boolean(userKey && userKey !== 'acc_shared_user' && userKey !== 'acc_default' && userKey !== 'anonymous_user');
-
-  // 1. Check active folder data inside stored module folders
-  const folderKey = getModuleFoldersKey(userKey, tab);
-  const activeKey = getModuleActiveFolderKey(userKey, tab);
-  const folderCandidateKeys = isUserScoped
-    ? [folderKey, `au_folders_${userKey}_${tab}`]
-    : [
-        folderKey,
-        `au_folders_${userKey}_${tab}`,
-        `au_folders_acc_shared_user_${tab}`,
-        `au_folders_shared_user_${tab}`,
-        `au_folders_default_${tab}`,
-        `au_folders_${tab}`,
-      ];
-  for (const fk of folderCandidateKeys) {
-    try {
-      const raw = localStorage.getItem(fk);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const activeId = localStorage.getItem(activeKey) || parsed[0]?.id;
-          const target = parsed.find((f: any) => f.id === activeId) || parsed[0];
-          if (target && target.data && typeof target.data === 'object' && Object.keys(target.data).length > 0) {
-            const data = { ...target.data };
-            if (tab === 'spotify-card') {
-              if (data.progressPercent === undefined) data.progressPercent = 51;
-              if (data.volumePercent === undefined) data.volumePercent = 75;
-              if (!['dark', 'pink', 'blue'].includes(data.theme)) data.theme = 'dark';
-              data.style = 'blur';
-            }
-            return data;
-          }
-        }
-      }
-    } catch {}
-  }
-
-  // 2. Direct form storage candidates
-  const primaryKey = getFormStorageKey(userKey, tab);
-  const { platform, subFeature } = getPlatformAndSubFeature(tab);
-  const candidateKeys = isUserScoped
-    ? [primaryKey, `au_toolkit_${userKey}_${platform}_${subFeature}_form_data`]
-    : [
-        primaryKey,
-        `au_toolkit_${userKey}_${platform}_${subFeature}_form_data`,
-        `au_toolkit_acc_shared_user_${platform}_${subFeature}_form_data`,
-        `au_toolkit_shared_user_${platform}_${subFeature}_form_data`,
-        `au_toolkit_default_${platform}_${subFeature}_form_data`,
-        `au_toolkit_${platform}_${subFeature}_form_data`,
-        `au_form_${tab}`,
-      ];
-
-  for (const candidateKey of candidateKeys) {
-    try {
-      const saved = localStorage.getItem(candidateKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-          const data = { ...parsed };
-          if (tab === 'spotify-card') {
-            if (data.progressPercent === undefined) data.progressPercent = 51;
-            if (data.volumePercent === undefined) data.volumePercent = 75;
-            if (!['dark', 'pink', 'blue'].includes(data.theme)) data.theme = 'dark';
-            data.style = 'blur';
-          }
-          return data;
-        }
-      }
-    } catch {}
-  }
-
-  // 3. Check individual folder items
-  for (let fIdx = 1; fIdx <= 10; fIdx++) {
-    try {
-      const itemKey = getModuleFolderItemKey(userKey, tab, `folder-${fIdx}`);
-      const itemRaw = localStorage.getItem(itemKey);
-      if (itemRaw) {
-        const itemParsed = JSON.parse(itemRaw);
-        if (itemParsed?.data && typeof itemParsed.data === 'object' && Object.keys(itemParsed.data).length > 0) {
-          return itemParsed.data;
-        }
-      }
-    } catch {}
-  }
-
-  return JSON.parse(JSON.stringify(defaultVal));
-};
-
-// Robust loader to hydrate module folders across all platform tabs
-export const loadAllStoredModuleFolders = (userKey: string, tabs: PlatformTab[]): Record<string, AUFolder[]> => {
-  const result: Record<string, AUFolder[]> = {};
-  if (typeof window === 'undefined' || !window.localStorage) {
-    tabs.forEach((t) => {
-      result[t] = [{ id: 'folder-1', name: 'Folder 1', data: getInitialTabData(t) }];
-    });
-    return result;
-  }
-
-  const isUserScoped = Boolean(userKey && userKey !== 'acc_shared_user' && userKey !== 'acc_default' && userKey !== 'anonymous_user');
-
-  tabs.forEach((tab) => {
-    let folders: AUFolder[] | null = null;
-    const folderKey = getModuleFoldersKey(userKey, tab);
-    const candidateKeys = isUserScoped
-      ? [folderKey, `au_folders_${userKey}_${tab}`]
-      : [
-          folderKey,
-          `au_folders_${userKey}_${tab}`,
-          `au_folders_acc_shared_user_${tab}`,
-          `au_folders_shared_user_${tab}`,
-          `au_folders_default_${tab}`,
-          `au_folders_${tab}`,
-        ];
-
-    for (const fKey of candidateKeys) {
-      try {
-        const saved = localStorage.getItem(fKey);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            folders = parsed.map((item: any, idx: number) => ({
-              id: item.id || `folder-${idx + 1}`,
-              name: item.name && item.name.trim() !== '' ? item.name : `Folder ${idx + 1}`,
-              data: item.data || item.profileData || loadStoredFormState(userKey, tab, getInitialTabData(tab)),
-            }));
-            break;
-          }
-        }
-      } catch {}
-    }
-
-    if (!folders || folders.length === 0) {
-      const initialForm = loadStoredFormState(userKey, tab, getInitialTabData(tab));
-      folders = [{ id: 'folder-1', name: 'Folder 1', data: initialForm }];
-    }
-    result[tab] = folders;
-  });
-
-  return result;
-};
-
-// Robust loader to hydrate active folder IDs across all platform tabs
-export const loadAllStoredActiveFolderIds = (userKey: string, tabs: PlatformTab[]): Record<string, string> => {
-  const result: Record<string, string> = {};
-  if (typeof window === 'undefined' || !window.localStorage) {
-    tabs.forEach((t) => { result[t] = 'folder-1'; });
-    return result;
-  }
-
-  const isUserScoped = Boolean(userKey && userKey !== 'acc_shared_user' && userKey !== 'acc_default' && userKey !== 'anonymous_user');
-
-  tabs.forEach((tab) => {
-    const activeKey = getModuleActiveFolderKey(userKey, tab);
-    const candidates = isUserScoped
-      ? [activeKey, `au_active_folder_${userKey}_${tab}`]
-      : [
-          activeKey,
-          `au_active_folder_${userKey}_${tab}`,
-          `au_active_folder_acc_shared_user_${tab}`,
-          `au_active_folder_default_${tab}`,
-          `au_active_folder_${tab}`,
-        ];
-    let activeId = 'folder-1';
-    for (const aKey of candidates) {
-      try {
-        const saved = localStorage.getItem(aKey);
-        if (saved && typeof saved === 'string' && saved.trim()) {
-          activeId = saved.trim();
-          break;
-        }
-      } catch {}
-    }
-    result[tab] = activeId;
-  });
-  return result;
-};
+  ALL_PLATFORM_TABS,
+  getFloatingPreviewTitle,
+  getFormStorageKey,
+  getInitialTabData,
+  getLocalUpdateStorageKey,
+  getModuleActiveFolderKey,
+  getModuleFolderItemKey,
+  getModuleFoldersKey,
+  getUserAccountStorageKey,
+  loadAllStoredActiveFolderIds,
+  loadAllStoredModuleFolders,
+  loadStoredFormState,
+  markLocalWorkspaceUpdated,
+} from './features/workspace/workspaceStorage';
+import { WorkspaceFeedback } from './features/workspace/components/WorkspaceFeedback';
+import { EditorFormPanel } from './features/editor/components/EditorFormPanel';
+import { DeveloperAccessControls } from './features/admin/components/DeveloperAccessControls';
+import { useTikTokFormHandlers } from './features/tiktok/hooks/useTikTokFormHandlers';
+import { useWhatsAppFormHandlers } from './features/whatsapp/hooks/useWhatsAppFormHandlers';
+import { useLineFormHandlers } from './features/line/hooks/useLineFormHandlers';
+import { useInstagramFormHandlers } from './features/instagram/hooks/useInstagramFormHandlers';
+import { useTwitterFormHandlers } from './features/twitter/hooks/useTwitterFormHandlers';
+import { usePreviewExport } from './features/editor/hooks/usePreviewExport';
+import { usePreviewViewport } from './features/editor/hooks/usePreviewViewport';
+import { useWorkspaceFolders } from './features/workspace/hooks/useWorkspaceFolders';
+import { useWorkspaceAutoSaveProtection } from './features/workspace/hooks/useWorkspaceAutoSaveProtection';
+import { useWorkspaceHardReset } from './features/workspace/hooks/useWorkspaceHardReset';
+import { useWorkspacePayload } from './features/workspace/hooks/useWorkspacePayload';
+import { useManualWorkspaceCloudActions } from './features/workspace/hooks/useManualWorkspaceCloudActions';
+import { useWorkspaceCloudSync } from './features/workspace/hooks/useWorkspaceCloudSync';
+import { useApplyCloudWorkspaceData } from './features/workspace/hooks/useApplyCloudWorkspaceData';
+import { useWorkspaceUiSettings } from './features/workspace/hooks/useWorkspaceUiSettings';
+import { useMobilePreviewNavigation } from './features/editor/hooks/useMobilePreviewNavigation';
+import { useTabFormDataRegistry } from './features/workspace/hooks/useTabFormDataRegistry';
+import { useWorkspaceCloudHydration } from './features/workspace/hooks/useWorkspaceCloudHydration';
 
 export default function App() {
   // Firebase avatar URLs remain in state/Firestore even when an image request
@@ -545,6 +155,7 @@ export default function App() {
   const [lastSyncedTime, setLastSyncedTime] = useState<Date | null>(null);
   const [isQuotaExhausted, setIsQuotaExhausted] = useState<boolean>(() => isFirestoreQuotaExhausted());
   const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastManualCloudRefreshAtRef = useRef<number>(0);
 
   useEffect(() => {
     const handleUserAssetsChanged = () => {
@@ -1070,70 +681,27 @@ export default function App() {
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [resetSuccessToast, setResetSuccessToast] = useState<boolean>(false);
 
-  // Session Voucher Code State
-  const [voucherCode, setVoucherCode] = useState<string>(() => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlVoucher = urlParams.get('voucher') || urlParams.get('code');
-      if (urlVoucher) return urlVoucher.trim();
-
-      const saved = localStorage.getItem('au_voucher_code');
-      if (saved) return saved.trim();
-
-      const savedAccess = localStorage.getItem('au_access_code');
-      if (savedAccess) return savedAccess.trim();
-    } catch (e) {
-      console.warn('Failed to initialize voucher code', e);
-    }
-    return 'default';
+  const {
+    voucherCode,
+    handleVoucherCodeChange,
+    uiTheme,
+    setUiTheme,
+    handleSetUiTheme,
+    handleToggleTheme,
+    globalFont,
+    setGlobalFont,
+    customFontName,
+    setCustomFontName,
+    cornerRadius,
+    setCornerRadius,
+    handleFontChange,
+    handleCustomFontUploaded,
+    handleCornerRadiusChange,
+    currentFontCss,
+  } = useWorkspaceUiSettings({
+    hasLocalUserEditsInSessionRef,
+    triggerCloudWorkspaceSyncRef,
   });
-
-  const handleVoucherCodeChange = (newCode: string) => {
-    setVoucherCode(newCode);
-    try {
-      localStorage.setItem('au_voucher_code', newCode);
-    } catch (e) {
-      console.warn('Failed to save voucher code to localStorage', e);
-    }
-  };
-
-  // Global Workspace UI Theme ('light' | 'dark')
-  const [uiTheme, setUiTheme] = useState<UiTheme>(() => {
-    try {
-      const saved = localStorage.getItem('au_ui_theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-    } catch (e) {}
-    return 'light';
-  });
-
-  const handleSetUiTheme = (newTheme: UiTheme) => {
-    setUiTheme(newTheme);
-    try {
-      localStorage.setItem('au_ui_theme', newTheme);
-    } catch (e) {}
-    hasLocalUserEditsInSessionRef.current = true;
-    setTimeout(() => triggerCloudWorkspaceSyncRef.current?.(), 100);
-  };
-
-  const handleToggleTheme = () => {
-    hasLocalUserEditsInSessionRef.current = true;
-    setUiTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      try {
-        localStorage.setItem('au_ui_theme', next);
-      } catch (e) {}
-      setTimeout(() => triggerCloudWorkspaceSyncRef.current?.(), 100);
-      return next;
-    });
-  };
-
-  useEffect(() => {
-    if (uiTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [uiTheme]);
 
   // Active Generator Tab with localStorage persistence
   const [activeTab, setActiveTab] = useState<PlatformTab>(() => {
@@ -1177,70 +745,6 @@ export default function App() {
   const [notesData, setNotesData] = useState<NotesData>(() => loadStoredFormState(userAccountKey, 'notes', INITIAL_NOTES_DATA));
   const [pushNotificationData, setPushNotificationData] = useState<PushNotificationData>(() => loadStoredFormState(userAccountKey, 'push-notification', INITIAL_PUSH_NOTIFICATION_DATA));
   const [spotifyData, setSpotifyData] = useState<SpotifyData>(() => loadStoredFormState(userAccountKey, 'spotify-card', INITIAL_SPOTIFY_DATA));
-
-  // Global Font Manager State
-  const [globalFont, setGlobalFont] = useState<FontOptionKey>('ios');
-  const [customFontName, setCustomFontName] = useState<string>('');
-
-  useEffect(() => {
-    try {
-      const savedFont = localStorage.getItem('global_app_font');
-      if (savedFont && FONT_OPTIONS.some((f) => f.key === savedFont)) {
-        setGlobalFont(savedFont as FontOptionKey);
-      }
-      const savedCustomFontName = localStorage.getItem('global_custom_font_name');
-      if (savedCustomFontName) {
-        setCustomFontName(savedCustomFontName);
-      }
-    } catch (e) {}
-  }, []);
-
-  const handleFontChange = (newFont: FontOptionKey) => {
-    setGlobalFont(newFont);
-    try {
-      localStorage.setItem('global_app_font', newFont);
-    } catch (e) {}
-    triggerCloudWorkspaceSyncRef.current?.();
-  };
-
-  const handleCustomFontUploaded = (fileName: string) => {
-    setCustomFontName(fileName);
-    try {
-      localStorage.setItem('global_custom_font_name', fileName);
-    } catch (e) {}
-    triggerCloudWorkspaceSyncRef.current?.();
-  };
-
-  useEffect(() => {
-    injectGlobalCustomFonts();
-  }, []);
-
-  const currentFontCss = getFontCssValue(globalFont);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--selected-global-font', currentFontCss);
-  }, [currentFontCss]);
-
-  // Global Card Corner Radius State (0px to 48px)
-  const [cornerRadius, setCornerRadius] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('global_card_corner_radius');
-      if (saved !== null) return parseInt(saved, 10) || 0;
-    } catch (e) {}
-    return 0;
-  });
-
-  const handleCornerRadiusChange = (newRadius: number) => {
-    setCornerRadius(newRadius);
-    try {
-      localStorage.setItem('global_card_corner_radius', String(newRadius));
-    } catch (e) {}
-    triggerCloudWorkspaceSyncRef.current?.();
-  };
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--preview-corner-radius', `${cornerRadius}px`);
-  }, [cornerRadius]);
 
   // Quick AU Characters / Folders State (Clean immutable map: tab -> folders list)
   const [moduleFolders, setModuleFolders] = useState<Record<string, AUFolder[]>>(() => loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS));
@@ -1527,974 +1031,38 @@ export default function App() {
     }
   }, [activeTab, userAccountKey, moduleFolders, activeFolderIds]);
 
-  // Export State & Scale
-  const [exportScale, setExportScale] = useState<number>(1);
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isExportingJpg, setIsExportingJpg] = useState<boolean>(false);
-  const [exportStatusText, setExportStatusText] = useState<string>('');
-  const [exportError, setExportError] = useState<string>('');
-  const [copiedSuccess, setCopiedSuccess] = useState<boolean>(false);
-  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
-  const [downloadJpgSuccess, setDownloadJpgSuccess] = useState<boolean>(false);
-
-  // Live Preview Viewport State Model (Explicit Current, Locked & Render Viewports)
-  const [currentViewport, setCurrentViewport] = useState<ViewportTransform>(() => {
-    try {
-      const px = Number(localStorage.getItem('preview_pan_x')) || 0;
-      const py = Number(localStorage.getItem('preview_pan_y')) || 0;
-      const savedZoom = localStorage.getItem('preview_zoom');
-      const zoom = savedZoom ? Math.min(200, Math.max(30, Number(savedZoom))) : 75;
-      return { x: px, y: py, scale: zoom };
-    } catch {
-      return { x: 0, y: 0, scale: 75 };
-    }
-  });
-
-  const [lockedViewport, setLockedViewport] = useState<ViewportTransform>(() => {
-    try {
-      const px = Number(localStorage.getItem('preview_pan_x')) || 0;
-      const py = Number(localStorage.getItem('preview_pan_y')) || 0;
-      const savedZoom = localStorage.getItem('preview_zoom');
-      const zoom = savedZoom ? Math.min(200, Math.max(30, Number(savedZoom))) : 75;
-      return { x: px, y: py, scale: zoom };
-    } catch {
-      return { x: 0, y: 0, scale: 75 };
-    }
-  });
-
-  const [isPreviewLocked, setIsPreviewLocked] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('preview_is_locked');
-      return saved !== null ? saved === 'true' : false;
-    } catch {
-      return false;
-    }
-  });
-
-  const [isDraggingCanvas, setIsDraggingCanvas] = useState<boolean>(false);
-
-  // Active rendering viewport:
-  // When locked, strictly render lockedViewport.
-  // When unlocked, render currentViewport.
-  const renderViewport: ViewportTransform = isPreviewLocked ? lockedViewport : currentViewport;
-  const previewZoom = renderViewport.scale;
-  const previewPan = { x: renderViewport.x, y: renderViewport.y };
-
-  const previewViewportRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const isPointerDownRef = useRef<boolean>(false);
-  const activePointerIdRef = useRef<number | null>(null);
-  const transientPanRef = useRef<{ x: number; y: number }>({ x: renderViewport.x, y: renderViewport.y });
-  const rafIdRef = useRef<number | null>(null);
-  const previewZoomRef = useRef<number>(renderViewport.scale);
-  previewZoomRef.current = renderViewport.scale;
-  const previewPanRef = useRef<{ x: number; y: number }>({ x: renderViewport.x, y: renderViewport.y });
-  previewPanRef.current = { x: renderViewport.x, y: renderViewport.y };
-  const isPreviewLockedRef = useRef<boolean>(isPreviewLocked);
-  isPreviewLockedRef.current = isPreviewLocked;
-
-  useEffect(() => {
-    transientPanRef.current = { x: renderViewport.x, y: renderViewport.y };
-    previewPanRef.current = { x: renderViewport.x, y: renderViewport.y };
-  }, [renderViewport.x, renderViewport.y]);
-
-  useEffect(() => {
-    previewZoomRef.current = renderViewport.scale;
-  }, [renderViewport.scale]);
-
-  const setPreviewZoom = useCallback((newScaleOrFn: number | ((prev: number) => number)) => {
-    if (isPreviewLockedRef.current) return;
-    setCurrentViewport((prev) => {
-      const nextScale = typeof newScaleOrFn === 'function' ? newScaleOrFn(prev.scale) : newScaleOrFn;
-      const clamped = Math.min(200, Math.max(30, nextScale));
-      previewZoomRef.current = clamped;
-      try { localStorage.setItem('preview_zoom', String(clamped)); } catch {}
-      return { ...prev, scale: clamped };
-    });
-  }, []);
-
-  const setPreviewPan = useCallback((newPanOrFn: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })) => {
-    if (isPreviewLockedRef.current) return;
-    setCurrentViewport((prev) => {
-      const nextPan = typeof newPanOrFn === 'function' ? newPanOrFn({ x: prev.x, y: prev.y }) : newPanOrFn;
-      previewPanRef.current = nextPan;
-      transientPanRef.current = nextPan;
-      try {
-        localStorage.setItem('preview_pan_x', String(Math.round(nextPan.x)));
-        localStorage.setItem('preview_pan_y', String(Math.round(nextPan.y)));
-      } catch {}
-      return { ...prev, x: nextPan.x, y: nextPan.y };
-    });
-  }, []);
-
-  const handleToggleLockPreview = () => {
-    // 1. Immediately cancel any animation frame
-    if (rafIdRef.current) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-
-    // 2. End any pointer/touch dragging state cleanly
-    isPointerDownRef.current = false;
-    activePointerIdRef.current = null;
-    setIsDraggingCanvas(false);
-    if (touchStateRef.current) {
-      touchStateRef.current.isPanning = false;
-      touchStateRef.current.initialDist = 0;
-    }
-
-    // 3. CAPTURE EXACT LIVE VIEWPORT FROM PREVIEW:
-    // Read from transientPanRef.current & previewZoomRef.current, or inspect the live DOM container
-    let liveX = Math.round(transientPanRef.current.x);
-    let liveY = Math.round(transientPanRef.current.y);
-    let liveScale = previewZoomRef.current;
-
-    const container = document.getElementById('preview-canvas-container');
-    if (container && container.style.transform) {
-      const match = container.style.transform.match(/translate3d\(([-0-9.]+)px,\s*([-0-9.]+)px/);
-      if (match) {
-        liveX = Math.round(parseFloat(match[1]));
-        liveY = Math.round(parseFloat(match[2]));
-      }
-      const scaleMatch = container.style.transform.match(/scale\(([-0-9.]+)\)/);
-      if (scaleMatch) {
-        liveScale = Math.round(parseFloat(scaleMatch[1]) * 100);
-      }
-    }
-
-    if (!isPreviewLocked) {
-      // USER PRESSED LOCK:
-      // Freeze the current live transform exactly into lockedViewport
-      const frozen: ViewportTransform = { x: liveX, y: liveY, scale: liveScale };
-      setLockedViewport(frozen);
-      setCurrentViewport(frozen);
-      setIsPreviewLocked(true);
-      isPreviewLockedRef.current = true;
-      transientPanRef.current = { x: liveX, y: liveY };
-      previewPanRef.current = { x: liveX, y: liveY };
-      previewZoomRef.current = liveScale;
-
-      if (container) {
-        container.style.transition = 'none';
-        container.style.transform = `translate3d(${liveX}px, ${liveY}px, 0) scale(${liveScale / 100})`;
-      }
-
-      try {
-        localStorage.setItem('preview_is_locked', 'true');
-        localStorage.setItem('preview_pan_x', String(liveX));
-        localStorage.setItem('preview_pan_y', String(liveY));
-        localStorage.setItem('preview_zoom', String(liveScale));
-      } catch {}
-    } else {
-      // USER PRESSED UNLOCK:
-      // Preserved exact locked transform as the starting position for currentViewport
-      const preserved: ViewportTransform = { ...lockedViewport };
-      setCurrentViewport(preserved);
-      setIsPreviewLocked(false);
-      isPreviewLockedRef.current = false;
-      transientPanRef.current = { x: preserved.x, y: preserved.y };
-      previewPanRef.current = { x: preserved.x, y: preserved.y };
-      previewZoomRef.current = preserved.scale;
-
-      if (container) {
-        container.style.transition = 'none';
-        container.style.transform = `translate3d(${preserved.x}px, ${preserved.y}px, 0) scale(${preserved.scale / 100})`;
-      }
-
-      try {
-        localStorage.setItem('preview_is_locked', 'false');
-      } catch {}
-    }
-  };
-
-  const touchStateRef = useRef<{
-    initialDist: number;
-    initialZoom: number;
-    initialPan: { x: number; y: number };
-    initialMid: { x: number; y: number };
-    lastTouchPos: { x: number; y: number };
-    isPanning: boolean;
-  }>({
-    initialDist: 0,
-    initialZoom: 75,
-    initialPan: { x: 0, y: 0 },
-    initialMid: { x: 0, y: 0 },
-    lastTouchPos: { x: 0, y: 0 },
-    isPanning: false,
-  });
-
-  const handleZoomIn = () => {
-    if (isPreviewLockedRef.current) return;
-    setPreviewZoom((prev) => {
-      const next = Math.min(200, prev + 10);
-      previewZoomRef.current = next;
-      try { localStorage.setItem('preview_zoom', String(next)); } catch {}
-      return next;
-    });
-  };
-
-  const handleZoomOut = () => {
-    if (isPreviewLockedRef.current) return;
-    setPreviewZoom((prev) => {
-      const next = Math.max(30, prev - 10);
-      previewZoomRef.current = next;
-      try { localStorage.setItem('preview_zoom', String(next)); } catch {}
-      return next;
-    });
-  };
-
-  const handleZoomReset = () => {
-    if (isPreviewLockedRef.current) return;
-    setPreviewZoom(75);
-    setPreviewPan({ x: 0, y: 0 });
-    previewZoomRef.current = 75;
-    previewPanRef.current = { x: 0, y: 0 };
-    transientPanRef.current = { x: 0, y: 0 };
-    try {
-      localStorage.setItem('preview_zoom', '75');
-      localStorage.setItem('preview_pan_x', '0');
-      localStorage.setItem('preview_pan_y', '0');
-    } catch {}
-    const container = document.getElementById('preview-canvas-container');
-    if (container) {
-      container.style.transform = 'translate3d(0px, 0px, 0) scale(0.75)';
-    }
-  };
-
-  // Unified Pointer Drag Panning (Mobile Finger Touch & Desktop Mouse)
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // When preview is locked, do not allow panning/dragging the canvas - preserve standard interaction & scrolling
-    if (isPreviewLockedRef.current) return;
-
-    // Only primary mouse button for mouse, any touch/pen
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-
-    const target = e.target as HTMLElement | null;
-    // Don't start canvas pan on interactive control elements
-    if (
-      target &&
-      (target.closest('button') ||
-       target.closest('input') ||
-       target.closest('textarea') ||
-       target.closest('select') ||
-       target.closest('a') ||
-       target.closest('[role="button"]') ||
-       target.closest('[role="slider"]') ||
-       target.closest('.no-drag'))
-    ) {
-      return;
-    }
-
-    isPointerDownRef.current = true;
-    activePointerIdRef.current = e.pointerId;
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    transientPanRef.current = { ...previewPanRef.current };
-    setIsDraggingCanvas(true);
-  };
-
-  // Mouse fallback for older environments
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isPreviewLockedRef.current || isPointerDownRef.current) return;
-    const target = e.target as HTMLElement | null;
-    if (
-      target &&
-      (target.closest('button') ||
-       target.closest('input') ||
-       target.closest('textarea') ||
-       target.closest('select') ||
-       target.closest('a') ||
-       target.closest('[role="button"]') ||
-       target.closest('[role="slider"]') ||
-       target.closest('.no-drag'))
-    ) {
-      return;
-    }
-    if (e.button !== 0) return;
-    isPointerDownRef.current = true;
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    transientPanRef.current = { ...previewPanRef.current };
-    setIsDraggingCanvas(true);
-  };
-
-  const handleDoubleClickViewport = (e: React.MouseEvent) => {
-    if (isPreviewLockedRef.current) return;
-    const target = e.target as HTMLElement;
-    if (['INPUT', 'BUTTON', 'TEXTAREA', 'SELECT', 'A'].includes(target.tagName) || target.closest('button')) {
-      return;
-    }
-    if (previewZoom === 75 && previewPan.x === 0 && previewPan.y === 0) {
-      setPreviewZoom(120);
-      previewZoomRef.current = 120;
-    } else {
-      setPreviewZoom(75);
-      setPreviewPan({ x: 0, y: 0 });
-      previewZoomRef.current = 75;
-      previewPanRef.current = { x: 0, y: 0 };
-      transientPanRef.current = { x: 0, y: 0 };
-    }
-  };
-
-  // Global pointermove & pointerup for silky smooth 60/120fps direct hardware transform drag panning
-  useEffect(() => {
-    const handleGlobalPointerMove = (e: PointerEvent) => {
-      if (isPreviewLockedRef.current || !isPointerDownRef.current) return;
-      if (activePointerIdRef.current !== null && e.pointerId !== activePointerIdRef.current) return;
-
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
-      dragStartRef.current = { x: e.clientX, y: e.clientY };
-
-      const nextX = transientPanRef.current.x + dx;
-      const nextY = transientPanRef.current.y + dy;
-      transientPanRef.current = { x: nextX, y: nextY };
-      previewPanRef.current = { x: nextX, y: nextY };
-
-      // High-performance direct DOM transform via RAF to eliminate lag and prevent re-rendering entire app tree
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = requestAnimationFrame(() => {
-        const container = document.getElementById('preview-canvas-container');
-        if (container) {
-          const zoom = previewZoomRef.current;
-          container.style.transform = `translate3d(${nextX}px, ${nextY}px, 0) scale(${zoom / 100})`;
-        }
-      });
-    };
-
-    const handleGlobalPointerUp = (e: PointerEvent) => {
-      if (isPointerDownRef.current && (activePointerIdRef.current === null || e.pointerId === activePointerIdRef.current)) {
-        isPointerDownRef.current = false;
-        activePointerIdRef.current = null;
-        setIsDraggingCanvas(false);
-        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-        // Cleanly commit final pan coordinates to React state & localStorage
-        const finalX = Math.round(transientPanRef.current.x);
-        const finalY = Math.round(transientPanRef.current.y);
-        setPreviewPan({ x: finalX, y: finalY });
-        try {
-          localStorage.setItem('preview_pan_x', String(finalX));
-          localStorage.setItem('preview_pan_y', String(finalY));
-        } catch {}
-      }
-    };
-
-    window.addEventListener('pointermove', handleGlobalPointerMove, { passive: true });
-    window.addEventListener('pointerup', handleGlobalPointerUp);
-    window.addEventListener('pointercancel', handleGlobalPointerUp);
-
-    return () => {
-      window.removeEventListener('pointermove', handleGlobalPointerMove);
-      window.removeEventListener('pointerup', handleGlobalPointerUp);
-      window.removeEventListener('pointercancel', handleGlobalPointerUp);
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    };
-  }, []);
-
-  // Stable wheel and touch listeners for smooth pinch-to-zoom on mobile & desktop
-  useEffect(() => {
-    const el = previewViewportRef.current;
-    if (!el) return;
-
-    // Wheel event for desktop (Wheel controls zoom inside preview canvas with focal point)
-    const handleWheel = (e: WheelEvent) => {
-      // When locked, do NOT hijack wheel scrolling at all - allow natural scroll for chat and full page
-      if (isPreviewLockedRef.current) return;
-
-      e.preventDefault();
-
-      const rect = el.getBoundingClientRect();
-      const cursorX = e.clientX - rect.left - rect.width / 2;
-      const cursorY = e.clientY - rect.top;
-
-      const currentZoom = previewZoomRef.current;
-      // scroll up (deltaY < 0) -> zoom in, scroll down (deltaY > 0) -> zoom out
-      const step = (e.ctrlKey || e.metaKey) ? 12 : 8;
-      const zoomDelta = e.deltaY < 0 ? step : -step;
-      const targetZoom = Math.min(200, Math.max(30, currentZoom + zoomDelta));
-
-      if (targetZoom === currentZoom) return;
-
-      const scaleOld = currentZoom / 100;
-      const scaleNew = targetZoom / 100;
-
-      // Focal point calculation: keep point under cursor invariant
-      const currentPan = transientPanRef.current;
-      const newPanX = cursorX - (cursorX - currentPan.x) * (scaleNew / scaleOld);
-      const newPanY = cursorY - (cursorY - currentPan.y) * (scaleNew / scaleOld);
-
-      transientPanRef.current = { x: newPanX, y: newPanY };
-      previewPanRef.current = { x: newPanX, y: newPanY };
-      previewZoomRef.current = targetZoom;
-
-      setPreviewZoom(targetZoom);
-      setPreviewPan({ x: Math.round(newPanX), y: Math.round(newPanY) });
-      try {
-        localStorage.setItem('preview_zoom', String(targetZoom));
-        localStorage.setItem('preview_pan_x', String(Math.round(newPanX)));
-        localStorage.setItem('preview_pan_y', String(Math.round(newPanY)));
-      } catch {}
-
-      const container = document.getElementById('preview-canvas-container');
-      if (container) {
-        container.style.transform = `translate3d(${newPanX}px, ${newPanY}px, 0) scale(${scaleNew})`;
-      }
-    };
-
-    // Touch handlers for mobile (pinch-to-zoom with mathematical focal point + 2-finger pan)
-    const handleTouchStart = (e: TouchEvent) => {
-      // When locked, strictly preserve natural mobile page and chat scrolling
-      if (isPreviewLockedRef.current) {
-        touchStateRef.current.isPanning = false;
-        touchStateRef.current.initialDist = 0;
-        return;
-      }
-
-      const target = e.target as HTMLElement | null;
-      // If tapping standard clickable control buttons or inputs, do not interfere
-      if (target && (target.closest('button') || target.closest('input') || target.closest('textarea') || target.closest('select') || target.closest('[data-no-swipe]'))) {
-        return;
-      }
-
-      if (e.touches.length >= 2) {
-        // TWO FINGERS: Intentional Pinch-to-Zoom or 2-finger pan on the Live Preview
-        e.preventDefault();
-        isPointerDownRef.current = false;
-        activePointerIdRef.current = null;
-
-        const rect = el.getBoundingClientRect();
-        const t1 = e.touches[0];
-        const t2 = e.touches[1];
-        const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-        const midClientX = (t1.clientX + t2.clientX) / 2;
-        const midClientY = (t1.clientY + t2.clientY) / 2;
-        const midX = midClientX - rect.left - rect.width / 2;
-        const midY = midClientY - rect.top;
-
-        touchStateRef.current = {
-          initialDist: dist > 0 ? dist : 1,
-          initialZoom: previewZoomRef.current,
-          initialPan: { ...previewPanRef.current },
-          initialMid: { x: midX, y: midY },
-          lastTouchPos: { x: midClientX, y: midClientY },
-          isPanning: true,
-        };
-        setIsDraggingCanvas(true);
-      } else {
-        // SINGLE FINGER: Normal handling via PointerDown
-        touchStateRef.current.isPanning = false;
-        touchStateRef.current.initialDist = 0;
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (isPreviewLockedRef.current) return;
-
-      // Only pinch-zoom and 2-finger pan when user uses 2 fingers
-      if (e.touches.length >= 2) {
-        e.preventDefault();
-        const rect = el.getBoundingClientRect();
-        const t1 = e.touches[0];
-        const t2 = e.touches[1];
-        const currentDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-        const midClientX = (t1.clientX + t2.clientX) / 2;
-        const midClientY = (t1.clientY + t2.clientY) / 2;
-        const currentMidX = midClientX - rect.left - rect.width / 2;
-        const currentMidY = midClientY - rect.top;
-
-        // Seamless dynamic initialization if second finger landed slightly after the first
-        if (!touchStateRef.current.isPanning || touchStateRef.current.initialDist <= 0) {
-          touchStateRef.current = {
-            initialDist: currentDist > 0 ? currentDist : 1,
-            initialZoom: previewZoomRef.current,
-            initialPan: { ...previewPanRef.current },
-            initialMid: { x: currentMidX, y: currentMidY },
-            lastTouchPos: { x: midClientX, y: midClientY },
-            isPanning: true,
-          };
-          setIsDraggingCanvas(true);
-          return;
-        }
-
-        // Fluid scale calculation with focal pan
-        const scale = currentDist / touchStateRef.current.initialDist;
-        const targetZoom = Math.min(200, Math.max(30, Math.round(touchStateRef.current.initialZoom * scale)));
-        const scaleInitial = touchStateRef.current.initialZoom / 100;
-        const scaleNew = targetZoom / 100;
-
-        const focalPanX = currentMidX - (touchStateRef.current.initialMid.x - touchStateRef.current.initialPan.x) * (scaleNew / scaleInitial);
-        const focalPanY = currentMidY - (touchStateRef.current.initialMid.y - touchStateRef.current.initialPan.y) * (scaleNew / scaleInitial);
-
-        transientPanRef.current = { x: focalPanX, y: focalPanY };
-        previewPanRef.current = { x: focalPanX, y: focalPanY };
-        previewZoomRef.current = targetZoom;
-
-        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = requestAnimationFrame(() => {
-          const container = document.getElementById('preview-canvas-container');
-          if (container) {
-            container.style.transform = `translate3d(${focalPanX}px, ${focalPanY}px, 0) scale(${scaleNew})`;
-          }
-        });
-      }
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2 && touchStateRef.current.isPanning) {
-        touchStateRef.current.isPanning = false;
-        touchStateRef.current.initialDist = 0;
-        setIsDraggingCanvas(false);
-        const finalZoom = previewZoomRef.current;
-        const finalX = Math.round(transientPanRef.current.x);
-        const finalY = Math.round(transientPanRef.current.y);
-        setPreviewZoom(finalZoom);
-        setPreviewPan({ x: finalX, y: finalY });
-        try {
-          localStorage.setItem('preview_zoom', String(finalZoom));
-          localStorage.setItem('preview_pan_x', String(finalX));
-          localStorage.setItem('preview_pan_y', String(finalY));
-        } catch {}
-      }
-    };
-
-    el.addEventListener('wheel', handleWheel, { passive: false });
-    el.addEventListener('touchstart', handleTouchStart, { passive: false });
-    el.addEventListener('touchmove', handleTouchMove, { passive: false });
-    el.addEventListener('touchend', handleTouchEnd);
-    el.addEventListener('touchcancel', handleTouchEnd);
-
-    return () => {
-      el.removeEventListener('wheel', handleWheel);
-      el.removeEventListener('touchstart', handleTouchStart);
-      el.removeEventListener('touchmove', handleTouchMove);
-      el.removeEventListener('touchend', handleTouchEnd);
-      el.removeEventListener('touchcancel', handleTouchEnd);
-    };
-  }, []);
-
+  const {
+    previewViewportRef,
+    previewZoom,
+    previewPan,
+    isPreviewLocked,
+    isDraggingCanvas,
+    setPreviewZoom,
+    setPreviewPan,
+    handleToggleLockPreview,
+    handleZoomIn,
+    handleZoomOut,
+    handleZoomReset,
+    handlePointerDown,
+    handleMouseDown,
+    handleDoubleClickViewport,
+  } = usePreviewViewport();
   // Ref to Preview node for html2canvas / html-to-image capture
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Mobile View Switcher (Input vs Preview)
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isMobileFloatingPreviewOpen, setIsMobileFloatingPreviewOpen] = useState(() => {
-    try {
-      return localStorage.getItem('mobile_pip_enabled') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  const setMobileFloatingPreviewOpen = useCallback((isOpen: boolean) => {
-    setIsMobileFloatingPreviewOpen(isOpen);
-    try {
-      localStorage.setItem('mobile_pip_enabled', String(isOpen));
-    } catch {}
-  }, []);
-
-  // Mobile Touch Swipe Gesture Navigation:
-  // - Swipe right to switch to Live Preview (or back)
-  // - Swipe left to return to Form Input (or forward)
-  // - Completely non-intrusive: ignores sliders, form inputs, buttons, and vertical scrolls
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchStartTime = 0;
-    let isIgnoredTarget = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      // Only active on mobile / tablet viewport (< 1024px)
-      if (window.innerWidth >= 1024) return;
-      // Single finger touch only
-      if (e.touches.length !== 1) return;
-
-      const target = e.target as HTMLElement | null;
-      // Ignore interactions inside preview canvas, inputs, textareas, selects, buttons, range sliders, or horizontal scrollers
-      if (
-        target?.closest(
-          '#preview-viewport-container, #preview-canvas-container, [data-preview-canvas], input, textarea, select, button, [role="slider"], .overflow-x-auto, [data-no-swipe], .no-swipe, a'
-        )
-      ) {
-        isIgnoredTarget = true;
-        return;
-      }
-
-      isIgnoredTarget = false;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchStartTime = Date.now();
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (window.innerWidth >= 1024 || isIgnoredTarget) return;
-      if (e.changedTouches.length !== 1) return;
-
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      const diffX = touchEndX - touchStartX;
-      const diffY = touchEndY - touchStartY;
-      const absX = Math.abs(diffX);
-      const absY = Math.abs(diffY);
-      const duration = Date.now() - touchStartTime;
-
-      // Deliberate horizontal swipe:
-      // - Minimum 45px distance
-      // - Horizontal travel must be at least 1.5x greater than vertical movement (prevents hijacking vertical scroll)
-      // - Fast decisive gesture (< 600ms)
-      if (absX >= 45 && absX > absY * 1.5 && duration < 600) {
-        if (diffX > 0) {
-          // Swipe Right (finger moves left-to-right) -> Live Preview (or toggle)
-          if (mobileView === 'editor') {
-            setMobileView('preview');
-          } else {
-            setMobileView('editor');
-          }
-        } else {
-          // Swipe Left (finger moves right-to-left) -> Form Input (or toggle)
-          if (mobileView === 'preview') {
-            setMobileView('editor');
-          } else {
-            setMobileView('preview');
-          }
-        }
-      }
-    };
-
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [mobileView]);
-
-  // Helper to sync identity ONLY for the current active tab (strict platform isolation)
-  const updateCurrentTabIdentity = (
-    identity: { name?: string; handle?: string; avatar?: string; verified?: any },
-    tab: PlatformTab
-  ) => {
-    const { name, handle, avatar, verified } = identity;
-
-    if (tab === 'twitter') {
-      setTwitterData((prev) => ({
-        ...prev,
-        name: name !== undefined ? name : prev.name,
-        handle: handle !== undefined ? handle : prev.handle,
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? verified : prev.verified,
-      }));
-    } else if (tab === 'instagram-feed') {
-      setInstagramFeedData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'ig-blue') : prev.verified,
-      }));
-    } else if (tab === 'instagram-story') {
-      setInstagramStoryData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'ig-blue') : prev.verified,
-      }));
-    } else if (tab === 'instagram-story-reply') {
-      setInstagramStoryReplyData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : prev.username,
-        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
-      }));
-    } else if (tab === 'instagram-story-viewers') {
-      setInstagramStoryViewersData((prev) => ({
-        ...prev,
-        storyImage: avatar !== undefined && avatar ? avatar : prev.storyImage,
-      }));
-    } else if (tab === 'instagram-profile') {
-      setInstagramProfileData((prev) => ({
-        ...prev,
-        name: name !== undefined ? name : prev.name,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'ig-blue') : prev.verified,
-      }));
-    } else if (tab === 'instagram-live') {
-      setInstagramLiveData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'ig-blue') : prev.verified,
-      }));
-    } else if (tab === 'instagram-notes') {
-      setInstagramNotesData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : prev.username,
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-      }));
-    } else if (tab === 'instagram-activity') {
-      setInstagramActivityData((prev) => ({
-        ...prev,
-        userAvatar: avatar !== undefined ? avatar : prev.userAvatar,
-      }));
-    } else if (tab === 'instagram-dm') {
-      setInstagramDMData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        name: name !== undefined ? name : prev.name,
-        avatar: avatar !== undefined ? avatar : prev.avatar,
-        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'blue') : prev.verified,
-      }));
-    } else if (tab === 'instagram-dm-inbox') {
-      setInstagramDMInboxData((prev) => ({
-        ...prev,
-        accountUsername: handle !== undefined ? handle : (name !== undefined ? name : prev.accountUsername),
-        userAvatar: avatar !== undefined ? avatar : prev.userAvatar,
-      }));
-    } else if (tab === 'instagram-feed-comments') {
-      setInstagramFeedCommentsData((prev) => ({
-        ...prev,
-        userUsername: handle !== undefined ? handle : (name !== undefined ? name : prev.userUsername),
-        userAvatar: avatar !== undefined ? avatar : prev.userAvatar,
-      }));
-    } else if (tab === 'whatsapp-chat') {
-      setWhatsAppChatData((prev) => ({
-        ...prev,
-        contactName: name !== undefined ? name : prev.contactName,
-        contactAvatar: avatar !== undefined ? avatar : prev.contactAvatar,
-      }));
-    } else if (tab === 'whatsapp-call') {
-      setWhatsAppCallData((prev) => ({
-        ...prev,
-        contactName: name !== undefined ? name : prev.contactName,
-        contactAvatar: avatar !== undefined ? avatar : prev.contactAvatar,
-      }));
-    } else if (tab === 'whatsapp-status') {
-      setWhatsAppStatusData((prev) => ({
-        ...prev,
-        contactName: name !== undefined ? name : prev.contactName,
-        contactAvatar: avatar !== undefined ? avatar : prev.contactAvatar,
-      }));
-    } else if (tab === 'whatsapp-viewers') {
-      setWhatsAppViewersData((prev) => ({
-        ...prev,
-        statusThumbnail: avatar !== undefined ? avatar : prev.statusThumbnail,
-      }));
-    } else if (tab === 'tiktok-profile') {
-      setTikTokProfileData((prev) => ({
-        ...prev,
-        profileName: name !== undefined ? name : prev.profileName,
-        handle: handle !== undefined ? handle : (name !== undefined ? name : prev.handle),
-        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
-      }));
-    } else if (tab === 'tiktok-feed-live') {
-      setTikTokFeedLiveData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
-      }));
-    } else if (tab === 'tiktok-fyp') {
-      setTikTokFypData((prev) => ({
-        ...prev,
-        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
-        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
-      }));
-    } else if (tab === 'ios-lockscreen') {
-      setIosLockscreenData((prev) => ({
-        ...prev,
-        senderName: name !== undefined ? name : prev.senderName,
-        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
-      }));
-    } else if (tab === 'line-chat') {
-      setLineChatData((prev) => ({
-        ...prev,
-        contactName: name !== undefined ? name : prev.contactName,
-        contactAvatar: avatar !== undefined ? avatar : prev.contactAvatar,
-      }));
-    }
-  };
-
-  const getCurrentTabFormData = (tab: PlatformTab): any => {
-    switch (tab) {
-      case 'twitter': return twitterData;
-      case 'instagram-feed': return instagramFeedData;
-      case 'instagram-story': return instagramStoryData;
-      case 'instagram-story-reply': return instagramStoryReplyData;
-      case 'instagram-story-viewers': return instagramStoryViewersData;
-      case 'instagram-profile': return instagramProfileData;
-      case 'instagram-live': return instagramLiveData;
-      case 'instagram-notes': return instagramNotesData;
-      case 'instagram-activity': return instagramActivityData;
-      case 'instagram-dm': return instagramDMData;
-      case 'instagram-dm-inbox': return instagramDMInboxData;
-      case 'instagram-feed-comments': return instagramFeedCommentsData;
-      case 'whatsapp-chat': return whatsAppChatData;
-      case 'whatsapp-call': return whatsAppCallData;
-      case 'whatsapp-status': return whatsAppStatusData;
-      case 'whatsapp-viewers': return whatsAppViewersData;
-      case 'tiktok-profile': return tikTokProfileData;
-      case 'tiktok-feed-live': return tikTokFeedLiveData;
-      case 'tiktok-fyp': return tikTokFypData;
-      case 'ios-lockscreen': return iosLockscreenData;
-      case 'line-chat': return lineChatData;
-      case 'notes': return notesData;
-      case 'push-notification': return pushNotificationData;
-      case 'spotify-card': return spotifyData;
-      default: return twitterData;
-    }
-  };
-
-  // The editor and the private export-render route resolve previews through the
-  // same registry. Story Reply intentionally preserves the existing canonical
-  // editor behavior, which currently mirrors the Story preview data.
-  const currentPreviewData = activeTab === 'instagram-story-reply'
-    ? instagramStoryData
-    : getCurrentTabFormData(activeTab);
-
-  const handleRegisteredPreviewChange = (next: any) => {
-    switch (activeTab) {
-      case 'twitter': return handleTwitterDataChange(next);
-      case 'instagram-dm': return handleInstagramDMDataChange(next);
-      case 'whatsapp-chat': return handleWhatsAppChatDataChange(next);
-      case 'whatsapp-call': return handleWhatsAppCallDataChange(next);
-      case 'whatsapp-status': return handleWhatsAppStatusDataChange(next);
-      case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(next);
-      case 'tiktok-profile': return handleTikTokProfileDataChange(next);
-      case 'ios-lockscreen': return handleIosLockscreenDataChange(next);
-      case 'line-chat': return handleLineChatDataChange(next);
-      case 'notes': return handleNotesDataChange(next);
-      case 'push-notification': return handlePushNotificationDataChange(next);
-      case 'spotify-card': return handleSpotifyDataChange(next);
-      default: return undefined;
-    }
-  };
-
-  const handleRegisteredMessageText = (id: string, text: string) => {
-    if (activeTab === 'instagram-dm') return handleUpdateInstagramDMMessageText(id, text);
-    if (activeTab === 'whatsapp-chat') return handleUpdateWhatsAppMessageText(id, text);
-    if (activeTab === 'line-chat') {
-      setLineChatData((prev) => ({
-        ...prev,
-        messages: (prev.messages || []).map((message) =>
-          message.id === id ? { ...message, text } : message
-        ),
-      }));
-    }
-  };
-
-  // Helper to set tab form data
-  const loadTabFormData = (tab: PlatformTab, data: any) => {
-    if (!data) return;
-    const cloned = JSON.parse(JSON.stringify(data));
-    if (tab === 'twitter') setTwitterData(cloned);
-    else if (tab === 'instagram-feed') setInstagramFeedData(cloned);
-    else if (tab === 'instagram-story') setInstagramStoryData(cloned);
-    else if (tab === 'instagram-story-reply') setInstagramStoryReplyData(cloned);
-    else if (tab === 'instagram-story-viewers') setInstagramStoryViewersData(cloned);
-    else if (tab === 'instagram-profile') setInstagramProfileData(cloned);
-    else if (tab === 'instagram-live') setInstagramLiveData(cloned);
-    else if (tab === 'instagram-notes') setInstagramNotesData(cloned);
-    else if (tab === 'instagram-activity') setInstagramActivityData(cloned);
-    else if (tab === 'instagram-dm') setInstagramDMData(cloned);
-    else if (tab === 'instagram-dm-inbox') setInstagramDMInboxData(cloned);
-    else if (tab === 'instagram-feed-comments') setInstagramFeedCommentsData(cloned);
-    else if (tab === 'whatsapp-chat') setWhatsAppChatData(cloned);
-    else if (tab === 'whatsapp-call') setWhatsAppCallData(cloned);
-    else if (tab === 'whatsapp-status') setWhatsAppStatusData(cloned);
-    else if (tab === 'whatsapp-viewers') setWhatsAppViewersData(cloned);
-    else if (tab === 'tiktok-profile') setTikTokProfileData(cloned);
-    else if (tab === 'tiktok-feed-live') setTikTokFeedLiveData(cloned);
-    else if (tab === 'tiktok-fyp') setTikTokFypData(cloned);
-    else if (tab === 'ios-lockscreen') setIosLockscreenData(cloned);
-    else if (tab === 'line-chat') setLineChatData(cloned);
-    else if (tab === 'notes') setNotesData(cloned);
-    else if (tab === 'push-notification') setPushNotificationData(cloned);
-    else if (tab === 'spotify-card') setSpotifyData(cloned);
-  };
-
-  const handleResetActiveTabState = () => {
-    const initialData = getInitialTabData(activeTab);
-    const cloned = JSON.parse(JSON.stringify(initialData));
-    loadTabFormData(activeTab, cloned);
-    updateActiveFolderData(activeTab, cloned);
-  };
-
-  // Complete Workspace Data Gatherer for multi-device sync
-  const gatherCompleteWorkspacePayload = useCallback(() => {
-    const currentFormData = getCurrentTabFormData(activeTab);
-
-    // 1. Gather all form states across all platforms to guarantee zero data loss
-    const allFormStates: Record<string, any> = {
-      'twitter': twitterData,
-      'instagram-feed': instagramFeedData,
-      'instagram-story': instagramStoryData,
-      'instagram-story-reply': instagramStoryReplyData,
-      'instagram-story-viewers': instagramStoryViewersData,
-      'instagram-profile': instagramProfileData,
-      'instagram-live': instagramLiveData,
-      'instagram-notes': instagramNotesData,
-      'instagram-activity': instagramActivityData,
-      'instagram-dm': instagramDMData,
-      'instagram-dm-inbox': instagramDMInboxData,
-      'instagram-feed-comments': instagramFeedCommentsData,
-      'whatsapp-chat': whatsAppChatData,
-      'whatsapp-call': whatsAppCallData,
-      'whatsapp-status': whatsAppStatusData,
-      'whatsapp-viewers': whatsAppViewersData,
-      'tiktok-profile': tikTokProfileData,
-      'tiktok-feed-live': tikTokFeedLiveData,
-      'tiktok-fyp': tikTokFypData,
-      'ios-lockscreen': iosLockscreenData,
-      'line-chat': lineChatData,
-      'notes': notesData,
-      'push-notification': pushNotificationData,
-      'spotify-card': spotifyData,
-    };
-    if (activeTab && currentFormData) {
-      allFormStates[activeTab] = currentFormData;
-    }
-
-    const effectiveModuleFolders = moduleFoldersRef.current && Object.keys(moduleFoldersRef.current).length > 0
-      ? moduleFoldersRef.current
-      : moduleFolders;
-    const effectiveActiveFolderIds = activeFolderIdsRef.current && Object.keys(activeFolderIdsRef.current).length > 0
-      ? activeFolderIdsRef.current
-      : activeFolderIds;
-
-    return {
-      userId: authUser?.uid || 'anonymous',
-      userEmail: authUser?.email ? authUser.email.toLowerCase() : (authUser?.uid || ''),
-      lastActiveTab: activeTab,
-      lastActiveCategory: activeCategory,
-      updatedBy: clientSessionId,
-      // Complete form states & histories across all tabs
-      formStates: allFormStates,
-      // Module folders & active folder IDs
-      moduleFolders: effectiveModuleFolders,
-      activeFolderIds: effectiveActiveFolderIds,
-      characters: effectiveModuleFolders,
-      folderStates: effectiveModuleFolders,
-      preferences: {
-        uiTheme,
-        language,
-        globalFont,
-        customFontName,
-        cornerRadius,
-      },
-      userAssets: readPersistentUserAssets(authUser?.uid, authUser?.email),
-      updatedAt: new Date().toISOString(),
-    };
-  }, [
+  const {
+    mobileView,
+    setMobileView,
+    isMobileFloatingPreviewOpen,
+    setMobileFloatingPreviewOpen,
+  } = useMobilePreviewNavigation();
+  const {
+    updateCurrentTabIdentity,
+    getCurrentTabFormData,
+    loadTabFormData,
+    currentPreviewData,
+  } = useTabFormDataRegistry({
     activeTab,
-    activeCategory,
-    moduleFolders,
-    activeFolderIds,
-    uiTheme,
-    language,
-    globalFont,
-    customFontName,
-    cornerRadius,
-    authUser?.email,
-    authUser?.uid,
-    userAccountKey,
     twitterData,
     instagramFeedData,
     instagramStoryData,
@@ -2519,701 +1087,294 @@ export default function App() {
     notesData,
     pushNotificationData,
     spotifyData,
-  ]);
-
-  // Ref to always access the latest complete workspace payload without forcing callback recreation
-  const gatherCompleteWorkspacePayloadRef = useRef(gatherCompleteWorkspacePayload);
-  gatherCompleteWorkspacePayloadRef.current = gatherCompleteWorkspacePayload;
-
-  // Debounced real-time cloud workspace sync to Firestore (Multi-Device)
-  const triggerCloudWorkspaceSync = useCallback(() => {
-    // Gate: Auto-save must never run before hydration completes
-    if (!isHydratedRef.current) {
-      return;
-    }
-    const userEmailOrId = authUser?.uid || auth.currentUser?.uid;
-    if (!userEmailOrId) return;
-    if (isFirestoreQuotaExhausted()) {
-      setCloudSyncState('offline');
-      return;
-    }
-    if (syncDebounceTimerRef.current) {
-      clearTimeout(syncDebounceTimerRef.current);
-    }
-    syncDebounceTimerRef.current = setTimeout(async () => {
-      if (!isHydratedRef.current) return;
-      if (isFirestoreQuotaExhausted()) {
-        setCloudSyncState('offline');
-        return;
-      }
-      try {
-        setCloudSyncState('syncing');
-        const payload = gatherCompleteWorkspacePayloadRef.current();
-        await saveUserWorkspaceToFirestore(userEmailOrId, payload);
-        if (auth.currentUser?.uid !== userEmailOrId) return;
-        if (isFirestoreQuotaExhausted()) {
-          setCloudSyncState('offline');
-        } else {
-          clearPendingCloudSync(userAccountKey);
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
-        }
-      } catch (err) {
-        console.warn('Real-time cloud sync notice:', err);
-        setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-      }
-    }, 800);
-  }, [authUser?.email, authUser?.uid]);
-
-  // Keep ref up to date for safe invocation across mutations
-  useEffect(() => {
-    triggerCloudWorkspaceSyncRef.current = triggerCloudWorkspaceSync;
-  }, [triggerCloudWorkspaceSync]);
-
-  // Instant force sync for structural mutations (preset creation, slot deletes, duplicate, etc.)
-  const forceCloudWorkspaceSyncNow = useCallback(async () => {
-    // Gate: Force sync must never run before hydration completes
-    if (!isHydratedRef.current) {
-      return;
-    }
-    const userEmailOrId = authUser?.uid || auth.currentUser?.uid;
-    if (!userEmailOrId) return;
-    if (isFirestoreQuotaExhausted()) {
-      setCloudSyncState('offline');
-      return;
-    }
-    setCloudSyncState('syncing');
-    try {
-      const payload = gatherCompleteWorkspacePayloadRef.current();
-      await saveUserWorkspaceToFirestore(userEmailOrId, payload);
-      if (auth.currentUser?.uid !== userEmailOrId) return;
-      if (isFirestoreQuotaExhausted()) {
-        setCloudSyncState('offline');
-      } else {
-        clearPendingCloudSync(userAccountKey);
-        setCloudSyncState('synced');
-        setLastSyncedTime(new Date());
-      }
-    } catch (err) {
-      console.warn('Force cloud sync notice:', err);
-      setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-    }
-  }, [authUser?.email, authUser?.uid]);
-
-  forceCloudWorkspaceSyncNowRef.current = forceCloudWorkspaceSyncNow;
-
-  const hasInitialTabHydratedRef = useRef(false);
-
-  // Apply cloud workspace updates into local memory, UI state & localStorage cache
-  const applyCloudWorkspaceData = useCallback((cloudData: any, forceHydrate: boolean = false) => {
-    if (!cloudData) return;
-
-    // Protect local state: only if user has actively made local edits in this active session AND not forceHydrating
-    if (!forceHydrate && hasLocalUserEditsInSessionRef.current) {
-      const localLastUpdated = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);
-      const cloudUpdatedAt = cloudData.updatedAt ? new Date(cloudData.updatedAt).getTime() : 0;
-      if (localLastUpdated > 0 && (!cloudUpdatedAt || localLastUpdated >= cloudUpdatedAt)) {
-        forceCloudWorkspaceSyncNowRef.current();
-        return;
-      }
-    }
-
-    // 1. Sync module folders across all platform tabs with safe merge
-    const nextFolders = cloudData.moduleFolders && typeof cloudData.moduleFolders === 'object'
-      ? cloudData.moduleFolders
-      : null;
-    const nextActiveIds = cloudData.activeFolderIds && typeof cloudData.activeFolderIds === 'object'
-      ? cloudData.activeFolderIds
-      : null;
-
-    if (nextFolders) {
-      const mergedFolders: Record<string, AUFolder[]> = { ...(moduleFoldersRef.current || moduleFolders) };
-      Object.entries(nextFolders).forEach(([t, fList]) => {
-        if (Array.isArray(fList) && fList.length > 0) {
-          mergedFolders[t] = fList;
-        }
-      });
-      setModuleFolders(mergedFolders);
-      moduleFoldersRef.current = mergedFolders;
-      Object.entries(mergedFolders).forEach(([t, fList]) => {
-        try {
-          localStorage.setItem(getModuleFoldersKey(userAccountKey, t as PlatformTab), JSON.stringify(fList));
-          if (Array.isArray(fList)) {
-            fList.forEach((f: any) => {
-              if (f && f.id) {
-                localStorage.setItem(getModuleFolderItemKey(userAccountKey, t as PlatformTab, f.id), JSON.stringify(f));
-              }
-            });
-          }
-        } catch {}
-      });
-    }
-
-    if (nextActiveIds) {
-      const mergedActiveIds: Record<string, string> = { ...(activeFolderIdsRef.current || activeFolderIds), ...nextActiveIds };
-      setActiveFolderIds(mergedActiveIds);
-      activeFolderIdsRef.current = mergedActiveIds;
-      Object.entries(mergedActiveIds).forEach(([t, aId]) => {
-        try {
-          localStorage.setItem(getModuleActiveFolderKey(userAccountKey, t as PlatformTab), String(aId));
-        } catch {}
-      });
-    }
-
-    // 2. Load the active folder's data for each platform tab to preserve folder isolation
-    const effectiveFolders = nextFolders || moduleFoldersRef.current;
-    const effectiveActiveIds = nextActiveIds || activeFolderIdsRef.current;
-
-    ALL_PLATFORM_TABS.forEach((tab) => {
-      const tabFolderList = effectiveFolders?.[tab];
-      if (tabFolderList && Array.isArray(tabFolderList) && tabFolderList.length > 0) {
-        const activeId = effectiveActiveIds?.[tab] || tabFolderList[0]?.id || 'folder-1';
-        const targetFolder = tabFolderList.find((f: any) => f.id === activeId) || tabFolderList[0];
-        if (targetFolder && targetFolder.data) {
-          loadTabFormData(tab, targetFolder.data);
-          try {
-            localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(targetFolder.data));
-          } catch {}
-        }
-      } else if (cloudData.formStates && cloudData.formStates[tab]) {
-        loadTabFormData(tab, cloudData.formStates[tab]);
-        try {
-          localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(cloudData.formStates[tab]));
-        } catch {}
-      }
-    });
-
-    // 4. Sync user preferences
-    if (cloudData.preferences) {
-      if (cloudData.preferences.uiTheme && (cloudData.preferences.uiTheme === 'dark' || cloudData.preferences.uiTheme === 'light')) {
-        setUiTheme(cloudData.preferences.uiTheme);
-        try { localStorage.setItem('au_ui_theme', cloudData.preferences.uiTheme); } catch {}
-      }
-      if (cloudData.preferences.globalFont) {
-        setGlobalFont(cloudData.preferences.globalFont);
-        try { localStorage.setItem('global_app_font', cloudData.preferences.globalFont); } catch {}
-      }
-      if (cloudData.preferences.customFontName) {
-        setCustomFontName(cloudData.preferences.customFontName);
-        try { localStorage.setItem('global_custom_font_name', cloudData.preferences.customFontName); } catch {}
-      }
-      if (typeof (cloudData.preferences.cornerRadius ?? cloudData.preferences.cardCornerRadius) === 'number') {
-        const rad = cloudData.preferences.cornerRadius ?? cloudData.preferences.cardCornerRadius;
-        setCornerRadius(rad);
-        try { localStorage.setItem('global_card_corner_radius', String(rad)); } catch {}
-      }
-    }
-
-    if (cloudData.userAssets && authUser?.uid) {
-      isApplyingCloudAssetsRef.current = true;
-      try {
-        persistUserAssets(authUser.uid, cloudData.userAssets, true);
-      } finally {
-        isApplyingCloudAssetsRef.current = false;
-      }
-    }
-
-    // 5. Restore active tab & category ONLY once on initial page load / login
-    if (forceHydrate && !hasInitialTabHydratedRef.current) {
-      hasInitialTabHydratedRef.current = true;
-      if (cloudData.lastActiveTab && ALL_PLATFORM_TABS.includes(cloudData.lastActiveTab)) {
-        setActiveTab(cloudData.lastActiveTab);
-        try { localStorage.setItem('au_last_active_tab', cloudData.lastActiveTab); } catch {}
-      }
-      if (cloudData.lastActiveCategory) {
-        setActiveCategory(cloudData.lastActiveCategory);
-      }
-    }
-
-    // Mark session as aligned with cloud data
-    hasLocalUserEditsInSessionRef.current = false;
-    const cloudTime = cloudData.updatedAt ? new Date(cloudData.updatedAt).getTime() : Date.now();
-    try {
-      localStorage.setItem(getLocalUpdateStorageKey(userAccountKey), String(cloudTime));
-      clearPendingCloudSync(userAccountKey);
-    } catch {}
-  }, [userAccountKey, authUser?.uid]);
-
-  const applyCloudWorkspaceDataRef = useRef(applyCloudWorkspaceData);
-  applyCloudWorkspaceDataRef.current = applyCloudWorkspaceData;
-
-  // Manual Cloud Sync: Push all folders 1, 2, 3 and workspace to Firestore
-  const handleManualCloudBackup = async () => {
-    const userEmailOrId = authUser?.uid;
-    if (!userEmailOrId) {
-      setCloudToast({
-        show: true,
-        message: language === 'id' ? 'Silakan login akun Google/Email terlebih dahulu.' : 'Please log in with Google/Email first.',
-        type: 'warning',
-      });
-      return;
-    }
-    setCloudSyncState('syncing');
-    try {
-      const payload = gatherCompleteWorkspacePayloadRef.current();
-      await saveUserWorkspaceToFirestore(userEmailOrId, payload);
-      if (auth.currentUser?.uid === userEmailOrId) clearPendingCloudSync(userAccountKey);
-      // Synchronize all folders
-      ALL_PLATFORM_TABS.forEach((t) => {
-        const folders = moduleFoldersRef.current[t] || [];
-        folders.forEach((f) => {
-          syncFolderToFirestore(f.id, f, userEmailOrId, t);
-        });
-      });
-      setCloudSyncState('synced');
-      setLastSyncedTime(new Date());
-      setCloudToast({
-        show: true,
-        message: language === 'id' ? 'Data folder dan workspace berhasil dicadangkan ke Cloud!' : 'All folder data and workspace backed up to Cloud!',
-        type: 'success',
-      });
-    } catch (err) {
-      setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-      setCloudToast({
-        show: true,
-        message: language === 'id' ? 'Gagal mencadangkan ke cloud. Periksa koneksi Anda.' : 'Failed to backup to cloud. Check your connection.',
-        type: 'error',
-      });
+    setTwitterData,
+    setInstagramFeedData,
+    setInstagramStoryData,
+    setInstagramStoryReplyData,
+    setInstagramStoryViewersData,
+    setInstagramProfileData,
+    setInstagramLiveData,
+    setInstagramNotesData,
+    setInstagramActivityData,
+    setInstagramDMData,
+    setInstagramDMInboxData,
+    setInstagramFeedCommentsData,
+    setWhatsAppChatData,
+    setWhatsAppCallData,
+    setWhatsAppStatusData,
+    setWhatsAppViewersData,
+    setTikTokProfileData,
+    setTikTokFeedLiveData,
+    setTikTokFypData,
+    setIosLockscreenData,
+    setLineChatData,
+    setNotesData,
+    setPushNotificationData,
+    setSpotifyData,
+  });
+  const handleRegisteredPreviewChange = (next: any) => {
+    switch (activeTab) {
+      case 'twitter': return handleTwitterDataChange(next);
+      case 'instagram-dm': return handleInstagramDMDataChange(next);
+      case 'whatsapp-chat': return handleWhatsAppChatDataChange(next);
+      case 'whatsapp-call': return handleWhatsAppCallDataChange(next);
+      case 'whatsapp-status': return handleWhatsAppStatusDataChange(next);
+      case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(next);
+      case 'tiktok-profile': return handleTikTokProfileDataChange(next);
+      case 'ios-lockscreen': return handleIosLockscreenDataChange(next);
+      case 'line-chat': return handleLineChatDataChange(next);
+      case 'notes': return handleNotesDataChange(next);
+      case 'push-notification': return handlePushNotificationDataChange(next);
+      case 'spotify-card': return handleSpotifyDataChange(next);
+      default: return undefined;
     }
   };
 
-  // Manual Cloud Restore: Reload all folders from Firestore
-  const handleManualCloudRestore = async () => {
-    const userEmailOrId = authUser?.uid;
-    if (!userEmailOrId) {
-      setCloudToast({
-        show: true,
-        message: language === 'id' ? 'Silakan login akun terlebih dahulu.' : 'Please log in first.',
-        type: 'warning',
-      });
-      return;
-    }
-    setCloudSyncState('syncing');
-    try {
-      const requestedUid = userEmailOrId;
-      const cloudData = await loadUserWorkspaceFromFirestore(userEmailOrId);
-      if (auth.currentUser?.uid !== requestedUid) return;
-      if (cloudData) {
-        applyCloudWorkspaceData(cloudData, true);
-        setCloudSyncState('synced');
-        setLastSyncedTime(new Date());
-        setCloudToast({
-          show: true,
-          message: language === 'id' ? 'Data folder dan workspace berhasil dimuat ulang dari Cloud!' : 'All folder data and workspace reloaded from Cloud!',
-          type: 'success',
-        });
-      } else {
-        setCloudSyncState('synced');
-        setCloudToast({
-          show: true,
-          message: language === 'id' ? 'Belum ada data cadangan di cloud untuk akun ini.' : 'No cloud backup found for this account.',
-          type: 'info',
-        });
-      }
-    } catch (err) {
-      setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-      setCloudToast({
-        show: true,
-        message: language === 'id' ? 'Gagal memuat data dari cloud.' : 'Failed to load from cloud.',
-        type: 'error',
-      });
-    }
+  const handleRegisteredMessageText = (id: string, text: string) => {
+    if (activeTab === 'instagram-dm') return handleUpdateInstagramDMMessageText(id, text);
+    if (activeTab === 'whatsapp-chat') return handleUpdateWhatsAppMessageText(id, text);
+    if (activeTab === 'line-chat') return handleUpdateLineMessageText(id, text);
   };
 
-  // Real-time multi-device subscription & initial cloud hydration (Laptop <-> HP)
-  useEffect(() => {
-    const userEmailOrId = authUser?.uid;
-    if (!userEmailOrId) {
-      accountSyncGenerationRef.current += 1;
-      setCloudSyncState('signed_out');
-      setIsHydrated(true);
-      isHydratedRef.current = true;
-      return;
-    }
-
-    const expectedUid = userEmailOrId;
-    const generation = ++accountSyncGenerationRef.current;
-    let disposed = false;
-    const isCurrentAccount = () =>
-      !disposed &&
-      accountSyncGenerationRef.current === generation &&
-      auth.currentUser?.uid === expectedUid;
-
-    setCloudSyncState('syncing');
-
-    // Immediately switch account-scoped persistent assets in mounted forms. The cloud
-    // snapshot below remains authoritative and replaces this cache after hydration.
-    isApplyingCloudAssetsRef.current = true;
-    try {
-      persistUserAssets(expectedUid, readPersistentUserAssets(expectedUid, authUser?.email), true);
-    } finally {
-      isApplyingCloudAssetsRef.current = false;
-    }
-
-    // 1. Initial hydration from Firestore
-    setIsInitialCloudLoading(true);
-    setIsHydrated(false);
-    isHydratedRef.current = false;
-    setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' ? 'HYDRATE_DATA' : prev));
-    const hydrationSafetyTimer = setTimeout(() => {
-      if (!isCurrentAccount()) return;
-      setIsInitialCloudLoading(false);
-      setIsHydrated(true);
-      isHydratedRef.current = true;
-      setAuthLifecycleStage((prev) => (prev === 'HYDRATE_DATA' || prev === 'LOAD_USER_DATA' ? 'READY' : prev));
-    }, 6000);
-
-    loadUserWorkspaceFromFirestore(userEmailOrId)
-      .then((cloudWorkspace) => {
-        if (!isCurrentAccount()) return;
-        clearTimeout(hydrationSafetyTimer);
-        setIsInitialCloudLoading(false);
-        if (cloudWorkspace && cloudWorkspace.hasLoadedData && cloudWorkspace.status === 'loaded') {
-          const localUpdatedAt = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);
-          const hasPendingLocalSync = localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true';
-          const cloudUpdatedAt = cloudWorkspace.updatedAt ? new Date(cloudWorkspace.updatedAt).getTime() : 0;
-          if (hasPendingLocalSync && localUpdatedAt > 0 && (!cloudUpdatedAt || localUpdatedAt > cloudUpdatedAt)) {
-            // Preserve newer offline/local edits through reload, then push them after hydration.
-            setIsHydrated(true);
-            isHydratedRef.current = true;
-            forceCloudWorkspaceSyncNowRef.current();
-          } else {
-            applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
-          }
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
-        } else if (cloudWorkspace && (cloudWorkspace.isNewUser || cloudWorkspace.status === 'new_user')) {
-          // If first time on cloud for this account:
-          // Check if this account already has existing local storage (folders or form data) for userAccountKey
-          const localFolders = loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS);
-          const hasExistingLocalData = ALL_PLATFORM_TABS.some((tab) => {
-            const hasFolderStorage = Boolean(localStorage.getItem(getModuleFoldersKey(userAccountKey, tab)));
-            const hasFormStorage = Boolean(localStorage.getItem(getFormStorageKey(userAccountKey, tab)));
-            return hasFolderStorage || hasFormStorage;
-          });
-
-          if (hasExistingLocalData || hasLocalUserEditsInSessionRef.current) {
-            // Preserve user's local data and sync to cloud immediately
-            setModuleFolders(localFolders);
-            moduleFoldersRef.current = localFolders;
-            const loadedActiveIds = loadAllStoredActiveFolderIds(userAccountKey, ALL_PLATFORM_TABS);
-            setActiveFolderIds(loadedActiveIds);
-            activeFolderIdsRef.current = loadedActiveIds;
-            ALL_PLATFORM_TABS.forEach((tab) => {
-              const tabFolders = localFolders[tab] || [];
-              const tabFolderId = loadedActiveIds[tab] || tabFolders[0]?.id;
-              const currentFolder = tabFolders.find((f) => f.id === tabFolderId) || tabFolders[0];
-              if (currentFolder && currentFolder.data) {
-                loadTabFormData(tab, currentFolder.data);
-              }
-            });
-            setIsHydrated(true);
-            isHydratedRef.current = true;
-            forceCloudWorkspaceSyncNowRef.current();
-            setCloudSyncState('synced');
-            setLastSyncedTime(new Date());
-            setAuthLifecycleStage('READY');
-            return;
-          } else {
-            const cleanFolders: Record<string, AUFolder[]> = {};
-            const cleanActiveIds: Record<string, string> = {};
-            ALL_PLATFORM_TABS.forEach((tab) => {
-              cleanFolders[tab] = [{ id: 'folder-1', name: 'Folder 1', data: getInitialTabData(tab), order: 1 }];
-              cleanActiveIds[tab] = 'folder-1';
-              loadTabFormData(tab, getInitialTabData(tab));
-            });
-            setModuleFolders(cleanFolders);
-            moduleFoldersRef.current = cleanFolders;
-            setActiveFolderIds(cleanActiveIds);
-            activeFolderIdsRef.current = cleanActiveIds;
-            setIsHydrated(true);
-            isHydratedRef.current = true;
-            forceCloudWorkspaceSyncNowRef.current();
-            setCloudSyncState('synced');
-            setLastSyncedTime(new Date());
-            setAuthLifecycleStage('READY');
-            return;
-          }
-        } else {
-          // If Cloud response is an error or offline, never destroy local data
-          setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-        }
-        setIsHydrated(true);
-        isHydratedRef.current = true;
-        setAuthLifecycleStage('READY');
-      })
-      .catch(() => {
-        if (!isCurrentAccount()) return;
-        clearTimeout(hydrationSafetyTimer);
-        setIsInitialCloudLoading(false);
-        setIsHydrated(true);
-        isHydratedRef.current = true;
-        setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-        setAuthLifecycleStage('READY');
-      });
-
-    // 2. Real-time snapshot listener across devices
-    const unsubscribe = subscribeUserWorkspaceFromFirestore(
-      userEmailOrId,
-      (cloudData) => {
-        if (!cloudData || !isCurrentAccount()) return;
-        // Suppress echo from this exact client session
-        if (cloudData.updatedBy === clientSessionId) {
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
-          return;
-        }
-        applyCloudWorkspaceDataRef.current(cloudData, false);
-        setCloudSyncState('synced');
-        setLastSyncedTime(new Date());
-      },
-      () => {
-        if (!isCurrentAccount()) return;
-        setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-      }
-    );
-
-    return () => {
-      disposed = true;
-      clearTimeout(hydrationSafetyTimer);
-      unsubscribe();
-    };
-  }, [authUser?.uid, userAccountKey]);
-
-  // Auto-sync form changes into active folder state & storage in real time
-  const updateActiveFolderData = (tab: PlatformTab, updated: any) => {
-    hasLocalUserEditsInSessionRef.current = true;
-    const activeFolderId =
-      activeFolderIdsRef.current[tab] ||
-      activeFolderIds[tab] ||
-      moduleFoldersRef.current[tab]?.[0]?.id ||
-      'folder-1';
-    const clonedUpdated = JSON.parse(JSON.stringify(updated));
-
-    // 1. Immediate synchronous auto-save to localStorage
-    try {
-      localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(clonedUpdated));
-      const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      moduleFoldersRef.current[tab] = nextList;
-      localStorage.setItem(getModuleFoldersKey(userAccountKey, tab), JSON.stringify(nextList));
-      const targetFolder = nextList.find((f) => f.id === targetId);
-      if (targetFolder) {
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, tab, targetId), JSON.stringify(targetFolder));
-      }
-      markLocalWorkspaceUpdated(userAccountKey);
-    } catch (e) {
-      console.warn('[Auto-Save] Synchronous localStorage write warning:', e);
-    }
-
-    // 2. React state update
-    setModuleFolders((prev) => {
-      const currentList = prev[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0].id;
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      return { ...prev, [tab]: nextList };
-    });
-    triggerCloudWorkspaceSync();
+  const handleResetActiveTabState = () => {
+    const initialData = getInitialTabData(activeTab);
+    const cloned = JSON.parse(JSON.stringify(initialData));
+    loadTabFormData(activeTab, cloned);
+    updateActiveFolderData(activeTab, cloned);
   };
 
-  // 1. Create Slot Handler ("+ Add Folder")
-  const handleAddCharacterSlot = async () => {
-    hasLocalUserEditsInSessionRef.current = true;
-    const currentTab = activeTab;
-    const currentActiveId =
-      activeFolderIdsRef.current[currentTab] ||
-      activeFolderIds[currentTab] ||
-      moduleFoldersRef.current[currentTab]?.[0]?.id ||
-      'folder-1';
+  const { gatherCompleteWorkspacePayloadRef } = useWorkspacePayload({
+    activeTab,
+    activeCategory,
+    authUser,
+    clientSessionId,
+    moduleFolders,
+    activeFolderIds,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    uiTheme,
+    language,
+    globalFont,
+    customFontName,
+    cornerRadius,
+    getCurrentTabFormData,
+    twitterData,
+    instagramFeedData,
+    instagramStoryData,
+    instagramStoryReplyData,
+    instagramStoryViewersData,
+    instagramProfileData,
+    instagramLiveData,
+    instagramNotesData,
+    instagramActivityData,
+    instagramDMData,
+    instagramDMInboxData,
+    instagramFeedCommentsData,
+    whatsAppChatData,
+    whatsAppCallData,
+    whatsAppStatusData,
+    whatsAppViewersData,
+    tikTokProfileData,
+    tikTokFeedLiveData,
+    tikTokFypData,
+    iosLockscreenData,
+    lineChatData,
+    notesData,
+    pushNotificationData,
+    spotifyData,
+  });
+  const {
+    triggerCloudWorkspaceSync,
+    forceCloudWorkspaceSyncNow,
+  } = useWorkspaceCloudSync({
+    authUser,
+    userAccountKey,
+    isHydratedRef,
+    syncDebounceTimerRef,
+    gatherCompleteWorkspacePayloadRef,
+    triggerCloudWorkspaceSyncRef,
+    forceCloudWorkspaceSyncNowRef,
+    setCloudSyncState,
+    setLastSyncedTime,
+  });
+  const {
+    applyCloudWorkspaceData,
+    applyCloudWorkspaceDataRef,
+  } = useApplyCloudWorkspaceData({
+    authUser,
+    userAccountKey,
+    moduleFolders,
+    activeFolderIds,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    hasLocalUserEditsInSessionRef,
+    forceCloudWorkspaceSyncNowRef,
+    isApplyingCloudAssetsRef,
+    setModuleFolders,
+    setActiveFolderIds,
+    setUiTheme,
+    setGlobalFont,
+    setCustomFontName,
+    setCornerRadius,
+    setActiveTab,
+    setActiveCategory,
+    loadTabFormData,
+  });
+  const {
+    handleManualCloudBackup,
+    handleManualCloudRestore,
+  } = useManualWorkspaceCloudActions({
+    authUser,
+    language,
+    userAccountKey,
+    moduleFoldersRef,
+    gatherCompleteWorkspacePayloadRef,
+    applyCloudWorkspaceData,
+    setCloudSyncState,
+    setLastSyncedTime,
+    setCloudToast,
+  });
+  useWorkspaceCloudHydration({
+    authUser,
+    userAccountKey,
+    clientSessionId,
+    accountSyncGenerationRef,
+    isHydratedRef,
+    isApplyingCloudAssetsRef,
+    hasLocalUserEditsInSessionRef,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    forceCloudWorkspaceSyncNowRef,
+    applyCloudWorkspaceDataRef,
+    setCloudSyncState,
+    setIsInitialCloudLoading,
+    setIsHydrated,
+    setAuthLifecycleStage,
+    setLastSyncedTime,
+    setModuleFolders,
+    setActiveFolderIds,
+    loadTabFormData,
+  });
+  const {
+    updateActiveFolderData,
+    handleAddCharacterSlot,
+    handleSelectCharacter,
+    handleSaveActiveProfile,
+    handleDeleteCharacter,
+    handleRenameCharacter,
+  } = useWorkspaceFolders({
+    activeTab,
+    userAccountKey,
+    authUserUid: authUser?.uid,
+    moduleFolders,
+    activeFolderIds,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    hasLocalUserEditsInSessionRef,
+    setModuleFolders,
+    setActiveFolderIds,
+    getCurrentTabFormData,
+    loadTabFormData,
+    triggerCloudWorkspaceSync,
+    forceCloudWorkspaceSyncNow,
+  });
 
-    // Ensure the current folder's state is preserved with its latest form data
-    const currentFormData = getCurrentTabFormData(currentTab);
-    const clonedCurrentData = currentFormData ? JSON.parse(JSON.stringify(currentFormData)) : getInitialTabData(currentTab);
+  const {
+    handleTwitterDataChange,
+  } = useTwitterFormHandlers({
+    setTwitterData,
+    updateActiveFolderData,
+  });
 
-    // Read from moduleFoldersRef.current first so rapid clicks use the latest list
-    const existingList = (moduleFoldersRef.current && moduleFoldersRef.current[currentTab] && moduleFoldersRef.current[currentTab].length > 0)
-      ? moduleFoldersRef.current[currentTab]
-      : (moduleFolders[currentTab] || [
-          { id: 'folder-1', name: 'Folder 1', data: clonedCurrentData, order: 1 },
-        ]);
+  const {
+    handleInstagramFeedDataChange,
+    handleInstagramStoryDataChange,
+    handleInstagramStoryReplyDataChange,
+    handleInstagramStoryViewersDataChange,
+    handleInstagramProfileDataChange,
+    handleInstagramLiveDataChange,
+    handleInstagramNotesDataChange,
+    handleInstagramActivityDataChange,
+    handleInstagramDMDataChange,
+    handleInstagramDMInboxDataChange,
+    handleInstagramFeedCommentsDataChange,
+    handleUpdateInstagramDMMessageText,
+  } = useInstagramFormHandlers({
+    setInstagramFeedData,
+    setInstagramStoryData,
+    setInstagramStoryReplyData,
+    setInstagramStoryViewersData,
+    setInstagramProfileData,
+    setInstagramLiveData,
+    setInstagramNotesData,
+    setInstagramActivityData,
+    setInstagramDMData,
+    setInstagramDMInboxData,
+    setInstagramFeedCommentsData,
+    updateActiveFolderData,
+  });
 
-    const updatedExistingList = existingList.map((f, idx) =>
-      f.id === currentActiveId ? { ...f, data: clonedCurrentData, order: typeof f.order === 'number' ? f.order : idx + 1 } : f
-    );
+  const {
+    handleWhatsAppChatDataChange,
+    handleWhatsAppCallDataChange,
+    handleWhatsAppStatusDataChange,
+    handleWhatsAppViewersDataChange,
+    handleUpdateWhatsAppMessageText,
+  } = useWhatsAppFormHandlers({
+    setWhatsAppChatData,
+    setWhatsAppCallData,
+    setWhatsAppStatusData,
+    setWhatsAppViewersData,
+    updateActiveFolderData,
+  });
 
-    // Calculate sequential index: Folder 1, Folder 2, Folder 3...
-    let maxIdx = 0;
-    updatedExistingList.forEach((f, idx) => {
-      const match = f.name?.match(/Folder\s*(\d+)/i) || f.id?.match(/folder-(\d+)/i);
-      const num = match ? parseInt(match[1], 10) : (typeof f.order === 'number' ? f.order : idx + 1);
-      if (num > maxIdx) maxIdx = num;
-    });
-    const nextIdx = Math.max(updatedExistingList.length + 1, maxIdx + 1);
-    // IDs are immutable and never derived from list position, so delete/reorder cannot
-    // collide with an older cloud document.
-    const newFolderId = `folder-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const newFolderName = `Folder ${nextIdx}`;
+  const {
+    handleTikTokProfileDataChange,
+    handleTikTokFeedLiveDataChange,
+    handleTikTokFypDataChange,
+    handleToggleTikTokFypLike,
+    handleToggleTikTokFypBookmark,
+    handleToggleTikTokFypFollow,
+  } = useTikTokFormHandlers({
+    setTikTokProfileData,
+    setTikTokFeedLiveData,
+    setTikTokFypData,
+    updateActiveFolderData,
+  });
 
-    // Fresh, isolated clean reset data for the new folder: guaranteed 100% clean / reset from scratch!
-    const initialData = getInitialTabData(currentTab);
-    const cleanFreshData = JSON.parse(JSON.stringify(initialData));
-    const newFolder: AUFolder = {
-      id: newFolderId,
-      name: newFolderName,
-      data: cleanFreshData,
-      order: nextIdx,
-      updatedAt: new Date().toISOString(),
-    };
+  const {
+    handleLineChatDataChange,
+    handleUpdateLineMessageText,
+  } = useLineFormHandlers({
+    setLineChatData,
+    updateActiveFolderData,
+  });
 
-    const nextList = [...updatedExistingList, newFolder];
-
-    // Synchronously update refs so any immediate change applies to the new folder
-    activeFolderIdsRef.current[currentTab] = newFolderId;
-    moduleFoldersRef.current[currentTab] = nextList;
-
-    // Update state immutably and persist
-    setModuleFolders((prev) => {
-      try {
-        localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(nextList));
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, newFolderId), JSON.stringify(newFolder));
-      } catch {}
-      return { ...prev, [currentTab]: nextList };
-    });
-
-    setActiveFolderIds((prev) => {
-      try {
-        localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), newFolderId);
-        localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(cleanFreshData));
-      } catch {}
-      return { ...prev, [currentTab]: newFolderId };
-    });
-
-    // Immediately load the clean form data for the new folder
-    loadTabFormData(currentTab, cleanFreshData);
-    try {
-      markLocalWorkspaceUpdated(userAccountKey);
-    } catch {}
-
-    // Sync new folder to cloud Firestore immediately and await
-    const userEmailOrId = authUser?.uid;
-    if (userEmailOrId) {
-      await syncFolderToFirestore(newFolderId, newFolder, userEmailOrId, currentTab).catch(() => {});
-    }
-
-    await forceCloudWorkspaceSyncNow();
-  };
+  const {
+    exportScale,
+    setExportScale,
+    isExporting,
+    isExportingJpg,
+    exportStatusText,
+    exportError,
+    copiedSuccess,
+    downloadSuccess,
+    downloadJpgSuccess,
+    handleDownload,
+    handleDownloadJpg,
+    handleCopyClipboard,
+  } = usePreviewExport({
+    activeTab,
+    language,
+    previewRef,
+    getCurrentTabFormData,
+    updateActiveFolderData,
+  });
 
   // Form Change Handlers (auto-syncs to active folder preset and storage with strict tab isolation)
-  const handleTwitterDataChange = (updated: TwitterPostData) => {
-    setTwitterData(updated);
-    updateActiveFolderData('twitter', updated);
-  };
-
-  const handleInstagramFeedDataChange = (updated: InstagramFeedData) => {
-    setInstagramFeedData(updated);
-    updateActiveFolderData('instagram-feed', updated);
-  };
-
-  const handleInstagramStoryDataChange = (updated: InstagramStoryData) => {
-    setInstagramStoryData(updated);
-    updateActiveFolderData('instagram-story', updated);
-  };
-
-  const handleInstagramStoryReplyDataChange = (updated: InstagramStoryReplyData) => {
-    setInstagramStoryReplyData(updated);
-    updateActiveFolderData('instagram-story-reply', updated);
-  };
-
-  const handleInstagramStoryViewersDataChange = (updated: InstagramStoryViewersData) => {
-    setInstagramStoryViewersData(updated);
-    updateActiveFolderData('instagram-story-viewers', updated);
-  };
-
-  const handleInstagramProfileDataChange = (updated: InstagramProfileData) => {
-    setInstagramProfileData(updated);
-    updateActiveFolderData('instagram-profile', updated);
-  };
-
-  const handleInstagramLiveDataChange = (updated: InstagramLiveData) => {
-    setInstagramLiveData(updated);
-    updateActiveFolderData('instagram-live', updated);
-  };
-
-  const handleInstagramNotesDataChange = (updated: InstagramNotesData) => {
-    setInstagramNotesData(updated);
-    updateActiveFolderData('instagram-notes', updated);
-  };
-
-  const handleInstagramActivityDataChange = (updated: InstagramActivityData) => {
-    setInstagramActivityData(updated);
-    updateActiveFolderData('instagram-activity', updated);
-  };
-
-  const handleInstagramDMDataChange = (updated: InstagramDMData) => {
-    setInstagramDMData(updated);
-    updateActiveFolderData('instagram-dm', updated);
-  };
-
-  const handleInstagramDMInboxDataChange = (updated: InstagramDMInboxData) => {
-    setInstagramDMInboxData(updated);
-    updateActiveFolderData('instagram-dm-inbox', updated);
-  };
-
-  const handleInstagramFeedCommentsDataChange = (updated: InstagramFeedCommentsData) => {
-    setInstagramFeedCommentsData(updated);
-    updateActiveFolderData('instagram-feed-comments', updated);
-  };
-
-  const handleWhatsAppChatDataChange = (updated: WhatsAppChatData) => {
-    setWhatsAppChatData(updated);
-    updateActiveFolderData('whatsapp-chat', updated);
-  };
-
-  const handleWhatsAppCallDataChange = (updated: WhatsAppCallData) => {
-    setWhatsAppCallData(updated);
-    updateActiveFolderData('whatsapp-call', updated);
-  };
-
-  const handleWhatsAppStatusDataChange = (updated: WhatsAppStatusData) => {
-    setWhatsAppStatusData(updated);
-    updateActiveFolderData('whatsapp-status', updated);
-  };
-
-  const handleWhatsAppViewersDataChange = (updated: WhatsAppViewersData) => {
-    setWhatsAppViewersData(updated);
-    updateActiveFolderData('whatsapp-viewers', updated);
-  };
-
-  const handleTikTokProfileDataChange = (updated: TikTokProfileData) => {
-    setTikTokProfileData(updated);
-    updateActiveFolderData('tiktok-profile', updated);
-  };
-
-  const handleTikTokFeedLiveDataChange = (updated: TikTokFeedLiveData) => {
-    setTikTokFeedLiveData(updated);
-    updateActiveFolderData('tiktok-feed-live', updated);
-  };
-
-  const handleTikTokFypDataChange = (updated: TikTokFypData) => {
-    setTikTokFypData(updated);
-    updateActiveFolderData('tiktok-fyp', updated);
-  };
-
   const handleIosLockscreenDataChange = (updated: IOSLockscreenData) => {
     setIosLockscreenData(updated);
     updateActiveFolderData('ios-lockscreen', updated);
-  };
-
-  const handleLineChatDataChange = (updated: LineChatData) => {
-    setLineChatData(updated);
-    updateActiveFolderData('line-chat', updated);
   };
 
   const handleNotesDataChange = (updated: NotesData) => {
@@ -3231,544 +1392,41 @@ export default function App() {
     updateActiveFolderData('spotify-card', updated);
   };
 
-  const handleUpdateInstagramDMMessageText = (id: string, newText: string) => {
-    setInstagramDMData((prev) => {
-      const updated = {
-        ...prev,
-        messages: (prev.messages || []).map((msg) =>
-          msg.id === id ? { ...msg, text: newText } : msg
-        ),
-      };
-      updateActiveFolderData('instagram-dm', updated);
-      return updated;
-    });
-  };
-
-  const handleUpdateWhatsAppMessageText = (id: string, newText: string) => {
-    setWhatsAppChatData((prev) => {
-      const updated = {
-        ...prev,
-        messages: (prev.messages || []).map((msg) =>
-          msg.id === id ? { ...msg, text: newText } : msg
-        ),
-      };
-      updateActiveFolderData('whatsapp-chat', updated);
-      return updated;
-    });
-  };
-
-  // 2. Select & Load Folder Handler
-  const handleSelectCharacter = (char: CharacterPreset | AUFolder) => {
-    hasLocalUserEditsInSessionRef.current = true;
-    const currentTab = activeTab;
-    const targetId = char.id;
-    const currentActiveId =
-      activeFolderIdsRef.current[currentTab] ||
-      activeFolderIds[currentTab] ||
-      moduleFoldersRef.current[currentTab]?.[0]?.id ||
-      'folder-1';
-    if (currentActiveId === targetId) return;
-
-    // 1. Save current active folder data first so edits are never lost
-    const currentFormData = getCurrentTabFormData(currentTab);
-    const clonedCurrentData = currentFormData ? JSON.parse(JSON.stringify(currentFormData)) : null;
-
-    const currentList = moduleFolders[currentTab] || [];
-    const updatedList = clonedCurrentData
-      ? currentList.map((f) => (f.id === currentActiveId ? { ...f, data: clonedCurrentData } : f))
-      : currentList;
-
-    const targetFolder = updatedList.find((f) => f.id === targetId);
-    if (!targetFolder) return;
-
-    // 2. Synchronously set the active ref and update moduleFoldersRef
-    activeFolderIdsRef.current[currentTab] = targetId;
-    moduleFoldersRef.current[currentTab] = updatedList;
-
-    // 3. Persist to localStorage
-    try {
-      localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(updatedList));
-      localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), targetId);
-      localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(targetFolder.data));
-      if (clonedCurrentData) {
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, currentActiveId), JSON.stringify({ id: currentActiveId, name: targetFolder.name || 'Folder', data: clonedCurrentData }));
-      }
-      localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, targetId), JSON.stringify(targetFolder));
-      markLocalWorkspaceUpdated(userAccountKey);
-    } catch {}
-
-    // 4. Update states immutably
-    setModuleFolders((prev) => ({ ...prev, [currentTab]: updatedList }));
-    setActiveFolderIds((prev) => ({ ...prev, [currentTab]: targetId }));
-
-    // 5. Load selected folder's data with fresh deep clone
-    const clonedTargetData = JSON.parse(JSON.stringify(targetFolder.data));
-    loadTabFormData(currentTab, clonedTargetData);
-
-    triggerCloudWorkspaceSync();
-  };
-
-  // 3. Global "Save This Profile / Folder" Handler
-  const handleSaveActiveProfile = () => {
-    const currentFormData = getCurrentTabFormData(activeTab);
-    if (currentFormData) {
-      updateActiveFolderData(activeTab, currentFormData);
-    }
-  };
-
-  // Delete folder preset
-  const handleDeleteCharacter = async (charId: string) => {
-    hasLocalUserEditsInSessionRef.current = true;
-    const currentTab = activeTab;
-    const currentList = (moduleFoldersRef.current && moduleFoldersRef.current[currentTab]) || moduleFolders[currentTab] || [];
-    // Primary folder (Folder 1) cannot be deleted
-    if (currentList.length <= 1 || charId === 'folder-1' || currentList[0]?.id === charId) {
-      return;
-    }
-
-    const targetIdx = currentList.findIndex((f) => f.id === charId);
-    if (targetIdx <= 0) return;
-
-    const filtered = currentList.filter((f) => f.id !== charId);
-
-    // Keep stable folder IDs. Only display order changes after a delete.
-    const remainingFolders: AUFolder[] = filtered.map((f, idx) => ({
-      ...f,
-      order: idx + 1,
-      updatedAt: new Date().toISOString(),
-    }));
-
-    const currentActiveId = activeFolderIdsRef.current[currentTab] || activeFolderIds[currentTab];
-    let nextActiveId: string;
-    if (currentActiveId === charId) {
-      const fallbackIdx = Math.max(0, targetIdx - 1);
-      nextActiveId = remainingFolders[fallbackIdx]?.id || remainingFolders[0].id;
-    } else {
-      const newActiveIdx = filtered.findIndex((f) => f.id === currentActiveId);
-      nextActiveId = newActiveIdx !== -1 && remainingFolders[newActiveIdx] ? remainingFolders[newActiveIdx].id : remainingFolders[0].id;
-    }
-
-    activeFolderIdsRef.current[currentTab] = nextActiveId;
-    moduleFoldersRef.current[currentTab] = remainingFolders;
-
-    const activeFolder = remainingFolders.find((f) => f.id === nextActiveId) || remainingFolders[0];
-    const clonedActiveData = JSON.parse(JSON.stringify(activeFolder.data));
-
-    setModuleFolders((prev) => ({ ...prev, [currentTab]: remainingFolders }));
-    setActiveFolderIds((prev) => ({ ...prev, [currentTab]: nextActiveId }));
-
-    try {
-      localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(remainingFolders));
-      localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), nextActiveId);
-      localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(clonedActiveData));
-      localStorage.removeItem(getModuleFolderItemKey(userAccountKey, currentTab, charId));
-      remainingFolders.forEach((f) => {
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, f.id), JSON.stringify(f));
-      });
-      markLocalWorkspaceUpdated(userAccountKey);
-    } catch {}
-
-    loadTabFormData(currentTab, clonedActiveData);
-
-    const userEmailOrId = authUser?.uid;
-    if (userEmailOrId) {
-      await deleteFolderFromFirestore(charId, userEmailOrId, currentTab).catch(() => {});
-    }
-
-    await forceCloudWorkspaceSyncNow();
-  };
-
-  // Rename folder preset
-  const handleRenameCharacter = async (charId: string, newName: string) => {
-    hasLocalUserEditsInSessionRef.current = true;
-    const currentTab = activeTab;
-    const cleanName = newName.trim();
-    if (!cleanName) return;
-
-    const currentList = (moduleFoldersRef.current && moduleFoldersRef.current[currentTab]) || moduleFolders[currentTab] || [];
-    const nextList = currentList.map((f) =>
-      f.id === charId ? { ...f, name: cleanName, updatedAt: new Date().toISOString() } : f
-    );
-
-    activeFolderIdsRef.current[currentTab] = activeFolderIdsRef.current[currentTab] || charId;
-    moduleFoldersRef.current[currentTab] = nextList;
-
-    setModuleFolders((prev) => ({ ...prev, [currentTab]: nextList }));
-
-    try {
-      localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(nextList));
-      const target = nextList.find((f) => f.id === charId);
-      if (target) {
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, charId), JSON.stringify(target));
-      }
-      markLocalWorkspaceUpdated(userAccountKey);
-    } catch {}
-
-    const userEmailOrId = authUser?.uid;
-    if (userEmailOrId) {
-      const target = nextList.find((f) => f.id === charId);
-      if (target) {
-        await syncFolderToFirestore(charId, target, userEmailOrId, currentTab).catch(() => {});
-      }
-    }
-
-    await forceCloudWorkspaceSyncNow();
-  };
-
-  // Global auto-save protection on page refresh, navigation or tab hide
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      try {
-        const cur = getCurrentTabFormData(activeTab);
-        if (cur) {
-          const cloned = JSON.parse(JSON.stringify(cur));
-          localStorage.setItem(getFormStorageKey(userAccountKey, activeTab), JSON.stringify(cloned));
-          const currentList = moduleFoldersRef.current[activeTab] || [];
-          const activeId = activeFolderIdsRef.current[activeTab] || currentList[0]?.id || 'folder-1';
-          const nextList = currentList.map((f) => (f.id === activeId ? { ...f, data: cloned } : f));
-          localStorage.setItem(getModuleFoldersKey(userAccountKey, activeTab), JSON.stringify(nextList));
-          markLocalWorkspaceUpdated(userAccountKey);
-        }
-      } catch {}
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('pagehide', handleBeforeUnload);
-    const handleVisibility = () => {
-      if (document.visibilityState === 'hidden') {
-        handleBeforeUnload();
-        triggerCloudWorkspaceSyncRef.current?.();
-      } else if (document.visibilityState === 'visible') {
-        const userEmailOrId = authUser?.uid;
-        if (userEmailOrId && !hasLocalUserEditsInSessionRef.current) {
-          const requestedUid = userEmailOrId;
-          loadUserWorkspaceFromFirestore(userEmailOrId)
-            .then((cloudWorkspace) => {
-              if (auth.currentUser?.uid !== requestedUid) return;
-              if (cloudWorkspace) {
-                applyCloudWorkspaceDataRef.current(cloudWorkspace, false);
-              }
-            })
-            .catch(() => {});
-        }
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('pagehide', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [activeTab, userAccountKey]);
-
-  // Export Download PNG Handler (strictly isolated from page reloads or form resets)
-  const handleDownload = async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    // Flush current active form data synchronously to ensure 100% saved before export
-    const currentFormData = getCurrentTabFormData(activeTab);
-    if (currentFormData) {
-      updateActiveFolderData(activeTab, currentFormData);
-    }
-
-    const targetElement =
-      previewRef.current ||
-      (document.getElementById('preview-canvas-container')?.firstElementChild as HTMLElement) ||
-      document.getElementById('preview-target');
-    if (!targetElement) {
-      setExportError(language === 'id' ? 'Preview tidak ditemukan untuk diekspor.' : 'Preview target was not found.');
-      return;
-    }
-    setExportError('');
-    setIsExporting(true);
-
-    const effectiveScale = exportScale || 1;
-    const scaleSuffix = effectiveScale === 1 ? '1x' : effectiveScale === 2 ? '2x-HD' : '3x-4K';
-    setExportStatusText(language === 'id' ? `Menyiapkan ${scaleSuffix}...` : `Preparing ${scaleSuffix}...`);
-
-    try {
-      const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.png`;
-      const success = await downloadElementAsPng(targetElement, filename, effectiveScale, (step) => {
-        setExportStatusText(step);
-      });
-      if (success) {
-        setDownloadSuccess(true);
-        setExportStatusText(language === 'id' ? 'Tersimpan!' : 'Saved PNG!');
-        setTimeout(() => {
-          setDownloadSuccess(false);
-          setExportStatusText('');
-        }, 2500);
-      }
-    } catch (err) {
-      console.warn('Export error caught:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setExportError(language === 'id' ? `Export gagal: ${message}` : `Export failed: ${message}`);
-      setExportStatusText('');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // Export Download JPG Handler (minimal compression for maximum sharpness before IG/TikTok)
-  const handleDownloadJpg = async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    const currentFormData = getCurrentTabFormData(activeTab);
-    if (currentFormData) {
-      updateActiveFolderData(activeTab, currentFormData);
-    }
-
-    const targetElement =
-      previewRef.current ||
-      (document.getElementById('preview-canvas-container')?.firstElementChild as HTMLElement) ||
-      document.getElementById('preview-target');
-    if (!targetElement) {
-      setExportError(language === 'id' ? 'Preview tidak ditemukan untuk diekspor.' : 'Preview target was not found.');
-      return;
-    }
-    setExportError('');
-    setIsExportingJpg(true);
-
-    const effectiveScale = exportScale || 1;
-    const scaleSuffix = effectiveScale === 1 ? '1x' : effectiveScale === 2 ? '2x-HD' : '3x-4K';
-    setExportStatusText(language === 'id' ? `Menyiapkan ${scaleSuffix} JPG...` : `Preparing ${scaleSuffix} JPG...`);
-
-    try {
-      const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.jpg`;
-      // Encode once at maximum browser JPEG quality; no intermediate JPEG pass.
-      const success = await downloadElementAsJpg(targetElement, filename, effectiveScale, 1.0, (step) => {
-        setExportStatusText(step);
-      });
-      if (success) {
-        setDownloadJpgSuccess(true);
-        setExportStatusText(language === 'id' ? 'Tersimpan!' : 'Saved JPG!');
-        setTimeout(() => {
-          setDownloadJpgSuccess(false);
-          setExportStatusText('');
-        }, 2500);
-      }
-    } catch (err) {
-      console.warn('Export JPG error caught:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setExportError(language === 'id' ? `Export gagal: ${message}` : `Export failed: ${message}`);
-      setExportStatusText('');
-    } finally {
-      setIsExportingJpg(false);
-    }
-  };
-
-  // Copy Image to Clipboard Handler (strictly isolated from page reloads or form resets)
-  const handleCopyClipboard = async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    const currentFormData = getCurrentTabFormData(activeTab);
-    if (currentFormData) {
-      updateActiveFolderData(activeTab, currentFormData);
-    }
-
-    const targetElement =
-      previewRef.current ||
-      (document.getElementById('preview-canvas-container')?.firstElementChild as HTMLElement) ||
-      document.getElementById('preview-target');
-    if (!targetElement) {
-      setExportError(language === 'id' ? 'Preview tidak ditemukan untuk disalin.' : 'Preview target was not found.');
-      return;
-    }
-    setExportError('');
-    setIsExporting(true);
-
-    try {
-      const isStoryModule = activeTab === 'instagram-story' || activeTab === 'instagram-story-reply' || activeTab === 'instagram-story-viewers';
-      const effectiveScale = isStoryModule ? Math.max(exportScale || 1, 3) : exportScale;
-      const success = await copyElementToClipboard(targetElement, effectiveScale);
-      if (success) {
-        setCopiedSuccess(true);
-        setTimeout(() => setCopiedSuccess(false), 2500);
-      }
-    } catch (err) {
-      console.warn('Copy to clipboard error:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setExportError(language === 'id' ? `Gagal menyalin preview: ${message}` : `Failed to copy preview: ${message}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // Hard Reset Execution Handler
-  const handlePerformHardReset = async () => {
-    setIsResetting(true);
-    try {
-      // 1. Clear cached workspace form inputs, characters, and folders from localStorage
-      // Preserving user authentication, access code, device ID, language, and system settings
-      const preservedKeys = new Set([
-        'au_access_code',
-        'au_auth_user',
-        'au_apps_script_url',
-        'au_device_id',
-        'au_app_language',
-        'au_feature_flags',
-        'au_ui_theme',
-        'global_app_font',
-        'global_custom_font_name',
-        'global_custom_fonts_list',
-        'global_custom_font_data',
-        'global_card_corner_radius',
-        'au_voucher_code',
-        'au_session_expires_at',
-        'au_session_saved_at',
-        'au_is_authenticated',
-        'au_last_status_check_time',
-        'au_last_active_tab',
-        'au_last_active_category',
-      ]);
-
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key) continue;
-        if (
-          preservedKeys.has(key) ||
-          key.startsWith('firebase:') ||
-          key.startsWith('firebaseLocal') ||
-          key.startsWith('google_')
-        ) {
-          continue;
-        }
-        if (
-          key.startsWith('au_toolkit_') ||
-          key.startsWith('au_folders_') ||
-          key.startsWith('au_active_folder_') ||
-          key.startsWith('au_form_') ||
-          key.startsWith('au_characters_') ||
-          key.startsWith('au_workspace_') ||
-          key.startsWith('au_line_custom_stickers') ||
-          key.startsWith('preview_')
-        ) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((k) => {
-        try {
-          localStorage.removeItem(k);
-        } catch {}
-      });
-
-      sessionStorage.clear();
-      localStorage.setItem(STORAGE_RESET_KEY, 'true');
-
-      // Clear Firebase cached fingerprints and user folders in Firestore
-      clearWorkspaceFingerprintCache();
-      if (authUser?.uid) {
-        await clearAllFirebaseData(authUser.uid);
-      }
-    } catch (e) {
-      console.warn('Hard reset storage error:', e);
-    }
-
-    // 2. Prepare clean initial folders (Folder 1 with fresh empty form data) for ALL 23 tabs
-    const freshInitialFolders: Record<string, AUFolder[]> = {};
-    const freshInitialActiveIds: Record<string, string> = {};
-    const cleanAllFormStates: Record<string, any> = {};
-
-    ALL_PLATFORM_TABS.forEach((tab) => {
-      const freshData = JSON.parse(JSON.stringify(getInitialTabData(tab)));
-      freshInitialFolders[tab] = [
-        {
-          id: 'folder-1',
-          name: 'Folder 1',
-          data: freshData,
-        },
-      ];
-      freshInitialActiveIds[tab] = 'folder-1';
-      cleanAllFormStates[tab] = freshData;
-
-      // Persist fresh Folder 1 and form data to localStorage
-      try {
-        localStorage.setItem(getModuleFoldersKey(userAccountKey, tab), JSON.stringify(freshInitialFolders[tab]));
-        localStorage.setItem(getModuleActiveFolderKey(userAccountKey, tab), 'folder-1');
-        localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(freshData));
-      } catch {}
-    });
-
-    // 3. Reset all React state variables across ALL modules & sub-features simultaneously
-    setTwitterData(JSON.parse(JSON.stringify(INITIAL_TWITTER_DATA)));
-    setInstagramFeedData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_FEED_DATA)));
-    setInstagramFeedCommentsData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_FEED_COMMENTS_DATA)));
-    setInstagramStoryData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_STORY_DATA)));
-    setInstagramStoryReplyData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_STORY_REPLY_DATA)));
-    setInstagramStoryViewersData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_STORY_VIEWERS_DATA)));
-    setInstagramProfileData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_PROFILE_DATA)));
-    setInstagramLiveData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_LIVE_DATA)));
-    setInstagramNotesData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_NOTES_DATA)));
-    setInstagramActivityData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_ACTIVITY_DATA)));
-    setInstagramDMInboxData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_DM_INBOX_DATA)));
-    setInstagramDMData(JSON.parse(JSON.stringify(INITIAL_INSTAGRAM_DM_DATA)));
-    setWhatsAppChatData(JSON.parse(JSON.stringify(INITIAL_WHATSAPP_CHAT_DATA)));
-    setWhatsAppCallData(JSON.parse(JSON.stringify(INITIAL_WHATSAPP_CALL_DATA)));
-    setWhatsAppStatusData(JSON.parse(JSON.stringify(INITIAL_WHATSAPP_STATUS_DATA)));
-    setWhatsAppViewersData(JSON.parse(JSON.stringify(INITIAL_WHATSAPP_VIEWERS_DATA)));
-    setTikTokProfileData(JSON.parse(JSON.stringify(INITIAL_TIKTOK_PROFILE_DATA)));
-    setTikTokFeedLiveData(JSON.parse(JSON.stringify(INITIAL_TIKTOK_FEED_LIVE_DATA)));
-    setTikTokFypData(JSON.parse(JSON.stringify(INITIAL_TIKTOK_FYP_DATA)));
-    setIosLockscreenData(JSON.parse(JSON.stringify(INITIAL_IOS_LOCKSCREEN_DATA)));
-    setLineChatData(JSON.parse(JSON.stringify(INITIAL_LINE_CHAT_DATA)));
-    setNotesData(JSON.parse(JSON.stringify(INITIAL_NOTES_DATA)));
-    setPushNotificationData(JSON.parse(JSON.stringify(INITIAL_PUSH_NOTIFICATION_DATA)));
-    setSpotifyData(JSON.parse(JSON.stringify(INITIAL_SPOTIFY_DATA)));
-
-    // 4. Update folder state & refs
-    setModuleFolders(freshInitialFolders);
-    setActiveFolderIds(freshInitialActiveIds);
-    moduleFoldersRef.current = freshInitialFolders;
-    activeFolderIdsRef.current = freshInitialActiveIds;
-
-    // 5. Explicitly hydrate active tab with fresh blank form data
-    const activeTabFreshData = freshInitialFolders[activeTab]?.[0]?.data || getInitialTabData(activeTab);
-    loadTabFormData(activeTab, activeTabFreshData);
-
-    // 6. Real-time Firebase Cloud Sync of the clean workspace if user is authenticated
-    if (authUser?.uid) {
-      try {
-        const cleanPayload = {
-          userId: authUser.uid,
-          userEmail: authUser.email.toLowerCase(),
-          lastActiveTab: activeTab,
-          lastActiveCategory: activeCategory,
-          updatedBy: clientSessionId,
-          formStates: cleanAllFormStates,
-          moduleFolders: freshInitialFolders,
-          activeFolderIds: freshInitialActiveIds,
-          preferences: {
-            uiTheme,
-            language,
-            globalFont,
-            customFontName,
-            cornerRadius,
-          },
-          updatedAt: new Date().toISOString(),
-        };
-        await saveUserWorkspaceToFirestore(authUser.uid, cleanPayload);
-        clearPendingCloudSync(userAccountKey);
-        setCloudSyncState('synced');
-        setLastSyncedTime(new Date());
-      } catch (err) {
-        console.warn('Hard reset cloud sync error:', err);
-      }
-    }
-
-    setIsResetting(false);
-    setIsResetConfirmOpen(false);
-    setResetSuccessToast(true);
-    setTimeout(() => setResetSuccessToast(false), 3000);
-  };
-
+  useWorkspaceAutoSaveProtection({
+    activeTab,
+    userAccountKey,
+    authUserUid: authUser?.uid,
+    cloudSyncState,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    hasLocalUserEditsInSessionRef,
+    lastManualCloudRefreshAtRef,
+    triggerCloudWorkspaceSyncRef,
+    applyCloudWorkspaceDataRef,
+    getCurrentTabFormData,
+  });
+  const { handlePerformHardReset } = useWorkspaceHardReset({
+    activeTab,
+    activeCategory,
+    authUser,
+    clientSessionId,
+    userAccountKey,
+    uiTheme,
+    language,
+    globalFont,
+    customFontName,
+    cornerRadius,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    setModuleFolders,
+    setActiveFolderIds,
+    setCloudSyncState,
+    setLastSyncedTime,
+    setIsResetting,
+    setIsResetConfirmOpen,
+    setResetSuccessToast,
+    loadTabFormData,
+  });
   // 1. Check if 30-day access has expired or account is locked/mismatched -> render AccessGuard
   // Backend errors and invalid API responses must NEVER render the expiration screen!
   if (
@@ -4667,395 +2325,52 @@ export default function App() {
 
       {/* Main Split Body: Dual-Scroll Split Screen */}
       <main className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 lg:px-6 py-4 lg:py-5 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch lg:overflow-hidden">
-        {/* Left Column: Form Controls (Independent Scroll) */}
-        <section
-          id="customization-panel"
-          className={`customization-editor-panel dual-scroll-panel no-scrollbar scrollbar-none overscroll-y-contain lg:col-span-6 xl:col-span-5 space-y-4 lg:h-full lg:overflow-y-auto lg:pr-3 lg:pb-4 transition-all ${
-            mobileView === 'preview' ? 'hidden lg:block' : 'block animate-in fade-in-50 duration-200'
-          }`}
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          <div className={`flex items-center justify-between pb-2 border-b ${
-            uiTheme === 'dark' ? 'border-slate-800' : 'border-slate-200'
-          }`}>
-            <div>
-              <h2 className={`text-sm font-bold uppercase tracking-wider ${
-                uiTheme === 'dark' ? 'text-white' : 'text-slate-900'
-              }`}>{language === 'id' ? 'Panel Kustomisasi' : 'Customization Panel'}</h2>
-              <p className={`text-xs ${
-                uiTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-              }`}>{language === 'id' ? 'Edit detail karakter, konten & metrik secara real-time' : 'Edit character details, content & metrics in real-time'}</p>
-            </div>
-          </div>
-
-          {/* Global Typography Manager */}
-          <GlobalFontManager
-            selectedFont={globalFont}
-            onSelectFont={handleFontChange}
-            customFontName={customFontName}
-            onCustomFontUploaded={handleCustomFontUploaded}
-          />
-
-          {activeTab === 'twitter' && (
-            <TwitterForm
-              key={`twitter-${currentTabActiveFolderId}`}
-              data={twitterData}
-              onChange={handleTwitterDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-feed' && (
-            <InstagramFeedForm
-              key={`instagram-feed-${currentTabActiveFolderId}`}
-              data={instagramFeedData}
-              onChange={handleInstagramFeedDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-story' && (
-            <InstagramStoryForm
-              key={`instagram-story-${currentTabActiveFolderId}`}
-              data={instagramStoryData}
-              onChange={handleInstagramStoryDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-story-reply' && (
-            <InstagramStoryReplyForm
-              key={`instagram-story-reply-${currentTabActiveFolderId}`}
-              data={instagramStoryReplyData}
-              onChange={handleInstagramStoryReplyDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-story-viewers' && (
-            <InstagramStoryViewersForm
-              key={`instagram-story-viewers-${currentTabActiveFolderId}`}
-              data={instagramStoryViewersData}
-              onChange={handleInstagramStoryViewersDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-profile' && (
-            <InstagramProfileForm
-              key={`instagram-profile-${currentTabActiveFolderId}`}
-              data={instagramProfileData}
-              onChange={handleInstagramProfileDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-live' && (
-            <InstagramLiveForm
-              key={`instagram-live-${currentTabActiveFolderId}`}
-              data={instagramLiveData}
-              onChange={handleInstagramLiveDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-notes' && (
-            <InstagramNotesForm
-              key={`instagram-notes-${currentTabActiveFolderId}`}
-              data={instagramNotesData}
-              onChange={handleInstagramNotesDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-activity' && (
-            <InstagramActivityForm
-              key={`instagram-activity-${currentTabActiveFolderId}`}
-              data={instagramActivityData}
-              onChange={handleInstagramActivityDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-dm' && (
-            <InstagramDMForm
-              key={`instagram-dm-${currentTabActiveFolderId}`}
-              data={instagramDMData}
-              onChange={handleInstagramDMDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-dm-inbox' && (
-            <InstagramDMInboxForm
-              key={`instagram-dm-inbox-${currentTabActiveFolderId}`}
-              data={instagramDMInboxData}
-              onChange={handleInstagramDMInboxDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'instagram-feed-comments' && (
-            <InstagramFeedCommentsForm
-              key={`instagram-feed-comments-${currentTabActiveFolderId}`}
-              data={instagramFeedCommentsData}
-              onChange={handleInstagramFeedCommentsDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'whatsapp-chat' && (
-            <WhatsAppChatForm
-              key={`whatsapp-chat-${currentTabActiveFolderId}`}
-              data={whatsAppChatData}
-              onChange={handleWhatsAppChatDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'whatsapp-call' && (
-            <WhatsAppCallForm
-              key={`whatsapp-call-${currentTabActiveFolderId}`}
-              data={whatsAppCallData}
-              onChange={handleWhatsAppCallDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'whatsapp-status' && (
-            <WhatsAppStatusForm
-              key={`whatsapp-status-${currentTabActiveFolderId}`}
-              data={whatsAppStatusData}
-              onChange={handleWhatsAppStatusDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'whatsapp-viewers' && (
-            <WhatsAppViewersForm
-              key={`whatsapp-viewers-${currentTabActiveFolderId}`}
-              data={whatsAppViewersData}
-              onChange={handleWhatsAppViewersDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'tiktok-profile' && (
-            <TikTokProfileForm
-              key={`tiktok-profile-${currentTabActiveFolderId}`}
-              data={tikTokProfileData}
-              onChange={handleTikTokProfileDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'tiktok-feed-live' && (
-            <TikTokFeedLiveForm
-              key={`tiktok-feed-live-${currentTabActiveFolderId}`}
-              data={tikTokFeedLiveData}
-              onChange={handleTikTokFeedLiveDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'tiktok-fyp' && (
-            <TikTokFypForm
-              key={`tiktok-fyp-${currentTabActiveFolderId}`}
-              data={tikTokFypData}
-              onChange={handleTikTokFypDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'ios-lockscreen' && (
-            <IOSLockscreenForm
-              key={`ios-lockscreen-${currentTabActiveFolderId}`}
-              data={iosLockscreenData}
-              onChange={handleIosLockscreenDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'line-chat' && (
-            <LineChatForm
-              key={`line-chat-${currentTabActiveFolderId}`}
-              data={lineChatData}
-              onChange={handleLineChatDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'notes' && (
-            <NotesForm
-              key={`notes-${currentTabActiveFolderId}`}
-              data={notesData}
-              onChange={handleNotesDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'push-notification' && (
-            <PushNotificationForm
-              key={`push-notification-${currentTabActiveFolderId}`}
-              data={pushNotificationData}
-              onChange={handlePushNotificationDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-
-          {activeTab === 'spotify-card' && (
-            <SpotifyPlayerForm
-              key={`spotify-${currentTabActiveFolderId}`}
-              data={spotifyData}
-              onChange={handleSpotifyDataChange}
-              characters={characters}
-              activeCharacterId={activeCharId}
-              onSaveCharacter={handleAddCharacterSlot}
-              onSaveProfile={handleSaveActiveProfile}
-              onSelectCharacter={handleSelectCharacter}
-              onDeleteCharacter={handleDeleteCharacter}
-              onRenameCharacter={handleRenameCharacter}
-            />
-          )}
-        </section>
+        <EditorFormPanel
+          uiTheme={uiTheme}
+          language={language}
+          mobileView={mobileView}
+          globalFont={globalFont}
+          customFontName={customFontName}
+          activeTab={activeTab}
+          formData={getCurrentTabFormData(activeTab)}
+          onFormChange={(updated) => {
+            switch (activeTab) {
+              case 'twitter': return handleTwitterDataChange(updated);
+              case 'instagram-feed': return handleInstagramFeedDataChange(updated);
+              case 'instagram-story': return handleInstagramStoryDataChange(updated);
+              case 'instagram-story-reply': return handleInstagramStoryReplyDataChange(updated);
+              case 'instagram-story-viewers': return handleInstagramStoryViewersDataChange(updated);
+              case 'instagram-profile': return handleInstagramProfileDataChange(updated);
+              case 'instagram-live': return handleInstagramLiveDataChange(updated);
+              case 'instagram-notes': return handleInstagramNotesDataChange(updated);
+              case 'instagram-activity': return handleInstagramActivityDataChange(updated);
+              case 'instagram-dm': return handleInstagramDMDataChange(updated);
+              case 'instagram-dm-inbox': return handleInstagramDMInboxDataChange(updated);
+              case 'instagram-feed-comments': return handleInstagramFeedCommentsDataChange(updated);
+              case 'whatsapp-chat': return handleWhatsAppChatDataChange(updated);
+              case 'whatsapp-call': return handleWhatsAppCallDataChange(updated);
+              case 'whatsapp-status': return handleWhatsAppStatusDataChange(updated);
+              case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(updated);
+              case 'tiktok-profile': return handleTikTokProfileDataChange(updated);
+              case 'tiktok-feed-live': return handleTikTokFeedLiveDataChange(updated);
+              case 'tiktok-fyp': return handleTikTokFypDataChange(updated);
+              case 'ios-lockscreen': return handleIosLockscreenDataChange(updated);
+              case 'line-chat': return handleLineChatDataChange(updated);
+              case 'notes': return handleNotesDataChange(updated);
+              case 'push-notification': return handlePushNotificationDataChange(updated);
+              case 'spotify-card': return handleSpotifyDataChange(updated);
+            }
+          }}
+          characters={characters}
+          activeCharacterId={activeCharId}
+          onSelectFont={handleFontChange}
+          onCustomFontUploaded={handleCustomFontUploaded}
+          onSaveCharacter={handleAddCharacterSlot}
+          onSaveProfile={handleSaveActiveProfile}
+          onSelectCharacter={handleSelectCharacter}
+          onDeleteCharacter={handleDeleteCharacter}
+          onRenameCharacter={handleRenameCharacter}
+        />
 
         {/* Right Column: Live Preview & Export Bar (Independent Scroll) */}
         <section
@@ -5547,9 +2862,9 @@ export default function App() {
                 handlers={{
                   onChange: handleRegisteredPreviewChange,
                   onUpdateMessageText: handleRegisteredMessageText,
-                  onToggleLike: () => setTikTokFypData((prev) => ({ ...prev, isLiked: !prev.isLiked })),
-                  onToggleBookmark: () => setTikTokFypData((prev) => ({ ...prev, isBookmarked: !prev.isBookmarked })),
-                  onToggleFollow: () => setTikTokFypData((prev) => ({ ...prev, isFollowed: !prev.isFollowed })),
+                  onToggleLike: handleToggleTikTokFypLike,
+                  onToggleBookmark: handleToggleTikTokFypBookmark,
+                  onToggleFollow: handleToggleTikTokFypFollow,
                 }}
               />
               </ErrorBoundary>
@@ -5569,127 +2884,27 @@ export default function App() {
         title={`Preview: ${getFloatingPreviewTitle(activeTab)}`}
       />
 
-      {/* Discreet Footer with Secret Triple-Click Developer Access */}
-      <footer className="py-2.5 px-4 text-center select-none shrink-0 border-t border-slate-200/60 dark:border-slate-800/60 bg-inherit">
-        <span
-          onClick={handleSecretFooterClick}
-          className="text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-400 transition-colors cursor-default"
-          title="AU Toolkit"
-        >
-          AU Toolkit
-        </span>
-      </footer>
-
-      {/* Secret PIN Verification Gate */}
-      <PinAuthModal
-        isOpen={isPinModalOpen}
-        onClose={() => setIsPinModalOpen(false)}
-        onSuccess={() => {
-          setIsFeatureFlagModalOpen(true);
-        }}
+      <DeveloperAccessControls
         uiTheme={uiTheme}
+        isPinModalOpen={isPinModalOpen}
+        isFeatureFlagModalOpen={isFeatureFlagModalOpen}
+        onSecretFooterClick={handleSecretFooterClick}
+        onClosePinModal={() => setIsPinModalOpen(false)}
+        onPinSuccess={() => setIsFeatureFlagModalOpen(true)}
+        onCloseFeatureFlagModal={() => setIsFeatureFlagModalOpen(false)}
       />
 
-      {/* Feature Flag Manager Modal (Unlocked only after valid PIN verification) */}
-      <FeatureFlagManagerModal
-        isOpen={isFeatureFlagModalOpen}
-        onClose={() => setIsFeatureFlagModalOpen(false)}
+      <WorkspaceFeedback
         uiTheme={uiTheme}
+        language={language}
+        isResetConfirmOpen={isResetConfirmOpen}
+        isResetting={isResetting}
+        resetSuccessToast={resetSuccessToast}
+        cloudToast={cloudToast}
+        onCloseResetConfirm={() => setIsResetConfirmOpen(false)}
+        onConfirmReset={handlePerformHardReset}
+        onDismissCloudToast={() => setCloudToast({ show: false, message: '' })}
       />
-
-      {/* Hard Reset Confirmation Modal */}
-      {isResetConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className={`w-full max-w-md rounded-2xl p-6 shadow-2xl border ${
-            uiTheme === 'dark' ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
-          }`}>
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base">
-                  {language === 'id' ? 'Konfirmasi Reset Total (Hard Reset)' : 'Confirm Hard Reset'}
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {language === 'id' ? 'Kembalikan aplikasi ke kondisi bersih awal' : 'Restore application to clean default state'}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 mb-5">
-              {language === 'id' ? (
-                <>
-                  Tindakan ini akan <strong>mengosongkan seluruh form input dan mereset folder ke Folder 1 bersih</strong> di seluruh modul (X/Twitter, seluruh fitur Instagram, WhatsApp, TikTok, LINE, Notes, dan Notification). Sesi login dan akun Anda tetap aman tanpa logout.
-                </>
-              ) : (
-                <>
-                  This action will <strong>clear all form inputs and reset folders to clean Folder 1</strong> across all modules (X/Twitter, Instagram, WhatsApp, TikTok, LINE, Notes, and Notification). Your login session and account remain safe without logging out.
-                </>
-              )}
-            </p>
-
-            <div className="flex items-center justify-end space-x-2.5">
-              <button
-                type="button"
-                onClick={() => setIsResetConfirmOpen(false)}
-                disabled={isResetting}
-                className={`px-4 py-2 text-xs font-bold rounded-xl border transition-colors cursor-pointer ${
-                  uiTheme === 'dark'
-                    ? 'border-slate-700 text-slate-300 hover:bg-slate-800'
-                    : 'border-slate-200 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                {language === 'id' ? 'Batal' : 'Cancel'}
-              </button>
-              <button
-                type="button"
-                onClick={handlePerformHardReset}
-                disabled={isResetting}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-md transition-colors cursor-pointer flex items-center space-x-1.5"
-              >
-                {isResetting ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>{language === 'id' ? 'Mereset...' : 'Resetting...'}</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>{language === 'id' ? 'Hapus & Reset Sekarang' : 'Erase & Reset Now'}</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reset Success Toast */}
-      {resetSuccessToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl bg-purple-600 text-white shadow-xl text-xs font-bold animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <Check className="w-4 h-4 text-white" />
-          <span>Hard Reset successful! All cached data and templates have been cleared.</span>
-        </div>
-      )}
-
-      {/* Cloud Workspace Sync Feedback Toast */}
-      {cloudToast.show && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-semibold backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 bg-slate-900/95 text-white border-slate-700">
-          <Cloud className={`w-4 h-4 shrink-0 ${
-            cloudToast.type === 'error' ? 'text-rose-400' : cloudToast.type === 'warning' ? 'text-amber-400' : 'text-emerald-400'
-          }`} />
-          <span className="flex-1 leading-snug">{cloudToast.message}</span>
-          <button
-            type="button"
-            onClick={() => setCloudToast({ show: false, message: '' })}
-            className="p-1 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-            title="Tutup"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
       </div>
       <AccountPasswordModal
         isOpen={isPasswordModalOpen}
@@ -5704,3 +2919,4 @@ export default function App() {
     </ThemeContext.Provider>
   );
 }
+

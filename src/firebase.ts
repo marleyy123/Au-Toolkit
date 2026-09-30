@@ -28,29 +28,14 @@ import {
   User,
   Auth
 } from 'firebase/auth';
-import rawFirebaseConfig from '../firebase-applet-config.json';
 import { ensureDataUrlUnderSize } from './utils/imageCompressor';
 
-// The checked-in config is the official Web App configuration for the production
-// project. Keep the entire tuple together; per-field environment overrides can
-// silently mix credentials from different Firebase projects.
-const rawConfig = (rawFirebaseConfig || {}) as any;
-
-const resolvedProjectId =
-  rawConfig.projectId ||
-  '';
-const resolvedAuthDomain =
-  rawConfig.authDomain ||
-  (resolvedProjectId ? `${resolvedProjectId}.firebaseapp.com` : '');
-const resolvedDatabaseId =
-  rawConfig.firestoreDatabaseId ||
-  '(default)';
-const resolvedApiKey =
-  rawConfig.apiKey ||
-  '';
-const resolvedAppId =
-  rawConfig.appId ||
-  '';
+// The config is injected via Vite environment variables
+const resolvedProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || '';
+const resolvedAuthDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || (resolvedProjectId ? `${resolvedProjectId}.firebaseapp.com` : '');
+const resolvedDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || '(default)';
+const resolvedApiKey = import.meta.env.VITE_FIREBASE_API_KEY || '';
+const resolvedAppId = import.meta.env.VITE_FIREBASE_APP_ID || '';
 
 if (!resolvedProjectId) {
   throw new Error('[Firebase Config Error] Missing Firebase Project ID in configuration.');
@@ -65,15 +50,9 @@ export const firebaseConfig = {
   apiKey: resolvedApiKey,
   authDomain: resolvedAuthDomain,
   firestoreDatabaseId: resolvedDatabaseId,
-  storageBucket:
-    rawConfig.storageBucket ||
-    `${resolvedProjectId}.firebasestorage.app`,
-  messagingSenderId:
-    rawConfig.messagingSenderId ||
-    '',
-  measurementId:
-    rawConfig.measurementId ||
-    '',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${resolvedProjectId}.firebasestorage.app`,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
 };
 
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -384,10 +363,12 @@ function computeFingerprint(data: any): string {
 
 // Cache of saved document fingerprints to enable differential writes (reduces writes by >90%)
 const savedTabFingerprints = new Map<string, string>();
+const savedWorkspaceFingerprints = new Map<string, string>();
 let savedRootFingerprint = '';
 
 export function clearWorkspaceFingerprintCache(): void {
   savedTabFingerprints.clear();
+  savedWorkspaceFingerprints.clear();
   savedRootFingerprint = '';
 }
 
@@ -517,7 +498,8 @@ export function getUserDocumentId(userOrKey?: string | { email?: string | null; 
 
 // In-flight concurrency lock & promise chain queue to guarantee sequential execution without dropping writes
 let savePromiseChain: Promise<void> = Promise.resolve();
-const pendingWorkspacePayloads = new Map<string, { userIdentity: FirebaseUserIdentity; workspaceData: any }>();
+const pendingWorkspacePayloads = new Map<string, { userIdentity: FirebaseUserIdentity; workspaceData: any; fingerprint: string }>();
+const pendingWorkspaceFingerprints = new Map<string, string>();
 let isExecutingSave = false;
 
 export async function flushPendingWorkspaceSaves(): Promise<void> {
@@ -698,6 +680,19 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
   }
 }
 
+function getWorkspaceSaveFingerprint(workspaceData: any): string {
+  const comparable = {
+    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
+    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
+    preferences: workspaceData?.preferences || {},
+    activeFolderIds: workspaceData?.activeFolderIds || {},
+    userAssets: workspaceData?.userAssets || {},
+    formStates: workspaceData?.formStates || {},
+    moduleFolders: workspaceData?.moduleFolders || {},
+  };
+  return computeFingerprint(comparable);
+}
+
 // Persist complete user workspace partitioned across subcollections using a promise queue to prevent race conditions
 export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIdentity, workspaceData: any): Promise<void> {
   if (!userIdentity || getUserDocumentId(userIdentity) === 'anonymous_user') return;
@@ -705,20 +700,32 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
   // Circuit breaker: do not invoke Firestore if daily free quota limit is currently exhausted
   if (isFirestoreQuotaExhausted()) {
     pendingWorkspacePayloads.delete(getUserDocumentId(userIdentity));
+    pendingWorkspaceFingerprints.delete(getUserDocumentId(userIdentity));
     return;
   }
 
   const ownerId = getUserDocumentId(userIdentity);
-  pendingWorkspacePayloads.set(ownerId, { userIdentity, workspaceData });
+  const workspaceFingerprint = getWorkspaceSaveFingerprint(workspaceData);
+  if (
+    savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint ||
+    pendingWorkspaceFingerprints.get(ownerId) === workspaceFingerprint
+  ) {
+    return;
+  }
+
+  pendingWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
+  pendingWorkspacePayloads.set(ownerId, { userIdentity, workspaceData, fingerprint: workspaceFingerprint });
 
   const queuedSave = savePromiseChain
     .then(async () => {
       const task = pendingWorkspacePayloads.get(ownerId);
       if (!task) return;
       pendingWorkspacePayloads.delete(ownerId);
+      pendingWorkspaceFingerprints.delete(ownerId);
       isExecutingSave = true;
       try {
         await executeSaveUserWorkspace(task.userIdentity, task.workspaceData);
+        savedWorkspaceFingerprints.set(ownerId, task.fingerprint);
       } finally {
         isExecutingSave = false;
       }
@@ -729,6 +736,7 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
   savePromiseChain = queuedSave.catch((err) => {
       console.warn('saveUserWorkspaceToFirestore chain notice:', err);
       isExecutingSave = false;
+      pendingWorkspaceFingerprints.delete(ownerId);
     });
 
   return queuedSave;

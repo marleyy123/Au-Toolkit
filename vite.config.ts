@@ -44,16 +44,6 @@ const appleEmojiAssets = () => ({
   },
 });
 
-let appletConfig: any = {};
-try {
-  const configPath = path.resolve(__dirname, 'firebase-applet-config.json');
-  if (fs.existsSync(configPath)) {
-    appletConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  }
-} catch {
-  // fallback if file read error
-}
-
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss(), appleEmojiAssets()],
@@ -61,15 +51,6 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
-    },
-    define: {
-      'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID || appletConfig.projectId || ''),
-      'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN || appletConfig.authDomain || ''),
-      'import.meta.env.VITE_FIREBASE_DATABASE_ID': JSON.stringify(process.env.VITE_FIREBASE_DATABASE_ID || appletConfig.firestoreDatabaseId || '(default)'),
-      'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY || appletConfig.apiKey || ''),
-      'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(process.env.VITE_FIREBASE_APP_ID || appletConfig.appId || ''),
-      'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.VITE_FIREBASE_STORAGE_BUCKET || appletConfig.storageBucket || ''),
-      'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || appletConfig.messagingSenderId || ''),
     },
     server: {
       cors: true,
