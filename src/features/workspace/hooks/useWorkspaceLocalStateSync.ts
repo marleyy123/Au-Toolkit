@@ -206,22 +206,29 @@ export function useWorkspaceLocalStateSync({
   useEffect(() => {
     const prevTab = previousTabRef.current;
     if (prevTab !== activeTab) {
+      let didPersistPreviousTabChange = false;
       const prevFormData = getCurrentTabFormData(prevTab);
       if (prevFormData) {
         const clonedPrevData = JSON.parse(JSON.stringify(prevFormData));
         const prevActiveId = activeFolderIdsRef.current[prevTab] || activeFolderIds[prevTab] || 'folder-1';
-        setModuleFolders((prev) => {
-          const list = prev[prevTab] || moduleFoldersRef.current[prevTab];
-          if (!list || list.length === 0) return prev;
-          const updated = list.map((f) => (f.id === prevActiveId ? { ...f, data: clonedPrevData } : f));
-          moduleFoldersRef.current[prevTab] = updated;
-          try {
-            localStorage.setItem(getModuleFoldersKey(userAccountKey, prevTab), JSON.stringify(updated));
-            localStorage.setItem(getFormStorageKey(userAccountKey, prevTab), JSON.stringify(clonedPrevData));
-            markLocalWorkspaceUpdated(userAccountKey);
-          } catch {}
-          return { ...prev, [prevTab]: updated };
-        });
+        const list = moduleFoldersRef.current[prevTab] || moduleFolders[prevTab];
+        if (list && list.length > 0) {
+          const currentFolder = list.find((f) => f.id === prevActiveId) || list[0];
+          const previousSerialized = JSON.stringify(currentFolder?.data || null);
+          const nextSerialized = JSON.stringify(clonedPrevData);
+
+          if (previousSerialized !== nextSerialized) {
+            const updated = list.map((f) => (f.id === prevActiveId ? { ...f, data: clonedPrevData } : f));
+            moduleFoldersRef.current[prevTab] = updated;
+            try {
+              localStorage.setItem(getModuleFoldersKey(userAccountKey, prevTab), JSON.stringify(updated));
+              localStorage.setItem(getFormStorageKey(userAccountKey, prevTab), JSON.stringify(clonedPrevData));
+              markLocalWorkspaceUpdated(userAccountKey);
+            } catch {}
+            setModuleFolders((prev) => ({ ...prev, [prevTab]: updated }));
+            didPersistPreviousTabChange = true;
+          }
+        }
       }
 
       const tabFolders = moduleFoldersRef.current[activeTab] || moduleFolders[activeTab];
@@ -234,7 +241,9 @@ export function useWorkspaceLocalStateSync({
       }
 
       previousTabRef.current = activeTab;
-      triggerCloudWorkspaceSyncRef.current?.();
+      if (didPersistPreviousTabChange) {
+        triggerCloudWorkspaceSyncRef.current?.();
+      }
     }
   }, [activeTab, userAccountKey, moduleFolders, activeFolderIds]);
 }

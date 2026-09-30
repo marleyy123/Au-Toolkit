@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlatformGroup, PlatformTab } from '../../../types';
 import {
   getCategoryForTab,
@@ -11,8 +11,6 @@ import { ALL_PLATFORM_TABS } from '../workspaceStorage';
 
 interface UseWorkspaceNavigationStateArgs {
   featureFlagsVersion: number;
-  syncDebounceTimerRef: MutableRefObject<NodeJS.Timeout | null>;
-  forceCloudWorkspaceSyncNowRef: MutableRefObject<() => void>;
 }
 
 function getInitialCategory(activeTab: PlatformTab): PlatformGroup {
@@ -33,8 +31,6 @@ function getInitialCategory(activeTab: PlatformTab): PlatformGroup {
 
 export function useWorkspaceNavigationState({
   featureFlagsVersion,
-  syncDebounceTimerRef,
-  forceCloudWorkspaceSyncNowRef,
 }: UseWorkspaceNavigationStateArgs) {
   const [activeTab, setActiveTab] = useState<PlatformTab>(() => {
     try {
@@ -63,14 +59,6 @@ export function useWorkspaceNavigationState({
   useEffect(() => {
     setActiveCategory(getCategoryForTab(activeTab));
   }, [activeTab]);
-
-  useEffect(() => {
-    if (syncDebounceTimerRef.current) {
-      clearTimeout(syncDebounceTimerRef.current);
-      syncDebounceTimerRef.current = null;
-      forceCloudWorkspaceSyncNowRef.current?.();
-    }
-  }, [activeTab, activeCategory, forceCloudWorkspaceSyncNowRef, syncDebounceTimerRef]);
 
   useEffect(() => {
     const expectedCategory = getCategoryForTab(activeTab);

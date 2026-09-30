@@ -363,11 +363,13 @@ function computeFingerprint(data: any): string {
 
 // Cache of saved document fingerprints to enable differential writes (reduces writes by >90%)
 const savedTabFingerprints = new Map<string, string>();
+const savedFolderFingerprints = new Map<string, string>();
 const savedWorkspaceFingerprints = new Map<string, string>();
 let savedRootFingerprint = '';
 
 export function clearWorkspaceFingerprintCache(): void {
   savedTabFingerprints.clear();
+  savedFolderFingerprints.clear();
   savedWorkspaceFingerprints.clear();
   savedRootFingerprint = '';
 }
@@ -567,6 +569,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     );
 
     const pendingFingerprintUpdates: Array<{ tabKey: string; fingerprint: string }> = [];
+    const pendingFolderFingerprintUpdates: Array<{ folderKey: string; fingerprint: string }> = [];
 
     for (const tabKey of allTabs) {
       // Extract isolated folders pertaining to this tab
@@ -610,12 +613,21 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         const folder = tabFoldersList[idx];
         if (!folder || !folder.id) continue;
         const cleanFolderId = folder.id;
-        const folderDocRef = doc(db, 'users', docId, 'folders', `${tabKey}_${cleanFolderId}`);
-        const folderPayload = removeUndefinedDeep({
+        const folderComparable = removeUndefinedDeep({
           id: cleanFolderId,
           name: folder.name || `Folder ${idx + 1}`,
           data: folder.data || null,
           order: typeof folder.order === 'number' ? folder.order : idx + 1,
+          tabKey,
+        });
+        const folderFingerprint = computeFingerprint(folderComparable);
+        const folderFingerprintKey = `${tabKey}_${cleanFolderId}`;
+        if (savedFolderFingerprints.get(folderFingerprintKey) === folderFingerprint) {
+          continue;
+        }
+        const folderDocRef = doc(db, 'users', docId, 'folders', `${tabKey}_${cleanFolderId}`);
+        const folderPayload = removeUndefinedDeep({
+          ...folderComparable,
           tabKey,
           userId: docId,
           userEmail,
@@ -623,6 +635,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         });
         const safeFolderPayload = await sanitizeObjectForFirestore(folderPayload, 400_000);
         operations.push({ ref: folderDocRef, data: safeFolderPayload });
+        pendingFolderFingerprintUpdates.push({ folderKey: folderFingerprintKey, fingerprint: folderFingerprint });
       }
     }
 
@@ -665,6 +678,9 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     savedRootFingerprint = rootFingerprint;
     pendingFingerprintUpdates.forEach(({ tabKey, fingerprint }) => {
       savedTabFingerprints.set(tabKey, fingerprint);
+    });
+    pendingFolderFingerprintUpdates.forEach(({ folderKey, fingerprint }) => {
+      savedFolderFingerprints.set(folderKey, fingerprint);
     });
   } catch (error) {
     if (isFirestoreQuotaExhaustedError(error)) {
@@ -905,31 +921,9 @@ export function subscribeUserWorkspaceFromFirestore(
     }
   );
 
-  const unsubFolders = onSnapshot(
-    collection(db, 'users', docId, 'folders'),
-    { includeMetadataChanges: true },
-    (snap) => {
-      if (snap.metadata.hasPendingWrites) return;
-      snap.docChanges().forEach((change) => {
-        if (change.doc.metadata.hasPendingWrites) return;
-        const fKey = change.doc.id;
-        if (change.type === 'removed') {
-          delete currentFoldersData[fKey];
-        } else {
-          currentFoldersData[fKey] = change.doc.data();
-        }
-      });
-      emitComposite();
-    },
-    (err) => {
-      console.warn('Folders subcollection listener notice:', err);
-    }
-  );
-
   return () => {
     unsubRoot();
     unsubTabs();
-    unsubFolders();
   };
 }
 
@@ -1059,6 +1053,16 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
           authoritativeFolderTabs.add(tabKey);
           composite.characters[tabKey] = tabFolders;
           composite.moduleFolders[tabKey] = tabFolders;
+          tabFolders.forEach((folder: any, idx: number) => {
+            if (!folder?.id) return;
+            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
+              id: folder.id,
+              name: folder.name || `Folder ${idx + 1}`,
+              data: folder.data || null,
+              order: typeof folder.order === 'number' ? folder.order : idx + 1,
+              tabKey,
+            })));
+          });
         }
         if (tabData.folderStates && typeof tabData.folderStates === 'object') {
           Object.assign(composite.folderStates, tabData.folderStates);
@@ -1231,6 +1235,13 @@ export async function syncFolderToFirestore(
         throw firstErr;
       }
     }
+    savedFolderFingerprints.set(compositeDocId, computeFingerprint(removeUndefinedDeep({
+      id: cleanFolderId,
+      name: folderData.name || 'Folder',
+      data: folderData.data || null,
+      order: typeof folderData.order === 'number' ? folderData.order : null,
+      tabKey: tabKey || '',
+    })));
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `users/${cleanUser}/folders/${folderId}`);
   }

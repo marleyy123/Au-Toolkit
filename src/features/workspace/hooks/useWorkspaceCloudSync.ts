@@ -66,7 +66,7 @@ export function useWorkspaceCloudSync({
         console.warn('Real-time cloud sync notice:', err);
         setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
       }
-    }, 800);
+    }, 3000);
   }, [authUser?.uid, userAccountKey]);
 
   useEffect(() => {
