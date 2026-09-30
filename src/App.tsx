@@ -7,29 +7,18 @@ import { Login } from './features/auth/components/Login';
 import { AccountPasswordModal } from './features/auth/components/AccountPasswordModal';
 import { Download, Copy, Sparkles, RefreshCw, Check, CheckCircle2, AlertCircle, Loader2, Smartphone, Monitor, Eye, Sun, Moon, LogOut, KeyRound, Ticket, User, Plus, ZoomIn, ZoomOut, RotateCcw, Maximize2, PictureInPicture2, Square, Globe, Languages, CloudOff, Upload, Move, Hand, Lock, Unlock } from 'lucide-react';
 import {
-  clearWorkspaceFingerprintCache,
   signInWithGoogle,
-  signOutUser,
-  onAuthUserChanged,
   getStoredAuthUser,
-  setStoredAuthUser,
-  saveUserWorkspaceToFirestore,
   loadFoldersFromFirestore,
-  flushPendingWorkspaceSaves,
   getUserDocumentId,
-  isFirestoreQuotaExhausted,
-  onQuotaStatusChange,
   resetFirestoreQuotaCircuitBreaker,
-  auth,
 } from './firebase';
 import {
-  detectDeviceSlot,
   getDeviceFriendlyLabel,
   subscribeDeviceSlotSession,
 } from './utils/deviceAuthService';
-import { EntitlementCheckResult } from './services/buyerEntitlementService';
 import { AccessGuard } from './features/auth/components/AccessGuard';
-import { AppLoadingScreen, AuthLifecycleStage } from './features/auth/components/AppLoadingScreen';
+import { AppLoadingScreen } from './features/auth/components/AppLoadingScreen';
 import {
   isCategoryLive,
   isTabLive,
@@ -38,16 +27,12 @@ import {
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeContext, UiTheme } from './context/ThemeContext';
 import { useLanguage } from './context/LanguageContext';
-import type { CloudConnectionState } from './features/workspace/components/CloudSyncIndicator';
-import { USER_ASSETS_SYNC_EVENT } from './utils/userAssets';
 import {
   ALL_PLATFORM_TABS,
   getFloatingPreviewTitle,
   getInitialTabData,
-  getUserAccountStorageKey,
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
-  markLocalWorkspaceUpdated,
 } from './features/workspace/workspaceStorage';
 import { WorkspaceFeedback } from './features/workspace/components/WorkspaceFeedback';
 import { EditorFormPanel } from './features/editor/components/EditorFormPanel';
@@ -78,6 +63,9 @@ import { useEntitlementLifecycle } from './features/auth/hooks/useEntitlementLif
 import { useGeneratorFormStates } from './features/workspace/hooks/useGeneratorFormStates';
 import { useWorkspaceNavigationState } from './features/workspace/hooks/useWorkspaceNavigationState';
 import { useAuthGateActions } from './features/auth/hooks/useAuthGateActions';
+import { useAuthLogoutActions } from './features/auth/hooks/useAuthLogoutActions';
+import { useWorkspaceCloudStatus } from './features/workspace/hooks/useWorkspaceCloudStatus';
+import { useAuthSessionState } from './features/auth/hooks/useAuthSessionState';
 
 export default function App() {
   // Firebase avatar URLs remain in state/Firestore even when an image request
@@ -98,33 +86,22 @@ export default function App() {
     return () => document.removeEventListener('error', handleStoredAvatarError, true);
   }, []);
 
-  // Google / Email Authenticated User State
-  const [authUser, setAuthUser] = useState<any>(() => {
-    try {
-      const stored = getStoredAuthUser();
-      if (stored && (stored.email || stored.uid)) return stored;
-    } catch {
-      return null;
-    }
-    return null;
-  });
-
-  // Keep authUser in sync with Firebase Auth state listener
-  useEffect(() => {
-    const unsubscribe = onAuthUserChanged((user) => {
-      setAuthUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Primary user storage key permanently tied to Google Account email
-  const userAccountKey = useMemo(() => getUserAccountStorageKey(authUser), [authUser]);
-
-  useEffect(() => {
-    clearWorkspaceFingerprintCache();
-    hasLocalUserEditsInSessionRef.current = false;
-  }, [userAccountKey]);
-
+  const {
+    authUser,
+    setAuthUser,
+    userAccountKey,
+    authLifecycleStage,
+    setAuthLifecycleStage,
+    buyerEntitlement,
+    setBuyerEntitlement,
+    loadingErrorMessage,
+    setLoadingErrorMessage,
+    accessCode,
+    setAccessCode,
+    isAuthenticated,
+    setIsAuthenticated,
+    clientDeviceSlot,
+  } = useAuthSessionState();
   // Sync trigger ref to permit safe invocation across state changes without hoisting issues
   const triggerCloudWorkspaceSyncRef = useRef<() => void>(() => {});
   const forceCloudWorkspaceSyncNowRef = useRef<() => void>(() => {});
@@ -139,61 +116,22 @@ export default function App() {
     'session_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now()
   ).current;
 
-  // Real-time Cloud Sync State (Multi-Device Firebase Firestore)
-  const [cloudSyncState, setCloudSyncState] = useState<CloudConnectionState>(() => {
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return 'offline';
-    }
-    const stored = getStoredAuthUser();
-    return stored?.email || stored?.uid ? 'connecting' : 'signed_out';
+  const {
+    cloudSyncState,
+    setCloudSyncState,
+    lastSyncedTime,
+    setLastSyncedTime,
+    isQuotaExhausted,
+    syncDebounceTimerRef,
+    lastManualCloudRefreshAtRef,
+  } = useWorkspaceCloudStatus({
+    authUser,
+    userAccountKey,
+    isApplyingCloudAssetsRef,
+    hasLocalUserEditsInSessionRef,
+    triggerCloudWorkspaceSyncRef,
+    forceCloudWorkspaceSyncNowRef,
   });
-  const [lastSyncedTime, setLastSyncedTime] = useState<Date | null>(null);
-  const [isQuotaExhausted, setIsQuotaExhausted] = useState<boolean>(() => isFirestoreQuotaExhausted());
-  const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastManualCloudRefreshAtRef = useRef<number>(0);
-
-  useEffect(() => {
-    const handleUserAssetsChanged = () => {
-      if (isApplyingCloudAssetsRef.current) return;
-      hasLocalUserEditsInSessionRef.current = true;
-      markLocalWorkspaceUpdated(userAccountKey);
-      setTimeout(() => triggerCloudWorkspaceSyncRef.current?.(), 0);
-    };
-    window.addEventListener(USER_ASSETS_SYNC_EVENT, handleUserAssetsChanged);
-    return () => window.removeEventListener(USER_ASSETS_SYNC_EVENT, handleUserAssetsChanged);
-  }, [userAccountKey]);
-
-  // Subscribe to Firestore daily write quota status
-  useEffect(() => {
-    return onQuotaStatusChange((exhausted) => {
-      setIsQuotaExhausted(exhausted);
-      if (exhausted) {
-        setCloudSyncState('offline');
-      }
-    });
-  }, []);
-
-  // Browser connectivity event listeners (Online / Offline)
-  useEffect(() => {
-    const handleOnline = () => {
-      const userEmailOrId = authUser?.uid;
-      if (userEmailOrId) {
-        setCloudSyncState('syncing');
-        forceCloudWorkspaceSyncNowRef.current();
-      } else {
-        setCloudSyncState('signed_out');
-      }
-    };
-    const handleOffline = () => {
-      setCloudSyncState('offline');
-    };
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [authUser?.email, authUser?.uid]);
 
   // Initial Cloud Workspace Loading state to prevent empty template overwrite
   const [isInitialCloudLoading, setIsInitialCloudLoading] = useState<boolean>(() => {
@@ -244,198 +182,8 @@ export default function App() {
     }
   }, [showCloudSyncMenu]);
 
-  // Canonical Auth Lifecycle Stage
-  const [authLifecycleStage, setAuthLifecycleStage] = useState<AuthLifecycleStage>(() => {
-    try {
-      const emailOrCode = localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code');
-      if (!emailOrCode) return 'UNAUTHENTICATED';
-      return 'AUTH_LOADING';
-    } catch {
-      return 'UNAUTHENTICATED';
-    }
-  });
-  const [buyerEntitlement, setBuyerEntitlement] = useState<EntitlementCheckResult | null>(null);
-  const [loadingErrorMessage, setLoadingErrorMessage] = useState<string | null>(null);
-
-  // Authentication State (Email-based Login from Spreadsheet Order Data)
-  const [accessCode, setAccessCode] = useState<string>(() => {
-    try {
-      return localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code') || '';
-    } catch {
-      return '';
-    }
-  });
-  // Long-duration session validation (30 days persistence based on Purchase Date)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    try {
-      const emailOrCode = localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code');
-      if (!emailOrCode) return false;
-      const expiryStr = localStorage.getItem('au_session_expires_at');
-      if (expiryStr) {
-        const expiry = parseInt(expiryStr, 10);
-        if (!isNaN(expiry) && Date.now() > expiry) {
-          // Explicitly expired beyond duration
-          return false;
-        }
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  });
-
-  // Client device slot (mobile or desktop)
-  const [clientDeviceSlot] = useState<'mobile' | 'desktop'>(() => detectDeviceSlot());
-
   // Language State
   const { language, toggleLanguage, t } = useLanguage();
-
-  // Logout / Auto-Logout Reason Message
-  const [logoutReason, setLogoutReason] = useState<string | null>(null);
-  // Logout in-progress state to provide instant visual feedback & prevent duplicate triggers
-  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-
-  const handleAutoLogout = (reason: string) => {
-    try {
-      setStoredAuthUser(null);
-      localStorage.removeItem('au_user_email');
-      localStorage.removeItem('au_access_code');
-      localStorage.removeItem('au_is_authenticated');
-      localStorage.removeItem('au_session_expires_at');
-      localStorage.removeItem('au_session_saved_at');
-      localStorage.removeItem('au_device_slot');
-      localStorage.removeItem('au_device_label');
-    } catch {}
-    signOutUser().catch(() => {});
-    setAccessCode('');
-    setIsAuthenticated(false);
-    setAuthUser(null);
-    setIsHydrated(false);
-    isHydratedRef.current = false;
-    setLogoutReason(reason);
-    setAuthLifecycleStage('UNAUTHENTICATED');
-    setCloudSyncState('signed_out');
-    clearWorkspaceFingerprintCache();
-    hasLocalUserEditsInSessionRef.current = false;
-    const cleanFolders: Record<string, AUFolder[]> = {};
-    const cleanActiveIds: Record<string, string> = {};
-    ALL_PLATFORM_TABS.forEach((tab) => {
-      cleanFolders[tab] = [{ id: 'folder-1', name: 'Folder 1', data: getInitialTabData(tab) }];
-      cleanActiveIds[tab] = 'folder-1';
-      loadTabFormData(tab, getInitialTabData(tab));
-    });
-    setModuleFolders(cleanFolders);
-    moduleFoldersRef.current = cleanFolders;
-    setActiveFolderIds(cleanActiveIds);
-    activeFolderIdsRef.current = cleanActiveIds;
-  };
-
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
-    try {
-      // 1. Clear any pending debounced sync timers so they cannot fire after logout
-      if (syncDebounceTimerRef.current) {
-        clearTimeout(syncDebounceTimerRef.current);
-        syncDebounceTimerRef.current = null;
-      }
-
-      // 2. Flush current complete payload to Firestore immediately (with 1.2s timeout safeguard so it never hangs)
-      const userEmailOrId = authUser?.uid || auth.currentUser?.uid;
-      if (userEmailOrId && !isFirestoreQuotaExhausted()) {
-        try {
-          clearWorkspaceFingerprintCache();
-          if (gatherCompleteWorkspacePayloadRef.current) {
-            const currentPayload = gatherCompleteWorkspacePayloadRef.current();
-            currentPayload.moduleFolders = { ...(moduleFoldersRef.current || moduleFolders) };
-            currentPayload.activeFolderIds = { ...(activeFolderIdsRef.current || activeFolderIds) };
-            await Promise.race([
-              saveUserWorkspaceToFirestore(userEmailOrId, currentPayload),
-              new Promise((res) => setTimeout(res, 1200)),
-            ]);
-          }
-          await Promise.race([
-            flushPendingWorkspaceSaves(),
-            new Promise((res) => setTimeout(res, 1200)),
-          ]);
-        } catch (e) {
-          console.warn('Logout cloud sync flush notice:', e);
-        }
-      }
-
-      // 3. Sign out user from Firebase auth & localStorage
-      try {
-        await Promise.race([
-          signOutUser(),
-          new Promise((res) => setTimeout(res, 800)),
-        ]);
-      } catch {}
-      try {
-        setStoredAuthUser(null);
-        localStorage.removeItem('au_user_email');
-        localStorage.removeItem('au_access_code');
-        localStorage.removeItem('au_is_authenticated');
-        localStorage.removeItem('au_session_expires_at');
-        localStorage.removeItem('au_session_saved_at');
-        localStorage.removeItem('au_device_slot');
-        localStorage.removeItem('au_device_label');
-      } catch {}
-
-      // 4. Reset in-memory states to prevent data bleed into next session
-      setAccessCode('');
-      setIsAuthenticated(false);
-      setAuthLifecycleStage('UNAUTHENTICATED');
-      setIsInitialCloudLoading(false);
-      setIsHydrated(false);
-      isHydratedRef.current = false;
-      setLogoutReason(null);
-      setAuthUser(null);
-      setBuyerEntitlement(null);
-      setCloudSyncState('signed_out');
-      clearWorkspaceFingerprintCache();
-      hasLocalUserEditsInSessionRef.current = false;
-      const cleanFolders: Record<string, AUFolder[]> = {};
-      const cleanActiveIds: Record<string, string> = {};
-      ALL_PLATFORM_TABS.forEach((tab) => {
-        cleanFolders[tab] = [{ id: 'folder-1', name: 'Folder 1', data: getInitialTabData(tab) }];
-        cleanActiveIds[tab] = 'folder-1';
-        loadTabFormData(tab, getInitialTabData(tab));
-      });
-      setModuleFolders(cleanFolders);
-      moduleFoldersRef.current = cleanFolders;
-      setActiveFolderIds(cleanActiveIds);
-      activeFolderIdsRef.current = cleanActiveIds;
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
-  const { revalidateEntitlement } = useEntitlementLifecycle({
-    authUser,
-    authLifecycleStage,
-    isAuthenticated,
-    language,
-    buyerEntitlement,
-    setAuthUser,
-    setIsAuthenticated,
-    setAuthLifecycleStage,
-    setLoadingErrorMessage,
-    setBuyerEntitlement,
-    handleAutoLogout,
-  });
-  // 2. Real-time Device Limit Subscription: Detect if another device replaces this slot (1 Mobile + 1 Desktop limit rule)
-  useEffect(() => {
-    if (!isAuthenticated || !authUser) return;
-    const unsubscribe = subscribeDeviceSlotSession(authUser, (newDeviceLabel) => {
-      handleAutoLogout(
-        language === 'id'
-          ? `Akun Anda telah login di perangkat ${newDeviceLabel}. Sesuai ketentuan, 1 akun dapat aktif pada 1 Handphone dan 1 Laptop/PC.`
-          : `Your account was logged in on another device (${newDeviceLabel}). Each account is limited to 1 mobile and 1 desktop.`
-      );
-    });
-    return () => unsubscribe();
-  }, [isAuthenticated, authUser, language]);
 
   // Hard Reset Dialog State
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
@@ -727,6 +475,60 @@ export default function App() {
     pushNotificationData,
     spotifyData,
   });
+  const {
+    logoutReason,
+    setLogoutReason,
+    isLoggingOut,
+    isPasswordModalOpen,
+    setIsPasswordModalOpen,
+    handleAutoLogout,
+    handleLogout,
+  } = useAuthLogoutActions({
+    authUser,
+    moduleFolders,
+    activeFolderIds,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    syncDebounceTimerRef,
+    isHydratedRef,
+    hasLocalUserEditsInSessionRef,
+    gatherCompleteWorkspacePayloadRef,
+    loadTabFormData,
+    setAccessCode,
+    setIsAuthenticated,
+    setAuthUser,
+    setIsHydrated,
+    setAuthLifecycleStage,
+    setCloudSyncState,
+    setModuleFolders,
+    setActiveFolderIds,
+    setIsInitialCloudLoading,
+    setBuyerEntitlement,
+  });
+  const { revalidateEntitlement } = useEntitlementLifecycle({
+    authUser,
+    authLifecycleStage,
+    isAuthenticated,
+    language,
+    buyerEntitlement,
+    setAuthUser,
+    setIsAuthenticated,
+    setAuthLifecycleStage,
+    setLoadingErrorMessage,
+    setBuyerEntitlement,
+    handleAutoLogout,
+  });
+  useEffect(() => {
+    if (!isAuthenticated || !authUser) return;
+    const unsubscribe = subscribeDeviceSlotSession(authUser, (newDeviceLabel) => {
+      handleAutoLogout(
+        language === 'id'
+          ? `Akun Anda telah login di perangkat ${newDeviceLabel}. Sesuai ketentuan, 1 akun dapat aktif pada 1 Handphone dan 1 Laptop/PC.`
+          : `Your account was logged in on another device (${newDeviceLabel}). Each account is limited to 1 mobile and 1 desktop.`
+      );
+    });
+    return () => unsubscribe();
+  }, [isAuthenticated, authUser, language]);
   const {
     triggerCloudWorkspaceSync,
     forceCloudWorkspaceSyncNow,
@@ -2426,6 +2228,10 @@ export default function App() {
     </ThemeContext.Provider>
   );
 }
+
+
+
+
 
 
 

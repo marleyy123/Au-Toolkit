@@ -3,6 +3,9 @@
   publish = "dist"
   functions = "netlify/functions-dist"
 
+[build.environment]
+  NODE_VERSION = "20.19.6"
+
 [functions]
   node_bundler = "nft"
 
