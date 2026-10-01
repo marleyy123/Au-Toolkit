@@ -511,6 +511,26 @@ export default function App() {
     handleAutoLogout,
   });
   useEffect(() => {
+    if (
+      !isAuthenticated ||
+      (authLifecycleStage !== 'LOAD_USER_DATA' && authLifecycleStage !== 'HYDRATE_DATA')
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!isAuthenticated) return;
+      setIsInitialCloudLoading(false);
+      setIsHydrated(true);
+      isHydratedRef.current = true;
+      setAuthLifecycleStage((prev) =>
+        prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev
+      );
+    }, 8000);
+
+    return () => window.clearTimeout(timer);
+  }, [authLifecycleStage, isAuthenticated]);
+  useEffect(() => {
     if (!isAuthenticated || !authUser) return;
     const unsubscribe = subscribeDeviceSlotSession(authUser, (newDeviceLabel) => {
       handleAutoLogout(

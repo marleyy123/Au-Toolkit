@@ -237,12 +237,12 @@ export function useEntitlementLifecycle({
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isAuthenticated) {
+      if (document.visibilityState === 'visible' && isAuthenticated && authLifecycleStageRef.current === 'READY') {
         revalidateEntitlement(false);
       }
     };
     const handleFocus = () => {
-      if (isAuthenticated) {
+      if (isAuthenticated && authLifecycleStageRef.current === 'READY') {
         revalidateEntitlement(false);
       }
     };
@@ -259,6 +259,7 @@ export function useEntitlementLifecycle({
   useEffect(() => {
     if (!isAuthenticated) return;
     const intervalId = setInterval(() => {
+      if (authLifecycleStageRef.current !== 'READY') return;
       revalidateEntitlement(false);
     }, 5 * 60 * 1000);
 

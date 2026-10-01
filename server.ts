@@ -175,7 +175,8 @@ async function startServer() {
       isDev &&
       (origin.startsWith('http://localhost:') ||
         origin.startsWith('http://127.0.0.1:') ||
-        origin.startsWith('http://0.0.0.0:'))
+        origin.startsWith('http://0.0.0.0:') ||
+        /^https?:\/\/(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})(?::\d+)?$/.test(origin))
     ) {
       return true;
     }
@@ -337,18 +338,24 @@ async function startServer() {
 
       const stableDeviceId = extractStableDeviceSignature(rawDeviceId) || rawDeviceId;
       const action = String(queryOrBody.action || 'validateAccess').trim();
+      const serverSecret = String(
+        process.env.API_SHARED_SECRET ||
+        process.env.APPS_SCRIPT_SHARED_SECRET ||
+        ''
+      ).trim();
       const payload = {
         action: action === 'registerDevice' ? 'registerDevice' : 'validateAccess',
         email: verifiedEmail,
         deviceType: normalizedDeviceType,
         deviceId: stableDeviceId,
         deviceLabel: effectiveDeviceLabel,
+        serverSecret,
       };
 
       let gasResponse: Response;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000);
+        const timeoutId = setTimeout(() => controller.abort(), 55000);
 
         gasResponse = await fetch(scriptUrl, {
           method: 'POST',
@@ -413,6 +420,19 @@ async function startServer() {
         status: reasonCode,
         accessGranted: parsedGasResult.accessGranted === true || reasonCode === 'ACCESS_GRANTED',
       });
+
+      if (reasonCode === 'UNAUTHORIZED' || reasonCode === 'APPS_SCRIPT_CONFIG_ERROR') {
+        return res.status(500).json({
+          success: false,
+          accessGranted: false,
+          reason: reasonCode,
+          status: reasonCode,
+          isRegisteredBuyer: false,
+          isValid: false,
+          email: verifiedEmail,
+          message: parsedGasResult.message || 'Konfigurasi server akses belum valid.',
+        });
+      }
 
       // 1. BUYER_NOT_FOUND
       if (reasonCode === 'BUYER_NOT_FOUND' || parsedGasResult.isRegisteredBuyer === false) {
@@ -580,7 +600,27 @@ async function startServer() {
         });
       }
 
-      // 6. Unhandled / unexpected response
+      // 6. Valid Apps Script denials that are not part of the richer response
+      // mapping above should still be passed through instead of masked as a
+      // server outage. This keeps local/dev diagnostics truthful and lets the
+      // UI show the real access reason.
+      if (parsedGasResult && parsedGasResult.accessGranted === false && reasonCode) {
+        console.warn('[VerifyBuyer] Access denied by Apps Script:', parsedGasResult);
+        return res.json({
+          success: parsedGasResult.success !== false,
+          accessGranted: false,
+          reason: reasonCode,
+          status: reasonCode,
+          isRegisteredBuyer: parsedGasResult.isRegisteredBuyer !== false && reasonCode !== 'BUYER_NOT_FOUND',
+          isValid: false,
+          email: verifiedEmail,
+          buyerName: parsedGasResult.buyerName || verifiedEmail.split('@')[0],
+          message: parsedGasResult.message || 'Akses belum dapat diberikan.',
+          data: parsedGasResult,
+        });
+      }
+
+      // 7. Truly unhandled / malformed but JSON-shaped response
       console.warn('[VerifyBuyer] BACKEND_ERROR: Unrecognized response from Apps Script:', parsedGasResult);
       return res.status(500).json({
         success: false,
@@ -591,6 +631,7 @@ async function startServer() {
         isValid: false,
         email: verifiedEmail,
         message: 'Koneksi ke server sedang bermasalah. Silakan coba lagi.',
+        data: parsedGasResult,
       });
     } catch (unexpectedErr: any) {
       console.error('[VerifyBuyer] UNHANDLED_BACKEND_ERROR:', unexpectedErr?.message || unexpectedErr);

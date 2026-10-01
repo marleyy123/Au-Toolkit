@@ -100,9 +100,6 @@ export function useAuthGateActions({
       setIsInitialCloudLoading(false);
       setAuthLifecycleStage('READY');
     }
-    setTimeout(() => {
-      revalidateEntitlement(false);
-    }, 800);
   };
 
   const handleAccessExpired = (_email: string, entitlement: EntitlementCheckResult) => {

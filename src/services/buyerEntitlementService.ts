@@ -280,7 +280,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   const maxAttempts = isLocalPreview ? 1 : 2;
-  const requestTimeoutMs = isLocalPreview ? 15_000 : 25_000;
+  const requestTimeoutMs = isLocalPreview ? 45_000 : 35_000;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {

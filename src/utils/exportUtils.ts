@@ -425,6 +425,37 @@ interface DesktopCanonicalStage {
   destroy: () => void;
 }
 
+function readPixelWidthFromClasses(element: HTMLElement): number | null {
+  const className = [
+    typeof element.className === 'string' ? element.className : '',
+    element.getAttribute('class') || '',
+  ].join(' ');
+  const widths = Array.from(className.matchAll(/(?:^|\s)(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]/g))
+    .map((match) => Number.parseFloat(match[1]))
+    .filter((value) => Number.isFinite(value) && value >= 280);
+
+  return widths.length > 0 ? Math.round(Math.max(...widths)) : null;
+}
+
+function readPixelWidthFromInlineStyle(element: HTMLElement): number | null {
+  if (!element.style?.width) return null;
+  const match = element.style.width.match(/^(\d+(?:\.\d+)?)px$/);
+  if (!match) return null;
+  const width = Number.parseFloat(match[1]);
+  return Number.isFinite(width) && width >= 280 ? Math.round(width) : null;
+}
+
+function readPixelWidthFromComputedStyle(element: HTMLElement): number | null {
+  const computed = window.getComputedStyle(element);
+  for (const candidate of [computed.width, computed.minWidth, computed.maxWidth]) {
+    const value = Number.parseFloat(candidate);
+    if (Number.isFinite(value) && value >= 280 && candidate.endsWith('px')) {
+      return Math.round(value);
+    }
+  }
+  return null;
+}
+
 function copyInheritedPreviewVariables(source: HTMLElement, target: HTMLElement): void {
   const computed = window.getComputedStyle(source);
   for (const property of Array.from(computed)) {
@@ -764,48 +795,27 @@ export function getCanonicalTargetWidth(element: HTMLElement): number {
   }
 
   // 1. Direct style.width (e.g. customized Spotify card width, or user custom width)
-  if (element.style && element.style.width) {
-    const match = element.style.width.match(/^(\d+(?:\.\d+)?)px$/);
-    if (match && parseFloat(match[1]) >= 280) {
-      return Math.round(parseFloat(match[1]));
-    }
-  }
+  const inlineWidth = readPixelWidthFromInlineStyle(element);
+  if (inlineWidth) return inlineWidth;
 
   // 2. Direct classes on element
-  const cls = ((typeof element.className === 'string' ? element.className : '') + ' ' + (element.getAttribute('class') || '')).toLowerCase();
-  if (cls.includes('w-[480px]') || cls.includes('min-w-[480px]') || cls.includes('max-w-[480px]')) {
-    return 480;
-  }
-  if (cls.includes('w-[380px]') || cls.includes('min-w-[380px]') || cls.includes('max-w-[380px]')) {
-    return 380;
-  }
+  const classWidth = readPixelWidthFromClasses(element);
+  if (classWidth) return classWidth;
 
   // 3. Explicit desktop layout constraints from the component itself. This is
   // independent from ancestor transforms and the physical device viewport.
-  const computed = window.getComputedStyle(element);
-  for (const candidate of [computed.width, computed.minWidth, computed.maxWidth]) {
-    const value = Number.parseFloat(candidate);
-    if (Number.isFinite(value) && value >= 280 && candidate.endsWith('px')) {
-      return Math.round(value);
-    }
-  }
+  const computedWidth = readPixelWidthFromComputedStyle(element);
+  if (computedWidth) return computedWidth;
 
   // 4. Check descendants or children (such as #preview-target)
   const childTarget = (element.querySelector('#preview-target') as HTMLElement) || (element.firstElementChild as HTMLElement);
   if (childTarget) {
-    if (childTarget.style && childTarget.style.width) {
-      const match = childTarget.style.width.match(/^(\d+(?:\.\d+)?)px$/);
-      if (match && parseFloat(match[1]) >= 280) {
-        return Math.round(parseFloat(match[1]));
-      }
-    }
-    const childCls = ((typeof childTarget.className === 'string' ? childTarget.className : '') + ' ' + (childTarget.getAttribute('class') || '')).toLowerCase();
-    if (childCls.includes('w-[480px]') || childCls.includes('min-w-[480px]') || childCls.includes('max-w-[480px]')) {
-      return 480;
-    }
-    if (childCls.includes('w-[380px]') || childCls.includes('min-w-[380px]') || childCls.includes('max-w-[380px]')) {
-      return 380;
-    }
+    const childInlineWidth = readPixelWidthFromInlineStyle(childTarget);
+    if (childInlineWidth) return childInlineWidth;
+    const childClassWidth = readPixelWidthFromClasses(childTarget);
+    if (childClassWidth) return childClassWidth;
+    const childComputedWidth = readPixelWidthFromComputedStyle(childTarget);
+    if (childComputedWidth) return childComputedWidth;
   }
 
   // 5. Default to unscaled dimensions or standard 380px

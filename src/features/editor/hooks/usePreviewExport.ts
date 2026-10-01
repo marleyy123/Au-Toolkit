@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { MouseEvent, RefObject } from 'react';
 import type { AppLanguage } from '../../../context/LanguageContext';
 import type { PlatformTab } from '../../../types';
+import { findRegisteredExportElement, getRegisteredExportContext } from '../../../export/exportContext';
 import {
   copyElementToClipboard,
   downloadElementAsJpg,
@@ -16,10 +17,16 @@ type UsePreviewExportArgs = {
   updateActiveFolderData: (tab: PlatformTab, updated: any) => void;
 };
 
-const getPreviewExportTarget = (previewRef: RefObject<HTMLDivElement>) =>
-  previewRef.current ||
-  (document.getElementById('preview-canvas-container')?.firstElementChild as HTMLElement) ||
-  document.getElementById('preview-target');
+const getPreviewExportTarget = (previewRef: RefObject<HTMLDivElement>) => {
+  if (previewRef.current && getRegisteredExportContext(previewRef.current)) {
+    return previewRef.current;
+  }
+
+  return (
+    findRegisteredExportElement(document.getElementById('preview-canvas-container') || document) ||
+    findRegisteredExportElement()
+  );
+};
 
 const getScaleSuffix = (scale: number) => (scale === 1 ? '1x' : scale === 2 ? '2x-HD' : '3x-4K');
 

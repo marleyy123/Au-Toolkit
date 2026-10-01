@@ -3,7 +3,6 @@ import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { AuthLifecycleStage } from '../../auth/components/AppLoadingScreen';
 import type { AUFolder, PlatformTab } from '../../../types';
 import {
-  auth,
   loadUserWorkspaceFromFirestore,
   subscribeUserWorkspaceFromFirestore,
 } from '../../../firebase';
@@ -68,8 +67,10 @@ export function useWorkspaceCloudHydration({
     if (!userEmailOrId) {
       accountSyncGenerationRef.current += 1;
       setCloudSyncState('signed_out');
+      setIsInitialCloudLoading(false);
       setIsHydrated(true);
       isHydratedRef.current = true;
+      setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
       return;
     }
 
@@ -79,7 +80,7 @@ export function useWorkspaceCloudHydration({
     const isCurrentAccount = () =>
       !disposed &&
       accountSyncGenerationRef.current === generation &&
-      auth.currentUser?.uid === expectedUid;
+      authUser?.uid === expectedUid;
 
     setCloudSyncState('syncing');
 

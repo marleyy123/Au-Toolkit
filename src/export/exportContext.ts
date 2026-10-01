@@ -28,3 +28,11 @@ export function getRegisteredExportContext(
   }
   return contexts.get(element) || null;
 }
+
+export function findRegisteredExportElement(root: ParentNode = document): HTMLElement | null {
+  const candidates = Array.from(
+    root.querySelectorAll<HTMLElement>('[data-au-canonical-export-source="true"]')
+  );
+
+  return candidates.find((element) => getRegisteredExportContext(element)) || null;
+}
