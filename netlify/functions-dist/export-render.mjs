@@ -28,12 +28,12 @@ var hm = (r, e, t) => (t = r != null ? M8(B8(r)) : {}, H8(
   r
 ));
 
-// node_modules/.pnpm/events-universal@1.0.1/node_modules/events-universal/default.js
+// node_modules/events-universal/default.js
 var wP = B((u5e, vP) => {
   vP.exports = $("events");
 });
 
-// node_modules/.pnpm/fast-fifo@1.3.2/node_modules/fast-fifo/fixed-size.js
+// node_modules/fast-fifo/fixed-size.js
 var xP = B((h5e, yP) => {
   yP.exports = class d5e {
     constructor(e) {
@@ -71,7 +71,7 @@ var xP = B((h5e, yP) => {
   };
 });
 
-// node_modules/.pnpm/fast-fifo@1.3.2/node_modules/fast-fifo/index.js
+// node_modules/fast-fifo/index.js
 var pm = B((f5e, OP) => {
   var SP = xP();
   OP.exports = class p5e {
@@ -116,7 +116,7 @@ var pm = B((f5e, OP) => {
   };
 });
 
-// node_modules/.pnpm/b4a@1.9.0/node_modules/b4a/index.js
+// node_modules/b4a/index.js
 var fs = B((m5e, EP) => {
   function $8(r) {
     return Buffer.isBuffer(r) || r instanceof Uint8Array;
@@ -275,7 +275,7 @@ var fs = B((m5e, EP) => {
   };
 });
 
-// node_modules/.pnpm/text-decoder@1.2.7/node_modules/text-decoder/lib/pass-through-decoder.js
+// node_modules/text-decoder/lib/pass-through-decoder.js
 var PP = B((_5e, kP) => {
   var E9 = fs();
   kP.exports = class g5e {
@@ -294,7 +294,7 @@ var PP = B((_5e, kP) => {
   };
 });
 
-// node_modules/.pnpm/text-decoder@1.2.7/node_modules/text-decoder/lib/utf8-decoder.js
+// node_modules/text-decoder/lib/utf8-decoder.js
 var IP = B((v5e, AP) => {
   var CP = fs();
   AP.exports = class b5e {
@@ -439,7 +439,7 @@ var IP = B((v5e, AP) => {
   }
 });
 
-// node_modules/.pnpm/text-decoder@1.2.7/node_modules/text-decoder/index.js
+// node_modules/text-decoder/index.js
 var RP = B((y5e, NP) => {
   var P9 = PP();
   var C9 = IP();
@@ -499,7 +499,7 @@ var RP = B((y5e, NP) => {
   }
 });
 
-// node_modules/.pnpm/streamx@2.28.1/node_modules/streamx/lib/errors.js
+// node_modules/streamx/lib/errors.js
 var DP = B((x5e, jP) => {
   jP.exports = class Vr extends Error {
     constructor(e, t, n = Vr) {
@@ -539,7 +539,7 @@ var DP = B((x5e, jP) => {
   };
 });
 
-// node_modules/.pnpm/streamx@2.28.1/node_modules/streamx/index.js
+// node_modules/streamx/index.js
 var Tm = B((S5e, rC) => {
   var { EventEmitter: A9 } = wP();
   var qP = pm();
@@ -1568,7 +1568,7 @@ var Tm = B((S5e, rC) => {
   };
 });
 
-// node_modules/.pnpm/tar-stream@3.2.1/node_modules/tar-stream/headers.js
+// node_modules/tar-stream/headers.js
 var Nm = B((ws) => {
   var qe = fs();
   var D7 = "0000000000000000000";
@@ -1828,7 +1828,7 @@ var Nm = B((ws) => {
   }
 });
 
-// node_modules/.pnpm/tar-stream@3.2.1/node_modules/tar-stream/extract.js
+// node_modules/tar-stream/extract.js
 var uC = B((E5e, cC) => {
   var { Writable: J7, Readable: Y7, getStreamError: oC } = Tm();
   var X7 = pm();
@@ -2170,7 +2170,7 @@ var uC = B((E5e, cC) => {
   }
 });
 
-// node_modules/.pnpm/tar-stream@3.2.1/node_modules/tar-stream/constants.js
+// node_modules/tar-stream/constants.js
 var hC = B((k5e, Fm) => {
   var dC = {
     // just for envs without fs
@@ -2188,7 +2188,7 @@ var hC = B((k5e, Fm) => {
   }
 });
 
-// node_modules/.pnpm/tar-stream@3.2.1/node_modules/tar-stream/pack.js
+// node_modules/tar-stream/pack.js
 var _C = B((P5e, gC) => {
   var { Readable: eV, Writable: tV, getStreamError: pC } = Tm();
   var yi = fs();
@@ -2420,13 +2420,13 @@ var _C = B((P5e, gC) => {
   }
 });
 
-// node_modules/.pnpm/tar-stream@3.2.1/node_modules/tar-stream/index.js
+// node_modules/tar-stream/index.js
 var bC = B((Hm) => {
   Hm.extract = uC();
   Hm.pack = _C();
 });
 
-// node_modules/.pnpm/wrappy@1.0.2/node_modules/wrappy/wrappy.js
+// node_modules/wrappy/wrappy.js
 var yC = B((T5e, wC) => {
   wC.exports = vC;
   function vC(r, e) {
@@ -2454,7 +2454,7 @@ var yC = B((T5e, wC) => {
   }
 });
 
-// node_modules/.pnpm/once@1.4.0/node_modules/once/once.js
+// node_modules/once/once.js
 var Um = B((A5e, $m) => {
   var xC = yC();
   $m.exports = xC(kc);
@@ -2496,7 +2496,7 @@ var Um = B((A5e, $m) => {
   }
 });
 
-// node_modules/.pnpm/end-of-stream@1.4.5/node_modules/end-of-stream/index.js
+// node_modules/end-of-stream/index.js
 var kC = B((I5e, EC) => {
   var oV = Um();
   var aV = function() {
@@ -2577,7 +2577,7 @@ var kC = B((I5e, EC) => {
   EC.exports = OC;
 });
 
-// node_modules/.pnpm/pump@3.0.4/node_modules/pump/index.js
+// node_modules/pump/index.js
 var TC = B((N5e, CC) => {
   var dV = Um();
   var hV = kC();
@@ -2650,7 +2650,7 @@ var TC = B((N5e, CC) => {
   CC.exports = bV;
 });
 
-// node_modules/.pnpm/tar-fs@3.1.3/node_modules/tar-fs/index.js
+// node_modules/tar-fs/index.js
 var Vm = B((zm) => {
   var AC = bC();
   var IC = TC();
@@ -2981,7 +2981,7 @@ var Vm = B((zm) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utilsBundleImpl/index.js
+// node_modules/playwright-core/lib/utilsBundleImpl/index.js
 var mt = B((p$e, ET) => {
   "use strict";
   var BV = Object.create;
@@ -3175,14 +3175,14 @@ var mt = B((p$e, ET) => {
       };
       return _._styles = w, _.__proto__ = p, _;
     }
-    var h = function() {
+    var h = (function() {
       var w = {};
       return i.grey = i.gray, Object.keys(i).forEach(function(_) {
         i[_].closeRe = new RegExp(u(i[_].close), "g"), w[_] = { get: function() {
           return d(this._styles.concat(_));
         } };
       }), w;
-    }(), p = s(function() {
+    })(), p = s(function() {
     }, h);
     function f() {
       var w = Array.prototype.slice.call(arguments), _ = w.map(function(O) {
@@ -4151,7 +4151,7 @@ var mt = B((p$e, ET) => {
     }
   });
   var mG = V((r, e) => {
-    var t = function() {
+    var t = (function() {
       "use strict";
       var i = new Int32Array([0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63]), s = 4017, a = 799, l = 3406, c = 2276, u = 1567, d = 3784, h = 5793, p = 2896;
       function f() {
@@ -4553,7 +4553,7 @@ var mt = B((p$e, ET) => {
       }, f.getBytesAllocated = function() {
         return _;
       }, f.requestMemoryAllocation = x, f;
-    }();
+    })();
     typeof e != "undefined" ? e.exports = n : typeof window != "undefined" && (window["jpeg-js"] = window["jpeg-js"] || {}, window["jpeg-js"].decode = n);
     function n(i, s = {}) {
       var a = { colorTransform: void 0, useTArray: false, formatAsRGBA: true, tolerantDecoding: true, maxResolutionInMP: 100, maxMemoryUsageInMB: 512 }, l = { ...a, ...s }, c = new Uint8Array(i), u = new t();
@@ -4736,12 +4736,12 @@ var mt = B((p$e, ET) => {
   var OG = V((r, e) => {
     e.exports = g;
     g.Minimatch = b;
-    var t = function() {
+    var t = (function() {
       try {
         return $("path");
       } catch {
       }
-    }() || { sep: "/" };
+    })() || { sep: "/" };
     g.sep = t.sep;
     var n = g.GLOBSTAR = b.GLOBSTAR = {}, i = SG(), s = { "!": { open: "(?:(?!(?:", close: "))[^/]*?)" }, "?": { open: "(?:", close: ")?" }, "+": { open: "(?:", close: ")+" }, "*": { open: "(?:", close: ")*" }, "@": { open: "(?:", close: ")" } }, a = "[^/]", l = a + "*?", c = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?", u = "(?:(?!(?:\\/|^)\\.).)*?", d = h("().*{}+?[]^$\\!");
     function h(P) {
@@ -5707,10 +5707,10 @@ globstar while`, P, J, R, Q, ne), this.matchOne(P.slice(J), R.slice(Q), L)) retu
     e.exports = function(n, i, s, a) {
       let l = [t.COLORTYPE_COLOR_ALPHA, t.COLORTYPE_ALPHA].indexOf(a.colorType) !== -1;
       if (a.colorType === a.inputColorType) {
-        let w = function() {
+        let w = (function() {
           let _ = new ArrayBuffer(2);
           return new DataView(_).setInt16(0, 256, true), new Int16Array(_)[0] !== 256;
-        }();
+        })();
         if (a.bitDepth === 8 || a.bitDepth === 16 && w) return n;
       }
       let c = a.bitDepth !== 16 ? n : new Uint16Array(n.buffer), u = 255, d = t.COLORTYPE_TO_BPP_MAP[a.inputColorType];
@@ -14617,7 +14617,7 @@ ${h.comment}` : h.comment;
       }), c.chown && !c.lchown && (c.lchown = function(_, v, x, y) {
         y && process.nextTick(y);
       }, c.lchownSync = function() {
-      }), s === "win32" && (c.rename = typeof c.rename != "function" ? c.rename : function(_) {
+      }), s === "win32" && (c.rename = typeof c.rename != "function" ? c.rename : (function(_) {
         function v(x, y, S) {
           var O = Date.now(), E = 0;
           _(x, y, function k(C) {
@@ -14633,7 +14633,7 @@ ${h.comment}` : h.comment;
           });
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(v, _), v;
-      }(c.rename)), c.read = typeof c.read != "function" ? c.read : function(_) {
+      })(c.rename)), c.read = typeof c.read != "function" ? c.read : (function(_) {
         function v(x, y, S, O, E, k) {
           var C;
           if (k && typeof k == "function") {
@@ -14646,7 +14646,7 @@ ${h.comment}` : h.comment;
           return _.call(c, x, y, S, O, E, C);
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(v, _), v;
-      }(c.read), c.readSync = typeof c.readSync != "function" ? c.readSync : /* @__PURE__ */ function(_) {
+      })(c.read), c.readSync = typeof c.readSync != "function" ? c.readSync : /* @__PURE__ */ (function(_) {
         return function(v, x, y, S, O) {
           for (var E = 0; ; ) try {
             return _.call(c, v, x, y, S, O);
@@ -14658,7 +14658,7 @@ ${h.comment}` : h.comment;
             throw k;
           }
         };
-      }(c.readSync);
+      })(c.readSync);
       function u(_) {
         _.lchmod = function(v, x, y) {
           _.open(v, t.O_WRONLY | t.O_SYMLINK, x, function(S, O) {
@@ -14852,19 +14852,19 @@ ${h.comment}` : h.comment;
       _ = "GFS4: " + _.split(/\n/).join(`
 GFS4: `), console.error(_);
     });
-    t[l] || (p = global[l] || [], d(t, p), t.close = function(_) {
+    t[l] || (p = global[l] || [], d(t, p), t.close = (function(_) {
       function v(x, y) {
         return _.call(t, x, function(S) {
           S || b(), typeof y == "function" && y.apply(this, arguments);
         });
       }
       return Object.defineProperty(v, c, { value: _ }), v;
-    }(t.close), t.closeSync = function(_) {
+    })(t.close), t.closeSync = (function(_) {
       function v(x) {
         _.apply(t, arguments), b();
       }
       return Object.defineProperty(v, c, { value: _ }), v;
-    }(t.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
+    })(t.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
       h(t[l]), $("assert").equal(t[l].length, 0);
     }));
     var p;
@@ -16137,7 +16137,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   var eY = DJ.default;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utilsBundle.js
+// node_modules/playwright-core/lib/utilsBundle.js
 var Ve = B((V$e, PT) => {
   "use strict";
   var gg = Object.defineProperty;
@@ -16223,7 +16223,7 @@ var Ve = B((V$e, PT) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/debugLogger.js
+// node_modules/playwright-core/lib/server/utils/debugLogger.js
 var et = B((G$e, AT) => {
   "use strict";
   var CY = Object.create;
@@ -16344,7 +16344,7 @@ var et = B((G$e, AT) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/stackTrace.js
+// node_modules/playwright-core/lib/utils/isomorphic/stackTrace.js
 var Et = B((K$e, RT) => {
   "use strict";
   var wg = Object.defineProperty;
@@ -16497,7 +16497,7 @@ ${t.join("\n")}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/manualPromise.js
+// node_modules/playwright-core/lib/utils/isomorphic/manualPromise.js
 var Xe = B((J$e, MT) => {
   "use strict";
   var xg = Object.defineProperty;
@@ -16610,7 +16610,7 @@ var Xe = B((J$e, MT) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/linuxUtils.js
+// node_modules/playwright-core/lib/server/utils/linuxUtils.js
 var Og = B((Y$e, qT) => {
   "use strict";
   var aX = Object.create;
@@ -16681,7 +16681,7 @@ var Og = B((Y$e, qT) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/package.json
+// node_modules/playwright-core/package.json
 var Eg = B((X$e, bX) => {
   bX.exports = {
     name: "playwright-core",
@@ -16729,7 +16729,7 @@ var Eg = B((X$e, bX) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/userAgent.js
+// node_modules/playwright-core/lib/server/utils/userAgent.js
 var fn = B((Q$e, VT) => {
   "use strict";
   var vX = Object.create;
@@ -16825,7 +16825,7 @@ var fn = B((Q$e, VT) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/zipBundleImpl.js
+// node_modules/playwright-core/lib/zipBundleImpl.js
 var ou = B((Z$e, eA) => {
   "use strict";
   var IX = Object.create;
@@ -18326,7 +18326,7 @@ var ou = B((Z$e, eA) => {
   var rQ = tQ;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/zipBundle.js
+// node_modules/playwright-core/lib/zipBundle.js
 var oa = B((rUe, rA) => {
   "use strict";
   var kg = Object.defineProperty;
@@ -18358,7 +18358,7 @@ var oa = B((rUe, rA) => {
   var dQ = ou().extract;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/fileUtils.js
+// node_modules/playwright-core/lib/server/utils/fileUtils.js
 var ar = B((nUe, oA) => {
   "use strict";
   var hQ = Object.create;
@@ -18542,7 +18542,7 @@ var ar = B((nUe, oA) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/registry/browserFetcher.js
+// node_modules/playwright-core/lib/server/registry/browserFetcher.js
 var pA = B((iUe, hA) => {
   "use strict";
   var PQ = Object.create;
@@ -18716,7 +18716,7 @@ var pA = B((iUe, hA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/registry/nativeDeps.js
+// node_modules/playwright-core/lib/server/registry/nativeDeps.js
 var gA = B((sUe, mA) => {
   "use strict";
   var Ng = Object.defineProperty;
@@ -19996,7 +19996,7 @@ var gA = B((sUe, mA) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/ascii.js
+// node_modules/playwright-core/lib/server/utils/ascii.js
 var Ar = B((oUe, bA) => {
   "use strict";
   var Rg = Object.defineProperty;
@@ -20039,7 +20039,7 @@ var Ar = B((oUe, bA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/hostPlatform.js
+// node_modules/playwright-core/lib/server/utils/hostPlatform.js
 var la = B((aUe, yA) => {
   "use strict";
   var nZ = Object.create;
@@ -20149,7 +20149,7 @@ var la = B((aUe, yA) => {
   var { hostPlatform: pZ, isOfficiallySupportedPlatform: fZ } = hZ();
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/spawnAsync.js
+// node_modules/playwright-core/lib/server/utils/spawnAsync.js
 var pu = B((lUe, SA) => {
   "use strict";
   var jg = Object.defineProperty;
@@ -20190,7 +20190,7 @@ var pu = B((lUe, SA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/registry/dependencies.js
+// node_modules/playwright-core/lib/server/registry/dependencies.js
 var bu = B((cUe, RA) => {
   "use strict";
   var SZ = Object.create;
@@ -20554,7 +20554,7 @@ ${c.join("\n")}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/ariaSnapshot.js
+// node_modules/playwright-core/lib/utils/isomorphic/ariaSnapshot.js
 var wu = B((uUe, FA) => {
   "use strict";
   var Lg = Object.defineProperty;
@@ -20940,7 +20940,7 @@ var wu = B((uUe, FA) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/assert.js
+// node_modules/playwright-core/lib/utils/isomorphic/assert.js
 var ct = B((dUe, BA) => {
   "use strict";
   var Bg = Object.defineProperty;
@@ -20971,7 +20971,7 @@ var ct = B((dUe, BA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/colors.js
+// node_modules/playwright-core/lib/utils/isomorphic/colors.js
 var $A = B((hUe, HA) => {
   "use strict";
   var qg = Object.defineProperty;
@@ -21042,7 +21042,7 @@ var $A = B((hUe, HA) => {
   var kt = (r, e, t) => `\x1B[${r}m${t}\x1B[${e}m`;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/headers.js
+// node_modules/playwright-core/lib/utils/isomorphic/headers.js
 var Jn = B((pUe, WA) => {
   "use strict";
   var Hg = Object.defineProperty;
@@ -21094,7 +21094,7 @@ var Jn = B((pUe, WA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/cssTokenizer.js
+// node_modules/playwright-core/lib/utils/isomorphic/cssTokenizer.js
 var YA = B((fUe, JA) => {
   "use strict";
   var $g = Object.defineProperty;
@@ -22110,7 +22110,7 @@ var YA = B((fUe, JA) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/cssParser.js
+// node_modules/playwright-core/lib/utils/isomorphic/cssParser.js
 var Ug = B((mUe, eI) => {
   "use strict";
   var Mee = Object.create;
@@ -22352,7 +22352,7 @@ var Ug = B((mUe, eI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/selectorParser.js
+// node_modules/playwright-core/lib/utils/isomorphic/selectorParser.js
 var Yn = B((gUe, iI) => {
   "use strict";
   var Vg = Object.defineProperty;
@@ -22731,7 +22731,7 @@ var Yn = B((gUe, iI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/stringUtils.js
+// node_modules/playwright-core/lib/utils/isomorphic/stringUtils.js
 var wn = B((_Ue, cI) => {
   "use strict";
   var Jg = Object.defineProperty;
@@ -22870,7 +22870,7 @@ var wn = B((_Ue, cI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/locatorGenerators.js
+// node_modules/playwright-core/lib/utils/isomorphic/locatorGenerators.js
 var rd = B((bUe, pI) => {
   "use strict";
   var Yg = Object.defineProperty;
@@ -23536,7 +23536,7 @@ var rd = B((bUe, pI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/mimeType.js
+// node_modules/playwright-core/lib/utils/isomorphic/mimeType.js
 var nd = B((vUe, mI) => {
   "use strict";
   var Xg = Object.defineProperty;
@@ -23993,7 +23993,7 @@ var nd = B((vUe, mI) => {
   ]);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/multimap.js
+// node_modules/playwright-core/lib/utils/isomorphic/multimap.js
 var id = B((wUe, _I) => {
   "use strict";
   var Zg = Object.defineProperty;
@@ -24073,7 +24073,7 @@ var id = B((wUe, _I) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/protocolMetainfo.js
+// node_modules/playwright-core/lib/utils/isomorphic/protocolMetainfo.js
 var Ri = B((yUe, vI) => {
   "use strict";
   var e_ = Object.defineProperty;
@@ -24391,7 +24391,7 @@ var Ri = B((yUe, vI) => {
   ]);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/protocolFormatter.js
+// node_modules/playwright-core/lib/utils/isomorphic/protocolFormatter.js
 var r_ = B((xUe, SI) => {
   "use strict";
   var t_ = Object.defineProperty;
@@ -24467,7 +24467,7 @@ var r_ = B((xUe, SI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/rtti.js
+// node_modules/playwright-core/lib/utils/isomorphic/rtti.js
 var br = B((SUe, EI) => {
   "use strict";
   var n_ = Object.defineProperty;
@@ -24507,7 +24507,7 @@ var br = B((SUe, EI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/semaphore.js
+// node_modules/playwright-core/lib/utils/isomorphic/semaphore.js
 var o_ = B((OUe, PI) => {
   "use strict";
   var s_ = Object.defineProperty;
@@ -24561,7 +24561,7 @@ var o_ = B((OUe, PI) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/time.js
+// node_modules/playwright-core/lib/utils/isomorphic/time.js
 var Xt = B((EUe, II) => {
   "use strict";
   var a_ = Object.defineProperty;
@@ -24606,7 +24606,7 @@ var Xt = B((EUe, II) => {
   var qre = 3 * 60 * 1e3;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/timeoutRunner.js
+// node_modules/playwright-core/lib/utils/isomorphic/timeoutRunner.js
 var ma = B((kUe, jI) => {
   "use strict";
   var c_ = Object.defineProperty;
@@ -24671,7 +24671,7 @@ var ma = B((kUe, jI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/urlMatch.js
+// node_modules/playwright-core/lib/utils/isomorphic/urlMatch.js
 var Yr = B((PUe, qI) => {
   "use strict";
   var d_ = Object.defineProperty;
@@ -24848,7 +24848,7 @@ var Yr = B((PUe, qI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/image_tools/colorUtils.js
+// node_modules/playwright-core/lib/server/utils/image_tools/colorUtils.js
 var __ = B((CUe, $I) => {
   "use strict";
   var g_ = Object.defineProperty;
@@ -24933,7 +24933,7 @@ var __ = B((CUe, $I) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/image_tools/imageChannel.js
+// node_modules/playwright-core/lib/server/utils/image_tools/imageChannel.js
 var zI = B((TUe, WI) => {
   "use strict";
   var w_ = Object.defineProperty;
@@ -25011,7 +25011,7 @@ var zI = B((TUe, WI) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/image_tools/stats.js
+// node_modules/playwright-core/lib/server/utils/image_tools/stats.js
 var JI = B((AUe, KI) => {
   "use strict";
   var x_ = Object.defineProperty;
@@ -25112,7 +25112,7 @@ var JI = B((AUe, KI) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/image_tools/compare.js
+// node_modules/playwright-core/lib/server/utils/image_tools/compare.js
 var ZI = B((IUe, QI) => {
   "use strict";
   var E_ = Object.defineProperty;
@@ -25221,7 +25221,7 @@ var ZI = B((IUe, QI) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/third_party/pixelmatch.js
+// node_modules/playwright-core/lib/third_party/pixelmatch.js
 var oN = B((NUe, sN) => {
   "use strict";
   sN.exports = Fne;
@@ -25395,7 +25395,7 @@ var oN = B((NUe, sN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/comparators.js
+// node_modules/playwright-core/lib/server/utils/comparators.js
 var T_ = B((RUe, mN) => {
   "use strict";
   var Lne = Object.create;
@@ -25555,7 +25555,7 @@ var T_ = B((RUe, mN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/crypto.js
+// node_modules/playwright-core/lib/server/utils/crypto.js
 var _t = B((jUe, wN) => {
   "use strict";
   var Yne = Object.create;
@@ -25769,7 +25769,7 @@ var _t = B((jUe, wN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/env.js
+// node_modules/playwright-core/lib/server/utils/env.js
 var dd = B((DUe, ON) => {
   "use strict";
   var A_ = Object.defineProperty;
@@ -25833,7 +25833,7 @@ var dd = B((DUe, ON) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/debug.js
+// node_modules/playwright-core/lib/server/utils/debug.js
 var Ir = B((MUe, PN) => {
   "use strict";
   var I_ = Object.defineProperty;
@@ -25874,7 +25874,7 @@ var Ir = B((MUe, PN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/eventsHelper.js
+// node_modules/playwright-core/lib/server/utils/eventsHelper.js
 var it = B((FUe, TN) => {
   "use strict";
   var R_ = Object.defineProperty;
@@ -25913,7 +25913,7 @@ var it = B((FUe, TN) => {
   var Iie = N_;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/expectUtils.js
+// node_modules/playwright-core/lib/server/utils/expectUtils.js
 var NN = B((LUe, IN) => {
   "use strict";
   var D_ = Object.defineProperty;
@@ -25951,7 +25951,7 @@ var NN = B((LUe, IN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/happyEyeballs.js
+// node_modules/playwright-core/lib/server/utils/happyEyeballs.js
 var Ts = B((BUe, LN) => {
   "use strict";
   var Bie = Object.create;
@@ -26153,7 +26153,7 @@ var Ts = B((BUe, LN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/network.js
+// node_modules/playwright-core/lib/server/utils/network.js
 var Xn = B((qUe, zN) => {
   "use strict";
   var ise = Object.create;
@@ -26373,7 +26373,7 @@ var Xn = B((qUe, zN) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/httpServer.js
+// node_modules/playwright-core/lib/server/utils/httpServer.js
 var V_ = B((HUe, YN) => {
   "use strict";
   var yse = Object.create;
@@ -26591,7 +26591,7 @@ var V_ = B((HUe, YN) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/zones.js
+// node_modules/playwright-core/lib/server/utils/zones.js
 var K_ = B(($Ue, eR) => {
   "use strict";
   var G_ = Object.defineProperty;
@@ -26646,7 +26646,7 @@ var K_ = B(($Ue, eR) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/nodePlatform.js
+// node_modules/playwright-core/lib/server/utils/nodePlatform.js
 var Z_ = B((UUe, dR) => {
   "use strict";
   var Bse = Object.create;
@@ -26793,7 +26793,7 @@ var Z_ = B((UUe, dR) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/processLauncher.js
+// node_modules/playwright-core/lib/server/utils/processLauncher.js
 var Qn = B((WUe, wR) => {
   "use strict";
   var Xse = Object.create;
@@ -27030,7 +27030,7 @@ var Qn = B((WUe, wR) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/profiler.js
+// node_modules/playwright-core/lib/server/utils/profiler.js
 var tb = B((zUe, ER) => {
   "use strict";
   var poe = Object.create;
@@ -27094,7 +27094,7 @@ var tb = B((zUe, ER) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/socksProxy.js
+// node_modules/playwright-core/lib/server/utils/socksProxy.js
 var Is = B((VUe, NR) => {
   "use strict";
   var Soe = Object.create;
@@ -27576,7 +27576,7 @@ var Is = B((VUe, NR) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/task.js
+// node_modules/playwright-core/lib/server/utils/task.js
 var Td = B((GUe, jR) => {
   "use strict";
   var ob = Object.defineProperty;
@@ -27627,7 +27627,7 @@ var Td = B((GUe, jR) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/wsServer.js
+// node_modules/playwright-core/lib/server/utils/wsServer.js
 var cb = B((KUe, LR) => {
   "use strict";
   var lb = Object.defineProperty;
@@ -27752,7 +27752,7 @@ var cb = B((KUe, LR) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/zipFile.js
+// node_modules/playwright-core/lib/server/utils/zipFile.js
 var hb = B((JUe, qR) => {
   "use strict";
   var db = Object.defineProperty;
@@ -27826,7 +27826,7 @@ var hb = B((JUe, qR) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils.js
+// node_modules/playwright-core/lib/utils.js
 var xe = B((YUe, Re) => {
   "use strict";
   var fb = Object.defineProperty;
@@ -27894,7 +27894,7 @@ var xe = B((YUe, Re) => {
   var aae = Ve();
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/browsers.json
+// node_modules/playwright-core/browsers.json
 var HR = B((XUe, lae) => {
   lae.exports = {
     comment: "Do not edit this file, use utils/roll_browser.js",
@@ -27978,7 +27978,7 @@ var HR = B((XUe, lae) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/registry/index.js
+// node_modules/playwright-core/lib/server/registry/index.js
 var Jr = B((QUe, YR) => {
   "use strict";
   var cae = Object.create;
@@ -29277,7 +29277,7 @@ ${u.stack}`);
   var Ea = new Rd(HR());
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/protocol/validatorPrimitives.js
+// node_modules/playwright-core/lib/protocol/validatorPrimitives.js
 var Fd = B((eWe, e2) => {
   "use strict";
   var yb = Object.defineProperty;
@@ -29453,7 +29453,7 @@ var Fd = B((eWe, e2) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/protocol/validator.js
+// node_modules/playwright-core/lib/protocol/validator.js
 var ka = B((tWe, r2) => {
   "use strict";
   var xb = Object.defineProperty;
@@ -32351,7 +32351,7 @@ var ka = B((tWe, r2) => {
   o.scheme.JsonPipeCloseResult = (0, o.tOptional)((0, o.tObject)({}));
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/protocol/serializers.js
+// node_modules/playwright-core/lib/protocol/serializers.js
 var Pa = B((rWe, a2) => {
   "use strict";
   var Eb = Object.defineProperty;
@@ -32542,7 +32542,7 @@ var Pa = B((rWe, a2) => {
   var ole = new Map(Object.entries(o2).map(([r, e]) => [e, r]));
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/errors.js
+// node_modules/playwright-core/lib/server/errors.js
 var Zt = B((nWe, u2) => {
   "use strict";
   var Pb = Object.defineProperty;
@@ -32607,7 +32607,7 @@ var Zt = B((nWe, u2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/instrumentation.js
+// node_modules/playwright-core/lib/server/instrumentation.js
 var Qe = B((iWe, p2) => {
   "use strict";
   var Cb = Object.defineProperty;
@@ -32674,7 +32674,7 @@ var Qe = B((iWe, p2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/protocolError.js
+// node_modules/playwright-core/lib/server/protocolError.js
 var lr = B((sWe, m2) => {
   "use strict";
   var Tb = Object.defineProperty;
@@ -32724,7 +32724,7 @@ var lr = B((sWe, m2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/callLog.js
+// node_modules/playwright-core/lib/server/callLog.js
 var $d = B((oWe, b2) => {
   "use strict";
   var Ab = Object.defineProperty;
@@ -32805,7 +32805,7 @@ var $d = B((oWe, b2) => {
   var $le = _2;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/progress.js
+// node_modules/playwright-core/lib/server/progress.js
 var Wt = B((aWe, y2) => {
   "use strict";
   var Rb = Object.defineProperty;
@@ -32915,7 +32915,7 @@ var Wt = B((aWe, y2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/dispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/dispatcher.js
 var st = B((lWe, E2) => {
   "use strict";
   var Fb = Object.defineProperty;
@@ -33283,7 +33283,7 @@ var st = B((lWe, E2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/clockSource.js
+// node_modules/playwright-core/lib/generated/clockSource.js
 var C2 = B((cWe, P2) => {
   "use strict";
   var Lb = Object.defineProperty;
@@ -33311,7 +33311,7 @@ var C2 = B((cWe, P2) => {
   var wce = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/clock.ts\nvar clock_exports = {};\n__export(clock_exports, {\n  ClockController: () => ClockController,\n  createClock: () => createClock,\n  inject: () => inject,\n  install: () => install\n});\nmodule.exports = __toCommonJS(clock_exports);\nvar ClockController = class {\n  constructor(embedder) {\n    this._duringTick = false;\n    this._uniqueTimerId = idCounterStart;\n    this.disposables = [];\n    this._log = [];\n    this._timers = /* @__PURE__ */ new Map();\n    this._now = { time: asWallTime(0), isFixedTime: false, ticks: 0, origin: asWallTime(-1) };\n    this._embedder = embedder;\n  }\n  uninstall() {\n    this.disposables.forEach((dispose) => dispose());\n    this.disposables.length = 0;\n  }\n  now() {\n    this._replayLogOnce();\n    this._syncRealTime();\n    return this._now.time;\n  }\n  install(time) {\n    this._replayLogOnce();\n    this._innerSetTime(asWallTime(time));\n  }\n  setSystemTime(time) {\n    this._replayLogOnce();\n    this._innerSetTime(asWallTime(time));\n  }\n  setFixedTime(time) {\n    this._replayLogOnce();\n    this._innerSetFixedTime(asWallTime(time));\n  }\n  performanceNow() {\n    this._replayLogOnce();\n    this._syncRealTime();\n    return this._now.ticks;\n  }\n  _syncRealTime() {\n    if (!this._realTime)\n      return;\n    const now = this._embedder.performanceNow();\n    const sinceLastSync = now - this._realTime.lastSyncTicks;\n    if (sinceLastSync > 0) {\n      this._advanceNow(shiftTicks(this._now.ticks, sinceLastSync));\n      this._realTime.lastSyncTicks = now;\n    }\n  }\n  _innerSetTime(time) {\n    this._now.time = time;\n    this._now.isFixedTime = false;\n    if (this._now.origin < 0)\n      this._now.origin = this._now.time;\n  }\n  _innerSetFixedTime(time) {\n    this._innerSetTime(time);\n    this._now.isFixedTime = true;\n  }\n  _advanceNow(to) {\n    if (!this._now.isFixedTime)\n      this._now.time = asWallTime(this._now.time + to - this._now.ticks);\n    this._now.ticks = to;\n  }\n  async log(type, time, param) {\n    this._log.push({ type, time, param });\n  }\n  async runFor(ticks) {\n    this._replayLogOnce();\n    if (ticks < 0)\n      throw new TypeError("Negative ticks are not supported");\n    await this._runTo(shiftTicks(this._now.ticks, ticks));\n  }\n  async _runTo(to) {\n    to = Math.ceil(to);\n    if (this._now.ticks > to)\n      return;\n    let firstException;\n    while (true) {\n      const result = await this._callFirstTimer(to);\n      if (!result.timerFound)\n        break;\n      firstException = firstException || result.error;\n    }\n    this._advanceNow(to);\n    if (firstException)\n      throw firstException;\n  }\n  async pauseAt(time) {\n    this._replayLogOnce();\n    this._innerPause();\n    const toConsume = time - this._now.time;\n    await this._innerFastForwardTo(shiftTicks(this._now.ticks, toConsume));\n    return toConsume;\n  }\n  _innerPause() {\n    this._realTime = void 0;\n    this._updateRealTimeTimer();\n  }\n  resume() {\n    this._replayLogOnce();\n    this._innerResume();\n  }\n  _innerResume() {\n    const now = this._embedder.performanceNow();\n    this._realTime = { startTicks: now, lastSyncTicks: now };\n    this._updateRealTimeTimer();\n  }\n  _updateRealTimeTimer() {\n    var _a;\n    if (!this._realTime) {\n      (_a = this._currentRealTimeTimer) == null ? void 0 : _a.dispose();\n      this._currentRealTimeTimer = void 0;\n      return;\n    }\n    const firstTimer = this._firstTimer();\n    const callAt = Math.min(firstTimer ? firstTimer.callAt : this._now.ticks + maxTimeout, this._now.ticks + 100);\n    if (this._currentRealTimeTimer && this._currentRealTimeTimer.callAt < callAt)\n      return;\n    if (this._currentRealTimeTimer) {\n      this._currentRealTimeTimer.dispose();\n      this._currentRealTimeTimer = void 0;\n    }\n    this._currentRealTimeTimer = {\n      callAt,\n      dispose: this._embedder.setTimeout(() => {\n        this._currentRealTimeTimer = void 0;\n        this._syncRealTime();\n        void this._runTo(this._now.ticks).catch((e) => console.error(e)).then(() => this._updateRealTimeTimer());\n      }, callAt - this._now.ticks)\n    };\n  }\n  async fastForward(ticks) {\n    this._replayLogOnce();\n    await this._innerFastForwardTo(shiftTicks(this._now.ticks, ticks | 0));\n  }\n  async _innerFastForwardTo(to) {\n    if (to < this._now.ticks)\n      throw new Error("Cannot fast-forward to the past");\n    for (const timer of this._timers.values()) {\n      if (to > timer.callAt)\n        timer.callAt = to;\n    }\n    await this._runTo(to);\n  }\n  addTimer(options) {\n    this._replayLogOnce();\n    if (options.type === "AnimationFrame" /* AnimationFrame */ && !options.func)\n      throw new Error("Callback must be provided to requestAnimationFrame calls");\n    if (options.type === "IdleCallback" /* IdleCallback */ && !options.func)\n      throw new Error("Callback must be provided to requestIdleCallback calls");\n    if (["Timeout" /* Timeout */, "Interval" /* Interval */].includes(options.type) && !options.func && options.delay === void 0)\n      throw new Error("Callback must be provided to timer calls");\n    let delay = options.delay ? +options.delay : 0;\n    if (!Number.isFinite(delay))\n      delay = 0;\n    delay = delay > maxTimeout ? 1 : delay;\n    delay = Math.max(0, delay);\n    const timer = {\n      type: options.type,\n      func: options.func,\n      args: options.args || [],\n      delay,\n      callAt: shiftTicks(this._now.ticks, delay || (this._duringTick ? 1 : 0)),\n      createdAt: this._now.ticks,\n      id: this._uniqueTimerId++,\n      error: new Error()\n    };\n    this._timers.set(timer.id, timer);\n    if (this._realTime)\n      this._updateRealTimeTimer();\n    return timer.id;\n  }\n  countTimers() {\n    return this._timers.size;\n  }\n  _firstTimer(beforeTick) {\n    let firstTimer = null;\n    for (const timer of this._timers.values()) {\n      const isInRange = beforeTick === void 0 || timer.callAt <= beforeTick;\n      if (isInRange && (!firstTimer || compareTimers(firstTimer, timer) === 1))\n        firstTimer = timer;\n    }\n    return firstTimer;\n  }\n  _takeFirstTimer(beforeTick) {\n    const timer = this._firstTimer(beforeTick);\n    if (!timer)\n      return null;\n    this._advanceNow(timer.callAt);\n    if (timer.type === "Interval" /* Interval */)\n      timer.callAt = shiftTicks(timer.callAt, timer.delay);\n    else\n      this._timers.delete(timer.id);\n    return timer;\n  }\n  async _callFirstTimer(beforeTick) {\n    const timer = this._takeFirstTimer(beforeTick);\n    if (!timer)\n      return { timerFound: false };\n    this._duringTick = true;\n    try {\n      if (typeof timer.func !== "function") {\n        let error2;\n        try {\n          (() => {\n            globalThis.eval(timer.func);\n          })();\n        } catch (e) {\n          error2 = e;\n        }\n        await new Promise((f) => this._embedder.setTimeout(f));\n        return { timerFound: true, error: error2 };\n      }\n      let args = timer.args;\n      if (timer.type === "AnimationFrame" /* AnimationFrame */)\n        args = [this._now.ticks];\n      else if (timer.type === "IdleCallback" /* IdleCallback */)\n        args = [{ didTimeout: false, timeRemaining: () => 0 }];\n      let error;\n      try {\n        timer.func.apply(null, args);\n      } catch (e) {\n        error = e;\n      }\n      await new Promise((f) => this._embedder.setTimeout(f));\n      return { timerFound: true, error };\n    } finally {\n      this._duringTick = false;\n    }\n  }\n  getTimeToNextFrame() {\n    return 16 - this._now.ticks % 16;\n  }\n  clearTimer(timerId, type) {\n    this._replayLogOnce();\n    if (!timerId) {\n      return;\n    }\n    const id = Number(timerId);\n    if (Number.isNaN(id) || id < idCounterStart) {\n      const handlerName = getClearHandler(type);\n      new Error(`Clock: ${handlerName} was invoked to clear a native timer instead of one created by the clock library.`);\n    }\n    const timer = this._timers.get(id);\n    if (timer) {\n      if (timer.type === type || timer.type === "Timeout" && type === "Interval" || timer.type === "Interval" && type === "Timeout") {\n        this._timers.delete(id);\n      } else {\n        const clear = getClearHandler(type);\n        const schedule = getScheduleHandler(timer.type);\n        throw new Error(\n          `Cannot clear timer: timer created with ${schedule}() but cleared with ${clear}()`\n        );\n      }\n    }\n  }\n  _replayLogOnce() {\n    if (!this._log.length)\n      return;\n    let lastLogTime = -1;\n    let isPaused = false;\n    for (const { type, time, param } of this._log) {\n      if (!isPaused && lastLogTime !== -1)\n        this._advanceNow(shiftTicks(this._now.ticks, time - lastLogTime));\n      lastLogTime = time;\n      if (type === "install") {\n        this._innerSetTime(asWallTime(param));\n      } else if (type === "fastForward" || type === "runFor") {\n        this._advanceNow(shiftTicks(this._now.ticks, param));\n      } else if (type === "pauseAt") {\n        isPaused = true;\n        this._innerPause();\n        this._innerSetTime(asWallTime(param));\n      } else if (type === "resume") {\n        this._innerResume();\n        isPaused = false;\n      } else if (type === "setFixedTime") {\n        this._innerSetFixedTime(asWallTime(param));\n      } else if (type === "setSystemTime") {\n        this._innerSetTime(asWallTime(param));\n      }\n    }\n    if (!isPaused && lastLogTime > 0)\n      this._advanceNow(shiftTicks(this._now.ticks, this._embedder.dateNow() - lastLogTime));\n    this._log.length = 0;\n  }\n};\nfunction mirrorDateProperties(target, source) {\n  for (const prop in source) {\n    if (source.hasOwnProperty(prop))\n      target[prop] = source[prop];\n  }\n  target.toString = () => source.toString();\n  target.prototype = source.prototype;\n  target.parse = source.parse;\n  target.UTC = source.UTC;\n  target.prototype.toUTCString = source.prototype.toUTCString;\n  target.isFake = true;\n  return target;\n}\nfunction createDate(clock, NativeDate) {\n  function ClockDate(year, month, date, hour, minute, second, ms) {\n    if (!(this instanceof ClockDate))\n      return new NativeDate(clock.now()).toString();\n    switch (arguments.length) {\n      case 0:\n        return new NativeDate(clock.now());\n      case 1:\n        return new NativeDate(year);\n      case 2:\n        return new NativeDate(year, month);\n      case 3:\n        return new NativeDate(year, month, date);\n      case 4:\n        return new NativeDate(year, month, date, hour);\n      case 5:\n        return new NativeDate(year, month, date, hour, minute);\n      case 6:\n        return new NativeDate(\n          year,\n          month,\n          date,\n          hour,\n          minute,\n          second\n        );\n      default:\n        return new NativeDate(\n          year,\n          month,\n          date,\n          hour,\n          minute,\n          second,\n          ms\n        );\n    }\n  }\n  ClockDate.now = () => clock.now();\n  return mirrorDateProperties(ClockDate, NativeDate);\n}\nfunction createIntl(clock, NativeIntl) {\n  const ClockIntl = {};\n  for (const key of Object.getOwnPropertyNames(NativeIntl))\n    ClockIntl[key] = NativeIntl[key];\n  ClockIntl.DateTimeFormat = function(...args) {\n    const realFormatter = new NativeIntl.DateTimeFormat(...args);\n    const formatter = {\n      formatRange: realFormatter.formatRange.bind(realFormatter),\n      formatRangeToParts: realFormatter.formatRangeToParts.bind(realFormatter),\n      resolvedOptions: realFormatter.resolvedOptions.bind(realFormatter),\n      format: (date) => realFormatter.format(date || clock.now()),\n      formatToParts: (date) => realFormatter.formatToParts(date || clock.now())\n    };\n    return formatter;\n  };\n  ClockIntl.DateTimeFormat.prototype = Object.create(\n    NativeIntl.DateTimeFormat.prototype\n  );\n  ClockIntl.DateTimeFormat.supportedLocalesOf = NativeIntl.DateTimeFormat.supportedLocalesOf;\n  return ClockIntl;\n}\nfunction compareTimers(a, b) {\n  if (a.callAt < b.callAt)\n    return -1;\n  if (a.callAt > b.callAt)\n    return 1;\n  if (a.type === "Immediate" /* Immediate */ && b.type !== "Immediate" /* Immediate */)\n    return -1;\n  if (a.type !== "Immediate" /* Immediate */ && b.type === "Immediate" /* Immediate */)\n    return 1;\n  if (a.createdAt < b.createdAt)\n    return -1;\n  if (a.createdAt > b.createdAt)\n    return 1;\n  if (a.id < b.id)\n    return -1;\n  if (a.id > b.id)\n    return 1;\n}\nvar maxTimeout = Math.pow(2, 31) - 1;\nvar idCounterStart = 1e12;\nfunction platformOriginals(globalObject) {\n  const raw = {\n    setTimeout: globalObject.setTimeout,\n    clearTimeout: globalObject.clearTimeout,\n    setInterval: globalObject.setInterval,\n    clearInterval: globalObject.clearInterval,\n    requestAnimationFrame: globalObject.requestAnimationFrame ? globalObject.requestAnimationFrame : void 0,\n    cancelAnimationFrame: globalObject.cancelAnimationFrame ? globalObject.cancelAnimationFrame : void 0,\n    requestIdleCallback: globalObject.requestIdleCallback ? globalObject.requestIdleCallback : void 0,\n    cancelIdleCallback: globalObject.cancelIdleCallback ? globalObject.cancelIdleCallback : void 0,\n    Date: globalObject.Date,\n    performance: globalObject.performance,\n    Intl: globalObject.Intl\n  };\n  const bound = { ...raw };\n  for (const key of Object.keys(bound)) {\n    if (key !== "Date" && typeof bound[key] === "function")\n      bound[key] = bound[key].bind(globalObject);\n  }\n  return { raw, bound };\n}\nfunction getScheduleHandler(type) {\n  if (type === "IdleCallback" || type === "AnimationFrame")\n    return `request${type}`;\n  return `set${type}`;\n}\nfunction createApi(clock, originals) {\n  return {\n    setTimeout: (func, timeout, ...args) => {\n      const delay = timeout ? +timeout : timeout;\n      return clock.addTimer({\n        type: "Timeout" /* Timeout */,\n        func,\n        args,\n        delay\n      });\n    },\n    clearTimeout: (timerId) => {\n      if (timerId)\n        clock.clearTimer(timerId, "Timeout" /* Timeout */);\n    },\n    setInterval: (func, timeout, ...args) => {\n      const delay = timeout ? +timeout : timeout;\n      return clock.addTimer({\n        type: "Interval" /* Interval */,\n        func,\n        args,\n        delay\n      });\n    },\n    clearInterval: (timerId) => {\n      if (timerId)\n        return clock.clearTimer(timerId, "Interval" /* Interval */);\n    },\n    requestAnimationFrame: (callback) => {\n      return clock.addTimer({\n        type: "AnimationFrame" /* AnimationFrame */,\n        func: callback,\n        delay: clock.getTimeToNextFrame()\n      });\n    },\n    cancelAnimationFrame: (timerId) => {\n      if (timerId)\n        return clock.clearTimer(timerId, "AnimationFrame" /* AnimationFrame */);\n    },\n    requestIdleCallback: (callback, options) => {\n      let timeToNextIdlePeriod = 0;\n      if (clock.countTimers() > 0)\n        timeToNextIdlePeriod = 50;\n      return clock.addTimer({\n        type: "IdleCallback" /* IdleCallback */,\n        func: callback,\n        delay: (options == null ? void 0 : options.timeout) ? Math.min(options == null ? void 0 : options.timeout, timeToNextIdlePeriod) : timeToNextIdlePeriod\n      });\n    },\n    cancelIdleCallback: (timerId) => {\n      if (timerId)\n        return clock.clearTimer(timerId, "IdleCallback" /* IdleCallback */);\n    },\n    Intl: originals.Intl ? createIntl(clock, originals.Intl) : void 0,\n    Date: createDate(clock, originals.Date),\n    performance: originals.performance ? fakePerformance(clock, originals.performance) : void 0\n  };\n}\nfunction getClearHandler(type) {\n  if (type === "IdleCallback" || type === "AnimationFrame")\n    return `cancel${type}`;\n  return `clear${type}`;\n}\nfunction fakePerformance(clock, performance) {\n  const result = {\n    now: () => clock.performanceNow()\n  };\n  result.__defineGetter__("timeOrigin", () => clock._now.origin || 0);\n  for (const key of Object.keys(performance.__proto__)) {\n    if (key === "now" || key === "timeOrigin")\n      continue;\n    if (key === "getEntries" || key === "getEntriesByName" || key === "getEntriesByType")\n      result[key] = () => [];\n    else\n      result[key] = () => {\n      };\n  }\n  return result;\n}\nfunction createClock(globalObject) {\n  const originals = platformOriginals(globalObject);\n  const embedder = {\n    dateNow: () => originals.raw.Date.now(),\n    performanceNow: () => Math.ceil(originals.raw.performance.now()),\n    setTimeout: (task, timeout) => {\n      const timerId = originals.bound.setTimeout(task, timeout);\n      return () => originals.bound.clearTimeout(timerId);\n    },\n    setInterval: (task, delay) => {\n      const intervalId = originals.bound.setInterval(task, delay);\n      return () => originals.bound.clearInterval(intervalId);\n    }\n  };\n  const clock = new ClockController(embedder);\n  const api = createApi(clock, originals.bound);\n  return { clock, api, originals: originals.raw };\n}\nfunction install(globalObject, config = {}) {\n  var _a, _b;\n  if ((_a = globalObject.Date) == null ? void 0 : _a.isFake) {\n    throw new TypeError(`Can\'t install fake timers twice on the same global object.`);\n  }\n  const { clock, api, originals } = createClock(globalObject);\n  const toFake = ((_b = config.toFake) == null ? void 0 : _b.length) ? config.toFake : Object.keys(originals);\n  for (const method of toFake) {\n    if (method === "Date") {\n      globalObject.Date = mirrorDateProperties(api.Date, globalObject.Date);\n    } else if (method === "Intl") {\n      globalObject.Intl = api[method];\n    } else if (method === "performance") {\n      globalObject.performance = api[method];\n      const kEventTimeStamp = Symbol("playwrightEventTimeStamp");\n      Object.defineProperty(Event.prototype, "timeStamp", {\n        get() {\n          var _a2;\n          if (!this[kEventTimeStamp])\n            this[kEventTimeStamp] = (_a2 = api.performance) == null ? void 0 : _a2.now();\n          return this[kEventTimeStamp];\n        }\n      });\n    } else {\n      globalObject[method] = (...args) => {\n        return api[method].apply(api, args);\n      };\n    }\n    clock.disposables.push(() => {\n      globalObject[method] = originals[method];\n    });\n  }\n  return { clock, api, originals };\n}\nfunction inject(globalObject) {\n  const builtins = platformOriginals(globalObject).bound;\n  const { clock: controller } = install(globalObject);\n  controller.resume();\n  return {\n    controller,\n    builtins\n  };\n}\nfunction asWallTime(n) {\n  return n;\n}\nfunction shiftTicks(ticks, ms) {\n  return ticks + ms;\n}\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/clock.js
+// node_modules/playwright-core/lib/server/clock.js
 var R2 = B((uWe, N2) => {
   "use strict";
   var yce = Object.create;
@@ -33460,7 +33460,7 @@ var R2 = B((uWe, N2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/debugger.js
+// node_modules/playwright-core/lib/server/debugger.js
 var $b = B((dWe, D2) => {
   "use strict";
   var Hb = Object.defineProperty;
@@ -33579,7 +33579,7 @@ var $b = B((dWe, D2) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dialog.js
+// node_modules/playwright-core/lib/server/dialog.js
 var js = B((hWe, L2) => {
   "use strict";
   var zb = Object.defineProperty;
@@ -33694,7 +33694,7 @@ var js = B((hWe, L2) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/artifact.js
+// node_modules/playwright-core/lib/server/artifact.js
 var Ds = B((pWe, $2) => {
   "use strict";
   var Jce = Object.create;
@@ -33821,7 +33821,7 @@ var Ds = B((pWe, $2) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/utilityScriptSource.js
+// node_modules/playwright-core/lib/generated/utilityScriptSource.js
 var z2 = B((fWe, W2) => {
   "use strict";
   var Gb = Object.defineProperty;
@@ -33849,7 +33849,7 @@ var z2 = B((fWe, W2) => {
   var pue = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/utilityScript.ts\nvar utilityScript_exports = {};\n__export(utilityScript_exports, {\n  UtilityScript: () => UtilityScript\n});\nmodule.exports = __toCommonJS(utilityScript_exports);\n\n// packages/playwright-core/src/utils/isomorphic/utilityScriptSerializers.ts\nfunction isRegExp(obj) {\n  try {\n    return obj instanceof RegExp || Object.prototype.toString.call(obj) === "[object RegExp]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isDate(obj) {\n  try {\n    return obj instanceof Date || Object.prototype.toString.call(obj) === "[object Date]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isURL(obj) {\n  try {\n    return obj instanceof URL || Object.prototype.toString.call(obj) === "[object URL]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isError(obj) {\n  var _a;\n  try {\n    return obj instanceof Error || obj && ((_a = Object.getPrototypeOf(obj)) == null ? void 0 : _a.name) === "Error";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isTypedArray(obj, constructor) {\n  try {\n    return obj instanceof constructor || Object.prototype.toString.call(obj) === `[object ${constructor.name}]`;\n  } catch (error) {\n    return false;\n  }\n}\nvar typedArrayConstructors = {\n  i8: Int8Array,\n  ui8: Uint8Array,\n  ui8c: Uint8ClampedArray,\n  i16: Int16Array,\n  ui16: Uint16Array,\n  i32: Int32Array,\n  ui32: Uint32Array,\n  // TODO: add Float16Array once it\'s in baseline\n  f32: Float32Array,\n  f64: Float64Array,\n  bi64: BigInt64Array,\n  bui64: BigUint64Array\n};\nfunction typedArrayToBase64(array) {\n  if ("toBase64" in array)\n    return array.toBase64();\n  const binary = Array.from(new Uint8Array(array.buffer, array.byteOffset, array.byteLength)).map((b) => String.fromCharCode(b)).join("");\n  return btoa(binary);\n}\nfunction base64ToTypedArray(base64, TypedArrayConstructor) {\n  const binary = atob(base64);\n  const bytes = new Uint8Array(binary.length);\n  for (let i = 0; i < binary.length; i++)\n    bytes[i] = binary.charCodeAt(i);\n  return new TypedArrayConstructor(bytes.buffer);\n}\nfunction parseEvaluationResultValue(value, handles = [], refs = /* @__PURE__ */ new Map()) {\n  if (Object.is(value, void 0))\n    return void 0;\n  if (typeof value === "object" && value) {\n    if ("ref" in value)\n      return refs.get(value.ref);\n    if ("v" in value) {\n      if (value.v === "undefined")\n        return void 0;\n      if (value.v === "null")\n        return null;\n      if (value.v === "NaN")\n        return NaN;\n      if (value.v === "Infinity")\n        return Infinity;\n      if (value.v === "-Infinity")\n        return -Infinity;\n      if (value.v === "-0")\n        return -0;\n      return void 0;\n    }\n    if ("d" in value) {\n      return new Date(value.d);\n    }\n    if ("u" in value)\n      return new URL(value.u);\n    if ("bi" in value)\n      return BigInt(value.bi);\n    if ("e" in value) {\n      const error = new Error(value.e.m);\n      error.name = value.e.n;\n      error.stack = value.e.s;\n      return error;\n    }\n    if ("r" in value)\n      return new RegExp(value.r.p, value.r.f);\n    if ("a" in value) {\n      const result = [];\n      refs.set(value.id, result);\n      for (const a of value.a)\n        result.push(parseEvaluationResultValue(a, handles, refs));\n      return result;\n    }\n    if ("o" in value) {\n      const result = {};\n      refs.set(value.id, result);\n      for (const { k, v } of value.o) {\n        if (k === "__proto__")\n          continue;\n        result[k] = parseEvaluationResultValue(v, handles, refs);\n      }\n      return result;\n    }\n    if ("h" in value)\n      return handles[value.h];\n    if ("ta" in value)\n      return base64ToTypedArray(value.ta.b, typedArrayConstructors[value.ta.k]);\n  }\n  return value;\n}\nfunction serializeAsCallArgument(value, handleSerializer) {\n  return serialize(value, handleSerializer, { visited: /* @__PURE__ */ new Map(), lastId: 0 });\n}\nfunction serialize(value, handleSerializer, visitorInfo) {\n  if (value && typeof value === "object") {\n    if (typeof globalThis.Window === "function" && value instanceof globalThis.Window)\n      return "ref: <Window>";\n    if (typeof globalThis.Document === "function" && value instanceof globalThis.Document)\n      return "ref: <Document>";\n    if (typeof globalThis.Node === "function" && value instanceof globalThis.Node)\n      return "ref: <Node>";\n  }\n  return innerSerialize(value, handleSerializer, visitorInfo);\n}\nfunction innerSerialize(value, handleSerializer, visitorInfo) {\n  var _a;\n  const result = handleSerializer(value);\n  if ("fallThrough" in result)\n    value = result.fallThrough;\n  else\n    return result;\n  if (typeof value === "symbol")\n    return { v: "undefined" };\n  if (Object.is(value, void 0))\n    return { v: "undefined" };\n  if (Object.is(value, null))\n    return { v: "null" };\n  if (Object.is(value, NaN))\n    return { v: "NaN" };\n  if (Object.is(value, Infinity))\n    return { v: "Infinity" };\n  if (Object.is(value, -Infinity))\n    return { v: "-Infinity" };\n  if (Object.is(value, -0))\n    return { v: "-0" };\n  if (typeof value === "boolean")\n    return value;\n  if (typeof value === "number")\n    return value;\n  if (typeof value === "string")\n    return value;\n  if (typeof value === "bigint")\n    return { bi: value.toString() };\n  if (isError(value)) {\n    let stack;\n    if ((_a = value.stack) == null ? void 0 : _a.startsWith(value.name + ": " + value.message)) {\n      stack = value.stack;\n    } else {\n      stack = `${value.name}: ${value.message}\n${value.stack}`;\n    }\n    return { e: { n: value.name, m: value.message, s: stack } };\n  }\n  if (isDate(value))\n    return { d: value.toJSON() };\n  if (isURL(value))\n    return { u: value.toJSON() };\n  if (isRegExp(value))\n    return { r: { p: value.source, f: value.flags } };\n  for (const [k, ctor] of Object.entries(typedArrayConstructors)) {\n    if (isTypedArray(value, ctor))\n      return { ta: { b: typedArrayToBase64(value), k } };\n  }\n  const id = visitorInfo.visited.get(value);\n  if (id)\n    return { ref: id };\n  if (Array.isArray(value)) {\n    const a = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (let i = 0; i < value.length; ++i)\n      a.push(serialize(value[i], handleSerializer, visitorInfo));\n    return { a, id: id2 };\n  }\n  if (typeof value === "object") {\n    const o = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (const name of Object.keys(value)) {\n      let item;\n      try {\n        item = value[name];\n      } catch (e) {\n        continue;\n      }\n      if (name === "toJSON" && typeof item === "function")\n        o.push({ k: name, v: { o: [], id: 0 } });\n      else\n        o.push({ k: name, v: serialize(item, handleSerializer, visitorInfo) });\n    }\n    let jsonWrapper;\n    try {\n      if (o.length === 0 && value.toJSON && typeof value.toJSON === "function")\n        jsonWrapper = { value: value.toJSON() };\n    } catch (e) {\n    }\n    if (jsonWrapper)\n      return innerSerialize(jsonWrapper.value, handleSerializer, visitorInfo);\n    return { o, id: id2 };\n  }\n}\n\n// packages/injected/src/utilityScript.ts\nvar UtilityScript = class {\n  // eslint-disable-next-line no-restricted-globals\n  constructor(global, isUnderTest) {\n    var _a, _b, _c, _d, _e, _f, _g, _h;\n    this.global = global;\n    this.isUnderTest = isUnderTest;\n    if (global.__pwClock) {\n      this.builtins = global.__pwClock.builtins;\n    } else {\n      this.builtins = {\n        setTimeout: (_a = global.setTimeout) == null ? void 0 : _a.bind(global),\n        clearTimeout: (_b = global.clearTimeout) == null ? void 0 : _b.bind(global),\n        setInterval: (_c = global.setInterval) == null ? void 0 : _c.bind(global),\n        clearInterval: (_d = global.clearInterval) == null ? void 0 : _d.bind(global),\n        requestAnimationFrame: (_e = global.requestAnimationFrame) == null ? void 0 : _e.bind(global),\n        cancelAnimationFrame: (_f = global.cancelAnimationFrame) == null ? void 0 : _f.bind(global),\n        requestIdleCallback: (_g = global.requestIdleCallback) == null ? void 0 : _g.bind(global),\n        cancelIdleCallback: (_h = global.cancelIdleCallback) == null ? void 0 : _h.bind(global),\n        performance: global.performance,\n        Intl: global.Intl,\n        Date: global.Date\n      };\n    }\n    if (this.isUnderTest)\n      global.builtins = this.builtins;\n  }\n  evaluate(isFunction, returnByValue, expression, argCount, ...argsAndHandles) {\n    const args = argsAndHandles.slice(0, argCount);\n    const handles = argsAndHandles.slice(argCount);\n    const parameters = [];\n    for (let i = 0; i < args.length; i++)\n      parameters[i] = parseEvaluationResultValue(args[i], handles);\n    let result = this.global.eval(expression);\n    if (isFunction === true) {\n      result = result(...parameters);\n    } else if (isFunction === false) {\n      result = result;\n    } else {\n      if (typeof result === "function")\n        result = result(...parameters);\n    }\n    return returnByValue ? this._promiseAwareJsonValueNoThrow(result) : result;\n  }\n  jsonValue(returnByValue, value) {\n    if (value === void 0)\n      return void 0;\n    return serializeAsCallArgument(value, (value2) => ({ fallThrough: value2 }));\n  }\n  _promiseAwareJsonValueNoThrow(value) {\n    const safeJson = (value2) => {\n      try {\n        return this.jsonValue(true, value2);\n      } catch (e) {\n        return void 0;\n      }\n    };\n    if (value && typeof value === "object" && typeof value.then === "function") {\n      return (async () => {\n        const promiseValue = await value;\n        return safeJson(promiseValue);\n      })();\n    }\n    return safeJson(value);\n  }\n};\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/utilityScriptSerializers.js
+// node_modules/playwright-core/lib/utils/isomorphic/utilityScriptSerializers.js
 var Li = B((mWe, J2) => {
   "use strict";
   var Yb = Object.defineProperty;
@@ -34099,7 +34099,7 @@ ${r.stack}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/javascript.js
+// node_modules/playwright-core/lib/server/javascript.js
 var On = B((gWe, ej) => {
   "use strict";
   var Cue = Object.create;
@@ -34382,7 +34382,7 @@ var On = B((gWe, ej) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/fileUploadUtils.js
+// node_modules/playwright-core/lib/server/fileUploadUtils.js
 var tv = B((_We, sj) => {
   "use strict";
   var Uue = Object.create;
@@ -34465,7 +34465,7 @@ var tv = B((_We, sj) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/injectedScriptSource.js
+// node_modules/playwright-core/lib/generated/injectedScriptSource.js
 var lj = B((bWe, aj) => {
   "use strict";
   var rv = Object.defineProperty;
@@ -34493,7 +34493,7 @@ var lj = B((bWe, aj) => {
   var ode = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/injectedScript.ts\nvar injectedScript_exports = {};\n__export(injectedScript_exports, {\n  InjectedScript: () => InjectedScript\n});\nmodule.exports = __toCommonJS(injectedScript_exports);\n\n// packages/playwright-core/src/utils/isomorphic/ariaSnapshot.ts\nfunction parseAriaSnapshot(yaml, text, options = {}) {\n  var _a;\n  const lineCounter = new yaml.LineCounter();\n  const parseOptions = {\n    keepSourceTokens: true,\n    lineCounter,\n    ...options\n  };\n  const yamlDoc = yaml.parseDocument(text, parseOptions);\n  const errors = [];\n  const convertRange = (range) => {\n    return [lineCounter.linePos(range[0]), lineCounter.linePos(range[1])];\n  };\n  const addError = (error) => {\n    errors.push({\n      message: error.message,\n      range: [lineCounter.linePos(error.pos[0]), lineCounter.linePos(error.pos[1])]\n    });\n  };\n  const convertSeq = (container, seq) => {\n    for (const item of seq.items) {\n      const itemIsString = item instanceof yaml.Scalar && typeof item.value === "string";\n      if (itemIsString) {\n        const childNode = KeyParser.parse(item, parseOptions, errors);\n        if (childNode) {\n          container.children = container.children || [];\n          container.children.push(childNode);\n        }\n        continue;\n      }\n      const itemIsMap = item instanceof yaml.YAMLMap;\n      if (itemIsMap) {\n        convertMap(container, item);\n        continue;\n      }\n      errors.push({\n        message: "Sequence items should be strings or maps",\n        range: convertRange(item.range || seq.range)\n      });\n    }\n  };\n  const convertMap = (container, map) => {\n    var _a2;\n    for (const entry of map.items) {\n      container.children = container.children || [];\n      const keyIsString = entry.key instanceof yaml.Scalar && typeof entry.key.value === "string";\n      if (!keyIsString) {\n        errors.push({\n          message: "Only string keys are supported",\n          range: convertRange(entry.key.range || map.range)\n        });\n        continue;\n      }\n      const key = entry.key;\n      const value = entry.value;\n      if (key.value === "text") {\n        const valueIsString = value instanceof yaml.Scalar && typeof value.value === "string";\n        if (!valueIsString) {\n          errors.push({\n            message: "Text value should be a string",\n            range: convertRange(entry.value.range || map.range)\n          });\n          continue;\n        }\n        container.children.push({\n          kind: "text",\n          text: valueOrRegex(value.value)\n        });\n        continue;\n      }\n      if (key.value === "/children") {\n        const valueIsString = value instanceof yaml.Scalar && typeof value.value === "string";\n        if (!valueIsString || value.value !== "contain" && value.value !== "equal" && value.value !== "deep-equal") {\n          errors.push({\n            message: \'Strict value should be "contain", "equal" or "deep-equal"\',\n            range: convertRange(entry.value.range || map.range)\n          });\n          continue;\n        }\n        container.containerMode = value.value;\n        continue;\n      }\n      if (key.value.startsWith("/")) {\n        const valueIsString = value instanceof yaml.Scalar && typeof value.value === "string";\n        if (!valueIsString) {\n          errors.push({\n            message: "Property value should be a string",\n            range: convertRange(entry.value.range || map.range)\n          });\n          continue;\n        }\n        container.props = (_a2 = container.props) != null ? _a2 : {};\n        container.props[key.value.slice(1)] = valueOrRegex(value.value);\n        continue;\n      }\n      const childNode = KeyParser.parse(key, parseOptions, errors);\n      if (!childNode)\n        continue;\n      const valueIsScalar = value instanceof yaml.Scalar;\n      if (valueIsScalar) {\n        const type = typeof value.value;\n        if (type !== "string" && type !== "number" && type !== "boolean") {\n          errors.push({\n            message: "Node value should be a string or a sequence",\n            range: convertRange(entry.value.range || map.range)\n          });\n          continue;\n        }\n        container.children.push({\n          ...childNode,\n          children: [{\n            kind: "text",\n            text: valueOrRegex(String(value.value))\n          }]\n        });\n        continue;\n      }\n      const valueIsSequence = value instanceof yaml.YAMLSeq;\n      if (valueIsSequence) {\n        container.children.push(childNode);\n        convertSeq(childNode, value);\n        continue;\n      }\n      errors.push({\n        message: "Map values should be strings or sequences",\n        range: convertRange(entry.value.range || map.range)\n      });\n    }\n  };\n  const fragment = { kind: "role", role: "fragment" };\n  yamlDoc.errors.forEach(addError);\n  if (errors.length)\n    return { errors, fragment };\n  if (!(yamlDoc.contents instanceof yaml.YAMLSeq)) {\n    errors.push({\n      message: \'Aria snapshot must be a YAML sequence, elements starting with " -"\',\n      range: yamlDoc.contents ? convertRange(yamlDoc.contents.range) : [{ line: 0, col: 0 }, { line: 0, col: 0 }]\n    });\n  }\n  if (errors.length)\n    return { errors, fragment };\n  convertSeq(fragment, yamlDoc.contents);\n  if (errors.length)\n    return { errors, fragment: emptyFragment };\n  if (((_a = fragment.children) == null ? void 0 : _a.length) === 1 && (!fragment.containerMode || fragment.containerMode === "contain"))\n    return { fragment: fragment.children[0], errors: [] };\n  return { fragment, errors: [] };\n}\nvar emptyFragment = { kind: "role", role: "fragment" };\nfunction normalizeWhitespace(text) {\n  return text.replace(/[\\u200b\\u00ad]/g, "").replace(/[\\r\\n\\s\\t]+/g, " ").trim();\n}\nfunction valueOrRegex(value) {\n  return value.startsWith("/") && value.endsWith("/") && value.length > 1 ? { pattern: value.slice(1, -1) } : normalizeWhitespace(value);\n}\nvar KeyParser = class _KeyParser {\n  static parse(text, options, errors) {\n    try {\n      return new _KeyParser(text.value, options)._parse();\n    } catch (e) {\n      if (e instanceof ParserError) {\n        const message = options.prettyErrors === false ? e.message : e.message + ":\\n\\n" + text.value + "\\n" + " ".repeat(e.pos) + "^\\n";\n        errors.push({\n          message,\n          range: [options.lineCounter.linePos(text.range[0]), options.lineCounter.linePos(text.range[0] + e.pos)]\n        });\n        return null;\n      }\n      throw e;\n    }\n  }\n  constructor(input, options) {\n    this._input = input;\n    this._pos = 0;\n    this._length = input.length;\n    this._options = options;\n  }\n  _peek() {\n    return this._input[this._pos] || "";\n  }\n  _next() {\n    if (this._pos < this._length)\n      return this._input[this._pos++];\n    return null;\n  }\n  _eof() {\n    return this._pos >= this._length;\n  }\n  _isWhitespace() {\n    return !this._eof() && /\\s/.test(this._peek());\n  }\n  _skipWhitespace() {\n    while (this._isWhitespace())\n      this._pos++;\n  }\n  _readIdentifier(type) {\n    if (this._eof())\n      this._throwError(`Unexpected end of input when expecting ${type}`);\n    const start = this._pos;\n    while (!this._eof() && /[a-zA-Z]/.test(this._peek()))\n      this._pos++;\n    return this._input.slice(start, this._pos);\n  }\n  _readString() {\n    let result = "";\n    let escaped = false;\n    while (!this._eof()) {\n      const ch = this._next();\n      if (escaped) {\n        result += ch;\n        escaped = false;\n      } else if (ch === "\\\\") {\n        escaped = true;\n      } else if (ch === \'"\') {\n        return result;\n      } else {\n        result += ch;\n      }\n    }\n    this._throwError("Unterminated string");\n  }\n  _throwError(message, offset = 0) {\n    throw new ParserError(message, offset || this._pos);\n  }\n  _readRegex() {\n    let result = "";\n    let escaped = false;\n    let insideClass = false;\n    while (!this._eof()) {\n      const ch = this._next();\n      if (escaped) {\n        result += ch;\n        escaped = false;\n      } else if (ch === "\\\\") {\n        escaped = true;\n        result += ch;\n      } else if (ch === "/" && !insideClass) {\n        return { pattern: result };\n      } else if (ch === "[") {\n        insideClass = true;\n        result += ch;\n      } else if (ch === "]" && insideClass) {\n        result += ch;\n        insideClass = false;\n      } else {\n        result += ch;\n      }\n    }\n    this._throwError("Unterminated regex");\n  }\n  _readStringOrRegex() {\n    const ch = this._peek();\n    if (ch === \'"\') {\n      this._next();\n      return normalizeWhitespace(this._readString());\n    }\n    if (ch === "/") {\n      this._next();\n      return this._readRegex();\n    }\n    return null;\n  }\n  _readAttributes(result) {\n    let errorPos = this._pos;\n    while (true) {\n      this._skipWhitespace();\n      if (this._peek() === "[") {\n        this._next();\n        this._skipWhitespace();\n        errorPos = this._pos;\n        const flagName = this._readIdentifier("attribute");\n        this._skipWhitespace();\n        let flagValue = "";\n        if (this._peek() === "=") {\n          this._next();\n          this._skipWhitespace();\n          errorPos = this._pos;\n          while (this._peek() !== "]" && !this._isWhitespace() && !this._eof())\n            flagValue += this._next();\n        }\n        this._skipWhitespace();\n        if (this._peek() !== "]")\n          this._throwError("Expected ]");\n        this._next();\n        this._applyAttribute(result, flagName, flagValue || "true", errorPos);\n      } else {\n        break;\n      }\n    }\n  }\n  _parse() {\n    this._skipWhitespace();\n    const role = this._readIdentifier("role");\n    this._skipWhitespace();\n    const name = this._readStringOrRegex() || "";\n    const result = { kind: "role", role, name };\n    this._readAttributes(result);\n    this._skipWhitespace();\n    if (!this._eof())\n      this._throwError("Unexpected input");\n    return result;\n  }\n  _applyAttribute(node, key, value, errorPos) {\n    if (key === "checked") {\n      this._assert(value === "true" || value === "false" || value === "mixed", \'Value of "checked" attribute must be a boolean or "mixed"\', errorPos);\n      node.checked = value === "true" ? true : value === "false" ? false : "mixed";\n      return;\n    }\n    if (key === "disabled") {\n      this._assert(value === "true" || value === "false", \'Value of "disabled" attribute must be a boolean\', errorPos);\n      node.disabled = value === "true";\n      return;\n    }\n    if (key === "expanded") {\n      this._assert(value === "true" || value === "false", \'Value of "expanded" attribute must be a boolean\', errorPos);\n      node.expanded = value === "true";\n      return;\n    }\n    if (key === "active") {\n      this._assert(value === "true" || value === "false", \'Value of "active" attribute must be a boolean\', errorPos);\n      node.active = value === "true";\n      return;\n    }\n    if (key === "level") {\n      this._assert(!isNaN(Number(value)), \'Value of "level" attribute must be a number\', errorPos);\n      node.level = Number(value);\n      return;\n    }\n    if (key === "pressed") {\n      this._assert(value === "true" || value === "false" || value === "mixed", \'Value of "pressed" attribute must be a boolean or "mixed"\', errorPos);\n      node.pressed = value === "true" ? true : value === "false" ? false : "mixed";\n      return;\n    }\n    if (key === "selected") {\n      this._assert(value === "true" || value === "false", \'Value of "selected" attribute must be a boolean\', errorPos);\n      node.selected = value === "true";\n      return;\n    }\n    this._assert(false, `Unsupported attribute [${key}]`, errorPos);\n  }\n  _assert(value, message, valuePos) {\n    if (!value)\n      this._throwError(message || "Assertion error", valuePos);\n  }\n};\nvar ParserError = class extends Error {\n  constructor(message, pos) {\n    super(message);\n    this.pos = pos;\n  }\n};\n\n// packages/playwright-core/src/utils/isomorphic/cssTokenizer.ts\nvar between = function(num, first, last) {\n  return num >= first && num <= last;\n};\nfunction digit(code) {\n  return between(code, 48, 57);\n}\nfunction hexdigit(code) {\n  return digit(code) || between(code, 65, 70) || between(code, 97, 102);\n}\nfunction uppercaseletter(code) {\n  return between(code, 65, 90);\n}\nfunction lowercaseletter(code) {\n  return between(code, 97, 122);\n}\nfunction letter(code) {\n  return uppercaseletter(code) || lowercaseletter(code);\n}\nfunction nonascii(code) {\n  return code >= 128;\n}\nfunction namestartchar(code) {\n  return letter(code) || nonascii(code) || code === 95;\n}\nfunction namechar(code) {\n  return namestartchar(code) || digit(code) || code === 45;\n}\nfunction nonprintable(code) {\n  return between(code, 0, 8) || code === 11 || between(code, 14, 31) || code === 127;\n}\nfunction newline(code) {\n  return code === 10;\n}\nfunction whitespace(code) {\n  return newline(code) || code === 9 || code === 32;\n}\nvar maximumallowedcodepoint = 1114111;\nvar InvalidCharacterError = class extends Error {\n  constructor(message) {\n    super(message);\n    this.name = "InvalidCharacterError";\n  }\n};\nfunction preprocess(str) {\n  const codepoints = [];\n  for (let i = 0; i < str.length; i++) {\n    let code = str.charCodeAt(i);\n    if (code === 13 && str.charCodeAt(i + 1) === 10) {\n      code = 10;\n      i++;\n    }\n    if (code === 13 || code === 12)\n      code = 10;\n    if (code === 0)\n      code = 65533;\n    if (between(code, 55296, 56319) && between(str.charCodeAt(i + 1), 56320, 57343)) {\n      const lead = code - 55296;\n      const trail = str.charCodeAt(i + 1) - 56320;\n      code = Math.pow(2, 16) + lead * Math.pow(2, 10) + trail;\n      i++;\n    }\n    codepoints.push(code);\n  }\n  return codepoints;\n}\nfunction stringFromCode(code) {\n  if (code <= 65535)\n    return String.fromCharCode(code);\n  code -= Math.pow(2, 16);\n  const lead = Math.floor(code / Math.pow(2, 10)) + 55296;\n  const trail = code % Math.pow(2, 10) + 56320;\n  return String.fromCharCode(lead) + String.fromCharCode(trail);\n}\nfunction tokenize(str1) {\n  const str = preprocess(str1);\n  let i = -1;\n  const tokens = [];\n  let code;\n  let line = 0;\n  let column = 0;\n  let lastLineLength = 0;\n  const incrLineno = function() {\n    line += 1;\n    lastLineLength = column;\n    column = 0;\n  };\n  const locStart = { line, column };\n  const codepoint = function(i2) {\n    if (i2 >= str.length)\n      return -1;\n    return str[i2];\n  };\n  const next = function(num) {\n    if (num === void 0)\n      num = 1;\n    if (num > 3)\n      throw "Spec Error: no more than three codepoints of lookahead.";\n    return codepoint(i + num);\n  };\n  const consume = function(num) {\n    if (num === void 0)\n      num = 1;\n    i += num;\n    code = codepoint(i);\n    if (newline(code))\n      incrLineno();\n    else\n      column += num;\n    return true;\n  };\n  const reconsume = function() {\n    i -= 1;\n    if (newline(code)) {\n      line -= 1;\n      column = lastLineLength;\n    } else {\n      column -= 1;\n    }\n    locStart.line = line;\n    locStart.column = column;\n    return true;\n  };\n  const eof = function(codepoint2) {\n    if (codepoint2 === void 0)\n      codepoint2 = code;\n    return codepoint2 === -1;\n  };\n  const donothing = function() {\n  };\n  const parseerror = function() {\n  };\n  const consumeAToken = function() {\n    consumeComments();\n    consume();\n    if (whitespace(code)) {\n      while (whitespace(next()))\n        consume();\n      return new WhitespaceToken();\n    } else if (code === 34) {\n      return consumeAStringToken();\n    } else if (code === 35) {\n      if (namechar(next()) || areAValidEscape(next(1), next(2))) {\n        const token = new HashToken("");\n        if (wouldStartAnIdentifier(next(1), next(2), next(3)))\n          token.type = "id";\n        token.value = consumeAName();\n        return token;\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 36) {\n      if (next() === 61) {\n        consume();\n        return new SuffixMatchToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 39) {\n      return consumeAStringToken();\n    } else if (code === 40) {\n      return new OpenParenToken();\n    } else if (code === 41) {\n      return new CloseParenToken();\n    } else if (code === 42) {\n      if (next() === 61) {\n        consume();\n        return new SubstringMatchToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 43) {\n      if (startsWithANumber()) {\n        reconsume();\n        return consumeANumericToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 44) {\n      return new CommaToken();\n    } else if (code === 45) {\n      if (startsWithANumber()) {\n        reconsume();\n        return consumeANumericToken();\n      } else if (next(1) === 45 && next(2) === 62) {\n        consume(2);\n        return new CDCToken();\n      } else if (startsWithAnIdentifier()) {\n        reconsume();\n        return consumeAnIdentlikeToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 46) {\n      if (startsWithANumber()) {\n        reconsume();\n        return consumeANumericToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 58) {\n      return new ColonToken();\n    } else if (code === 59) {\n      return new SemicolonToken();\n    } else if (code === 60) {\n      if (next(1) === 33 && next(2) === 45 && next(3) === 45) {\n        consume(3);\n        return new CDOToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 64) {\n      if (wouldStartAnIdentifier(next(1), next(2), next(3)))\n        return new AtKeywordToken(consumeAName());\n      else\n        return new DelimToken(code);\n    } else if (code === 91) {\n      return new OpenSquareToken();\n    } else if (code === 92) {\n      if (startsWithAValidEscape()) {\n        reconsume();\n        return consumeAnIdentlikeToken();\n      } else {\n        parseerror();\n        return new DelimToken(code);\n      }\n    } else if (code === 93) {\n      return new CloseSquareToken();\n    } else if (code === 94) {\n      if (next() === 61) {\n        consume();\n        return new PrefixMatchToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 123) {\n      return new OpenCurlyToken();\n    } else if (code === 124) {\n      if (next() === 61) {\n        consume();\n        return new DashMatchToken();\n      } else if (next() === 124) {\n        consume();\n        return new ColumnToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (code === 125) {\n      return new CloseCurlyToken();\n    } else if (code === 126) {\n      if (next() === 61) {\n        consume();\n        return new IncludeMatchToken();\n      } else {\n        return new DelimToken(code);\n      }\n    } else if (digit(code)) {\n      reconsume();\n      return consumeANumericToken();\n    } else if (namestartchar(code)) {\n      reconsume();\n      return consumeAnIdentlikeToken();\n    } else if (eof()) {\n      return new EOFToken();\n    } else {\n      return new DelimToken(code);\n    }\n  };\n  const consumeComments = function() {\n    while (next(1) === 47 && next(2) === 42) {\n      consume(2);\n      while (true) {\n        consume();\n        if (code === 42 && next() === 47) {\n          consume();\n          break;\n        } else if (eof()) {\n          parseerror();\n          return;\n        }\n      }\n    }\n  };\n  const consumeANumericToken = function() {\n    const num = consumeANumber();\n    if (wouldStartAnIdentifier(next(1), next(2), next(3))) {\n      const token = new DimensionToken();\n      token.value = num.value;\n      token.repr = num.repr;\n      token.type = num.type;\n      token.unit = consumeAName();\n      return token;\n    } else if (next() === 37) {\n      consume();\n      const token = new PercentageToken();\n      token.value = num.value;\n      token.repr = num.repr;\n      return token;\n    } else {\n      const token = new NumberToken();\n      token.value = num.value;\n      token.repr = num.repr;\n      token.type = num.type;\n      return token;\n    }\n  };\n  const consumeAnIdentlikeToken = function() {\n    const str2 = consumeAName();\n    if (str2.toLowerCase() === "url" && next() === 40) {\n      consume();\n      while (whitespace(next(1)) && whitespace(next(2)))\n        consume();\n      if (next() === 34 || next() === 39)\n        return new FunctionToken(str2);\n      else if (whitespace(next()) && (next(2) === 34 || next(2) === 39))\n        return new FunctionToken(str2);\n      else\n        return consumeAURLToken();\n    } else if (next() === 40) {\n      consume();\n      return new FunctionToken(str2);\n    } else {\n      return new IdentToken(str2);\n    }\n  };\n  const consumeAStringToken = function(endingCodePoint) {\n    if (endingCodePoint === void 0)\n      endingCodePoint = code;\n    let string = "";\n    while (consume()) {\n      if (code === endingCodePoint || eof()) {\n        return new StringToken(string);\n      } else if (newline(code)) {\n        parseerror();\n        reconsume();\n        return new BadStringToken();\n      } else if (code === 92) {\n        if (eof(next()))\n          donothing();\n        else if (newline(next()))\n          consume();\n        else\n          string += stringFromCode(consumeEscape());\n      } else {\n        string += stringFromCode(code);\n      }\n    }\n    throw new Error("Internal error");\n  };\n  const consumeAURLToken = function() {\n    const token = new URLToken("");\n    while (whitespace(next()))\n      consume();\n    if (eof(next()))\n      return token;\n    while (consume()) {\n      if (code === 41 || eof()) {\n        return token;\n      } else if (whitespace(code)) {\n        while (whitespace(next()))\n          consume();\n        if (next() === 41 || eof(next())) {\n          consume();\n          return token;\n        } else {\n          consumeTheRemnantsOfABadURL();\n          return new BadURLToken();\n        }\n      } else if (code === 34 || code === 39 || code === 40 || nonprintable(code)) {\n        parseerror();\n        consumeTheRemnantsOfABadURL();\n        return new BadURLToken();\n      } else if (code === 92) {\n        if (startsWithAValidEscape()) {\n          token.value += stringFromCode(consumeEscape());\n        } else {\n          parseerror();\n          consumeTheRemnantsOfABadURL();\n          return new BadURLToken();\n        }\n      } else {\n        token.value += stringFromCode(code);\n      }\n    }\n    throw new Error("Internal error");\n  };\n  const consumeEscape = function() {\n    consume();\n    if (hexdigit(code)) {\n      const digits = [code];\n      for (let total = 0; total < 5; total++) {\n        if (hexdigit(next())) {\n          consume();\n          digits.push(code);\n        } else {\n          break;\n        }\n      }\n      if (whitespace(next()))\n        consume();\n      let value = parseInt(digits.map(function(x) {\n        return String.fromCharCode(x);\n      }).join(""), 16);\n      if (value > maximumallowedcodepoint)\n        value = 65533;\n      return value;\n    } else if (eof()) {\n      return 65533;\n    } else {\n      return code;\n    }\n  };\n  const areAValidEscape = function(c1, c2) {\n    if (c1 !== 92)\n      return false;\n    if (newline(c2))\n      return false;\n    return true;\n  };\n  const startsWithAValidEscape = function() {\n    return areAValidEscape(code, next());\n  };\n  const wouldStartAnIdentifier = function(c1, c2, c3) {\n    if (c1 === 45)\n      return namestartchar(c2) || c2 === 45 || areAValidEscape(c2, c3);\n    else if (namestartchar(c1))\n      return true;\n    else if (c1 === 92)\n      return areAValidEscape(c1, c2);\n    else\n      return false;\n  };\n  const startsWithAnIdentifier = function() {\n    return wouldStartAnIdentifier(code, next(1), next(2));\n  };\n  const wouldStartANumber = function(c1, c2, c3) {\n    if (c1 === 43 || c1 === 45) {\n      if (digit(c2))\n        return true;\n      if (c2 === 46 && digit(c3))\n        return true;\n      return false;\n    } else if (c1 === 46) {\n      if (digit(c2))\n        return true;\n      return false;\n    } else if (digit(c1)) {\n      return true;\n    } else {\n      return false;\n    }\n  };\n  const startsWithANumber = function() {\n    return wouldStartANumber(code, next(1), next(2));\n  };\n  const consumeAName = function() {\n    let result = "";\n    while (consume()) {\n      if (namechar(code)) {\n        result += stringFromCode(code);\n      } else if (startsWithAValidEscape()) {\n        result += stringFromCode(consumeEscape());\n      } else {\n        reconsume();\n        return result;\n      }\n    }\n    throw new Error("Internal parse error");\n  };\n  const consumeANumber = function() {\n    let repr = "";\n    let type = "integer";\n    if (next() === 43 || next() === 45) {\n      consume();\n      repr += stringFromCode(code);\n    }\n    while (digit(next())) {\n      consume();\n      repr += stringFromCode(code);\n    }\n    if (next(1) === 46 && digit(next(2))) {\n      consume();\n      repr += stringFromCode(code);\n      consume();\n      repr += stringFromCode(code);\n      type = "number";\n      while (digit(next())) {\n        consume();\n        repr += stringFromCode(code);\n      }\n    }\n    const c1 = next(1), c2 = next(2), c3 = next(3);\n    if ((c1 === 69 || c1 === 101) && digit(c2)) {\n      consume();\n      repr += stringFromCode(code);\n      consume();\n      repr += stringFromCode(code);\n      type = "number";\n      while (digit(next())) {\n        consume();\n        repr += stringFromCode(code);\n      }\n    } else if ((c1 === 69 || c1 === 101) && (c2 === 43 || c2 === 45) && digit(c3)) {\n      consume();\n      repr += stringFromCode(code);\n      consume();\n      repr += stringFromCode(code);\n      consume();\n      repr += stringFromCode(code);\n      type = "number";\n      while (digit(next())) {\n        consume();\n        repr += stringFromCode(code);\n      }\n    }\n    const value = convertAStringToANumber(repr);\n    return { type, value, repr };\n  };\n  const convertAStringToANumber = function(string) {\n    return +string;\n  };\n  const consumeTheRemnantsOfABadURL = function() {\n    while (consume()) {\n      if (code === 41 || eof()) {\n        return;\n      } else if (startsWithAValidEscape()) {\n        consumeEscape();\n        donothing();\n      } else {\n        donothing();\n      }\n    }\n  };\n  let iterationCount = 0;\n  while (!eof(next())) {\n    tokens.push(consumeAToken());\n    iterationCount++;\n    if (iterationCount > str.length * 2)\n      throw new Error("I\'m infinite-looping!");\n  }\n  return tokens;\n}\nvar CSSParserToken = class {\n  constructor() {\n    this.tokenType = "";\n  }\n  toJSON() {\n    return { token: this.tokenType };\n  }\n  toString() {\n    return this.tokenType;\n  }\n  toSource() {\n    return "" + this;\n  }\n};\nvar BadStringToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "BADSTRING";\n  }\n};\nvar BadURLToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "BADURL";\n  }\n};\nvar WhitespaceToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "WHITESPACE";\n  }\n  toString() {\n    return "WS";\n  }\n  toSource() {\n    return " ";\n  }\n};\nvar CDOToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "CDO";\n  }\n  toSource() {\n    return "<!--";\n  }\n};\nvar CDCToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "CDC";\n  }\n  toSource() {\n    return "-->";\n  }\n};\nvar ColonToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = ":";\n  }\n};\nvar SemicolonToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = ";";\n  }\n};\nvar CommaToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = ",";\n  }\n};\nvar GroupingToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.value = "";\n    this.mirror = "";\n  }\n};\nvar OpenCurlyToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = "{";\n    this.value = "{";\n    this.mirror = "}";\n  }\n};\nvar CloseCurlyToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = "}";\n    this.value = "}";\n    this.mirror = "{";\n  }\n};\nvar OpenSquareToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = "[";\n    this.value = "[";\n    this.mirror = "]";\n  }\n};\nvar CloseSquareToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = "]";\n    this.value = "]";\n    this.mirror = "[";\n  }\n};\nvar OpenParenToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = "(";\n    this.value = "(";\n    this.mirror = ")";\n  }\n};\nvar CloseParenToken = class extends GroupingToken {\n  constructor() {\n    super();\n    this.tokenType = ")";\n    this.value = ")";\n    this.mirror = "(";\n  }\n};\nvar IncludeMatchToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "~=";\n  }\n};\nvar DashMatchToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "|=";\n  }\n};\nvar PrefixMatchToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "^=";\n  }\n};\nvar SuffixMatchToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "$=";\n  }\n};\nvar SubstringMatchToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "*=";\n  }\n};\nvar ColumnToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "||";\n  }\n};\nvar EOFToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.tokenType = "EOF";\n  }\n  toSource() {\n    return "";\n  }\n};\nvar DelimToken = class extends CSSParserToken {\n  constructor(code) {\n    super();\n    this.tokenType = "DELIM";\n    this.value = "";\n    this.value = stringFromCode(code);\n  }\n  toString() {\n    return "DELIM(" + this.value + ")";\n  }\n  toJSON() {\n    const json = this.constructor.prototype.constructor.prototype.toJSON.call(this);\n    json.value = this.value;\n    return json;\n  }\n  toSource() {\n    if (this.value === "\\\\")\n      return "\\\\\\n";\n    else\n      return this.value;\n  }\n};\nvar StringValuedToken = class extends CSSParserToken {\n  constructor() {\n    super(...arguments);\n    this.value = "";\n  }\n  ASCIIMatch(str) {\n    return this.value.toLowerCase() === str.toLowerCase();\n  }\n  toJSON() {\n    const json = this.constructor.prototype.constructor.prototype.toJSON.call(this);\n    json.value = this.value;\n    return json;\n  }\n};\nvar IdentToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "IDENT";\n    this.value = val;\n  }\n  toString() {\n    return "IDENT(" + this.value + ")";\n  }\n  toSource() {\n    return escapeIdent(this.value);\n  }\n};\nvar FunctionToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "FUNCTION";\n    this.value = val;\n    this.mirror = ")";\n  }\n  toString() {\n    return "FUNCTION(" + this.value + ")";\n  }\n  toSource() {\n    return escapeIdent(this.value) + "(";\n  }\n};\nvar AtKeywordToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "AT-KEYWORD";\n    this.value = val;\n  }\n  toString() {\n    return "AT(" + this.value + ")";\n  }\n  toSource() {\n    return "@" + escapeIdent(this.value);\n  }\n};\nvar HashToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "HASH";\n    this.value = val;\n    this.type = "unrestricted";\n  }\n  toString() {\n    return "HASH(" + this.value + ")";\n  }\n  toJSON() {\n    const json = this.constructor.prototype.constructor.prototype.toJSON.call(this);\n    json.value = this.value;\n    json.type = this.type;\n    return json;\n  }\n  toSource() {\n    if (this.type === "id")\n      return "#" + escapeIdent(this.value);\n    else\n      return "#" + escapeHash(this.value);\n  }\n};\nvar StringToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "STRING";\n    this.value = val;\n  }\n  toString() {\n    return \'"\' + escapeString(this.value) + \'"\';\n  }\n};\nvar URLToken = class extends StringValuedToken {\n  constructor(val) {\n    super();\n    this.tokenType = "URL";\n    this.value = val;\n  }\n  toString() {\n    return "URL(" + this.value + ")";\n  }\n  toSource() {\n    return \'url("\' + escapeString(this.value) + \'")\';\n  }\n};\nvar NumberToken = class extends CSSParserToken {\n  constructor() {\n    super();\n    this.tokenType = "NUMBER";\n    this.type = "integer";\n    this.repr = "";\n  }\n  toString() {\n    if (this.type === "integer")\n      return "INT(" + this.value + ")";\n    return "NUMBER(" + this.value + ")";\n  }\n  toJSON() {\n    const json = super.toJSON();\n    json.value = this.value;\n    json.type = this.type;\n    json.repr = this.repr;\n    return json;\n  }\n  toSource() {\n    return this.repr;\n  }\n};\nvar PercentageToken = class extends CSSParserToken {\n  constructor() {\n    super();\n    this.tokenType = "PERCENTAGE";\n    this.repr = "";\n  }\n  toString() {\n    return "PERCENTAGE(" + this.value + ")";\n  }\n  toJSON() {\n    const json = this.constructor.prototype.constructor.prototype.toJSON.call(this);\n    json.value = this.value;\n    json.repr = this.repr;\n    return json;\n  }\n  toSource() {\n    return this.repr + "%";\n  }\n};\nvar DimensionToken = class extends CSSParserToken {\n  constructor() {\n    super();\n    this.tokenType = "DIMENSION";\n    this.type = "integer";\n    this.repr = "";\n    this.unit = "";\n  }\n  toString() {\n    return "DIM(" + this.value + "," + this.unit + ")";\n  }\n  toJSON() {\n    const json = this.constructor.prototype.constructor.prototype.toJSON.call(this);\n    json.value = this.value;\n    json.type = this.type;\n    json.repr = this.repr;\n    json.unit = this.unit;\n    return json;\n  }\n  toSource() {\n    const source = this.repr;\n    let unit = escapeIdent(this.unit);\n    if (unit[0].toLowerCase() === "e" && (unit[1] === "-" || between(unit.charCodeAt(1), 48, 57))) {\n      unit = "\\\\65 " + unit.slice(1, unit.length);\n    }\n    return source + unit;\n  }\n};\nfunction escapeIdent(string) {\n  string = "" + string;\n  let result = "";\n  const firstcode = string.charCodeAt(0);\n  for (let i = 0; i < string.length; i++) {\n    const code = string.charCodeAt(i);\n    if (code === 0)\n      throw new InvalidCharacterError("Invalid character: the input contains U+0000.");\n    if (between(code, 1, 31) || code === 127 || i === 0 && between(code, 48, 57) || i === 1 && between(code, 48, 57) && firstcode === 45)\n      result += "\\\\" + code.toString(16) + " ";\n    else if (code >= 128 || code === 45 || code === 95 || between(code, 48, 57) || between(code, 65, 90) || between(code, 97, 122))\n      result += string[i];\n    else\n      result += "\\\\" + string[i];\n  }\n  return result;\n}\nfunction escapeHash(string) {\n  string = "" + string;\n  let result = "";\n  for (let i = 0; i < string.length; i++) {\n    const code = string.charCodeAt(i);\n    if (code === 0)\n      throw new InvalidCharacterError("Invalid character: the input contains U+0000.");\n    if (code >= 128 || code === 45 || code === 95 || between(code, 48, 57) || between(code, 65, 90) || between(code, 97, 122))\n      result += string[i];\n    else\n      result += "\\\\" + code.toString(16) + " ";\n  }\n  return result;\n}\nfunction escapeString(string) {\n  string = "" + string;\n  let result = "";\n  for (let i = 0; i < string.length; i++) {\n    const code = string.charCodeAt(i);\n    if (code === 0)\n      throw new InvalidCharacterError("Invalid character: the input contains U+0000.");\n    if (between(code, 1, 31) || code === 127)\n      result += "\\\\" + code.toString(16) + " ";\n    else if (code === 34 || code === 92)\n      result += "\\\\" + string[i];\n    else\n      result += string[i];\n  }\n  return result;\n}\n\n// packages/playwright-core/src/utils/isomorphic/cssParser.ts\nvar InvalidSelectorError = class extends Error {\n};\nfunction parseCSS(selector, customNames) {\n  let tokens;\n  try {\n    tokens = tokenize(selector);\n    if (!(tokens[tokens.length - 1] instanceof EOFToken))\n      tokens.push(new EOFToken());\n  } catch (e) {\n    const newMessage = e.message + ` while parsing css selector "${selector}". Did you mean to CSS.escape it?`;\n    const index = (e.stack || "").indexOf(e.message);\n    if (index !== -1)\n      e.stack = e.stack.substring(0, index) + newMessage + e.stack.substring(index + e.message.length);\n    e.message = newMessage;\n    throw e;\n  }\n  const unsupportedToken = tokens.find((token) => {\n    return token instanceof AtKeywordToken || token instanceof BadStringToken || token instanceof BadURLToken || token instanceof ColumnToken || token instanceof CDOToken || token instanceof CDCToken || token instanceof SemicolonToken || // TODO: Consider using these for something, e.g. to escape complex strings.\n    // For example :xpath{ (//div/bar[@attr="foo"])[2]/baz }\n    // Or this way :xpath( {complex-xpath-goes-here("hello")} )\n    token instanceof OpenCurlyToken || token instanceof CloseCurlyToken || // TODO: Consider treating these as strings?\n    token instanceof URLToken || token instanceof PercentageToken;\n  });\n  if (unsupportedToken)\n    throw new InvalidSelectorError(`Unsupported token "${unsupportedToken.toSource()}" while parsing css selector "${selector}". Did you mean to CSS.escape it?`);\n  let pos = 0;\n  const names = /* @__PURE__ */ new Set();\n  function unexpected() {\n    return new InvalidSelectorError(`Unexpected token "${tokens[pos].toSource()}" while parsing css selector "${selector}". Did you mean to CSS.escape it?`);\n  }\n  function skipWhitespace() {\n    while (tokens[pos] instanceof WhitespaceToken)\n      pos++;\n  }\n  function isIdent(p = pos) {\n    return tokens[p] instanceof IdentToken;\n  }\n  function isString(p = pos) {\n    return tokens[p] instanceof StringToken;\n  }\n  function isNumber(p = pos) {\n    return tokens[p] instanceof NumberToken;\n  }\n  function isComma(p = pos) {\n    return tokens[p] instanceof CommaToken;\n  }\n  function isOpenParen(p = pos) {\n    return tokens[p] instanceof OpenParenToken;\n  }\n  function isCloseParen(p = pos) {\n    return tokens[p] instanceof CloseParenToken;\n  }\n  function isFunction(p = pos) {\n    return tokens[p] instanceof FunctionToken;\n  }\n  function isStar(p = pos) {\n    return tokens[p] instanceof DelimToken && tokens[p].value === "*";\n  }\n  function isEOF(p = pos) {\n    return tokens[p] instanceof EOFToken;\n  }\n  function isClauseCombinator(p = pos) {\n    return tokens[p] instanceof DelimToken && [">", "+", "~"].includes(tokens[p].value);\n  }\n  function isSelectorClauseEnd(p = pos) {\n    return isComma(p) || isCloseParen(p) || isEOF(p) || isClauseCombinator(p) || tokens[p] instanceof WhitespaceToken;\n  }\n  function consumeFunctionArguments() {\n    const result2 = [consumeArgument()];\n    while (true) {\n      skipWhitespace();\n      if (!isComma())\n        break;\n      pos++;\n      result2.push(consumeArgument());\n    }\n    return result2;\n  }\n  function consumeArgument() {\n    skipWhitespace();\n    if (isNumber())\n      return tokens[pos++].value;\n    if (isString())\n      return tokens[pos++].value;\n    return consumeComplexSelector();\n  }\n  function consumeComplexSelector() {\n    const result2 = { simples: [] };\n    skipWhitespace();\n    if (isClauseCombinator()) {\n      result2.simples.push({ selector: { functions: [{ name: "scope", args: [] }] }, combinator: "" });\n    } else {\n      result2.simples.push({ selector: consumeSimpleSelector(), combinator: "" });\n    }\n    while (true) {\n      skipWhitespace();\n      if (isClauseCombinator()) {\n        result2.simples[result2.simples.length - 1].combinator = tokens[pos++].value;\n        skipWhitespace();\n      } else if (isSelectorClauseEnd()) {\n        break;\n      }\n      result2.simples.push({ combinator: "", selector: consumeSimpleSelector() });\n    }\n    return result2;\n  }\n  function consumeSimpleSelector() {\n    let rawCSSString = "";\n    const functions = [];\n    while (!isSelectorClauseEnd()) {\n      if (isIdent() || isStar()) {\n        rawCSSString += tokens[pos++].toSource();\n      } else if (tokens[pos] instanceof HashToken) {\n        rawCSSString += tokens[pos++].toSource();\n      } else if (tokens[pos] instanceof DelimToken && tokens[pos].value === ".") {\n        pos++;\n        if (isIdent())\n          rawCSSString += "." + tokens[pos++].toSource();\n        else\n          throw unexpected();\n      } else if (tokens[pos] instanceof ColonToken) {\n        pos++;\n        if (isIdent()) {\n          if (!customNames.has(tokens[pos].value.toLowerCase())) {\n            rawCSSString += ":" + tokens[pos++].toSource();\n          } else {\n            const name = tokens[pos++].value.toLowerCase();\n            functions.push({ name, args: [] });\n            names.add(name);\n          }\n        } else if (isFunction()) {\n          const name = tokens[pos++].value.toLowerCase();\n          if (!customNames.has(name)) {\n            rawCSSString += `:${name}(${consumeBuiltinFunctionArguments()})`;\n          } else {\n            functions.push({ name, args: consumeFunctionArguments() });\n            names.add(name);\n          }\n          skipWhitespace();\n          if (!isCloseParen())\n            throw unexpected();\n          pos++;\n        } else {\n          throw unexpected();\n        }\n      } else if (tokens[pos] instanceof OpenSquareToken) {\n        rawCSSString += "[";\n        pos++;\n        while (!(tokens[pos] instanceof CloseSquareToken) && !isEOF())\n          rawCSSString += tokens[pos++].toSource();\n        if (!(tokens[pos] instanceof CloseSquareToken))\n          throw unexpected();\n        rawCSSString += "]";\n        pos++;\n      } else {\n        throw unexpected();\n      }\n    }\n    if (!rawCSSString && !functions.length)\n      throw unexpected();\n    return { css: rawCSSString || void 0, functions };\n  }\n  function consumeBuiltinFunctionArguments() {\n    let s = "";\n    let balance = 1;\n    while (!isEOF()) {\n      if (isOpenParen() || isFunction())\n        balance++;\n      if (isCloseParen())\n        balance--;\n      if (!balance)\n        break;\n      s += tokens[pos++].toSource();\n    }\n    return s;\n  }\n  const result = consumeFunctionArguments();\n  if (!isEOF())\n    throw unexpected();\n  if (result.some((arg) => typeof arg !== "object" || !("simples" in arg)))\n    throw new InvalidSelectorError(`Error while parsing css selector "${selector}". Did you mean to CSS.escape it?`);\n  return { selector: result, names: Array.from(names) };\n}\n\n// packages/playwright-core/src/utils/isomorphic/selectorParser.ts\nvar kNestedSelectorNames = /* @__PURE__ */ new Set(["internal:has", "internal:has-not", "internal:and", "internal:or", "internal:chain", "left-of", "right-of", "above", "below", "near"]);\nvar kNestedSelectorNamesWithDistance = /* @__PURE__ */ new Set(["left-of", "right-of", "above", "below", "near"]);\nvar customCSSNames = /* @__PURE__ */ new Set(["not", "is", "where", "has", "scope", "light", "visible", "text", "text-matches", "text-is", "has-text", "above", "below", "right-of", "left-of", "near", "nth-match"]);\nfunction parseSelector(selector) {\n  const parsedStrings = parseSelectorString(selector);\n  const parts = [];\n  for (const part of parsedStrings.parts) {\n    if (part.name === "css" || part.name === "css:light") {\n      if (part.name === "css:light")\n        part.body = ":light(" + part.body + ")";\n      const parsedCSS = parseCSS(part.body, customCSSNames);\n      parts.push({\n        name: "css",\n        body: parsedCSS.selector,\n        source: part.body\n      });\n      continue;\n    }\n    if (kNestedSelectorNames.has(part.name)) {\n      let innerSelector;\n      let distance;\n      try {\n        const unescaped = JSON.parse("[" + part.body + "]");\n        if (!Array.isArray(unescaped) || unescaped.length < 1 || unescaped.length > 2 || typeof unescaped[0] !== "string")\n          throw new InvalidSelectorError(`Malformed selector: ${part.name}=` + part.body);\n        innerSelector = unescaped[0];\n        if (unescaped.length === 2) {\n          if (typeof unescaped[1] !== "number" || !kNestedSelectorNamesWithDistance.has(part.name))\n            throw new InvalidSelectorError(`Malformed selector: ${part.name}=` + part.body);\n          distance = unescaped[1];\n        }\n      } catch (e) {\n        throw new InvalidSelectorError(`Malformed selector: ${part.name}=` + part.body);\n      }\n      const nested = { name: part.name, source: part.body, body: { parsed: parseSelector(innerSelector), distance } };\n      const lastFrame = [...nested.body.parsed.parts].reverse().find((part2) => part2.name === "internal:control" && part2.body === "enter-frame");\n      const lastFrameIndex = lastFrame ? nested.body.parsed.parts.indexOf(lastFrame) : -1;\n      if (lastFrameIndex !== -1 && selectorPartsEqual(nested.body.parsed.parts.slice(0, lastFrameIndex + 1), parts.slice(0, lastFrameIndex + 1)))\n        nested.body.parsed.parts.splice(0, lastFrameIndex + 1);\n      parts.push(nested);\n      continue;\n    }\n    parts.push({ ...part, source: part.body });\n  }\n  if (kNestedSelectorNames.has(parts[0].name))\n    throw new InvalidSelectorError(`"${parts[0].name}" selector cannot be first`);\n  return {\n    capture: parsedStrings.capture,\n    parts\n  };\n}\nfunction selectorPartsEqual(list1, list2) {\n  return stringifySelector({ parts: list1 }) === stringifySelector({ parts: list2 });\n}\nfunction stringifySelector(selector, forceEngineName) {\n  if (typeof selector === "string")\n    return selector;\n  return selector.parts.map((p, i) => {\n    let includeEngine = true;\n    if (!forceEngineName && i !== selector.capture) {\n      if (p.name === "css")\n        includeEngine = false;\n      else if (p.name === "xpath" && p.source.startsWith("//") || p.source.startsWith(".."))\n        includeEngine = false;\n    }\n    const prefix = includeEngine ? p.name + "=" : "";\n    return `${i === selector.capture ? "*" : ""}${prefix}${p.source}`;\n  }).join(" >> ");\n}\nfunction visitAllSelectorParts(selector, visitor) {\n  const visit = (selector2, nested) => {\n    for (const part of selector2.parts) {\n      visitor(part, nested);\n      if (kNestedSelectorNames.has(part.name))\n        visit(part.body.parsed, true);\n    }\n  };\n  visit(selector, false);\n}\nfunction parseSelectorString(selector) {\n  let index = 0;\n  let quote;\n  let start = 0;\n  const result = { parts: [] };\n  const append = () => {\n    const part = selector.substring(start, index).trim();\n    const eqIndex = part.indexOf("=");\n    let name;\n    let body;\n    if (eqIndex !== -1 && part.substring(0, eqIndex).trim().match(/^[a-zA-Z_0-9-+:*]+$/)) {\n      name = part.substring(0, eqIndex).trim();\n      body = part.substring(eqIndex + 1);\n    } else if (part.length > 1 && part[0] === \'"\' && part[part.length - 1] === \'"\') {\n      name = "text";\n      body = part;\n    } else if (part.length > 1 && part[0] === "\'" && part[part.length - 1] === "\'") {\n      name = "text";\n      body = part;\n    } else if (/^\\(*\\/\\//.test(part) || part.startsWith("..")) {\n      name = "xpath";\n      body = part;\n    } else {\n      name = "css";\n      body = part;\n    }\n    let capture = false;\n    if (name[0] === "*") {\n      capture = true;\n      name = name.substring(1);\n    }\n    result.parts.push({ name, body });\n    if (capture) {\n      if (result.capture !== void 0)\n        throw new InvalidSelectorError(`Only one of the selectors can capture using * modifier`);\n      result.capture = result.parts.length - 1;\n    }\n  };\n  if (!selector.includes(">>")) {\n    index = selector.length;\n    append();\n    return result;\n  }\n  const shouldIgnoreTextSelectorQuote = () => {\n    const prefix = selector.substring(start, index);\n    const match = prefix.match(/^\\s*text\\s*=(.*)$/);\n    return !!match && !!match[1];\n  };\n  while (index < selector.length) {\n    const c = selector[index];\n    if (c === "\\\\" && index + 1 < selector.length) {\n      index += 2;\n    } else if (c === quote) {\n      quote = void 0;\n      index++;\n    } else if (!quote && (c === \'"\' || c === "\'" || c === "`") && !shouldIgnoreTextSelectorQuote()) {\n      quote = c;\n      index++;\n    } else if (!quote && c === ">" && selector[index + 1] === ">") {\n      append();\n      index += 2;\n      start = index;\n    } else {\n      index++;\n    }\n  }\n  append();\n  return result;\n}\nfunction parseAttributeSelector(selector, allowUnquotedStrings) {\n  let wp = 0;\n  let EOL = selector.length === 0;\n  const next = () => selector[wp] || "";\n  const eat1 = () => {\n    const result2 = next();\n    ++wp;\n    EOL = wp >= selector.length;\n    return result2;\n  };\n  const syntaxError = (stage) => {\n    if (EOL)\n      throw new InvalidSelectorError(`Unexpected end of selector while parsing selector \\`${selector}\\``);\n    throw new InvalidSelectorError(`Error while parsing selector \\`${selector}\\` - unexpected symbol "${next()}" at position ${wp}` + (stage ? " during " + stage : ""));\n  };\n  function skipSpaces() {\n    while (!EOL && /\\s/.test(next()))\n      eat1();\n  }\n  function isCSSNameChar(char) {\n    return char >= "\\x80" || char >= "0" && char <= "9" || char >= "A" && char <= "Z" || char >= "a" && char <= "z" || char >= "0" && char <= "9" || char === "_" || char === "-";\n  }\n  function readIdentifier() {\n    let result2 = "";\n    skipSpaces();\n    while (!EOL && isCSSNameChar(next()))\n      result2 += eat1();\n    return result2;\n  }\n  function readQuotedString(quote) {\n    let result2 = eat1();\n    if (result2 !== quote)\n      syntaxError("parsing quoted string");\n    while (!EOL && next() !== quote) {\n      if (next() === "\\\\")\n        eat1();\n      result2 += eat1();\n    }\n    if (next() !== quote)\n      syntaxError("parsing quoted string");\n    result2 += eat1();\n    return result2;\n  }\n  function readRegularExpression() {\n    if (eat1() !== "/")\n      syntaxError("parsing regular expression");\n    let source = "";\n    let inClass = false;\n    while (!EOL) {\n      if (next() === "\\\\") {\n        source += eat1();\n        if (EOL)\n          syntaxError("parsing regular expression");\n      } else if (inClass && next() === "]") {\n        inClass = false;\n      } else if (!inClass && next() === "[") {\n        inClass = true;\n      } else if (!inClass && next() === "/") {\n        break;\n      }\n      source += eat1();\n    }\n    if (eat1() !== "/")\n      syntaxError("parsing regular expression");\n    let flags = "";\n    while (!EOL && next().match(/[dgimsuy]/))\n      flags += eat1();\n    try {\n      return new RegExp(source, flags);\n    } catch (e) {\n      throw new InvalidSelectorError(`Error while parsing selector \\`${selector}\\`: ${e.message}`);\n    }\n  }\n  function readAttributeToken() {\n    let token = "";\n    skipSpaces();\n    if (next() === `\'` || next() === `"`)\n      token = readQuotedString(next()).slice(1, -1);\n    else\n      token = readIdentifier();\n    if (!token)\n      syntaxError("parsing property path");\n    return token;\n  }\n  function readOperator() {\n    skipSpaces();\n    let op = "";\n    if (!EOL)\n      op += eat1();\n    if (!EOL && op !== "=")\n      op += eat1();\n    if (!["=", "*=", "^=", "$=", "|=", "~="].includes(op))\n      syntaxError("parsing operator");\n    return op;\n  }\n  function readAttribute() {\n    eat1();\n    const jsonPath = [];\n    jsonPath.push(readAttributeToken());\n    skipSpaces();\n    while (next() === ".") {\n      eat1();\n      jsonPath.push(readAttributeToken());\n      skipSpaces();\n    }\n    if (next() === "]") {\n      eat1();\n      return { name: jsonPath.join("."), jsonPath, op: "<truthy>", value: null, caseSensitive: false };\n    }\n    const operator = readOperator();\n    let value = void 0;\n    let caseSensitive = true;\n    skipSpaces();\n    if (next() === "/") {\n      if (operator !== "=")\n        throw new InvalidSelectorError(`Error while parsing selector \\`${selector}\\` - cannot use ${operator} in attribute with regular expression`);\n      value = readRegularExpression();\n    } else if (next() === `\'` || next() === `"`) {\n      value = readQuotedString(next()).slice(1, -1);\n      skipSpaces();\n      if (next() === "i" || next() === "I") {\n        caseSensitive = false;\n        eat1();\n      } else if (next() === "s" || next() === "S") {\n        caseSensitive = true;\n        eat1();\n      }\n    } else {\n      value = "";\n      while (!EOL && (isCSSNameChar(next()) || next() === "+" || next() === "."))\n        value += eat1();\n      if (value === "true") {\n        value = true;\n      } else if (value === "false") {\n        value = false;\n      } else {\n        if (!allowUnquotedStrings) {\n          value = +value;\n          if (Number.isNaN(value))\n            syntaxError("parsing attribute value");\n        }\n      }\n    }\n    skipSpaces();\n    if (next() !== "]")\n      syntaxError("parsing attribute value");\n    eat1();\n    if (operator !== "=" && typeof value !== "string")\n      throw new InvalidSelectorError(`Error while parsing selector \\`${selector}\\` - cannot use ${operator} in attribute with non-string matching value - ${value}`);\n    return { name: jsonPath.join("."), jsonPath, op: operator, value, caseSensitive };\n  }\n  const result = {\n    name: "",\n    attributes: []\n  };\n  result.name = readIdentifier();\n  skipSpaces();\n  while (next() === "[") {\n    result.attributes.push(readAttribute());\n    skipSpaces();\n  }\n  if (!EOL)\n    syntaxError(void 0);\n  if (!result.name && !result.attributes.length)\n    throw new InvalidSelectorError(`Error while parsing selector \\`${selector}\\` - selector cannot be empty`);\n  return result;\n}\n\n// packages/playwright-core/src/utils/isomorphic/stringUtils.ts\nfunction escapeWithQuotes(text, char = "\'") {\n  const stringified = JSON.stringify(text);\n  const escapedText = stringified.substring(1, stringified.length - 1).replace(/\\\\"/g, \'"\');\n  if (char === "\'")\n    return char + escapedText.replace(/[\']/g, "\\\\\'") + char;\n  if (char === \'"\')\n    return char + escapedText.replace(/["]/g, \'\\\\"\') + char;\n  if (char === "`")\n    return char + escapedText.replace(/[`]/g, "\\\\`") + char;\n  throw new Error("Invalid escape char");\n}\nfunction toTitleCase(name) {\n  return name.charAt(0).toUpperCase() + name.substring(1);\n}\nfunction toSnakeCase(name) {\n  return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z])([A-Z][a-z])/g, "$1_$2").toLowerCase();\n}\nfunction quoteCSSAttributeValue(text) {\n  return `"${text.replace(/["\\\\]/g, (char) => "\\\\" + char)}"`;\n}\nvar normalizedWhitespaceCache;\nfunction cacheNormalizedWhitespaces() {\n  normalizedWhitespaceCache = /* @__PURE__ */ new Map();\n}\nfunction normalizeWhiteSpace(text) {\n  let result = normalizedWhitespaceCache == null ? void 0 : normalizedWhitespaceCache.get(text);\n  if (result === void 0) {\n    result = text.replace(/[\\u200b\\u00ad]/g, "").trim().replace(/\\s+/g, " ");\n    normalizedWhitespaceCache == null ? void 0 : normalizedWhitespaceCache.set(text, result);\n  }\n  return result;\n}\nfunction normalizeEscapedRegexQuotes(source) {\n  return source.replace(/(^|[^\\\\])(\\\\\\\\)*\\\\([\'"`])/g, "$1$2$3");\n}\nfunction escapeRegexForSelector(re) {\n  if (re.unicode || re.unicodeSets)\n    return String(re);\n  return String(re).replace(/(^|[^\\\\])(\\\\\\\\)*(["\'`])/g, "$1$2\\\\$3").replace(/>>/g, "\\\\>\\\\>");\n}\nfunction escapeForTextSelector(text, exact) {\n  if (typeof text !== "string")\n    return escapeRegexForSelector(text);\n  return `${JSON.stringify(text)}${exact ? "s" : "i"}`;\n}\nfunction escapeForAttributeSelector(value, exact) {\n  if (typeof value !== "string")\n    return escapeRegexForSelector(value);\n  return `"${value.replace(/\\\\/g, "\\\\\\\\").replace(/["]/g, \'\\\\"\')}"${exact ? "s" : "i"}`;\n}\nfunction trimString(input, cap, suffix = "") {\n  if (input.length <= cap)\n    return input;\n  const chars = [...input];\n  if (chars.length > cap)\n    return chars.slice(0, cap - suffix.length).join("") + suffix;\n  return chars.join("");\n}\nfunction trimStringWithEllipsis(input, cap) {\n  return trimString(input, cap, "\\u2026");\n}\nfunction escapeRegExp(s) {\n  return s.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");\n}\nfunction longestCommonSubstring(s1, s2) {\n  const n = s1.length;\n  const m = s2.length;\n  let maxLen = 0;\n  let endingIndex = 0;\n  const dp = Array(n + 1).fill(null).map(() => Array(m + 1).fill(0));\n  for (let i = 1; i <= n; i++) {\n    for (let j = 1; j <= m; j++) {\n      if (s1[i - 1] === s2[j - 1]) {\n        dp[i][j] = dp[i - 1][j - 1] + 1;\n        if (dp[i][j] > maxLen) {\n          maxLen = dp[i][j];\n          endingIndex = i;\n        }\n      }\n    }\n  }\n  return s1.slice(endingIndex - maxLen, endingIndex);\n}\n\n// packages/playwright-core/src/utils/isomorphic/locatorGenerators.ts\nfunction asLocator(lang, selector, isFrameLocator = false) {\n  return asLocators(lang, selector, isFrameLocator, 1)[0];\n}\nfunction asLocators(lang, selector, isFrameLocator = false, maxOutputSize = 20, preferredQuote) {\n  try {\n    return innerAsLocators(new generators[lang](preferredQuote), parseSelector(selector), isFrameLocator, maxOutputSize);\n  } catch (e) {\n    return [selector];\n  }\n}\nfunction innerAsLocators(factory, parsed, isFrameLocator = false, maxOutputSize = 20) {\n  const parts = [...parsed.parts];\n  const tokens = [];\n  let nextBase = isFrameLocator ? "frame-locator" : "page";\n  for (let index = 0; index < parts.length; index++) {\n    const part = parts[index];\n    const base = nextBase;\n    nextBase = "locator";\n    if (part.name === "internal:describe")\n      continue;\n    if (part.name === "nth") {\n      if (part.body === "0")\n        tokens.push([factory.generateLocator(base, "first", ""), factory.generateLocator(base, "nth", "0")]);\n      else if (part.body === "-1")\n        tokens.push([factory.generateLocator(base, "last", ""), factory.generateLocator(base, "nth", "-1")]);\n      else\n        tokens.push([factory.generateLocator(base, "nth", part.body)]);\n      continue;\n    }\n    if (part.name === "visible") {\n      tokens.push([factory.generateLocator(base, "visible", part.body), factory.generateLocator(base, "default", `visible=${part.body}`)]);\n      continue;\n    }\n    if (part.name === "internal:text") {\n      const { exact, text } = detectExact(part.body);\n      tokens.push([factory.generateLocator(base, "text", text, { exact })]);\n      continue;\n    }\n    if (part.name === "internal:has-text") {\n      const { exact, text } = detectExact(part.body);\n      if (!exact) {\n        tokens.push([factory.generateLocator(base, "has-text", text, { exact })]);\n        continue;\n      }\n    }\n    if (part.name === "internal:has-not-text") {\n      const { exact, text } = detectExact(part.body);\n      if (!exact) {\n        tokens.push([factory.generateLocator(base, "has-not-text", text, { exact })]);\n        continue;\n      }\n    }\n    if (part.name === "internal:has") {\n      const inners = innerAsLocators(factory, part.body.parsed, false, maxOutputSize);\n      tokens.push(inners.map((inner) => factory.generateLocator(base, "has", inner)));\n      continue;\n    }\n    if (part.name === "internal:has-not") {\n      const inners = innerAsLocators(factory, part.body.parsed, false, maxOutputSize);\n      tokens.push(inners.map((inner) => factory.generateLocator(base, "hasNot", inner)));\n      continue;\n    }\n    if (part.name === "internal:and") {\n      const inners = innerAsLocators(factory, part.body.parsed, false, maxOutputSize);\n      tokens.push(inners.map((inner) => factory.generateLocator(base, "and", inner)));\n      continue;\n    }\n    if (part.name === "internal:or") {\n      const inners = innerAsLocators(factory, part.body.parsed, false, maxOutputSize);\n      tokens.push(inners.map((inner) => factory.generateLocator(base, "or", inner)));\n      continue;\n    }\n    if (part.name === "internal:chain") {\n      const inners = innerAsLocators(factory, part.body.parsed, false, maxOutputSize);\n      tokens.push(inners.map((inner) => factory.generateLocator(base, "chain", inner)));\n      continue;\n    }\n    if (part.name === "internal:label") {\n      const { exact, text } = detectExact(part.body);\n      tokens.push([factory.generateLocator(base, "label", text, { exact })]);\n      continue;\n    }\n    if (part.name === "internal:role") {\n      const attrSelector = parseAttributeSelector(part.body, true);\n      const options = { attrs: [] };\n      for (const attr of attrSelector.attributes) {\n        if (attr.name === "name") {\n          options.exact = attr.caseSensitive;\n          options.name = attr.value;\n        } else {\n          if (attr.name === "level" && typeof attr.value === "string")\n            attr.value = +attr.value;\n          options.attrs.push({ name: attr.name === "include-hidden" ? "includeHidden" : attr.name, value: attr.value });\n        }\n      }\n      tokens.push([factory.generateLocator(base, "role", attrSelector.name, options)]);\n      continue;\n    }\n    if (part.name === "internal:testid") {\n      const attrSelector = parseAttributeSelector(part.body, true);\n      const { value } = attrSelector.attributes[0];\n      tokens.push([factory.generateLocator(base, "test-id", value)]);\n      continue;\n    }\n    if (part.name === "internal:attr") {\n      const attrSelector = parseAttributeSelector(part.body, true);\n      const { name, value, caseSensitive } = attrSelector.attributes[0];\n      const text = value;\n      const exact = !!caseSensitive;\n      if (name === "placeholder") {\n        tokens.push([factory.generateLocator(base, "placeholder", text, { exact })]);\n        continue;\n      }\n      if (name === "alt") {\n        tokens.push([factory.generateLocator(base, "alt", text, { exact })]);\n        continue;\n      }\n      if (name === "title") {\n        tokens.push([factory.generateLocator(base, "title", text, { exact })]);\n        continue;\n      }\n    }\n    if (part.name === "internal:control" && part.body === "enter-frame") {\n      const lastTokens = tokens[tokens.length - 1];\n      const lastPart = parts[index - 1];\n      const transformed = lastTokens.map((token) => factory.chainLocators([token, factory.generateLocator(base, "frame", "")]));\n      if (["xpath", "css"].includes(lastPart.name)) {\n        transformed.push(\n          factory.generateLocator(base, "frame-locator", stringifySelector({ parts: [lastPart] })),\n          factory.generateLocator(base, "frame-locator", stringifySelector({ parts: [lastPart] }, true))\n        );\n      }\n      lastTokens.splice(0, lastTokens.length, ...transformed);\n      nextBase = "frame-locator";\n      continue;\n    }\n    const nextPart = parts[index + 1];\n    const selectorPart = stringifySelector({ parts: [part] });\n    const locatorPart = factory.generateLocator(base, "default", selectorPart);\n    if (nextPart && ["internal:has-text", "internal:has-not-text"].includes(nextPart.name)) {\n      const { exact, text } = detectExact(nextPart.body);\n      if (!exact) {\n        const nextLocatorPart = factory.generateLocator("locator", nextPart.name === "internal:has-text" ? "has-text" : "has-not-text", text, { exact });\n        const options = {};\n        if (nextPart.name === "internal:has-text")\n          options.hasText = text;\n        else\n          options.hasNotText = text;\n        const combinedPart = factory.generateLocator(base, "default", selectorPart, options);\n        tokens.push([factory.chainLocators([locatorPart, nextLocatorPart]), combinedPart]);\n        index++;\n        continue;\n      }\n    }\n    let locatorPartWithEngine;\n    if (["xpath", "css"].includes(part.name)) {\n      const selectorPart2 = stringifySelector(\n        { parts: [part] },\n        /* forceEngineName */\n        true\n      );\n      locatorPartWithEngine = factory.generateLocator(base, "default", selectorPart2);\n    }\n    tokens.push([locatorPart, locatorPartWithEngine].filter(Boolean));\n  }\n  return combineTokens(factory, tokens, maxOutputSize);\n}\nfunction combineTokens(factory, tokens, maxOutputSize) {\n  const currentTokens = tokens.map(() => "");\n  const result = [];\n  const visit = (index) => {\n    if (index === tokens.length) {\n      result.push(factory.chainLocators(currentTokens));\n      return result.length < maxOutputSize;\n    }\n    for (const taken of tokens[index]) {\n      currentTokens[index] = taken;\n      if (!visit(index + 1))\n        return false;\n    }\n    return true;\n  };\n  visit(0);\n  return result;\n}\nfunction detectExact(text) {\n  let exact = false;\n  const match = text.match(/^\\/(.*)\\/([igm]*)$/);\n  if (match)\n    return { text: new RegExp(match[1], match[2]) };\n  if (text.endsWith(\'"\')) {\n    text = JSON.parse(text);\n    exact = true;\n  } else if (text.endsWith(\'"s\')) {\n    text = JSON.parse(text.substring(0, text.length - 1));\n    exact = true;\n  } else if (text.endsWith(\'"i\')) {\n    text = JSON.parse(text.substring(0, text.length - 1));\n    exact = false;\n  }\n  return { exact, text };\n}\nvar JavaScriptLocatorFactory = class {\n  constructor(preferredQuote) {\n    this.preferredQuote = preferredQuote;\n  }\n  generateLocator(base, kind, body, options = {}) {\n    switch (kind) {\n      case "default":\n        if (options.hasText !== void 0)\n          return `locator(${this.quote(body)}, { hasText: ${this.toHasText(options.hasText)} })`;\n        if (options.hasNotText !== void 0)\n          return `locator(${this.quote(body)}, { hasNotText: ${this.toHasText(options.hasNotText)} })`;\n        return `locator(${this.quote(body)})`;\n      case "frame-locator":\n        return `frameLocator(${this.quote(body)})`;\n      case "frame":\n        return `contentFrame()`;\n      case "nth":\n        return `nth(${body})`;\n      case "first":\n        return `first()`;\n      case "last":\n        return `last()`;\n      case "visible":\n        return `filter({ visible: ${body === "true" ? "true" : "false"} })`;\n      case "role":\n        const attrs = [];\n        if (isRegExp(options.name)) {\n          attrs.push(`name: ${this.regexToSourceString(options.name)}`);\n        } else if (typeof options.name === "string") {\n          attrs.push(`name: ${this.quote(options.name)}`);\n          if (options.exact)\n            attrs.push(`exact: true`);\n        }\n        for (const { name, value } of options.attrs)\n          attrs.push(`${name}: ${typeof value === "string" ? this.quote(value) : value}`);\n        const attrString = attrs.length ? `, { ${attrs.join(", ")} }` : "";\n        return `getByRole(${this.quote(body)}${attrString})`;\n      case "has-text":\n        return `filter({ hasText: ${this.toHasText(body)} })`;\n      case "has-not-text":\n        return `filter({ hasNotText: ${this.toHasText(body)} })`;\n      case "has":\n        return `filter({ has: ${body} })`;\n      case "hasNot":\n        return `filter({ hasNot: ${body} })`;\n      case "and":\n        return `and(${body})`;\n      case "or":\n        return `or(${body})`;\n      case "chain":\n        return `locator(${body})`;\n      case "test-id":\n        return `getByTestId(${this.toTestIdValue(body)})`;\n      case "text":\n        return this.toCallWithExact("getByText", body, !!options.exact);\n      case "alt":\n        return this.toCallWithExact("getByAltText", body, !!options.exact);\n      case "placeholder":\n        return this.toCallWithExact("getByPlaceholder", body, !!options.exact);\n      case "label":\n        return this.toCallWithExact("getByLabel", body, !!options.exact);\n      case "title":\n        return this.toCallWithExact("getByTitle", body, !!options.exact);\n      default:\n        throw new Error("Unknown selector kind " + kind);\n    }\n  }\n  chainLocators(locators) {\n    return locators.join(".");\n  }\n  regexToSourceString(re) {\n    return normalizeEscapedRegexQuotes(String(re));\n  }\n  toCallWithExact(method, body, exact) {\n    if (isRegExp(body))\n      return `${method}(${this.regexToSourceString(body)})`;\n    return exact ? `${method}(${this.quote(body)}, { exact: true })` : `${method}(${this.quote(body)})`;\n  }\n  toHasText(body) {\n    if (isRegExp(body))\n      return this.regexToSourceString(body);\n    return this.quote(body);\n  }\n  toTestIdValue(value) {\n    if (isRegExp(value))\n      return this.regexToSourceString(value);\n    return this.quote(value);\n  }\n  quote(text) {\n    var _a;\n    return escapeWithQuotes(text, (_a = this.preferredQuote) != null ? _a : "\'");\n  }\n};\nvar PythonLocatorFactory = class {\n  generateLocator(base, kind, body, options = {}) {\n    switch (kind) {\n      case "default":\n        if (options.hasText !== void 0)\n          return `locator(${this.quote(body)}, has_text=${this.toHasText(options.hasText)})`;\n        if (options.hasNotText !== void 0)\n          return `locator(${this.quote(body)}, has_not_text=${this.toHasText(options.hasNotText)})`;\n        return `locator(${this.quote(body)})`;\n      case "frame-locator":\n        return `frame_locator(${this.quote(body)})`;\n      case "frame":\n        return `content_frame`;\n      case "nth":\n        return `nth(${body})`;\n      case "first":\n        return `first`;\n      case "last":\n        return `last`;\n      case "visible":\n        return `filter(visible=${body === "true" ? "True" : "False"})`;\n      case "role":\n        const attrs = [];\n        if (isRegExp(options.name)) {\n          attrs.push(`name=${this.regexToString(options.name)}`);\n        } else if (typeof options.name === "string") {\n          attrs.push(`name=${this.quote(options.name)}`);\n          if (options.exact)\n            attrs.push(`exact=True`);\n        }\n        for (const { name, value } of options.attrs) {\n          let valueString = typeof value === "string" ? this.quote(value) : value;\n          if (typeof value === "boolean")\n            valueString = value ? "True" : "False";\n          attrs.push(`${toSnakeCase(name)}=${valueString}`);\n        }\n        const attrString = attrs.length ? `, ${attrs.join(", ")}` : "";\n        return `get_by_role(${this.quote(body)}${attrString})`;\n      case "has-text":\n        return `filter(has_text=${this.toHasText(body)})`;\n      case "has-not-text":\n        return `filter(has_not_text=${this.toHasText(body)})`;\n      case "has":\n        return `filter(has=${body})`;\n      case "hasNot":\n        return `filter(has_not=${body})`;\n      case "and":\n        return `and_(${body})`;\n      case "or":\n        return `or_(${body})`;\n      case "chain":\n        return `locator(${body})`;\n      case "test-id":\n        return `get_by_test_id(${this.toTestIdValue(body)})`;\n      case "text":\n        return this.toCallWithExact("get_by_text", body, !!options.exact);\n      case "alt":\n        return this.toCallWithExact("get_by_alt_text", body, !!options.exact);\n      case "placeholder":\n        return this.toCallWithExact("get_by_placeholder", body, !!options.exact);\n      case "label":\n        return this.toCallWithExact("get_by_label", body, !!options.exact);\n      case "title":\n        return this.toCallWithExact("get_by_title", body, !!options.exact);\n      default:\n        throw new Error("Unknown selector kind " + kind);\n    }\n  }\n  chainLocators(locators) {\n    return locators.join(".");\n  }\n  regexToString(body) {\n    const suffix = body.flags.includes("i") ? ", re.IGNORECASE" : "";\n    return `re.compile(r"${normalizeEscapedRegexQuotes(body.source).replace(/\\\\\\//, "/").replace(/"/g, \'\\\\"\')}"${suffix})`;\n  }\n  toCallWithExact(method, body, exact) {\n    if (isRegExp(body))\n      return `${method}(${this.regexToString(body)})`;\n    if (exact)\n      return `${method}(${this.quote(body)}, exact=True)`;\n    return `${method}(${this.quote(body)})`;\n  }\n  toHasText(body) {\n    if (isRegExp(body))\n      return this.regexToString(body);\n    return `${this.quote(body)}`;\n  }\n  toTestIdValue(value) {\n    if (isRegExp(value))\n      return this.regexToString(value);\n    return this.quote(value);\n  }\n  quote(text) {\n    return escapeWithQuotes(text, \'"\');\n  }\n};\nvar JavaLocatorFactory = class {\n  generateLocator(base, kind, body, options = {}) {\n    let clazz;\n    switch (base) {\n      case "page":\n        clazz = "Page";\n        break;\n      case "frame-locator":\n        clazz = "FrameLocator";\n        break;\n      case "locator":\n        clazz = "Locator";\n        break;\n    }\n    switch (kind) {\n      case "default":\n        if (options.hasText !== void 0)\n          return `locator(${this.quote(body)}, new ${clazz}.LocatorOptions().setHasText(${this.toHasText(options.hasText)}))`;\n        if (options.hasNotText !== void 0)\n          return `locator(${this.quote(body)}, new ${clazz}.LocatorOptions().setHasNotText(${this.toHasText(options.hasNotText)}))`;\n        return `locator(${this.quote(body)})`;\n      case "frame-locator":\n        return `frameLocator(${this.quote(body)})`;\n      case "frame":\n        return `contentFrame()`;\n      case "nth":\n        return `nth(${body})`;\n      case "first":\n        return `first()`;\n      case "last":\n        return `last()`;\n      case "visible":\n        return `filter(new ${clazz}.FilterOptions().setVisible(${body === "true" ? "true" : "false"}))`;\n      case "role":\n        const attrs = [];\n        if (isRegExp(options.name)) {\n          attrs.push(`.setName(${this.regexToString(options.name)})`);\n        } else if (typeof options.name === "string") {\n          attrs.push(`.setName(${this.quote(options.name)})`);\n          if (options.exact)\n            attrs.push(`.setExact(true)`);\n        }\n        for (const { name, value } of options.attrs)\n          attrs.push(`.set${toTitleCase(name)}(${typeof value === "string" ? this.quote(value) : value})`);\n        const attrString = attrs.length ? `, new ${clazz}.GetByRoleOptions()${attrs.join("")}` : "";\n        return `getByRole(AriaRole.${toSnakeCase(body).toUpperCase()}${attrString})`;\n      case "has-text":\n        return `filter(new ${clazz}.FilterOptions().setHasText(${this.toHasText(body)}))`;\n      case "has-not-text":\n        return `filter(new ${clazz}.FilterOptions().setHasNotText(${this.toHasText(body)}))`;\n      case "has":\n        return `filter(new ${clazz}.FilterOptions().setHas(${body}))`;\n      case "hasNot":\n        return `filter(new ${clazz}.FilterOptions().setHasNot(${body}))`;\n      case "and":\n        return `and(${body})`;\n      case "or":\n        return `or(${body})`;\n      case "chain":\n        return `locator(${body})`;\n      case "test-id":\n        return `getByTestId(${this.toTestIdValue(body)})`;\n      case "text":\n        return this.toCallWithExact(clazz, "getByText", body, !!options.exact);\n      case "alt":\n        return this.toCallWithExact(clazz, "getByAltText", body, !!options.exact);\n      case "placeholder":\n        return this.toCallWithExact(clazz, "getByPlaceholder", body, !!options.exact);\n      case "label":\n        return this.toCallWithExact(clazz, "getByLabel", body, !!options.exact);\n      case "title":\n        return this.toCallWithExact(clazz, "getByTitle", body, !!options.exact);\n      default:\n        throw new Error("Unknown selector kind " + kind);\n    }\n  }\n  chainLocators(locators) {\n    return locators.join(".");\n  }\n  regexToString(body) {\n    const suffix = body.flags.includes("i") ? ", Pattern.CASE_INSENSITIVE" : "";\n    return `Pattern.compile(${this.quote(normalizeEscapedRegexQuotes(body.source))}${suffix})`;\n  }\n  toCallWithExact(clazz, method, body, exact) {\n    if (isRegExp(body))\n      return `${method}(${this.regexToString(body)})`;\n    if (exact)\n      return `${method}(${this.quote(body)}, new ${clazz}.${toTitleCase(method)}Options().setExact(true))`;\n    return `${method}(${this.quote(body)})`;\n  }\n  toHasText(body) {\n    if (isRegExp(body))\n      return this.regexToString(body);\n    return this.quote(body);\n  }\n  toTestIdValue(value) {\n    if (isRegExp(value))\n      return this.regexToString(value);\n    return this.quote(value);\n  }\n  quote(text) {\n    return escapeWithQuotes(text, \'"\');\n  }\n};\nvar CSharpLocatorFactory = class {\n  generateLocator(base, kind, body, options = {}) {\n    switch (kind) {\n      case "default":\n        if (options.hasText !== void 0)\n          return `Locator(${this.quote(body)}, new() { ${this.toHasText(options.hasText)} })`;\n        if (options.hasNotText !== void 0)\n          return `Locator(${this.quote(body)}, new() { ${this.toHasNotText(options.hasNotText)} })`;\n        return `Locator(${this.quote(body)})`;\n      case "frame-locator":\n        return `FrameLocator(${this.quote(body)})`;\n      case "frame":\n        return `ContentFrame`;\n      case "nth":\n        return `Nth(${body})`;\n      case "first":\n        return `First`;\n      case "last":\n        return `Last`;\n      case "visible":\n        return `Filter(new() { Visible = ${body === "true" ? "true" : "false"} })`;\n      case "role":\n        const attrs = [];\n        if (isRegExp(options.name)) {\n          attrs.push(`NameRegex = ${this.regexToString(options.name)}`);\n        } else if (typeof options.name === "string") {\n          attrs.push(`Name = ${this.quote(options.name)}`);\n          if (options.exact)\n            attrs.push(`Exact = true`);\n        }\n        for (const { name, value } of options.attrs)\n          attrs.push(`${toTitleCase(name)} = ${typeof value === "string" ? this.quote(value) : value}`);\n        const attrString = attrs.length ? `, new() { ${attrs.join(", ")} }` : "";\n        return `GetByRole(AriaRole.${toTitleCase(body)}${attrString})`;\n      case "has-text":\n        return `Filter(new() { ${this.toHasText(body)} })`;\n      case "has-not-text":\n        return `Filter(new() { ${this.toHasNotText(body)} })`;\n      case "has":\n        return `Filter(new() { Has = ${body} })`;\n      case "hasNot":\n        return `Filter(new() { HasNot = ${body} })`;\n      case "and":\n        return `And(${body})`;\n      case "or":\n        return `Or(${body})`;\n      case "chain":\n        return `Locator(${body})`;\n      case "test-id":\n        return `GetByTestId(${this.toTestIdValue(body)})`;\n      case "text":\n        return this.toCallWithExact("GetByText", body, !!options.exact);\n      case "alt":\n        return this.toCallWithExact("GetByAltText", body, !!options.exact);\n      case "placeholder":\n        return this.toCallWithExact("GetByPlaceholder", body, !!options.exact);\n      case "label":\n        return this.toCallWithExact("GetByLabel", body, !!options.exact);\n      case "title":\n        return this.toCallWithExact("GetByTitle", body, !!options.exact);\n      default:\n        throw new Error("Unknown selector kind " + kind);\n    }\n  }\n  chainLocators(locators) {\n    return locators.join(".");\n  }\n  regexToString(body) {\n    const suffix = body.flags.includes("i") ? ", RegexOptions.IgnoreCase" : "";\n    return `new Regex(${this.quote(normalizeEscapedRegexQuotes(body.source))}${suffix})`;\n  }\n  toCallWithExact(method, body, exact) {\n    if (isRegExp(body))\n      return `${method}(${this.regexToString(body)})`;\n    if (exact)\n      return `${method}(${this.quote(body)}, new() { Exact = true })`;\n    return `${method}(${this.quote(body)})`;\n  }\n  toHasText(body) {\n    if (isRegExp(body))\n      return `HasTextRegex = ${this.regexToString(body)}`;\n    return `HasText = ${this.quote(body)}`;\n  }\n  toTestIdValue(value) {\n    if (isRegExp(value))\n      return this.regexToString(value);\n    return this.quote(value);\n  }\n  toHasNotText(body) {\n    if (isRegExp(body))\n      return `HasNotTextRegex = ${this.regexToString(body)}`;\n    return `HasNotText = ${this.quote(body)}`;\n  }\n  quote(text) {\n    return escapeWithQuotes(text, \'"\');\n  }\n};\nvar JsonlLocatorFactory = class {\n  generateLocator(base, kind, body, options = {}) {\n    return JSON.stringify({\n      kind,\n      body,\n      options\n    });\n  }\n  chainLocators(locators) {\n    const objects = locators.map((l) => JSON.parse(l));\n    for (let i = 0; i < objects.length - 1; ++i)\n      objects[i].next = objects[i + 1];\n    return JSON.stringify(objects[0]);\n  }\n};\nvar generators = {\n  javascript: JavaScriptLocatorFactory,\n  python: PythonLocatorFactory,\n  java: JavaLocatorFactory,\n  csharp: CSharpLocatorFactory,\n  jsonl: JsonlLocatorFactory\n};\nfunction isRegExp(obj) {\n  return obj instanceof RegExp;\n}\n\n// packages/injected/src/domUtils.ts\nvar globalOptions = {};\nfunction setGlobalOptions(options) {\n  globalOptions = options;\n}\nfunction isInsideScope(scope, element) {\n  while (element) {\n    if (scope.contains(element))\n      return true;\n    element = enclosingShadowHost(element);\n  }\n  return false;\n}\nfunction parentElementOrShadowHost(element) {\n  if (element.parentElement)\n    return element.parentElement;\n  if (!element.parentNode)\n    return;\n  if (element.parentNode.nodeType === 11 && element.parentNode.host)\n    return element.parentNode.host;\n}\nfunction enclosingShadowRootOrDocument(element) {\n  let node = element;\n  while (node.parentNode)\n    node = node.parentNode;\n  if (node.nodeType === 11 || node.nodeType === 9)\n    return node;\n}\nfunction enclosingShadowHost(element) {\n  while (element.parentElement)\n    element = element.parentElement;\n  return parentElementOrShadowHost(element);\n}\nfunction closestCrossShadow(element, css, scope) {\n  while (element) {\n    const closest = element.closest(css);\n    if (scope && closest !== scope && (closest == null ? void 0 : closest.contains(scope)))\n      return;\n    if (closest)\n      return closest;\n    element = enclosingShadowHost(element);\n  }\n}\nfunction getElementComputedStyle(element, pseudo) {\n  return element.ownerDocument && element.ownerDocument.defaultView ? element.ownerDocument.defaultView.getComputedStyle(element, pseudo) : void 0;\n}\nfunction isElementStyleVisibilityVisible(element, style) {\n  style = style != null ? style : getElementComputedStyle(element);\n  if (!style)\n    return true;\n  if (Element.prototype.checkVisibility && globalOptions.browserNameForWorkarounds !== "webkit") {\n    if (!element.checkVisibility())\n      return false;\n  } else {\n    const detailsOrSummary = element.closest("details,summary");\n    if (detailsOrSummary !== element && (detailsOrSummary == null ? void 0 : detailsOrSummary.nodeName) === "DETAILS" && !detailsOrSummary.open)\n      return false;\n  }\n  if (style.visibility !== "visible")\n    return false;\n  return true;\n}\nfunction box(element) {\n  const style = getElementComputedStyle(element);\n  if (!style)\n    return { visible: true };\n  if (style.display === "contents") {\n    for (let child = element.firstChild; child; child = child.nextSibling) {\n      if (child.nodeType === 1 && isElementVisible(child))\n        return { visible: true, style };\n      if (child.nodeType === 3 && isVisibleTextNode(child))\n        return { visible: true, style };\n    }\n    return { visible: false, style };\n  }\n  if (!isElementStyleVisibilityVisible(element, style))\n    return { style, visible: false };\n  const rect = element.getBoundingClientRect();\n  return { rect, style, visible: rect.width > 0 && rect.height > 0 };\n}\nfunction isElementVisible(element) {\n  return box(element).visible;\n}\nfunction isVisibleTextNode(node) {\n  const range = node.ownerDocument.createRange();\n  range.selectNode(node);\n  const rect = range.getBoundingClientRect();\n  return rect.width > 0 && rect.height > 0;\n}\nfunction elementSafeTagName(element) {\n  if (element instanceof HTMLFormElement)\n    return "FORM";\n  return element.tagName.toUpperCase();\n}\n\n// packages/injected/src/roleUtils.ts\nfunction hasExplicitAccessibleName(e) {\n  return e.hasAttribute("aria-label") || e.hasAttribute("aria-labelledby");\n}\nvar kAncestorPreventingLandmark = "article:not([role]), aside:not([role]), main:not([role]), nav:not([role]), section:not([role]), [role=article], [role=complementary], [role=main], [role=navigation], [role=region]";\nvar kGlobalAriaAttributes = [\n  ["aria-atomic", void 0],\n  ["aria-busy", void 0],\n  ["aria-controls", void 0],\n  ["aria-current", void 0],\n  ["aria-describedby", void 0],\n  ["aria-details", void 0],\n  // Global use deprecated in ARIA 1.2\n  // [\'aria-disabled\', undefined],\n  ["aria-dropeffect", void 0],\n  // Global use deprecated in ARIA 1.2\n  // [\'aria-errormessage\', undefined],\n  ["aria-flowto", void 0],\n  ["aria-grabbed", void 0],\n  // Global use deprecated in ARIA 1.2\n  // [\'aria-haspopup\', undefined],\n  ["aria-hidden", void 0],\n  // Global use deprecated in ARIA 1.2\n  // [\'aria-invalid\', undefined],\n  ["aria-keyshortcuts", void 0],\n  ["aria-label", ["caption", "code", "deletion", "emphasis", "generic", "insertion", "paragraph", "presentation", "strong", "subscript", "superscript"]],\n  ["aria-labelledby", ["caption", "code", "deletion", "emphasis", "generic", "insertion", "paragraph", "presentation", "strong", "subscript", "superscript"]],\n  ["aria-live", void 0],\n  ["aria-owns", void 0],\n  ["aria-relevant", void 0],\n  ["aria-roledescription", ["generic"]]\n];\nfunction hasGlobalAriaAttribute(element, forRole) {\n  return kGlobalAriaAttributes.some(([attr, prohibited]) => {\n    return !(prohibited == null ? void 0 : prohibited.includes(forRole || "")) && element.hasAttribute(attr);\n  });\n}\nfunction hasTabIndex(element) {\n  return !Number.isNaN(Number(String(element.getAttribute("tabindex"))));\n}\nfunction isFocusable(element) {\n  return !isNativelyDisabled(element) && (isNativelyFocusable(element) || hasTabIndex(element));\n}\nfunction isNativelyFocusable(element) {\n  const tagName = elementSafeTagName(element);\n  if (["BUTTON", "DETAILS", "SELECT", "TEXTAREA"].includes(tagName))\n    return true;\n  if (tagName === "A" || tagName === "AREA")\n    return element.hasAttribute("href");\n  if (tagName === "INPUT")\n    return !element.hidden;\n  return false;\n}\nvar kImplicitRoleByTagName = {\n  "A": (e) => {\n    return e.hasAttribute("href") ? "link" : null;\n  },\n  "AREA": (e) => {\n    return e.hasAttribute("href") ? "link" : null;\n  },\n  "ARTICLE": () => "article",\n  "ASIDE": () => "complementary",\n  "BLOCKQUOTE": () => "blockquote",\n  "BUTTON": () => "button",\n  "CAPTION": () => "caption",\n  "CODE": () => "code",\n  "DATALIST": () => "listbox",\n  "DD": () => "definition",\n  "DEL": () => "deletion",\n  "DETAILS": () => "group",\n  "DFN": () => "term",\n  "DIALOG": () => "dialog",\n  "DT": () => "term",\n  "EM": () => "emphasis",\n  "FIELDSET": () => "group",\n  "FIGURE": () => "figure",\n  "FOOTER": (e) => closestCrossShadow(e, kAncestorPreventingLandmark) ? null : "contentinfo",\n  "FORM": (e) => hasExplicitAccessibleName(e) ? "form" : null,\n  "H1": () => "heading",\n  "H2": () => "heading",\n  "H3": () => "heading",\n  "H4": () => "heading",\n  "H5": () => "heading",\n  "H6": () => "heading",\n  "HEADER": (e) => closestCrossShadow(e, kAncestorPreventingLandmark) ? null : "banner",\n  "HR": () => "separator",\n  "HTML": () => "document",\n  "IMG": (e) => e.getAttribute("alt") === "" && !e.getAttribute("title") && !hasGlobalAriaAttribute(e) && !hasTabIndex(e) ? "presentation" : "img",\n  "INPUT": (e) => {\n    const type = e.type.toLowerCase();\n    if (type === "search")\n      return e.hasAttribute("list") ? "combobox" : "searchbox";\n    if (["email", "tel", "text", "url", ""].includes(type)) {\n      const list = getIdRefs(e, e.getAttribute("list"))[0];\n      return list && elementSafeTagName(list) === "DATALIST" ? "combobox" : "textbox";\n    }\n    if (type === "hidden")\n      return null;\n    if (type === "file")\n      return "button";\n    return inputTypeToRole[type] || "textbox";\n  },\n  "INS": () => "insertion",\n  "LI": () => "listitem",\n  "MAIN": () => "main",\n  "MARK": () => "mark",\n  "MATH": () => "math",\n  "MENU": () => "list",\n  "METER": () => "meter",\n  "NAV": () => "navigation",\n  "OL": () => "list",\n  "OPTGROUP": () => "group",\n  "OPTION": () => "option",\n  "OUTPUT": () => "status",\n  "P": () => "paragraph",\n  "PROGRESS": () => "progressbar",\n  "SEARCH": () => "search",\n  "SECTION": (e) => hasExplicitAccessibleName(e) ? "region" : null,\n  "SELECT": (e) => e.hasAttribute("multiple") || e.size > 1 ? "listbox" : "combobox",\n  "STRONG": () => "strong",\n  "SUB": () => "subscript",\n  "SUP": () => "superscript",\n  // For <svg> we default to Chrome behavior:\n  // - Chrome reports \'img\'.\n  // - Firefox reports \'diagram\' that is not in official ARIA spec yet.\n  // - Safari reports \'no role\', but still computes accessible name.\n  "SVG": () => "img",\n  "TABLE": () => "table",\n  "TBODY": () => "rowgroup",\n  "TD": (e) => {\n    const table = closestCrossShadow(e, "table");\n    const role = table ? getExplicitAriaRole(table) : "";\n    return role === "grid" || role === "treegrid" ? "gridcell" : "cell";\n  },\n  "TEXTAREA": () => "textbox",\n  "TFOOT": () => "rowgroup",\n  "TH": (e) => {\n    if (e.getAttribute("scope") === "col")\n      return "columnheader";\n    if (e.getAttribute("scope") === "row")\n      return "rowheader";\n    const table = closestCrossShadow(e, "table");\n    const role = table ? getExplicitAriaRole(table) : "";\n    return role === "grid" || role === "treegrid" ? "gridcell" : "cell";\n  },\n  "THEAD": () => "rowgroup",\n  "TIME": () => "time",\n  "TR": () => "row",\n  "UL": () => "list"\n};\nvar kPresentationInheritanceParents = {\n  "DD": ["DL", "DIV"],\n  "DIV": ["DL"],\n  "DT": ["DL", "DIV"],\n  "LI": ["OL", "UL"],\n  "TBODY": ["TABLE"],\n  "TD": ["TR"],\n  "TFOOT": ["TABLE"],\n  "TH": ["TR"],\n  "THEAD": ["TABLE"],\n  "TR": ["THEAD", "TBODY", "TFOOT", "TABLE"]\n};\nfunction getImplicitAriaRole(element) {\n  var _a;\n  const implicitRole = ((_a = kImplicitRoleByTagName[elementSafeTagName(element)]) == null ? void 0 : _a.call(kImplicitRoleByTagName, element)) || "";\n  if (!implicitRole)\n    return null;\n  let ancestor = element;\n  while (ancestor) {\n    const parent = parentElementOrShadowHost(ancestor);\n    const parents = kPresentationInheritanceParents[elementSafeTagName(ancestor)];\n    if (!parents || !parent || !parents.includes(elementSafeTagName(parent)))\n      break;\n    const parentExplicitRole = getExplicitAriaRole(parent);\n    if ((parentExplicitRole === "none" || parentExplicitRole === "presentation") && !hasPresentationConflictResolution(parent, parentExplicitRole))\n      return parentExplicitRole;\n    ancestor = parent;\n  }\n  return implicitRole;\n}\nvar validRoles = [\n  "alert",\n  "alertdialog",\n  "application",\n  "article",\n  "banner",\n  "blockquote",\n  "button",\n  "caption",\n  "cell",\n  "checkbox",\n  "code",\n  "columnheader",\n  "combobox",\n  "complementary",\n  "contentinfo",\n  "definition",\n  "deletion",\n  "dialog",\n  "directory",\n  "document",\n  "emphasis",\n  "feed",\n  "figure",\n  "form",\n  "generic",\n  "grid",\n  "gridcell",\n  "group",\n  "heading",\n  "img",\n  "insertion",\n  "link",\n  "list",\n  "listbox",\n  "listitem",\n  "log",\n  "main",\n  "mark",\n  "marquee",\n  "math",\n  "meter",\n  "menu",\n  "menubar",\n  "menuitem",\n  "menuitemcheckbox",\n  "menuitemradio",\n  "navigation",\n  "none",\n  "note",\n  "option",\n  "paragraph",\n  "presentation",\n  "progressbar",\n  "radio",\n  "radiogroup",\n  "region",\n  "row",\n  "rowgroup",\n  "rowheader",\n  "scrollbar",\n  "search",\n  "searchbox",\n  "separator",\n  "slider",\n  "spinbutton",\n  "status",\n  "strong",\n  "subscript",\n  "superscript",\n  "switch",\n  "tab",\n  "table",\n  "tablist",\n  "tabpanel",\n  "term",\n  "textbox",\n  "time",\n  "timer",\n  "toolbar",\n  "tooltip",\n  "tree",\n  "treegrid",\n  "treeitem"\n];\nfunction getExplicitAriaRole(element) {\n  const roles = (element.getAttribute("role") || "").split(" ").map((role) => role.trim());\n  return roles.find((role) => validRoles.includes(role)) || null;\n}\nfunction hasPresentationConflictResolution(element, role) {\n  return hasGlobalAriaAttribute(element, role) || isFocusable(element);\n}\nfunction getAriaRole(element) {\n  const explicitRole = getExplicitAriaRole(element);\n  if (!explicitRole)\n    return getImplicitAriaRole(element);\n  if (explicitRole === "none" || explicitRole === "presentation") {\n    const implicitRole = getImplicitAriaRole(element);\n    if (hasPresentationConflictResolution(element, implicitRole))\n      return implicitRole;\n  }\n  return explicitRole;\n}\nfunction getAriaBoolean(attr) {\n  return attr === null ? void 0 : attr.toLowerCase() === "true";\n}\nfunction isElementIgnoredForAria(element) {\n  return ["STYLE", "SCRIPT", "NOSCRIPT", "TEMPLATE"].includes(elementSafeTagName(element));\n}\nfunction isElementHiddenForAria(element) {\n  if (isElementIgnoredForAria(element))\n    return true;\n  const style = getElementComputedStyle(element);\n  const isSlot = element.nodeName === "SLOT";\n  if ((style == null ? void 0 : style.display) === "contents" && !isSlot) {\n    for (let child = element.firstChild; child; child = child.nextSibling) {\n      if (child.nodeType === 1 && !isElementHiddenForAria(child))\n        return false;\n      if (child.nodeType === 3 && isVisibleTextNode(child))\n        return false;\n    }\n    return true;\n  }\n  const isOptionInsideSelect = element.nodeName === "OPTION" && !!element.closest("select");\n  if (!isOptionInsideSelect && !isSlot && !isElementStyleVisibilityVisible(element, style))\n    return true;\n  return belongsToDisplayNoneOrAriaHiddenOrNonSlottedOrInert(element);\n}\nfunction belongsToDisplayNoneOrAriaHiddenOrNonSlottedOrInert(element) {\n  let hidden = cacheIsHidden == null ? void 0 : cacheIsHidden.get(element);\n  if (hidden === void 0) {\n    hidden = false;\n    if (element.parentElement && element.parentElement.shadowRoot && !element.assignedSlot)\n      hidden = true;\n    if (!hidden) {\n      const style = getElementComputedStyle(element);\n      hidden = !style || style.display === "none" || getAriaBoolean(element.getAttribute("aria-hidden")) === true || element.getAttribute("inert") !== null;\n    }\n    if (!hidden) {\n      const parent = parentElementOrShadowHost(element);\n      if (parent)\n        hidden = belongsToDisplayNoneOrAriaHiddenOrNonSlottedOrInert(parent);\n    }\n    cacheIsHidden == null ? void 0 : cacheIsHidden.set(element, hidden);\n  }\n  return hidden;\n}\nfunction getIdRefs(element, ref) {\n  if (!ref)\n    return [];\n  const root = enclosingShadowRootOrDocument(element);\n  if (!root)\n    return [];\n  try {\n    const ids = ref.split(" ").filter((id) => !!id);\n    const result = [];\n    for (const id of ids) {\n      const firstElement = root.querySelector("#" + CSS.escape(id));\n      if (firstElement && !result.includes(firstElement))\n        result.push(firstElement);\n    }\n    return result;\n  } catch (e) {\n    return [];\n  }\n}\nfunction trimFlatString(s) {\n  return s.trim();\n}\nfunction asFlatString(s) {\n  return s.split("\\xA0").map((chunk) => chunk.replace(/\\r\\n/g, "\\n").replace(/[\\u200b\\u00ad]/g, "").replace(/\\s\\s*/g, " ")).join("\\xA0").trim();\n}\nfunction queryInAriaOwned(element, selector) {\n  const result = [...element.querySelectorAll(selector)];\n  for (const owned of getIdRefs(element, element.getAttribute("aria-owns"))) {\n    if (owned.matches(selector))\n      result.push(owned);\n    result.push(...owned.querySelectorAll(selector));\n  }\n  return result;\n}\nfunction getCSSContent(element, pseudo) {\n  const cache = pseudo === "::before" ? cachePseudoContentBefore : pseudo === "::after" ? cachePseudoContentAfter : cachePseudoContent;\n  if (cache == null ? void 0 : cache.has(element))\n    return cache == null ? void 0 : cache.get(element);\n  const style = getElementComputedStyle(element, pseudo);\n  let content;\n  if (style && style.display !== "none" && style.visibility !== "hidden") {\n    content = parseCSSContentPropertyAsString(element, style.content, !!pseudo);\n  }\n  if (pseudo && content !== void 0) {\n    const display = (style == null ? void 0 : style.display) || "inline";\n    if (display !== "inline")\n      content = " " + content + " ";\n  }\n  if (cache)\n    cache.set(element, content);\n  return content;\n}\nfunction parseCSSContentPropertyAsString(element, content, isPseudo) {\n  if (!content || content === "none" || content === "normal") {\n    return;\n  }\n  try {\n    let tokens = tokenize(content).filter((token) => !(token instanceof WhitespaceToken));\n    const delimIndex = tokens.findIndex((token) => token instanceof DelimToken && token.value === "/");\n    if (delimIndex !== -1) {\n      tokens = tokens.slice(delimIndex + 1);\n    } else if (!isPseudo) {\n      return;\n    }\n    const accumulated = [];\n    let index = 0;\n    while (index < tokens.length) {\n      if (tokens[index] instanceof StringToken) {\n        accumulated.push(tokens[index].value);\n        index++;\n      } else if (index + 2 < tokens.length && tokens[index] instanceof FunctionToken && tokens[index].value === "attr" && tokens[index + 1] instanceof IdentToken && tokens[index + 2] instanceof CloseParenToken) {\n        const attrName = tokens[index + 1].value;\n        accumulated.push(element.getAttribute(attrName) || "");\n        index += 3;\n      } else {\n        return;\n      }\n    }\n    return accumulated.join("");\n  } catch {\n  }\n}\nfunction getAriaLabelledByElements(element) {\n  const ref = element.getAttribute("aria-labelledby");\n  if (ref === null)\n    return null;\n  const refs = getIdRefs(element, ref);\n  return refs.length ? refs : null;\n}\nfunction allowsNameFromContent(role, targetDescendant) {\n  const alwaysAllowsNameFromContent = ["button", "cell", "checkbox", "columnheader", "gridcell", "heading", "link", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "radio", "row", "rowheader", "switch", "tab", "tooltip", "treeitem"].includes(role);\n  const descendantAllowsNameFromContent = targetDescendant && ["", "caption", "code", "contentinfo", "definition", "deletion", "emphasis", "insertion", "list", "listitem", "mark", "none", "paragraph", "presentation", "region", "row", "rowgroup", "section", "strong", "subscript", "superscript", "table", "term", "time"].includes(role);\n  return alwaysAllowsNameFromContent || descendantAllowsNameFromContent;\n}\nfunction getElementAccessibleName(element, includeHidden) {\n  const cache = includeHidden ? cacheAccessibleNameHidden : cacheAccessibleName;\n  let accessibleName = cache == null ? void 0 : cache.get(element);\n  if (accessibleName === void 0) {\n    accessibleName = "";\n    const elementProhibitsNaming = ["caption", "code", "definition", "deletion", "emphasis", "generic", "insertion", "mark", "paragraph", "presentation", "strong", "subscript", "suggestion", "superscript", "term", "time"].includes(getAriaRole(element) || "");\n    if (!elementProhibitsNaming) {\n      accessibleName = asFlatString(getTextAlternativeInternal(element, {\n        includeHidden,\n        visitedElements: /* @__PURE__ */ new Set(),\n        embeddedInTargetElement: "self"\n      }));\n    }\n    cache == null ? void 0 : cache.set(element, accessibleName);\n  }\n  return accessibleName;\n}\nfunction getElementAccessibleDescription(element, includeHidden) {\n  const cache = includeHidden ? cacheAccessibleDescriptionHidden : cacheAccessibleDescription;\n  let accessibleDescription = cache == null ? void 0 : cache.get(element);\n  if (accessibleDescription === void 0) {\n    accessibleDescription = "";\n    if (element.hasAttribute("aria-describedby")) {\n      const describedBy = getIdRefs(element, element.getAttribute("aria-describedby"));\n      accessibleDescription = asFlatString(describedBy.map((ref) => getTextAlternativeInternal(ref, {\n        includeHidden,\n        visitedElements: /* @__PURE__ */ new Set(),\n        embeddedInDescribedBy: { element: ref, hidden: isElementHiddenForAria(ref) }\n      })).join(" "));\n    } else if (element.hasAttribute("aria-description")) {\n      accessibleDescription = asFlatString(element.getAttribute("aria-description") || "");\n    } else {\n      accessibleDescription = asFlatString(element.getAttribute("title") || "");\n    }\n    cache == null ? void 0 : cache.set(element, accessibleDescription);\n  }\n  return accessibleDescription;\n}\nfunction getAriaInvalid(element) {\n  const ariaInvalid = element.getAttribute("aria-invalid");\n  if (!ariaInvalid || ariaInvalid.trim() === "" || ariaInvalid.toLocaleLowerCase() === "false")\n    return "false";\n  if (ariaInvalid === "true" || ariaInvalid === "grammar" || ariaInvalid === "spelling")\n    return ariaInvalid;\n  return "true";\n}\nfunction getValidityInvalid(element) {\n  if ("validity" in element) {\n    const validity = element.validity;\n    return (validity == null ? void 0 : validity.valid) === false;\n  }\n  return false;\n}\nfunction getElementAccessibleErrorMessage(element) {\n  const cache = cacheAccessibleErrorMessage;\n  let accessibleErrorMessage = cacheAccessibleErrorMessage == null ? void 0 : cacheAccessibleErrorMessage.get(element);\n  if (accessibleErrorMessage === void 0) {\n    accessibleErrorMessage = "";\n    const isAriaInvalid = getAriaInvalid(element) !== "false";\n    const isValidityInvalid = getValidityInvalid(element);\n    if (isAriaInvalid || isValidityInvalid) {\n      const errorMessageId = element.getAttribute("aria-errormessage");\n      const errorMessages = getIdRefs(element, errorMessageId);\n      const parts = errorMessages.map((errorMessage) => asFlatString(\n        getTextAlternativeInternal(errorMessage, {\n          visitedElements: /* @__PURE__ */ new Set(),\n          embeddedInDescribedBy: { element: errorMessage, hidden: isElementHiddenForAria(errorMessage) }\n        })\n      ));\n      accessibleErrorMessage = parts.join(" ").trim();\n    }\n    cache == null ? void 0 : cache.set(element, accessibleErrorMessage);\n  }\n  return accessibleErrorMessage;\n}\nfunction getTextAlternativeInternal(element, options) {\n  var _a, _b, _c, _d;\n  if (options.visitedElements.has(element))\n    return "";\n  const childOptions = {\n    ...options,\n    embeddedInTargetElement: options.embeddedInTargetElement === "self" ? "descendant" : options.embeddedInTargetElement\n  };\n  if (!options.includeHidden) {\n    const isEmbeddedInHiddenReferenceTraversal = !!((_a = options.embeddedInLabelledBy) == null ? void 0 : _a.hidden) || !!((_b = options.embeddedInDescribedBy) == null ? void 0 : _b.hidden) || !!((_c = options.embeddedInNativeTextAlternative) == null ? void 0 : _c.hidden) || !!((_d = options.embeddedInLabel) == null ? void 0 : _d.hidden);\n    if (isElementIgnoredForAria(element) || !isEmbeddedInHiddenReferenceTraversal && isElementHiddenForAria(element)) {\n      options.visitedElements.add(element);\n      return "";\n    }\n  }\n  const labelledBy = getAriaLabelledByElements(element);\n  if (!options.embeddedInLabelledBy) {\n    const accessibleName = (labelledBy || []).map((ref) => getTextAlternativeInternal(ref, {\n      ...options,\n      embeddedInLabelledBy: { element: ref, hidden: isElementHiddenForAria(ref) },\n      embeddedInDescribedBy: void 0,\n      embeddedInTargetElement: void 0,\n      embeddedInLabel: void 0,\n      embeddedInNativeTextAlternative: void 0\n    })).join(" ");\n    if (accessibleName)\n      return accessibleName;\n  }\n  const role = getAriaRole(element) || "";\n  const tagName = elementSafeTagName(element);\n  if (!!options.embeddedInLabel || !!options.embeddedInLabelledBy || options.embeddedInTargetElement === "descendant") {\n    const isOwnLabel = [...element.labels || []].includes(element);\n    const isOwnLabelledBy = (labelledBy || []).includes(element);\n    if (!isOwnLabel && !isOwnLabelledBy) {\n      if (role === "textbox") {\n        options.visitedElements.add(element);\n        if (tagName === "INPUT" || tagName === "TEXTAREA")\n          return element.value;\n        return element.textContent || "";\n      }\n      if (["combobox", "listbox"].includes(role)) {\n        options.visitedElements.add(element);\n        let selectedOptions;\n        if (tagName === "SELECT") {\n          selectedOptions = [...element.selectedOptions];\n          if (!selectedOptions.length && element.options.length)\n            selectedOptions.push(element.options[0]);\n        } else {\n          const listbox = role === "combobox" ? queryInAriaOwned(element, "*").find((e) => getAriaRole(e) === "listbox") : element;\n          selectedOptions = listbox ? queryInAriaOwned(listbox, \'[aria-selected="true"]\').filter((e) => getAriaRole(e) === "option") : [];\n        }\n        if (!selectedOptions.length && tagName === "INPUT") {\n          return element.value;\n        }\n        return selectedOptions.map((option) => getTextAlternativeInternal(option, childOptions)).join(" ");\n      }\n      if (["progressbar", "scrollbar", "slider", "spinbutton", "meter"].includes(role)) {\n        options.visitedElements.add(element);\n        if (element.hasAttribute("aria-valuetext"))\n          return element.getAttribute("aria-valuetext") || "";\n        if (element.hasAttribute("aria-valuenow"))\n          return element.getAttribute("aria-valuenow") || "";\n        return element.getAttribute("value") || "";\n      }\n      if (["menu"].includes(role)) {\n        options.visitedElements.add(element);\n        return "";\n      }\n    }\n  }\n  const ariaLabel = element.getAttribute("aria-label") || "";\n  if (trimFlatString(ariaLabel)) {\n    options.visitedElements.add(element);\n    return ariaLabel;\n  }\n  if (!["presentation", "none"].includes(role)) {\n    if (tagName === "INPUT" && ["button", "submit", "reset"].includes(element.type)) {\n      options.visitedElements.add(element);\n      const value = element.value || "";\n      if (trimFlatString(value))\n        return value;\n      if (element.type === "submit")\n        return "Submit";\n      if (element.type === "reset")\n        return "Reset";\n      const title = element.getAttribute("title") || "";\n      return title;\n    }\n    if (tagName === "INPUT" && element.type === "file") {\n      options.visitedElements.add(element);\n      const labels = element.labels || [];\n      if (labels.length && !options.embeddedInLabelledBy)\n        return getAccessibleNameFromAssociatedLabels(labels, options);\n      return "Choose File";\n    }\n    if (tagName === "INPUT" && element.type === "image") {\n      options.visitedElements.add(element);\n      const labels = element.labels || [];\n      if (labels.length && !options.embeddedInLabelledBy)\n        return getAccessibleNameFromAssociatedLabels(labels, options);\n      const alt = element.getAttribute("alt") || "";\n      if (trimFlatString(alt))\n        return alt;\n      const title = element.getAttribute("title") || "";\n      if (trimFlatString(title))\n        return title;\n      return "Submit";\n    }\n    if (!labelledBy && tagName === "BUTTON") {\n      options.visitedElements.add(element);\n      const labels = element.labels || [];\n      if (labels.length)\n        return getAccessibleNameFromAssociatedLabels(labels, options);\n    }\n    if (!labelledBy && tagName === "OUTPUT") {\n      options.visitedElements.add(element);\n      const labels = element.labels || [];\n      if (labels.length)\n        return getAccessibleNameFromAssociatedLabels(labels, options);\n      return element.getAttribute("title") || "";\n    }\n    if (!labelledBy && (tagName === "TEXTAREA" || tagName === "SELECT" || tagName === "INPUT")) {\n      options.visitedElements.add(element);\n      const labels = element.labels || [];\n      if (labels.length)\n        return getAccessibleNameFromAssociatedLabels(labels, options);\n      const usePlaceholder = tagName === "INPUT" && ["text", "password", "search", "tel", "email", "url"].includes(element.type) || tagName === "TEXTAREA";\n      const placeholder = element.getAttribute("placeholder") || "";\n      const title = element.getAttribute("title") || "";\n      if (!usePlaceholder || title)\n        return title;\n      return placeholder;\n    }\n    if (!labelledBy && tagName === "FIELDSET") {\n      options.visitedElements.add(element);\n      for (let child = element.firstElementChild; child; child = child.nextElementSibling) {\n        if (elementSafeTagName(child) === "LEGEND") {\n          return getTextAlternativeInternal(child, {\n            ...childOptions,\n            embeddedInNativeTextAlternative: { element: child, hidden: isElementHiddenForAria(child) }\n          });\n        }\n      }\n      const title = element.getAttribute("title") || "";\n      return title;\n    }\n    if (!labelledBy && tagName === "FIGURE") {\n      options.visitedElements.add(element);\n      for (let child = element.firstElementChild; child; child = child.nextElementSibling) {\n        if (elementSafeTagName(child) === "FIGCAPTION") {\n          return getTextAlternativeInternal(child, {\n            ...childOptions,\n            embeddedInNativeTextAlternative: { element: child, hidden: isElementHiddenForAria(child) }\n          });\n        }\n      }\n      const title = element.getAttribute("title") || "";\n      return title;\n    }\n    if (tagName === "IMG") {\n      options.visitedElements.add(element);\n      const alt = element.getAttribute("alt") || "";\n      if (trimFlatString(alt))\n        return alt;\n      const title = element.getAttribute("title") || "";\n      return title;\n    }\n    if (tagName === "TABLE") {\n      options.visitedElements.add(element);\n      for (let child = element.firstElementChild; child; child = child.nextElementSibling) {\n        if (elementSafeTagName(child) === "CAPTION") {\n          return getTextAlternativeInternal(child, {\n            ...childOptions,\n            embeddedInNativeTextAlternative: { element: child, hidden: isElementHiddenForAria(child) }\n          });\n        }\n      }\n      const summary = element.getAttribute("summary") || "";\n      if (summary)\n        return summary;\n    }\n    if (tagName === "AREA") {\n      options.visitedElements.add(element);\n      const alt = element.getAttribute("alt") || "";\n      if (trimFlatString(alt))\n        return alt;\n      const title = element.getAttribute("title") || "";\n      return title;\n    }\n    if (tagName === "SVG" || element.ownerSVGElement) {\n      options.visitedElements.add(element);\n      for (let child = element.firstElementChild; child; child = child.nextElementSibling) {\n        if (elementSafeTagName(child) === "TITLE" && child.ownerSVGElement) {\n          return getTextAlternativeInternal(child, {\n            ...childOptions,\n            embeddedInLabelledBy: { element: child, hidden: isElementHiddenForAria(child) }\n          });\n        }\n      }\n    }\n    if (element.ownerSVGElement && tagName === "A") {\n      const title = element.getAttribute("xlink:title") || "";\n      if (trimFlatString(title)) {\n        options.visitedElements.add(element);\n        return title;\n      }\n    }\n  }\n  const shouldNameFromContentForSummary = tagName === "SUMMARY" && !["presentation", "none"].includes(role);\n  if (allowsNameFromContent(role, options.embeddedInTargetElement === "descendant") || shouldNameFromContentForSummary || !!options.embeddedInLabelledBy || !!options.embeddedInDescribedBy || !!options.embeddedInLabel || !!options.embeddedInNativeTextAlternative) {\n    options.visitedElements.add(element);\n    const accessibleName = innerAccumulatedElementText(element, childOptions);\n    const maybeTrimmedAccessibleName = options.embeddedInTargetElement === "self" ? trimFlatString(accessibleName) : accessibleName;\n    if (maybeTrimmedAccessibleName)\n      return accessibleName;\n  }\n  if (!["presentation", "none"].includes(role) || tagName === "IFRAME") {\n    options.visitedElements.add(element);\n    const title = element.getAttribute("title") || "";\n    if (trimFlatString(title))\n      return title;\n  }\n  options.visitedElements.add(element);\n  return "";\n}\nfunction innerAccumulatedElementText(element, options) {\n  const tokens = [];\n  const visit = (node, skipSlotted) => {\n    var _a;\n    if (skipSlotted && node.assignedSlot)\n      return;\n    if (node.nodeType === 1) {\n      const display = ((_a = getElementComputedStyle(node)) == null ? void 0 : _a.display) || "inline";\n      let token = getTextAlternativeInternal(node, options);\n      if (display !== "inline" || node.nodeName === "BR")\n        token = " " + token + " ";\n      tokens.push(token);\n    } else if (node.nodeType === 3) {\n      tokens.push(node.textContent || "");\n    }\n  };\n  tokens.push(getCSSContent(element, "::before") || "");\n  const content = getCSSContent(element);\n  if (content !== void 0) {\n    tokens.push(content);\n  } else {\n    const assignedNodes = element.nodeName === "SLOT" ? element.assignedNodes() : [];\n    if (assignedNodes.length) {\n      for (const child of assignedNodes)\n        visit(child, false);\n    } else {\n      for (let child = element.firstChild; child; child = child.nextSibling)\n        visit(child, true);\n      if (element.shadowRoot) {\n        for (let child = element.shadowRoot.firstChild; child; child = child.nextSibling)\n          visit(child, true);\n      }\n      for (const owned of getIdRefs(element, element.getAttribute("aria-owns")))\n        visit(owned, true);\n    }\n  }\n  tokens.push(getCSSContent(element, "::after") || "");\n  return tokens.join("");\n}\nvar kAriaSelectedRoles = ["gridcell", "option", "row", "tab", "rowheader", "columnheader", "treeitem"];\nfunction getAriaSelected(element) {\n  if (elementSafeTagName(element) === "OPTION")\n    return element.selected;\n  if (kAriaSelectedRoles.includes(getAriaRole(element) || ""))\n    return getAriaBoolean(element.getAttribute("aria-selected")) === true;\n  return false;\n}\nvar kAriaCheckedRoles = ["checkbox", "menuitemcheckbox", "option", "radio", "switch", "menuitemradio", "treeitem"];\nfunction getAriaChecked(element) {\n  const result = getChecked(element, true);\n  return result === "error" ? false : result;\n}\nfunction getCheckedAllowMixed(element) {\n  return getChecked(element, true);\n}\nfunction getCheckedWithoutMixed(element) {\n  const result = getChecked(element, false);\n  return result;\n}\nfunction getChecked(element, allowMixed) {\n  const tagName = elementSafeTagName(element);\n  if (allowMixed && tagName === "INPUT" && element.indeterminate)\n    return "mixed";\n  if (tagName === "INPUT" && ["checkbox", "radio"].includes(element.type))\n    return element.checked;\n  if (kAriaCheckedRoles.includes(getAriaRole(element) || "")) {\n    const checked = element.getAttribute("aria-checked");\n    if (checked === "true")\n      return true;\n    if (allowMixed && checked === "mixed")\n      return "mixed";\n    return false;\n  }\n  return "error";\n}\nvar kAriaReadonlyRoles = ["checkbox", "combobox", "grid", "gridcell", "listbox", "radiogroup", "slider", "spinbutton", "textbox", "columnheader", "rowheader", "searchbox", "switch", "treegrid"];\nfunction getReadonly(element) {\n  const tagName = elementSafeTagName(element);\n  if (["INPUT", "TEXTAREA", "SELECT"].includes(tagName))\n    return element.hasAttribute("readonly");\n  if (kAriaReadonlyRoles.includes(getAriaRole(element) || ""))\n    return element.getAttribute("aria-readonly") === "true";\n  if (element.isContentEditable)\n    return false;\n  return "error";\n}\nvar kAriaPressedRoles = ["button"];\nfunction getAriaPressed(element) {\n  if (kAriaPressedRoles.includes(getAriaRole(element) || "")) {\n    const pressed = element.getAttribute("aria-pressed");\n    if (pressed === "true")\n      return true;\n    if (pressed === "mixed")\n      return "mixed";\n  }\n  return false;\n}\nvar kAriaExpandedRoles = ["application", "button", "checkbox", "combobox", "gridcell", "link", "listbox", "menuitem", "row", "rowheader", "tab", "treeitem", "columnheader", "menuitemcheckbox", "menuitemradio", "rowheader", "switch"];\nfunction getAriaExpanded(element) {\n  if (elementSafeTagName(element) === "DETAILS")\n    return element.open;\n  if (kAriaExpandedRoles.includes(getAriaRole(element) || "")) {\n    const expanded = element.getAttribute("aria-expanded");\n    if (expanded === null)\n      return void 0;\n    if (expanded === "true")\n      return true;\n    return false;\n  }\n  return void 0;\n}\nvar kAriaLevelRoles = ["heading", "listitem", "row", "treeitem"];\nfunction getAriaLevel(element) {\n  const native = { "H1": 1, "H2": 2, "H3": 3, "H4": 4, "H5": 5, "H6": 6 }[elementSafeTagName(element)];\n  if (native)\n    return native;\n  if (kAriaLevelRoles.includes(getAriaRole(element) || "")) {\n    const attr = element.getAttribute("aria-level");\n    const value = attr === null ? Number.NaN : Number(attr);\n    if (Number.isInteger(value) && value >= 1)\n      return value;\n  }\n  return 0;\n}\nvar kAriaDisabledRoles = ["application", "button", "composite", "gridcell", "group", "input", "link", "menuitem", "scrollbar", "separator", "tab", "checkbox", "columnheader", "combobox", "grid", "listbox", "menu", "menubar", "menuitemcheckbox", "menuitemradio", "option", "radio", "radiogroup", "row", "rowheader", "searchbox", "select", "slider", "spinbutton", "switch", "tablist", "textbox", "toolbar", "tree", "treegrid", "treeitem"];\nfunction getAriaDisabled(element) {\n  return isNativelyDisabled(element) || hasExplicitAriaDisabled(element);\n}\nfunction isNativelyDisabled(element) {\n  const isNativeFormControl = ["BUTTON", "INPUT", "SELECT", "TEXTAREA", "OPTION", "OPTGROUP"].includes(elementSafeTagName(element));\n  return isNativeFormControl && (element.hasAttribute("disabled") || belongsToDisabledOptGroup(element) || belongsToDisabledFieldSet(element));\n}\nfunction belongsToDisabledOptGroup(element) {\n  return elementSafeTagName(element) === "OPTION" && !!element.closest("OPTGROUP[DISABLED]");\n}\nfunction belongsToDisabledFieldSet(element) {\n  const fieldSetElement = element == null ? void 0 : element.closest("FIELDSET[DISABLED]");\n  if (!fieldSetElement)\n    return false;\n  const legendElement = fieldSetElement.querySelector(":scope > LEGEND");\n  return !legendElement || !legendElement.contains(element);\n}\nfunction hasExplicitAriaDisabled(element, isAncestor = false) {\n  if (!element)\n    return false;\n  if (isAncestor || kAriaDisabledRoles.includes(getAriaRole(element) || "")) {\n    const attribute = (element.getAttribute("aria-disabled") || "").toLowerCase();\n    if (attribute === "true")\n      return true;\n    if (attribute === "false")\n      return false;\n    return hasExplicitAriaDisabled(parentElementOrShadowHost(element), true);\n  }\n  return false;\n}\nfunction getAccessibleNameFromAssociatedLabels(labels, options) {\n  return [...labels].map((label) => getTextAlternativeInternal(label, {\n    ...options,\n    embeddedInLabel: { element: label, hidden: isElementHiddenForAria(label) },\n    embeddedInNativeTextAlternative: void 0,\n    embeddedInLabelledBy: void 0,\n    embeddedInDescribedBy: void 0,\n    embeddedInTargetElement: void 0\n  })).filter((accessibleName) => !!accessibleName).join(" ");\n}\nfunction receivesPointerEvents(element) {\n  const cache = cachePointerEvents;\n  let e = element;\n  let result;\n  const parents = [];\n  for (; e; e = parentElementOrShadowHost(e)) {\n    const cached = cache.get(e);\n    if (cached !== void 0) {\n      result = cached;\n      break;\n    }\n    parents.push(e);\n    const style = getElementComputedStyle(e);\n    if (!style) {\n      result = true;\n      break;\n    }\n    const value = style.pointerEvents;\n    if (value) {\n      result = value !== "none";\n      break;\n    }\n  }\n  if (result === void 0)\n    result = true;\n  for (const parent of parents)\n    cache.set(parent, result);\n  return result;\n}\nvar cacheAccessibleName;\nvar cacheAccessibleNameHidden;\nvar cacheAccessibleDescription;\nvar cacheAccessibleDescriptionHidden;\nvar cacheAccessibleErrorMessage;\nvar cacheIsHidden;\nvar cachePseudoContent;\nvar cachePseudoContentBefore;\nvar cachePseudoContentAfter;\nvar cachePointerEvents;\nvar cachesCounter = 0;\nfunction beginAriaCaches() {\n  ++cachesCounter;\n  cacheAccessibleName != null ? cacheAccessibleName : cacheAccessibleName = /* @__PURE__ */ new Map();\n  cacheAccessibleNameHidden != null ? cacheAccessibleNameHidden : cacheAccessibleNameHidden = /* @__PURE__ */ new Map();\n  cacheAccessibleDescription != null ? cacheAccessibleDescription : cacheAccessibleDescription = /* @__PURE__ */ new Map();\n  cacheAccessibleDescriptionHidden != null ? cacheAccessibleDescriptionHidden : cacheAccessibleDescriptionHidden = /* @__PURE__ */ new Map();\n  cacheAccessibleErrorMessage != null ? cacheAccessibleErrorMessage : cacheAccessibleErrorMessage = /* @__PURE__ */ new Map();\n  cacheIsHidden != null ? cacheIsHidden : cacheIsHidden = /* @__PURE__ */ new Map();\n  cachePseudoContent != null ? cachePseudoContent : cachePseudoContent = /* @__PURE__ */ new Map();\n  cachePseudoContentBefore != null ? cachePseudoContentBefore : cachePseudoContentBefore = /* @__PURE__ */ new Map();\n  cachePseudoContentAfter != null ? cachePseudoContentAfter : cachePseudoContentAfter = /* @__PURE__ */ new Map();\n  cachePointerEvents != null ? cachePointerEvents : cachePointerEvents = /* @__PURE__ */ new Map();\n}\nfunction endAriaCaches() {\n  if (!--cachesCounter) {\n    cacheAccessibleName = void 0;\n    cacheAccessibleNameHidden = void 0;\n    cacheAccessibleDescription = void 0;\n    cacheAccessibleDescriptionHidden = void 0;\n    cacheAccessibleErrorMessage = void 0;\n    cacheIsHidden = void 0;\n    cachePseudoContent = void 0;\n    cachePseudoContentBefore = void 0;\n    cachePseudoContentAfter = void 0;\n    cachePointerEvents = void 0;\n  }\n}\nvar inputTypeToRole = {\n  "button": "button",\n  "checkbox": "checkbox",\n  "image": "button",\n  "number": "spinbutton",\n  "radio": "radio",\n  "range": "slider",\n  "reset": "button",\n  "submit": "button"\n};\n\n// packages/injected/src/yaml.ts\nfunction yamlEscapeKeyIfNeeded(str) {\n  if (!yamlStringNeedsQuotes(str))\n    return str;\n  return `\'` + str.replace(/\'/g, `\'\'`) + `\'`;\n}\nfunction yamlEscapeValueIfNeeded(str) {\n  if (!yamlStringNeedsQuotes(str))\n    return str;\n  return \'"\' + str.replace(/[\\\\"\\x00-\\x1f\\x7f-\\x9f]/g, (c) => {\n    switch (c) {\n      case "\\\\":\n        return "\\\\\\\\";\n      case \'"\':\n        return \'\\\\"\';\n      case "\\b":\n        return "\\\\b";\n      case "\\f":\n        return "\\\\f";\n      case "\\n":\n        return "\\\\n";\n      case "\\r":\n        return "\\\\r";\n      case "	":\n        return "\\\\t";\n      default:\n        const code = c.charCodeAt(0);\n        return "\\\\x" + code.toString(16).padStart(2, "0");\n    }\n  }) + \'"\';\n}\nfunction yamlStringNeedsQuotes(str) {\n  if (str.length === 0)\n    return true;\n  if (/^\\s|\\s$/.test(str))\n    return true;\n  if (/[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f-\\x9f]/.test(str))\n    return true;\n  if (/^-/.test(str))\n    return true;\n  if (/[\\n:](\\s|$)/.test(str))\n    return true;\n  if (/\\s#/.test(str))\n    return true;\n  if (/[\\n\\r]/.test(str))\n    return true;\n  if (/^[&*\\],?!>|@"\'#%]/.test(str))\n    return true;\n  if (/[{}`]/.test(str))\n    return true;\n  if (/^\\[/.test(str))\n    return true;\n  if (!isNaN(Number(str)) || ["y", "n", "yes", "no", "true", "false", "on", "off", "null"].includes(str.toLowerCase()))\n    return true;\n  return false;\n}\n\n// packages/injected/src/ariaSnapshot.ts\nvar lastRef = 0;\nfunction toInternalOptions(options) {\n  if (options.mode === "ai") {\n    return {\n      visibility: "ariaOrVisible",\n      refs: "interactable",\n      refPrefix: options.refPrefix,\n      includeGenericRole: true,\n      renderActive: true,\n      renderCursorPointer: true\n    };\n  }\n  if (options.mode === "autoexpect") {\n    return { visibility: "ariaAndVisible", refs: "none" };\n  }\n  if (options.mode === "codegen") {\n    return { visibility: "aria", refs: "none", renderStringsAsRegex: true };\n  }\n  return { visibility: "aria", refs: "none" };\n}\nfunction generateAriaTree(rootElement, publicOptions) {\n  const options = toInternalOptions(publicOptions);\n  const visited = /* @__PURE__ */ new Set();\n  const snapshot = {\n    root: { role: "fragment", name: "", children: [], element: rootElement, props: {}, box: box(rootElement), receivesPointerEvents: true },\n    elements: /* @__PURE__ */ new Map(),\n    refs: /* @__PURE__ */ new Map()\n  };\n  const visit = (ariaNode, node, parentElementVisible) => {\n    if (visited.has(node))\n      return;\n    visited.add(node);\n    if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {\n      if (!parentElementVisible)\n        return;\n      const text = node.nodeValue;\n      if (ariaNode.role !== "textbox" && text)\n        ariaNode.children.push(node.nodeValue || "");\n      return;\n    }\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      return;\n    const element = node;\n    const isElementVisibleForAria = !isElementHiddenForAria(element);\n    let visible = isElementVisibleForAria;\n    if (options.visibility === "ariaOrVisible")\n      visible = isElementVisibleForAria || isElementVisible(element);\n    if (options.visibility === "ariaAndVisible")\n      visible = isElementVisibleForAria && isElementVisible(element);\n    if (options.visibility === "aria" && !visible)\n      return;\n    const ariaChildren = [];\n    if (element.hasAttribute("aria-owns")) {\n      const ids = element.getAttribute("aria-owns").split(/\\s+/);\n      for (const id of ids) {\n        const ownedElement = rootElement.ownerDocument.getElementById(id);\n        if (ownedElement)\n          ariaChildren.push(ownedElement);\n      }\n    }\n    const childAriaNode = visible ? toAriaNode(element, options) : null;\n    if (childAriaNode) {\n      if (childAriaNode.ref) {\n        snapshot.elements.set(childAriaNode.ref, element);\n        snapshot.refs.set(element, childAriaNode.ref);\n      }\n      ariaNode.children.push(childAriaNode);\n    }\n    processElement(childAriaNode || ariaNode, element, ariaChildren, visible);\n  };\n  function processElement(ariaNode, element, ariaChildren, parentElementVisible) {\n    var _a;\n    const display = ((_a = getElementComputedStyle(element)) == null ? void 0 : _a.display) || "inline";\n    const treatAsBlock = display !== "inline" || element.nodeName === "BR" ? " " : "";\n    if (treatAsBlock)\n      ariaNode.children.push(treatAsBlock);\n    ariaNode.children.push(getCSSContent(element, "::before") || "");\n    const assignedNodes = element.nodeName === "SLOT" ? element.assignedNodes() : [];\n    if (assignedNodes.length) {\n      for (const child of assignedNodes)\n        visit(ariaNode, child, parentElementVisible);\n    } else {\n      for (let child = element.firstChild; child; child = child.nextSibling) {\n        if (!child.assignedSlot)\n          visit(ariaNode, child, parentElementVisible);\n      }\n      if (element.shadowRoot) {\n        for (let child = element.shadowRoot.firstChild; child; child = child.nextSibling)\n          visit(ariaNode, child, parentElementVisible);\n      }\n    }\n    for (const child of ariaChildren)\n      visit(ariaNode, child, parentElementVisible);\n    ariaNode.children.push(getCSSContent(element, "::after") || "");\n    if (treatAsBlock)\n      ariaNode.children.push(treatAsBlock);\n    if (ariaNode.children.length === 1 && ariaNode.name === ariaNode.children[0])\n      ariaNode.children = [];\n    if (ariaNode.role === "link" && element.hasAttribute("href")) {\n      const href = element.getAttribute("href");\n      ariaNode.props["url"] = href;\n    }\n  }\n  beginAriaCaches();\n  try {\n    visit(snapshot.root, rootElement, true);\n  } finally {\n    endAriaCaches();\n  }\n  normalizeStringChildren(snapshot.root);\n  normalizeGenericRoles(snapshot.root);\n  return snapshot;\n}\nfunction computeAriaRef(ariaNode, options) {\n  var _a;\n  if (options.refs === "none")\n    return;\n  if (options.refs === "interactable" && (!ariaNode.box.visible || !ariaNode.receivesPointerEvents))\n    return;\n  let ariaRef;\n  ariaRef = ariaNode.element._ariaRef;\n  if (!ariaRef || ariaRef.role !== ariaNode.role || ariaRef.name !== ariaNode.name) {\n    ariaRef = { role: ariaNode.role, name: ariaNode.name, ref: ((_a = options.refPrefix) != null ? _a : "") + "e" + ++lastRef };\n    ariaNode.element._ariaRef = ariaRef;\n  }\n  ariaNode.ref = ariaRef.ref;\n}\nfunction toAriaNode(element, options) {\n  var _a;\n  const active = element.ownerDocument.activeElement === element;\n  if (element.nodeName === "IFRAME") {\n    const ariaNode = {\n      role: "iframe",\n      name: "",\n      children: [],\n      props: {},\n      element,\n      box: box(element),\n      receivesPointerEvents: true,\n      active\n    };\n    computeAriaRef(ariaNode, options);\n    return ariaNode;\n  }\n  const defaultRole = options.includeGenericRole ? "generic" : null;\n  const role = (_a = getAriaRole(element)) != null ? _a : defaultRole;\n  if (!role || role === "presentation" || role === "none")\n    return null;\n  const name = normalizeWhiteSpace(getElementAccessibleName(element, false) || "");\n  const receivesPointerEvents2 = receivesPointerEvents(element);\n  const result = {\n    role,\n    name,\n    children: [],\n    props: {},\n    element,\n    box: box(element),\n    receivesPointerEvents: receivesPointerEvents2,\n    active\n  };\n  computeAriaRef(result, options);\n  if (kAriaCheckedRoles.includes(role))\n    result.checked = getAriaChecked(element);\n  if (kAriaDisabledRoles.includes(role))\n    result.disabled = getAriaDisabled(element);\n  if (kAriaExpandedRoles.includes(role))\n    result.expanded = getAriaExpanded(element);\n  if (kAriaLevelRoles.includes(role))\n    result.level = getAriaLevel(element);\n  if (kAriaPressedRoles.includes(role))\n    result.pressed = getAriaPressed(element);\n  if (kAriaSelectedRoles.includes(role))\n    result.selected = getAriaSelected(element);\n  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {\n    if (element.type !== "checkbox" && element.type !== "radio" && element.type !== "file")\n      result.children = [element.value];\n  }\n  return result;\n}\nfunction normalizeGenericRoles(node) {\n  const normalizeChildren = (node2) => {\n    const result = [];\n    for (const child of node2.children || []) {\n      if (typeof child === "string") {\n        result.push(child);\n        continue;\n      }\n      const normalized = normalizeChildren(child);\n      result.push(...normalized);\n    }\n    const removeSelf = node2.role === "generic" && result.length <= 1 && result.every((c) => typeof c !== "string" && !!c.ref);\n    if (removeSelf)\n      return result;\n    node2.children = result;\n    return [node2];\n  };\n  normalizeChildren(node);\n}\nfunction normalizeStringChildren(rootA11yNode) {\n  const flushChildren = (buffer, normalizedChildren) => {\n    if (!buffer.length)\n      return;\n    const text = normalizeWhiteSpace(buffer.join(""));\n    if (text)\n      normalizedChildren.push(text);\n    buffer.length = 0;\n  };\n  const visit = (ariaNode) => {\n    const normalizedChildren = [];\n    const buffer = [];\n    for (const child of ariaNode.children || []) {\n      if (typeof child === "string") {\n        buffer.push(child);\n      } else {\n        flushChildren(buffer, normalizedChildren);\n        visit(child);\n        normalizedChildren.push(child);\n      }\n    }\n    flushChildren(buffer, normalizedChildren);\n    ariaNode.children = normalizedChildren.length ? normalizedChildren : [];\n    if (ariaNode.children.length === 1 && ariaNode.children[0] === ariaNode.name)\n      ariaNode.children = [];\n  };\n  visit(rootA11yNode);\n}\nfunction matchesText(text, template) {\n  if (!template)\n    return true;\n  if (!text)\n    return false;\n  if (typeof template === "string")\n    return text === template;\n  return !!text.match(new RegExp(template.pattern));\n}\nfunction matchesTextNode(text, template) {\n  return matchesText(text, template.text);\n}\nfunction matchesName(text, template) {\n  return matchesText(text, template.name);\n}\nfunction matchesExpectAriaTemplate(rootElement, template) {\n  const snapshot = generateAriaTree(rootElement, { mode: "expect" });\n  const matches = matchesNodeDeep(snapshot.root, template, false, false);\n  return {\n    matches,\n    received: {\n      raw: renderAriaTree(snapshot, { mode: "expect" }),\n      regex: renderAriaTree(snapshot, { mode: "codegen" })\n    }\n  };\n}\nfunction getAllElementsMatchingExpectAriaTemplate(rootElement, template) {\n  const root = generateAriaTree(rootElement, { mode: "expect" }).root;\n  const matches = matchesNodeDeep(root, template, true, false);\n  return matches.map((n) => n.element);\n}\nfunction matchesNode(node, template, isDeepEqual) {\n  var _a;\n  if (typeof node === "string" && template.kind === "text")\n    return matchesTextNode(node, template);\n  if (node === null || typeof node !== "object" || template.kind !== "role")\n    return false;\n  if (template.role !== "fragment" && template.role !== node.role)\n    return false;\n  if (template.checked !== void 0 && template.checked !== node.checked)\n    return false;\n  if (template.disabled !== void 0 && template.disabled !== node.disabled)\n    return false;\n  if (template.expanded !== void 0 && template.expanded !== node.expanded)\n    return false;\n  if (template.level !== void 0 && template.level !== node.level)\n    return false;\n  if (template.pressed !== void 0 && template.pressed !== node.pressed)\n    return false;\n  if (template.selected !== void 0 && template.selected !== node.selected)\n    return false;\n  if (!matchesName(node.name, template))\n    return false;\n  if (!matchesText(node.props.url, (_a = template.props) == null ? void 0 : _a.url))\n    return false;\n  if (template.containerMode === "contain")\n    return containsList(node.children || [], template.children || []);\n  if (template.containerMode === "equal")\n    return listEqual(node.children || [], template.children || [], false);\n  if (template.containerMode === "deep-equal" || isDeepEqual)\n    return listEqual(node.children || [], template.children || [], true);\n  return containsList(node.children || [], template.children || []);\n}\nfunction listEqual(children, template, isDeepEqual) {\n  if (template.length !== children.length)\n    return false;\n  for (let i = 0; i < template.length; ++i) {\n    if (!matchesNode(children[i], template[i], isDeepEqual))\n      return false;\n  }\n  return true;\n}\nfunction containsList(children, template) {\n  if (template.length > children.length)\n    return false;\n  const cc = children.slice();\n  const tt = template.slice();\n  for (const t of tt) {\n    let c = cc.shift();\n    while (c) {\n      if (matchesNode(c, t, false))\n        break;\n      c = cc.shift();\n    }\n    if (!c)\n      return false;\n  }\n  return true;\n}\nfunction matchesNodeDeep(root, template, collectAll, isDeepEqual) {\n  const results = [];\n  const visit = (node, parent) => {\n    if (matchesNode(node, template, isDeepEqual)) {\n      const result = typeof node === "string" ? parent : node;\n      if (result)\n        results.push(result);\n      return !collectAll;\n    }\n    if (typeof node === "string")\n      return false;\n    for (const child of node.children || []) {\n      if (visit(child, node))\n        return true;\n    }\n    return false;\n  };\n  visit(root, null);\n  return results;\n}\nfunction renderAriaTree(ariaSnapshot, publicOptions) {\n  const options = toInternalOptions(publicOptions);\n  const lines = [];\n  const includeText = options.renderStringsAsRegex ? textContributesInfo : () => true;\n  const renderString = options.renderStringsAsRegex ? convertToBestGuessRegex : (str) => str;\n  const visit = (ariaNode2, parentAriaNode, indent) => {\n    if (typeof ariaNode2 === "string") {\n      if (parentAriaNode && !includeText(parentAriaNode, ariaNode2))\n        return;\n      const text = yamlEscapeValueIfNeeded(renderString(ariaNode2));\n      if (text)\n        lines.push(indent + "- text: " + text);\n      return;\n    }\n    let key = ariaNode2.role;\n    if (ariaNode2.name && ariaNode2.name.length <= 900) {\n      const name = renderString(ariaNode2.name);\n      if (name) {\n        const stringifiedName = name.startsWith("/") && name.endsWith("/") ? name : JSON.stringify(name);\n        key += " " + stringifiedName;\n      }\n    }\n    if (ariaNode2.checked === "mixed")\n      key += ` [checked=mixed]`;\n    if (ariaNode2.checked === true)\n      key += ` [checked]`;\n    if (ariaNode2.disabled)\n      key += ` [disabled]`;\n    if (ariaNode2.expanded)\n      key += ` [expanded]`;\n    if (ariaNode2.active && options.renderActive)\n      key += ` [active]`;\n    if (ariaNode2.level)\n      key += ` [level=${ariaNode2.level}]`;\n    if (ariaNode2.pressed === "mixed")\n      key += ` [pressed=mixed]`;\n    if (ariaNode2.pressed === true)\n      key += ` [pressed]`;\n    if (ariaNode2.selected === true)\n      key += ` [selected]`;\n    if (ariaNode2.ref) {\n      key += ` [ref=${ariaNode2.ref}]`;\n      if (options.renderCursorPointer && hasPointerCursor(ariaNode2))\n        key += " [cursor=pointer]";\n    }\n    const escapedKey = indent + "- " + yamlEscapeKeyIfNeeded(key);\n    const hasProps = !!Object.keys(ariaNode2.props).length;\n    if (!ariaNode2.children.length && !hasProps) {\n      lines.push(escapedKey);\n    } else if (ariaNode2.children.length === 1 && typeof ariaNode2.children[0] === "string" && !hasProps) {\n      const text = includeText(ariaNode2, ariaNode2.children[0]) ? renderString(ariaNode2.children[0]) : null;\n      if (text)\n        lines.push(escapedKey + ": " + yamlEscapeValueIfNeeded(text));\n      else\n        lines.push(escapedKey);\n    } else {\n      lines.push(escapedKey + ":");\n      for (const [name, value] of Object.entries(ariaNode2.props))\n        lines.push(indent + "  - /" + name + ": " + yamlEscapeValueIfNeeded(value));\n      for (const child of ariaNode2.children || [])\n        visit(child, ariaNode2, indent + "  ");\n    }\n  };\n  const ariaNode = ariaSnapshot.root;\n  if (ariaNode.role === "fragment") {\n    for (const child of ariaNode.children || [])\n      visit(child, ariaNode, "");\n  } else {\n    visit(ariaNode, null, "");\n  }\n  return lines.join("\\n");\n}\nfunction convertToBestGuessRegex(text) {\n  const dynamicContent = [\n    // 2mb\n    { regex: /\\b[\\d,.]+[bkmBKM]+\\b/, replacement: "[\\\\d,.]+[bkmBKM]+" },\n    // 2ms, 20s\n    { regex: /\\b\\d+[hmsp]+\\b/, replacement: "\\\\d+[hmsp]+" },\n    { regex: /\\b[\\d,.]+[hmsp]+\\b/, replacement: "[\\\\d,.]+[hmsp]+" },\n    // Do not replace single digits with regex by default.\n    // 2+ digits: [Issue 22, 22.3, 2.33, 2,333]\n    { regex: /\\b\\d+,\\d+\\b/, replacement: "\\\\d+,\\\\d+" },\n    { regex: /\\b\\d+\\.\\d{2,}\\b/, replacement: "\\\\d+\\\\.\\\\d+" },\n    { regex: /\\b\\d{2,}\\.\\d+\\b/, replacement: "\\\\d+\\\\.\\\\d+" },\n    { regex: /\\b\\d{2,}\\b/, replacement: "\\\\d+" }\n  ];\n  let pattern = "";\n  let lastIndex = 0;\n  const combinedRegex = new RegExp(dynamicContent.map((r) => "(" + r.regex.source + ")").join("|"), "g");\n  text.replace(combinedRegex, (match, ...args) => {\n    const offset = args[args.length - 2];\n    const groups = args.slice(0, -2);\n    pattern += escapeRegExp(text.slice(lastIndex, offset));\n    for (let i = 0; i < groups.length; i++) {\n      if (groups[i]) {\n        const { replacement } = dynamicContent[i];\n        pattern += replacement;\n        break;\n      }\n    }\n    lastIndex = offset + match.length;\n    return match;\n  });\n  if (!pattern)\n    return text;\n  pattern += escapeRegExp(text.slice(lastIndex));\n  return String(new RegExp(pattern));\n}\nfunction textContributesInfo(node, text) {\n  if (!text.length)\n    return false;\n  if (!node.name)\n    return true;\n  if (node.name.length > text.length)\n    return false;\n  const substr = text.length <= 200 && node.name.length <= 200 ? longestCommonSubstring(text, node.name) : "";\n  let filtered = text;\n  while (substr && filtered.includes(substr))\n    filtered = filtered.replace(substr, "");\n  return filtered.trim().length / text.length > 0.1;\n}\nfunction hasPointerCursor(ariaNode) {\n  var _a;\n  return ((_a = ariaNode.box.style) == null ? void 0 : _a.cursor) === "pointer";\n}\n\n// packages/injected/src/highlight.css?inline\nvar highlight_default = ":host{font-size:13px;font-family:system-ui,Ubuntu,Droid Sans,sans-serif;color:#333}svg{position:absolute;height:0}x-pw-tooltip{backdrop-filter:blur(5px);background-color:#fff;border-radius:6px;box-shadow:0 .5rem 1.2rem #0000004d;display:none;font-size:12.8px;font-weight:400;left:0;line-height:1.5;max-width:600px;position:absolute;top:0;padding:0;flex-direction:column;overflow:hidden}x-pw-tooltip-line{display:flex;max-width:600px;padding:6px;user-select:none;cursor:pointer}x-pw-tooltip-line.selectable:hover{background-color:#f2f2f2;overflow:hidden}x-pw-tooltip-footer{display:flex;max-width:600px;padding:6px;user-select:none;color:#777}x-pw-dialog{background-color:#fff;pointer-events:auto;border-radius:6px;box-shadow:0 .5rem 1.2rem #0000004d;display:flex;flex-direction:column;position:absolute;width:400px;height:150px;z-index:10;font-size:13px}x-pw-dialog-body{display:flex;flex-direction:column;flex:auto}x-pw-dialog-body label{margin:5px 8px;display:flex;flex-direction:row;align-items:center}x-pw-highlight{position:absolute;top:0;left:0;width:0;height:0}x-pw-action-point{position:absolute;width:20px;height:20px;background:red;border-radius:10px;margin:-10px 0 0 -10px;z-index:2}x-pw-separator{height:1px;margin:6px 9px;background:#949494e5}x-pw-tool-gripper{height:28px;width:24px;margin:2px 0;cursor:grab}x-pw-tool-gripper:active{cursor:grabbing}x-pw-tool-gripper>x-div{width:16px;height:16px;margin:6px 4px;clip-path:url(#icon-gripper);background-color:#555}x-pw-tools-list>label{display:flex;align-items:center;margin:0 10px;user-select:none}x-pw-tools-list{display:flex;width:100%;border-bottom:1px solid #dddddd}x-pw-tool-item{pointer-events:auto;height:28px;width:28px;border-radius:3px}x-pw-tool-item:not(.disabled){cursor:pointer}x-pw-tool-item:not(.disabled):hover{background-color:#dbdbdb}x-pw-tool-item.toggled{background-color:#8acae480}x-pw-tool-item.toggled:not(.disabled):hover{background-color:#8acae4c4}x-pw-tool-item>x-div{width:16px;height:16px;margin:6px;background-color:#3a3a3a}x-pw-tool-item.disabled>x-div{background-color:#61616180;cursor:default}x-pw-tool-item.record.toggled{background-color:transparent}x-pw-tool-item.record.toggled:not(.disabled):hover{background-color:#dbdbdb}x-pw-tool-item.record.toggled>x-div{background-color:#a1260d}x-pw-tool-item.record.disabled.toggled>x-div{opacity:.8}x-pw-tool-item.accept>x-div{background-color:#388a34}x-pw-tool-item.record>x-div{clip-path:url(#icon-circle-large-filled)}x-pw-tool-item.pick-locator>x-div{clip-path:url(#icon-inspect)}x-pw-tool-item.text>x-div{clip-path:url(#icon-whole-word)}x-pw-tool-item.visibility>x-div{clip-path:url(#icon-eye)}x-pw-tool-item.value>x-div{clip-path:url(#icon-symbol-constant)}x-pw-tool-item.snapshot>x-div{clip-path:url(#icon-gist)}x-pw-tool-item.accept>x-div{clip-path:url(#icon-check)}x-pw-tool-item.cancel>x-div{clip-path:url(#icon-close)}x-pw-tool-item.succeeded>x-div{clip-path:url(#icon-pass);background-color:#388a34!important}x-pw-overlay{position:absolute;top:0;max-width:min-content;z-index:2147483647;background:transparent;pointer-events:auto}x-pw-overlay x-pw-tools-list{background-color:#fffd;box-shadow:#0000001a 0 5px 5px;border-radius:3px;border-bottom:none}x-pw-overlay x-pw-tool-item{margin:2px}textarea.text-editor{font-family:system-ui,Ubuntu,Droid Sans,sans-serif;flex:auto;border:none;margin:6px 10px;color:#333;outline:1px solid transparent!important;resize:none;padding:0;font-size:13px}textarea.text-editor.does-not-match{outline:1px solid red!important}x-div{display:block}x-spacer{flex:auto}*{box-sizing:border-box}*[hidden]{display:none!important}x-locator-editor{flex:none;width:100%;height:60px;padding:4px;border-bottom:1px solid #dddddd;outline:1px solid transparent}x-locator-editor.does-not-match{outline:1px solid red}.CodeMirror{width:100%!important;height:100%!important}\\n";\n\n// packages/injected/src/highlight.ts\nvar Highlight = class {\n  constructor(injectedScript) {\n    this._renderedEntries = [];\n    this._language = "javascript";\n    this._injectedScript = injectedScript;\n    const document = injectedScript.document;\n    this._isUnderTest = injectedScript.isUnderTest;\n    this._glassPaneElement = document.createElement("x-pw-glass");\n    this._glassPaneElement.style.position = "fixed";\n    this._glassPaneElement.style.top = "0";\n    this._glassPaneElement.style.right = "0";\n    this._glassPaneElement.style.bottom = "0";\n    this._glassPaneElement.style.left = "0";\n    this._glassPaneElement.style.zIndex = "2147483647";\n    this._glassPaneElement.style.pointerEvents = "none";\n    this._glassPaneElement.style.display = "flex";\n    this._glassPaneElement.style.backgroundColor = "transparent";\n    for (const eventName of ["click", "auxclick", "dragstart", "input", "keydown", "keyup", "pointerdown", "pointerup", "mousedown", "mouseup", "mouseleave", "focus", "scroll"]) {\n      this._glassPaneElement.addEventListener(eventName, (e) => {\n        e.stopPropagation();\n        e.stopImmediatePropagation();\n      });\n    }\n    this._actionPointElement = document.createElement("x-pw-action-point");\n    this._actionPointElement.setAttribute("hidden", "true");\n    this._glassPaneShadow = this._glassPaneElement.attachShadow({ mode: this._isUnderTest ? "open" : "closed" });\n    if (typeof this._glassPaneShadow.adoptedStyleSheets.push === "function") {\n      const sheet = new this._injectedScript.window.CSSStyleSheet();\n      sheet.replaceSync(highlight_default);\n      this._glassPaneShadow.adoptedStyleSheets.push(sheet);\n    } else {\n      const styleElement = this._injectedScript.document.createElement("style");\n      styleElement.textContent = highlight_default;\n      this._glassPaneShadow.appendChild(styleElement);\n    }\n    this._glassPaneShadow.appendChild(this._actionPointElement);\n  }\n  install() {\n    if (!this._injectedScript.document.documentElement)\n      return;\n    if (!this._injectedScript.document.documentElement.contains(this._glassPaneElement) || this._glassPaneElement.nextElementSibling)\n      this._injectedScript.document.documentElement.appendChild(this._glassPaneElement);\n  }\n  setLanguage(language) {\n    this._language = language;\n  }\n  runHighlightOnRaf(selector) {\n    if (this._rafRequest)\n      this._injectedScript.utils.builtins.cancelAnimationFrame(this._rafRequest);\n    const elements = this._injectedScript.querySelectorAll(selector, this._injectedScript.document.documentElement);\n    const locator = asLocator(this._language, stringifySelector(selector));\n    const color = elements.length > 1 ? "#f6b26b7f" : "#6fa8dc7f";\n    this.updateHighlight(elements.map((element, index) => {\n      const suffix = elements.length > 1 ? ` [${index + 1} of ${elements.length}]` : "";\n      return { element, color, tooltipText: locator + suffix };\n    }));\n    this._rafRequest = this._injectedScript.utils.builtins.requestAnimationFrame(() => this.runHighlightOnRaf(selector));\n  }\n  uninstall() {\n    if (this._rafRequest)\n      this._injectedScript.utils.builtins.cancelAnimationFrame(this._rafRequest);\n    this._glassPaneElement.remove();\n  }\n  showActionPoint(x, y) {\n    this._actionPointElement.style.top = y + "px";\n    this._actionPointElement.style.left = x + "px";\n    this._actionPointElement.hidden = false;\n  }\n  hideActionPoint() {\n    this._actionPointElement.hidden = true;\n  }\n  clearHighlight() {\n    var _a, _b;\n    for (const entry of this._renderedEntries) {\n      (_a = entry.highlightElement) == null ? void 0 : _a.remove();\n      (_b = entry.tooltipElement) == null ? void 0 : _b.remove();\n    }\n    this._renderedEntries = [];\n  }\n  maskElements(elements, color) {\n    this.updateHighlight(elements.map((element) => ({ element, color })));\n  }\n  updateHighlight(entries) {\n    if (this._highlightIsUpToDate(entries))\n      return;\n    this.clearHighlight();\n    for (const entry of entries) {\n      const highlightElement = this._createHighlightElement();\n      this._glassPaneShadow.appendChild(highlightElement);\n      let tooltipElement;\n      if (entry.tooltipText) {\n        tooltipElement = this._injectedScript.document.createElement("x-pw-tooltip");\n        this._glassPaneShadow.appendChild(tooltipElement);\n        tooltipElement.style.top = "0";\n        tooltipElement.style.left = "0";\n        tooltipElement.style.display = "flex";\n        const lineElement = this._injectedScript.document.createElement("x-pw-tooltip-line");\n        lineElement.textContent = entry.tooltipText;\n        tooltipElement.appendChild(lineElement);\n      }\n      this._renderedEntries.push({ targetElement: entry.element, color: entry.color, tooltipElement, highlightElement });\n    }\n    for (const entry of this._renderedEntries) {\n      entry.box = entry.targetElement.getBoundingClientRect();\n      if (!entry.tooltipElement)\n        continue;\n      const { anchorLeft, anchorTop } = this.tooltipPosition(entry.box, entry.tooltipElement);\n      entry.tooltipTop = anchorTop;\n      entry.tooltipLeft = anchorLeft;\n    }\n    for (const entry of this._renderedEntries) {\n      if (entry.tooltipElement) {\n        entry.tooltipElement.style.top = entry.tooltipTop + "px";\n        entry.tooltipElement.style.left = entry.tooltipLeft + "px";\n      }\n      const box2 = entry.box;\n      entry.highlightElement.style.backgroundColor = entry.color;\n      entry.highlightElement.style.left = box2.x + "px";\n      entry.highlightElement.style.top = box2.y + "px";\n      entry.highlightElement.style.width = box2.width + "px";\n      entry.highlightElement.style.height = box2.height + "px";\n      entry.highlightElement.style.display = "block";\n      if (this._isUnderTest)\n        console.error("Highlight box for test: " + JSON.stringify({ x: box2.x, y: box2.y, width: box2.width, height: box2.height }));\n    }\n  }\n  firstBox() {\n    var _a;\n    return (_a = this._renderedEntries[0]) == null ? void 0 : _a.box;\n  }\n  tooltipPosition(box2, tooltipElement) {\n    const tooltipWidth = tooltipElement.offsetWidth;\n    const tooltipHeight = tooltipElement.offsetHeight;\n    const totalWidth = this._glassPaneElement.offsetWidth;\n    const totalHeight = this._glassPaneElement.offsetHeight;\n    let anchorLeft = box2.left;\n    if (anchorLeft + tooltipWidth > totalWidth - 5)\n      anchorLeft = totalWidth - tooltipWidth - 5;\n    let anchorTop = box2.bottom + 5;\n    if (anchorTop + tooltipHeight > totalHeight - 5) {\n      if (box2.top > tooltipHeight + 5) {\n        anchorTop = box2.top - tooltipHeight - 5;\n      } else {\n        anchorTop = totalHeight - 5 - tooltipHeight;\n      }\n    }\n    return { anchorLeft, anchorTop };\n  }\n  _highlightIsUpToDate(entries) {\n    if (entries.length !== this._renderedEntries.length)\n      return false;\n    for (let i = 0; i < this._renderedEntries.length; ++i) {\n      if (entries[i].element !== this._renderedEntries[i].targetElement)\n        return false;\n      if (entries[i].color !== this._renderedEntries[i].color)\n        return false;\n      const oldBox = this._renderedEntries[i].box;\n      if (!oldBox)\n        return false;\n      const box2 = entries[i].element.getBoundingClientRect();\n      if (box2.top !== oldBox.top || box2.right !== oldBox.right || box2.bottom !== oldBox.bottom || box2.left !== oldBox.left)\n        return false;\n    }\n    return true;\n  }\n  _createHighlightElement() {\n    return this._injectedScript.document.createElement("x-pw-highlight");\n  }\n  appendChild(element) {\n    this._glassPaneShadow.appendChild(element);\n  }\n};\n\n// packages/injected/src/layoutSelectorUtils.ts\nfunction boxRightOf(box1, box2, maxDistance) {\n  const distance = box1.left - box2.right;\n  if (distance < 0 || maxDistance !== void 0 && distance > maxDistance)\n    return;\n  return distance + Math.max(box2.bottom - box1.bottom, 0) + Math.max(box1.top - box2.top, 0);\n}\nfunction boxLeftOf(box1, box2, maxDistance) {\n  const distance = box2.left - box1.right;\n  if (distance < 0 || maxDistance !== void 0 && distance > maxDistance)\n    return;\n  return distance + Math.max(box2.bottom - box1.bottom, 0) + Math.max(box1.top - box2.top, 0);\n}\nfunction boxAbove(box1, box2, maxDistance) {\n  const distance = box2.top - box1.bottom;\n  if (distance < 0 || maxDistance !== void 0 && distance > maxDistance)\n    return;\n  return distance + Math.max(box1.left - box2.left, 0) + Math.max(box2.right - box1.right, 0);\n}\nfunction boxBelow(box1, box2, maxDistance) {\n  const distance = box1.top - box2.bottom;\n  if (distance < 0 || maxDistance !== void 0 && distance > maxDistance)\n    return;\n  return distance + Math.max(box1.left - box2.left, 0) + Math.max(box2.right - box1.right, 0);\n}\nfunction boxNear(box1, box2, maxDistance) {\n  const kThreshold = maxDistance === void 0 ? 50 : maxDistance;\n  let score = 0;\n  if (box1.left - box2.right >= 0)\n    score += box1.left - box2.right;\n  if (box2.left - box1.right >= 0)\n    score += box2.left - box1.right;\n  if (box2.top - box1.bottom >= 0)\n    score += box2.top - box1.bottom;\n  if (box1.top - box2.bottom >= 0)\n    score += box1.top - box2.bottom;\n  return score > kThreshold ? void 0 : score;\n}\nvar kLayoutSelectorNames = ["left-of", "right-of", "above", "below", "near"];\nfunction layoutSelectorScore(name, element, inner, maxDistance) {\n  const box2 = element.getBoundingClientRect();\n  const scorer = { "left-of": boxLeftOf, "right-of": boxRightOf, "above": boxAbove, "below": boxBelow, "near": boxNear }[name];\n  let bestScore;\n  for (const e of inner) {\n    if (e === element)\n      continue;\n    const score = scorer(box2, e.getBoundingClientRect(), maxDistance);\n    if (score === void 0)\n      continue;\n    if (bestScore === void 0 || score < bestScore)\n      bestScore = score;\n  }\n  return bestScore;\n}\n\n// packages/injected/src/selectorUtils.ts\nfunction matchesComponentAttribute(obj, attr) {\n  for (const token of attr.jsonPath) {\n    if (obj !== void 0 && obj !== null)\n      obj = obj[token];\n  }\n  return matchesAttributePart(obj, attr);\n}\nfunction matchesAttributePart(value, attr) {\n  const objValue = typeof value === "string" && !attr.caseSensitive ? value.toUpperCase() : value;\n  const attrValue = typeof attr.value === "string" && !attr.caseSensitive ? attr.value.toUpperCase() : attr.value;\n  if (attr.op === "<truthy>")\n    return !!objValue;\n  if (attr.op === "=") {\n    if (attrValue instanceof RegExp)\n      return typeof objValue === "string" && !!objValue.match(attrValue);\n    return objValue === attrValue;\n  }\n  if (typeof objValue !== "string" || typeof attrValue !== "string")\n    return false;\n  if (attr.op === "*=")\n    return objValue.includes(attrValue);\n  if (attr.op === "^=")\n    return objValue.startsWith(attrValue);\n  if (attr.op === "$=")\n    return objValue.endsWith(attrValue);\n  if (attr.op === "|=")\n    return objValue === attrValue || objValue.startsWith(attrValue + "-");\n  if (attr.op === "~=")\n    return objValue.split(" ").includes(attrValue);\n  return false;\n}\nfunction shouldSkipForTextMatching(element) {\n  const document = element.ownerDocument;\n  return element.nodeName === "SCRIPT" || element.nodeName === "NOSCRIPT" || element.nodeName === "STYLE" || document.head && document.head.contains(element);\n}\nfunction elementText(cache, root) {\n  let value = cache.get(root);\n  if (value === void 0) {\n    value = { full: "", normalized: "", immediate: [] };\n    if (!shouldSkipForTextMatching(root)) {\n      let currentImmediate = "";\n      if (root instanceof HTMLInputElement && (root.type === "submit" || root.type === "button")) {\n        value = { full: root.value, normalized: normalizeWhiteSpace(root.value), immediate: [root.value] };\n      } else {\n        for (let child = root.firstChild; child; child = child.nextSibling) {\n          if (child.nodeType === Node.TEXT_NODE) {\n            value.full += child.nodeValue || "";\n            currentImmediate += child.nodeValue || "";\n          } else if (child.nodeType === Node.COMMENT_NODE) {\n            continue;\n          } else {\n            if (currentImmediate)\n              value.immediate.push(currentImmediate);\n            currentImmediate = "";\n            if (child.nodeType === Node.ELEMENT_NODE)\n              value.full += elementText(cache, child).full;\n          }\n        }\n        if (currentImmediate)\n          value.immediate.push(currentImmediate);\n        if (root.shadowRoot)\n          value.full += elementText(cache, root.shadowRoot).full;\n        if (value.full)\n          value.normalized = normalizeWhiteSpace(value.full);\n      }\n    }\n    cache.set(root, value);\n  }\n  return value;\n}\nfunction elementMatchesText(cache, element, matcher) {\n  if (shouldSkipForTextMatching(element))\n    return "none";\n  if (!matcher(elementText(cache, element)))\n    return "none";\n  for (let child = element.firstChild; child; child = child.nextSibling) {\n    if (child.nodeType === Node.ELEMENT_NODE && matcher(elementText(cache, child)))\n      return "selfAndChildren";\n  }\n  if (element.shadowRoot && matcher(elementText(cache, element.shadowRoot)))\n    return "selfAndChildren";\n  return "self";\n}\nfunction getElementLabels(textCache, element) {\n  const labels = getAriaLabelledByElements(element);\n  if (labels)\n    return labels.map((label) => elementText(textCache, label));\n  const ariaLabel = element.getAttribute("aria-label");\n  if (ariaLabel !== null && !!ariaLabel.trim())\n    return [{ full: ariaLabel, normalized: normalizeWhiteSpace(ariaLabel), immediate: [ariaLabel] }];\n  const isNonHiddenInput = element.nodeName === "INPUT" && element.type !== "hidden";\n  if (["BUTTON", "METER", "OUTPUT", "PROGRESS", "SELECT", "TEXTAREA"].includes(element.nodeName) || isNonHiddenInput) {\n    const labels2 = element.labels;\n    if (labels2)\n      return [...labels2].map((label) => elementText(textCache, label));\n  }\n  return [];\n}\n\n// packages/injected/src/reactSelectorEngine.ts\nfunction getFunctionComponentName(component) {\n  return component.displayName || component.name || "Anonymous";\n}\nfunction getComponentName(reactElement) {\n  if (reactElement.type) {\n    switch (typeof reactElement.type) {\n      case "function":\n        return getFunctionComponentName(reactElement.type);\n      case "string":\n        return reactElement.type;\n      case "object":\n        return reactElement.type.displayName || (reactElement.type.render ? getFunctionComponentName(reactElement.type.render) : "");\n    }\n  }\n  if (reactElement._currentElement) {\n    const elementType = reactElement._currentElement.type;\n    if (typeof elementType === "string")\n      return elementType;\n    if (typeof elementType === "function")\n      return elementType.displayName || elementType.name || "Anonymous";\n  }\n  return "";\n}\nfunction getComponentKey(reactElement) {\n  var _a, _b;\n  return (_b = reactElement.key) != null ? _b : (_a = reactElement._currentElement) == null ? void 0 : _a.key;\n}\nfunction getChildren(reactElement) {\n  if (reactElement.child) {\n    const children = [];\n    for (let child = reactElement.child; child; child = child.sibling)\n      children.push(child);\n    return children;\n  }\n  if (!reactElement._currentElement)\n    return [];\n  const isKnownElement = (reactElement2) => {\n    var _a;\n    const elementType = (_a = reactElement2._currentElement) == null ? void 0 : _a.type;\n    return typeof elementType === "function" || typeof elementType === "string";\n  };\n  if (reactElement._renderedComponent) {\n    const child = reactElement._renderedComponent;\n    return isKnownElement(child) ? [child] : [];\n  }\n  if (reactElement._renderedChildren)\n    return [...Object.values(reactElement._renderedChildren)].filter(isKnownElement);\n  return [];\n}\nfunction getProps(reactElement) {\n  var _a;\n  const props = (\n    // React 16+\n    reactElement.memoizedProps || // React 15\n    ((_a = reactElement._currentElement) == null ? void 0 : _a.props)\n  );\n  if (!props || typeof props === "string")\n    return props;\n  const result = { ...props };\n  delete result.children;\n  return result;\n}\nfunction buildComponentsTree(reactElement) {\n  var _a;\n  const treeNode = {\n    key: getComponentKey(reactElement),\n    name: getComponentName(reactElement),\n    children: getChildren(reactElement).map(buildComponentsTree),\n    rootElements: [],\n    props: getProps(reactElement)\n  };\n  const rootElement = (\n    // React 16+\n    // @see https://github.com/baruchvlz/resq/blob/5c15a5e04d3f7174087248f5a158c3d6dcc1ec72/src/utils.js#L29\n    reactElement.stateNode || // React 15\n    reactElement._hostNode || ((_a = reactElement._renderedComponent) == null ? void 0 : _a._hostNode)\n  );\n  if (rootElement instanceof Element) {\n    treeNode.rootElements.push(rootElement);\n  } else {\n    for (const child of treeNode.children)\n      treeNode.rootElements.push(...child.rootElements);\n  }\n  return treeNode;\n}\nfunction filterComponentsTree(treeNode, searchFn, result = []) {\n  if (searchFn(treeNode))\n    result.push(treeNode);\n  for (const child of treeNode.children)\n    filterComponentsTree(child, searchFn, result);\n  return result;\n}\nfunction findReactRoots(root, roots = []) {\n  const document = root.ownerDocument || root;\n  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);\n  do {\n    const node = walker.currentNode;\n    const reactNode = node;\n    const rootKey = Object.keys(reactNode).find((key) => key.startsWith("__reactContainer") && reactNode[key] !== null);\n    if (rootKey) {\n      roots.push(reactNode[rootKey].stateNode.current);\n    } else {\n      const legacyRootKey = "_reactRootContainer";\n      if (reactNode.hasOwnProperty(legacyRootKey) && reactNode[legacyRootKey] !== null) {\n        roots.push(reactNode[legacyRootKey]._internalRoot.current);\n      }\n    }\n    if (node instanceof Element && node.hasAttribute("data-reactroot")) {\n      for (const key of Object.keys(node)) {\n        if (key.startsWith("__reactInternalInstance") || key.startsWith("__reactFiber"))\n          roots.push(node[key]);\n      }\n    }\n    const shadowRoot = node instanceof Element ? node.shadowRoot : null;\n    if (shadowRoot)\n      findReactRoots(shadowRoot, roots);\n  } while (walker.nextNode());\n  return roots;\n}\nvar createReactEngine = () => ({\n  queryAll(scope, selector) {\n    const { name, attributes } = parseAttributeSelector(selector, false);\n    const reactRoots = findReactRoots(scope.ownerDocument || scope);\n    const trees = reactRoots.map((reactRoot) => buildComponentsTree(reactRoot));\n    const treeNodes = trees.map((tree) => filterComponentsTree(tree, (treeNode) => {\n      var _a;\n      const props = (_a = treeNode.props) != null ? _a : {};\n      if (treeNode.key !== void 0)\n        props.key = treeNode.key;\n      if (name && treeNode.name !== name)\n        return false;\n      if (treeNode.rootElements.some((domNode) => !isInsideScope(scope, domNode)))\n        return false;\n      for (const attr of attributes) {\n        if (!matchesComponentAttribute(props, attr))\n          return false;\n      }\n      return true;\n    })).flat();\n    const allRootElements = /* @__PURE__ */ new Set();\n    for (const treeNode of treeNodes) {\n      for (const domNode of treeNode.rootElements)\n        allRootElements.add(domNode);\n    }\n    return [...allRootElements];\n  }\n});\n\n// packages/injected/src/roleSelectorEngine.ts\nvar kSupportedAttributes = ["selected", "checked", "pressed", "expanded", "level", "disabled", "name", "include-hidden"];\nkSupportedAttributes.sort();\nfunction validateSupportedRole(attr, roles, role) {\n  if (!roles.includes(role))\n    throw new Error(`"${attr}" attribute is only supported for roles: ${roles.slice().sort().map((role2) => `"${role2}"`).join(", ")}`);\n}\nfunction validateSupportedValues(attr, values) {\n  if (attr.op !== "<truthy>" && !values.includes(attr.value))\n    throw new Error(`"${attr.name}" must be one of ${values.map((v) => JSON.stringify(v)).join(", ")}`);\n}\nfunction validateSupportedOp(attr, ops) {\n  if (!ops.includes(attr.op))\n    throw new Error(`"${attr.name}" does not support "${attr.op}" matcher`);\n}\nfunction validateAttributes(attrs, role) {\n  const options = { role };\n  for (const attr of attrs) {\n    switch (attr.name) {\n      case "checked": {\n        validateSupportedRole(attr.name, kAriaCheckedRoles, role);\n        validateSupportedValues(attr, [true, false, "mixed"]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.checked = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      case "pressed": {\n        validateSupportedRole(attr.name, kAriaPressedRoles, role);\n        validateSupportedValues(attr, [true, false, "mixed"]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.pressed = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      case "selected": {\n        validateSupportedRole(attr.name, kAriaSelectedRoles, role);\n        validateSupportedValues(attr, [true, false]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.selected = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      case "expanded": {\n        validateSupportedRole(attr.name, kAriaExpandedRoles, role);\n        validateSupportedValues(attr, [true, false]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.expanded = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      case "level": {\n        validateSupportedRole(attr.name, kAriaLevelRoles, role);\n        if (typeof attr.value === "string")\n          attr.value = +attr.value;\n        if (attr.op !== "=" || typeof attr.value !== "number" || Number.isNaN(attr.value))\n          throw new Error(`"level" attribute must be compared to a number`);\n        options.level = attr.value;\n        break;\n      }\n      case "disabled": {\n        validateSupportedValues(attr, [true, false]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.disabled = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      case "name": {\n        if (attr.op === "<truthy>")\n          throw new Error(`"name" attribute must have a value`);\n        if (typeof attr.value !== "string" && !(attr.value instanceof RegExp))\n          throw new Error(`"name" attribute must be a string or a regular expression`);\n        options.name = attr.value;\n        options.nameOp = attr.op;\n        options.exact = attr.caseSensitive;\n        break;\n      }\n      case "include-hidden": {\n        validateSupportedValues(attr, [true, false]);\n        validateSupportedOp(attr, ["<truthy>", "="]);\n        options.includeHidden = attr.op === "<truthy>" ? true : attr.value;\n        break;\n      }\n      default: {\n        throw new Error(`Unknown attribute "${attr.name}", must be one of ${kSupportedAttributes.map((a) => `"${a}"`).join(", ")}.`);\n      }\n    }\n  }\n  return options;\n}\nfunction queryRole(scope, options, internal) {\n  const result = [];\n  const match = (element) => {\n    if (getAriaRole(element) !== options.role)\n      return;\n    if (options.selected !== void 0 && getAriaSelected(element) !== options.selected)\n      return;\n    if (options.checked !== void 0 && getAriaChecked(element) !== options.checked)\n      return;\n    if (options.pressed !== void 0 && getAriaPressed(element) !== options.pressed)\n      return;\n    if (options.expanded !== void 0 && getAriaExpanded(element) !== options.expanded)\n      return;\n    if (options.level !== void 0 && getAriaLevel(element) !== options.level)\n      return;\n    if (options.disabled !== void 0 && getAriaDisabled(element) !== options.disabled)\n      return;\n    if (!options.includeHidden) {\n      const isHidden = isElementHiddenForAria(element);\n      if (isHidden)\n        return;\n    }\n    if (options.name !== void 0) {\n      const accessibleName = normalizeWhiteSpace(getElementAccessibleName(element, !!options.includeHidden));\n      if (typeof options.name === "string")\n        options.name = normalizeWhiteSpace(options.name);\n      if (internal && !options.exact && options.nameOp === "=")\n        options.nameOp = "*=";\n      if (!matchesAttributePart(accessibleName, { name: "", jsonPath: [], op: options.nameOp || "=", value: options.name, caseSensitive: !!options.exact }))\n        return;\n    }\n    result.push(element);\n  };\n  const query = (root) => {\n    const shadows = [];\n    if (root.shadowRoot)\n      shadows.push(root.shadowRoot);\n    for (const element of root.querySelectorAll("*")) {\n      match(element);\n      if (element.shadowRoot)\n        shadows.push(element.shadowRoot);\n    }\n    shadows.forEach(query);\n  };\n  query(scope);\n  return result;\n}\nfunction createRoleEngine(internal) {\n  return {\n    queryAll: (scope, selector) => {\n      const parsed = parseAttributeSelector(selector, true);\n      const role = parsed.name.toLowerCase();\n      if (!role)\n        throw new Error(`Role must not be empty`);\n      const options = validateAttributes(parsed.attributes, role);\n      beginAriaCaches();\n      try {\n        return queryRole(scope, options, internal);\n      } finally {\n        endAriaCaches();\n      }\n    }\n  };\n}\n\n// packages/injected/src/selectorEvaluator.ts\nvar SelectorEvaluatorImpl = class {\n  constructor() {\n    this._retainCacheCounter = 0;\n    this._cacheText = /* @__PURE__ */ new Map();\n    this._cacheQueryCSS = /* @__PURE__ */ new Map();\n    this._cacheMatches = /* @__PURE__ */ new Map();\n    this._cacheQuery = /* @__PURE__ */ new Map();\n    this._cacheMatchesSimple = /* @__PURE__ */ new Map();\n    this._cacheMatchesParents = /* @__PURE__ */ new Map();\n    this._cacheCallMatches = /* @__PURE__ */ new Map();\n    this._cacheCallQuery = /* @__PURE__ */ new Map();\n    this._cacheQuerySimple = /* @__PURE__ */ new Map();\n    this._engines = /* @__PURE__ */ new Map();\n    this._engines.set("not", notEngine);\n    this._engines.set("is", isEngine);\n    this._engines.set("where", isEngine);\n    this._engines.set("has", hasEngine);\n    this._engines.set("scope", scopeEngine);\n    this._engines.set("light", lightEngine);\n    this._engines.set("visible", visibleEngine);\n    this._engines.set("text", textEngine);\n    this._engines.set("text-is", textIsEngine);\n    this._engines.set("text-matches", textMatchesEngine);\n    this._engines.set("has-text", hasTextEngine);\n    this._engines.set("right-of", createLayoutEngine("right-of"));\n    this._engines.set("left-of", createLayoutEngine("left-of"));\n    this._engines.set("above", createLayoutEngine("above"));\n    this._engines.set("below", createLayoutEngine("below"));\n    this._engines.set("near", createLayoutEngine("near"));\n    this._engines.set("nth-match", nthMatchEngine);\n    const allNames = [...this._engines.keys()];\n    allNames.sort();\n    const parserNames = [...customCSSNames];\n    parserNames.sort();\n    if (allNames.join("|") !== parserNames.join("|"))\n      throw new Error(`Please keep customCSSNames in sync with evaluator engines: ${allNames.join("|")} vs ${parserNames.join("|")}`);\n  }\n  begin() {\n    ++this._retainCacheCounter;\n  }\n  end() {\n    --this._retainCacheCounter;\n    if (!this._retainCacheCounter) {\n      this._cacheQueryCSS.clear();\n      this._cacheMatches.clear();\n      this._cacheQuery.clear();\n      this._cacheMatchesSimple.clear();\n      this._cacheMatchesParents.clear();\n      this._cacheCallMatches.clear();\n      this._cacheCallQuery.clear();\n      this._cacheQuerySimple.clear();\n      this._cacheText.clear();\n    }\n  }\n  _cached(cache, main, rest, cb) {\n    if (!cache.has(main))\n      cache.set(main, []);\n    const entries = cache.get(main);\n    const entry = entries.find((e) => rest.every((value, index) => e.rest[index] === value));\n    if (entry)\n      return entry.result;\n    const result = cb();\n    entries.push({ rest, result });\n    return result;\n  }\n  _checkSelector(s) {\n    const wellFormed = typeof s === "object" && s && (Array.isArray(s) || "simples" in s && s.simples.length);\n    if (!wellFormed)\n      throw new Error(`Malformed selector "${s}"`);\n    return s;\n  }\n  matches(element, s, context) {\n    const selector = this._checkSelector(s);\n    this.begin();\n    try {\n      return this._cached(this._cacheMatches, element, [selector, context.scope, context.pierceShadow, context.originalScope], () => {\n        if (Array.isArray(selector))\n          return this._matchesEngine(isEngine, element, selector, context);\n        if (this._hasScopeClause(selector))\n          context = this._expandContextForScopeMatching(context);\n        if (!this._matchesSimple(element, selector.simples[selector.simples.length - 1].selector, context))\n          return false;\n        return this._matchesParents(element, selector, selector.simples.length - 2, context);\n      });\n    } finally {\n      this.end();\n    }\n  }\n  query(context, s) {\n    const selector = this._checkSelector(s);\n    this.begin();\n    try {\n      return this._cached(this._cacheQuery, selector, [context.scope, context.pierceShadow, context.originalScope], () => {\n        if (Array.isArray(selector))\n          return this._queryEngine(isEngine, context, selector);\n        if (this._hasScopeClause(selector))\n          context = this._expandContextForScopeMatching(context);\n        const previousScoreMap = this._scoreMap;\n        this._scoreMap = /* @__PURE__ */ new Map();\n        let elements = this._querySimple(context, selector.simples[selector.simples.length - 1].selector);\n        elements = elements.filter((element) => this._matchesParents(element, selector, selector.simples.length - 2, context));\n        if (this._scoreMap.size) {\n          elements.sort((a, b) => {\n            const aScore = this._scoreMap.get(a);\n            const bScore = this._scoreMap.get(b);\n            if (aScore === bScore)\n              return 0;\n            if (aScore === void 0)\n              return 1;\n            if (bScore === void 0)\n              return -1;\n            return aScore - bScore;\n          });\n        }\n        this._scoreMap = previousScoreMap;\n        return elements;\n      });\n    } finally {\n      this.end();\n    }\n  }\n  _markScore(element, score) {\n    if (this._scoreMap)\n      this._scoreMap.set(element, score);\n  }\n  _hasScopeClause(selector) {\n    return selector.simples.some((simple) => simple.selector.functions.some((f) => f.name === "scope"));\n  }\n  _expandContextForScopeMatching(context) {\n    if (context.scope.nodeType !== 1)\n      return context;\n    const scope = parentElementOrShadowHost(context.scope);\n    if (!scope)\n      return context;\n    return { ...context, scope, originalScope: context.originalScope || context.scope };\n  }\n  _matchesSimple(element, simple, context) {\n    return this._cached(this._cacheMatchesSimple, element, [simple, context.scope, context.pierceShadow, context.originalScope], () => {\n      if (element === context.scope)\n        return false;\n      if (simple.css && !this._matchesCSS(element, simple.css))\n        return false;\n      for (const func of simple.functions) {\n        if (!this._matchesEngine(this._getEngine(func.name), element, func.args, context))\n          return false;\n      }\n      return true;\n    });\n  }\n  _querySimple(context, simple) {\n    if (!simple.functions.length)\n      return this._queryCSS(context, simple.css || "*");\n    return this._cached(this._cacheQuerySimple, simple, [context.scope, context.pierceShadow, context.originalScope], () => {\n      let css = simple.css;\n      const funcs = simple.functions;\n      if (css === "*" && funcs.length)\n        css = void 0;\n      let elements;\n      let firstIndex = -1;\n      if (css !== void 0) {\n        elements = this._queryCSS(context, css);\n      } else {\n        firstIndex = funcs.findIndex((func) => this._getEngine(func.name).query !== void 0);\n        if (firstIndex === -1)\n          firstIndex = 0;\n        elements = this._queryEngine(this._getEngine(funcs[firstIndex].name), context, funcs[firstIndex].args);\n      }\n      for (let i = 0; i < funcs.length; i++) {\n        if (i === firstIndex)\n          continue;\n        const engine = this._getEngine(funcs[i].name);\n        if (engine.matches !== void 0)\n          elements = elements.filter((e) => this._matchesEngine(engine, e, funcs[i].args, context));\n      }\n      for (let i = 0; i < funcs.length; i++) {\n        if (i === firstIndex)\n          continue;\n        const engine = this._getEngine(funcs[i].name);\n        if (engine.matches === void 0)\n          elements = elements.filter((e) => this._matchesEngine(engine, e, funcs[i].args, context));\n      }\n      return elements;\n    });\n  }\n  _matchesParents(element, complex, index, context) {\n    if (index < 0)\n      return true;\n    return this._cached(this._cacheMatchesParents, element, [complex, index, context.scope, context.pierceShadow, context.originalScope], () => {\n      const { selector: simple, combinator } = complex.simples[index];\n      if (combinator === ">") {\n        const parent = parentElementOrShadowHostInContext(element, context);\n        if (!parent || !this._matchesSimple(parent, simple, context))\n          return false;\n        return this._matchesParents(parent, complex, index - 1, context);\n      }\n      if (combinator === "+") {\n        const previousSibling = previousSiblingInContext(element, context);\n        if (!previousSibling || !this._matchesSimple(previousSibling, simple, context))\n          return false;\n        return this._matchesParents(previousSibling, complex, index - 1, context);\n      }\n      if (combinator === "") {\n        let parent = parentElementOrShadowHostInContext(element, context);\n        while (parent) {\n          if (this._matchesSimple(parent, simple, context)) {\n            if (this._matchesParents(parent, complex, index - 1, context))\n              return true;\n            if (complex.simples[index - 1].combinator === "")\n              break;\n          }\n          parent = parentElementOrShadowHostInContext(parent, context);\n        }\n        return false;\n      }\n      if (combinator === "~") {\n        let previousSibling = previousSiblingInContext(element, context);\n        while (previousSibling) {\n          if (this._matchesSimple(previousSibling, simple, context)) {\n            if (this._matchesParents(previousSibling, complex, index - 1, context))\n              return true;\n            if (complex.simples[index - 1].combinator === "~")\n              break;\n          }\n          previousSibling = previousSiblingInContext(previousSibling, context);\n        }\n        return false;\n      }\n      if (combinator === ">=") {\n        let parent = element;\n        while (parent) {\n          if (this._matchesSimple(parent, simple, context)) {\n            if (this._matchesParents(parent, complex, index - 1, context))\n              return true;\n            if (complex.simples[index - 1].combinator === "")\n              break;\n          }\n          parent = parentElementOrShadowHostInContext(parent, context);\n        }\n        return false;\n      }\n      throw new Error(`Unsupported combinator "${combinator}"`);\n    });\n  }\n  _matchesEngine(engine, element, args, context) {\n    if (engine.matches)\n      return this._callMatches(engine, element, args, context);\n    if (engine.query)\n      return this._callQuery(engine, args, context).includes(element);\n    throw new Error(`Selector engine should implement "matches" or "query"`);\n  }\n  _queryEngine(engine, context, args) {\n    if (engine.query)\n      return this._callQuery(engine, args, context);\n    if (engine.matches)\n      return this._queryCSS(context, "*").filter((element) => this._callMatches(engine, element, args, context));\n    throw new Error(`Selector engine should implement "matches" or "query"`);\n  }\n  _callMatches(engine, element, args, context) {\n    return this._cached(this._cacheCallMatches, element, [engine, context.scope, context.pierceShadow, context.originalScope, ...args], () => {\n      return engine.matches(element, args, context, this);\n    });\n  }\n  _callQuery(engine, args, context) {\n    return this._cached(this._cacheCallQuery, engine, [context.scope, context.pierceShadow, context.originalScope, ...args], () => {\n      return engine.query(context, args, this);\n    });\n  }\n  _matchesCSS(element, css) {\n    return element.matches(css);\n  }\n  _queryCSS(context, css) {\n    return this._cached(this._cacheQueryCSS, css, [context.scope, context.pierceShadow, context.originalScope], () => {\n      let result = [];\n      function query(root) {\n        result = result.concat([...root.querySelectorAll(css)]);\n        if (!context.pierceShadow)\n          return;\n        if (root.shadowRoot)\n          query(root.shadowRoot);\n        for (const element of root.querySelectorAll("*")) {\n          if (element.shadowRoot)\n            query(element.shadowRoot);\n        }\n      }\n      query(context.scope);\n      return result;\n    });\n  }\n  _getEngine(name) {\n    const engine = this._engines.get(name);\n    if (!engine)\n      throw new Error(`Unknown selector engine "${name}"`);\n    return engine;\n  }\n};\nvar isEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length === 0)\n      throw new Error(`"is" engine expects non-empty selector list`);\n    return args.some((selector) => evaluator.matches(element, selector, context));\n  },\n  query(context, args, evaluator) {\n    if (args.length === 0)\n      throw new Error(`"is" engine expects non-empty selector list`);\n    let elements = [];\n    for (const arg of args)\n      elements = elements.concat(evaluator.query(context, arg));\n    return args.length === 1 ? elements : sortInDOMOrder(elements);\n  }\n};\nvar hasEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length === 0)\n      throw new Error(`"has" engine expects non-empty selector list`);\n    return evaluator.query({ ...context, scope: element }, args).length > 0;\n  }\n  // TODO: we can implement efficient "query" by matching "args" and returning\n  // all parents/descendants, just have to be careful with the ":scope" matching.\n};\nvar scopeEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length !== 0)\n      throw new Error(`"scope" engine expects no arguments`);\n    const actualScope = context.originalScope || context.scope;\n    if (actualScope.nodeType === 9)\n      return element === actualScope.documentElement;\n    return element === actualScope;\n  },\n  query(context, args, evaluator) {\n    if (args.length !== 0)\n      throw new Error(`"scope" engine expects no arguments`);\n    const actualScope = context.originalScope || context.scope;\n    if (actualScope.nodeType === 9) {\n      const root = actualScope.documentElement;\n      return root ? [root] : [];\n    }\n    if (actualScope.nodeType === 1)\n      return [actualScope];\n    return [];\n  }\n};\nvar notEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length === 0)\n      throw new Error(`"not" engine expects non-empty selector list`);\n    return !evaluator.matches(element, args, context);\n  }\n};\nvar lightEngine = {\n  query(context, args, evaluator) {\n    return evaluator.query({ ...context, pierceShadow: false }, args);\n  },\n  matches(element, args, context, evaluator) {\n    return evaluator.matches(element, args, { ...context, pierceShadow: false });\n  }\n};\nvar visibleEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length)\n      throw new Error(`"visible" engine expects no arguments`);\n    return isElementVisible(element);\n  }\n};\nvar textEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length !== 1 || typeof args[0] !== "string")\n      throw new Error(`"text" engine expects a single string`);\n    const text = normalizeWhiteSpace(args[0]).toLowerCase();\n    const matcher = (elementText2) => elementText2.normalized.toLowerCase().includes(text);\n    return elementMatchesText(evaluator._cacheText, element, matcher) === "self";\n  }\n};\nvar textIsEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length !== 1 || typeof args[0] !== "string")\n      throw new Error(`"text-is" engine expects a single string`);\n    const text = normalizeWhiteSpace(args[0]);\n    const matcher = (elementText2) => {\n      if (!text && !elementText2.immediate.length)\n        return true;\n      return elementText2.immediate.some((s) => normalizeWhiteSpace(s) === text);\n    };\n    return elementMatchesText(evaluator._cacheText, element, matcher) !== "none";\n  }\n};\nvar textMatchesEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length === 0 || typeof args[0] !== "string" || args.length > 2 || args.length === 2 && typeof args[1] !== "string")\n      throw new Error(`"text-matches" engine expects a regexp body and optional regexp flags`);\n    const re = new RegExp(args[0], args.length === 2 ? args[1] : void 0);\n    const matcher = (elementText2) => re.test(elementText2.full);\n    return elementMatchesText(evaluator._cacheText, element, matcher) === "self";\n  }\n};\nvar hasTextEngine = {\n  matches(element, args, context, evaluator) {\n    if (args.length !== 1 || typeof args[0] !== "string")\n      throw new Error(`"has-text" engine expects a single string`);\n    if (shouldSkipForTextMatching(element))\n      return false;\n    const text = normalizeWhiteSpace(args[0]).toLowerCase();\n    const matcher = (elementText2) => elementText2.normalized.toLowerCase().includes(text);\n    return matcher(elementText(evaluator._cacheText, element));\n  }\n};\nfunction createLayoutEngine(name) {\n  return {\n    matches(element, args, context, evaluator) {\n      const maxDistance = args.length && typeof args[args.length - 1] === "number" ? args[args.length - 1] : void 0;\n      const queryArgs = maxDistance === void 0 ? args : args.slice(0, args.length - 1);\n      if (args.length < 1 + (maxDistance === void 0 ? 0 : 1))\n        throw new Error(`"${name}" engine expects a selector list and optional maximum distance in pixels`);\n      const inner = evaluator.query(context, queryArgs);\n      const score = layoutSelectorScore(name, element, inner, maxDistance);\n      if (score === void 0)\n        return false;\n      evaluator._markScore(element, score);\n      return true;\n    }\n  };\n}\nvar nthMatchEngine = {\n  query(context, args, evaluator) {\n    let index = args[args.length - 1];\n    if (args.length < 2)\n      throw new Error(`"nth-match" engine expects non-empty selector list and an index argument`);\n    if (typeof index !== "number" || index < 1)\n      throw new Error(`"nth-match" engine expects a one-based index as the last argument`);\n    const elements = isEngine.query(context, args.slice(0, args.length - 1), evaluator);\n    index--;\n    return index < elements.length ? [elements[index]] : [];\n  }\n};\nfunction parentElementOrShadowHostInContext(element, context) {\n  if (element === context.scope)\n    return;\n  if (!context.pierceShadow)\n    return element.parentElement || void 0;\n  return parentElementOrShadowHost(element);\n}\nfunction previousSiblingInContext(element, context) {\n  if (element === context.scope)\n    return;\n  return element.previousElementSibling || void 0;\n}\nfunction sortInDOMOrder(elements) {\n  const elementToEntry = /* @__PURE__ */ new Map();\n  const roots = [];\n  const result = [];\n  function append(element) {\n    let entry = elementToEntry.get(element);\n    if (entry)\n      return entry;\n    const parent = parentElementOrShadowHost(element);\n    if (parent) {\n      const parentEntry = append(parent);\n      parentEntry.children.push(element);\n    } else {\n      roots.push(element);\n    }\n    entry = { children: [], taken: false };\n    elementToEntry.set(element, entry);\n    return entry;\n  }\n  for (const e of elements)\n    append(e).taken = true;\n  function visit(element) {\n    const entry = elementToEntry.get(element);\n    if (entry.taken)\n      result.push(element);\n    if (entry.children.length > 1) {\n      const set = new Set(entry.children);\n      entry.children = [];\n      let child = element.firstElementChild;\n      while (child && entry.children.length < set.size) {\n        if (set.has(child))\n          entry.children.push(child);\n        child = child.nextElementSibling;\n      }\n      child = element.shadowRoot ? element.shadowRoot.firstElementChild : null;\n      while (child && entry.children.length < set.size) {\n        if (set.has(child))\n          entry.children.push(child);\n        child = child.nextElementSibling;\n      }\n    }\n    entry.children.forEach(visit);\n  }\n  roots.forEach(visit);\n  return result;\n}\n\n// packages/injected/src/selectorGenerator.ts\nvar kTextScoreRange = 10;\nvar kExactPenalty = kTextScoreRange / 2;\nvar kTestIdScore = 1;\nvar kOtherTestIdScore = 2;\nvar kIframeByAttributeScore = 10;\nvar kBeginPenalizedScore = 50;\nvar kRoleWithNameScore = 100;\nvar kPlaceholderScore = 120;\nvar kLabelScore = 140;\nvar kAltTextScore = 160;\nvar kTextScore = 180;\nvar kTitleScore = 200;\nvar kTextScoreRegex = 250;\nvar kPlaceholderScoreExact = kPlaceholderScore + kExactPenalty;\nvar kLabelScoreExact = kLabelScore + kExactPenalty;\nvar kRoleWithNameScoreExact = kRoleWithNameScore + kExactPenalty;\nvar kAltTextScoreExact = kAltTextScore + kExactPenalty;\nvar kTextScoreExact = kTextScore + kExactPenalty;\nvar kTitleScoreExact = kTitleScore + kExactPenalty;\nvar kEndPenalizedScore = 300;\nvar kCSSIdScore = 500;\nvar kRoleWithoutNameScore = 510;\nvar kCSSInputTypeNameScore = 520;\nvar kCSSTagNameScore = 530;\nvar kNthScore = 1e4;\nvar kCSSFallbackScore = 1e7;\nvar kScoreThresholdForTextExpect = 1e3;\nfunction generateSelector(injectedScript, targetElement, options) {\n  var _a;\n  injectedScript._evaluator.begin();\n  const cache = { allowText: /* @__PURE__ */ new Map(), disallowText: /* @__PURE__ */ new Map() };\n  beginAriaCaches();\n  try {\n    let selectors = [];\n    if (options.forTextExpect) {\n      let targetTokens = cssFallback(injectedScript, targetElement.ownerDocument.documentElement, options);\n      for (let element = targetElement; element; element = parentElementOrShadowHost(element)) {\n        const tokens = generateSelectorFor(cache, injectedScript, element, { ...options, noText: true });\n        if (!tokens)\n          continue;\n        const score = combineScores(tokens);\n        if (score <= kScoreThresholdForTextExpect) {\n          targetTokens = tokens;\n          break;\n        }\n      }\n      selectors = [joinTokens(targetTokens)];\n    } else {\n      if (!targetElement.matches("input,textarea,select") && !targetElement.isContentEditable) {\n        const interactiveParent = closestCrossShadow(targetElement, "button,select,input,[role=button],[role=checkbox],[role=radio],a,[role=link]", options.root);\n        if (interactiveParent && isElementVisible(interactiveParent))\n          targetElement = interactiveParent;\n      }\n      if (options.multiple) {\n        const withText = generateSelectorFor(cache, injectedScript, targetElement, options);\n        const withoutText = generateSelectorFor(cache, injectedScript, targetElement, { ...options, noText: true });\n        let tokens = [withText, withoutText];\n        cache.allowText.clear();\n        cache.disallowText.clear();\n        if (withText && hasCSSIdToken(withText))\n          tokens.push(generateSelectorFor(cache, injectedScript, targetElement, { ...options, noCSSId: true }));\n        if (withoutText && hasCSSIdToken(withoutText))\n          tokens.push(generateSelectorFor(cache, injectedScript, targetElement, { ...options, noText: true, noCSSId: true }));\n        tokens = tokens.filter(Boolean);\n        if (!tokens.length) {\n          const css = cssFallback(injectedScript, targetElement, options);\n          tokens.push(css);\n          if (hasCSSIdToken(css))\n            tokens.push(cssFallback(injectedScript, targetElement, { ...options, noCSSId: true }));\n        }\n        selectors = [...new Set(tokens.map((t) => joinTokens(t)))];\n      } else {\n        const targetTokens = generateSelectorFor(cache, injectedScript, targetElement, options) || cssFallback(injectedScript, targetElement, options);\n        selectors = [joinTokens(targetTokens)];\n      }\n    }\n    const selector = selectors[0];\n    const parsedSelector = injectedScript.parseSelector(selector);\n    return {\n      selector,\n      selectors,\n      elements: injectedScript.querySelectorAll(parsedSelector, (_a = options.root) != null ? _a : targetElement.ownerDocument)\n    };\n  } finally {\n    endAriaCaches();\n    injectedScript._evaluator.end();\n  }\n}\nfunction filterRegexTokens(textCandidates) {\n  return textCandidates.filter((c) => c[0].selector[0] !== "/");\n}\nfunction generateSelectorFor(cache, injectedScript, targetElement, options) {\n  if (options.root && !isInsideScope(options.root, targetElement))\n    throw new Error(`Target element must belong to the root\'s subtree`);\n  if (targetElement === options.root)\n    return [{ engine: "css", selector: ":scope", score: 1 }];\n  if (targetElement.ownerDocument.documentElement === targetElement)\n    return [{ engine: "css", selector: "html", score: 1 }];\n  const calculate = (element, allowText) => {\n    var _a;\n    const allowNthMatch = element === targetElement;\n    let textCandidates = allowText ? buildTextCandidates(injectedScript, element, element === targetElement) : [];\n    if (element !== targetElement) {\n      textCandidates = filterRegexTokens(textCandidates);\n    }\n    const noTextCandidates = buildNoTextCandidates(injectedScript, element, options).filter((token) => !options.omitInternalEngines || !token.engine.startsWith("internal:")).map((token) => [token]);\n    let result = chooseFirstSelector(injectedScript, (_a = options.root) != null ? _a : targetElement.ownerDocument, element, [...textCandidates, ...noTextCandidates], allowNthMatch);\n    textCandidates = filterRegexTokens(textCandidates);\n    const checkWithText = (textCandidatesToUse) => {\n      const allowParentText = allowText && !textCandidatesToUse.length;\n      const candidates = [...textCandidatesToUse, ...noTextCandidates].filter((c) => {\n        if (!result)\n          return true;\n        return combineScores(c) < combineScores(result);\n      });\n      let bestPossibleInParent = candidates[0];\n      if (!bestPossibleInParent)\n        return;\n      for (let parent = parentElementOrShadowHost(element); parent && parent !== options.root; parent = parentElementOrShadowHost(parent)) {\n        const parentTokens = calculateCached(parent, allowParentText);\n        if (!parentTokens)\n          continue;\n        if (result && combineScores([...parentTokens, ...bestPossibleInParent]) >= combineScores(result))\n          continue;\n        bestPossibleInParent = chooseFirstSelector(injectedScript, parent, element, candidates, allowNthMatch);\n        if (!bestPossibleInParent)\n          return;\n        const combined = [...parentTokens, ...bestPossibleInParent];\n        if (!result || combineScores(combined) < combineScores(result))\n          result = combined;\n      }\n    };\n    checkWithText(textCandidates);\n    if (element === targetElement && textCandidates.length)\n      checkWithText([]);\n    return result;\n  };\n  const calculateCached = (element, allowText) => {\n    const map = allowText ? cache.allowText : cache.disallowText;\n    let value = map.get(element);\n    if (value === void 0) {\n      value = calculate(element, allowText);\n      map.set(element, value);\n    }\n    return value;\n  };\n  return calculate(targetElement, !options.noText);\n}\nfunction buildNoTextCandidates(injectedScript, element, options) {\n  const candidates = [];\n  {\n    for (const attr of ["data-testid", "data-test-id", "data-test"]) {\n      if (attr !== options.testIdAttributeName && element.getAttribute(attr))\n        candidates.push({ engine: "css", selector: `[${attr}=${quoteCSSAttributeValue(element.getAttribute(attr))}]`, score: kOtherTestIdScore });\n    }\n    if (!options.noCSSId) {\n      const idAttr = element.getAttribute("id");\n      if (idAttr && !isGuidLike(idAttr))\n        candidates.push({ engine: "css", selector: makeSelectorForId(idAttr), score: kCSSIdScore });\n    }\n    candidates.push({ engine: "css", selector: escapeNodeName(element), score: kCSSTagNameScore });\n  }\n  if (element.nodeName === "IFRAME") {\n    for (const attribute of ["name", "title"]) {\n      if (element.getAttribute(attribute))\n        candidates.push({ engine: "css", selector: `${escapeNodeName(element)}[${attribute}=${quoteCSSAttributeValue(element.getAttribute(attribute))}]`, score: kIframeByAttributeScore });\n    }\n    if (element.getAttribute(options.testIdAttributeName))\n      candidates.push({ engine: "css", selector: `[${options.testIdAttributeName}=${quoteCSSAttributeValue(element.getAttribute(options.testIdAttributeName))}]`, score: kTestIdScore });\n    penalizeScoreForLength([candidates]);\n    return candidates;\n  }\n  if (element.getAttribute(options.testIdAttributeName))\n    candidates.push({ engine: "internal:testid", selector: `[${options.testIdAttributeName}=${escapeForAttributeSelector(element.getAttribute(options.testIdAttributeName), true)}]`, score: kTestIdScore });\n  if (element.nodeName === "INPUT" || element.nodeName === "TEXTAREA") {\n    const input = element;\n    if (input.placeholder) {\n      candidates.push({ engine: "internal:attr", selector: `[placeholder=${escapeForAttributeSelector(input.placeholder, true)}]`, score: kPlaceholderScoreExact });\n      for (const alternative of suitableTextAlternatives(input.placeholder))\n        candidates.push({ engine: "internal:attr", selector: `[placeholder=${escapeForAttributeSelector(alternative.text, false)}]`, score: kPlaceholderScore - alternative.scoreBonus });\n    }\n  }\n  const labels = getElementLabels(injectedScript._evaluator._cacheText, element);\n  for (const label of labels) {\n    const labelText = label.normalized;\n    candidates.push({ engine: "internal:label", selector: escapeForTextSelector(labelText, true), score: kLabelScoreExact });\n    for (const alternative of suitableTextAlternatives(labelText))\n      candidates.push({ engine: "internal:label", selector: escapeForTextSelector(alternative.text, false), score: kLabelScore - alternative.scoreBonus });\n  }\n  const ariaRole = getAriaRole(element);\n  if (ariaRole && !["none", "presentation"].includes(ariaRole))\n    candidates.push({ engine: "internal:role", selector: ariaRole, score: kRoleWithoutNameScore });\n  if (element.getAttribute("name") && ["BUTTON", "FORM", "FIELDSET", "FRAME", "IFRAME", "INPUT", "KEYGEN", "OBJECT", "OUTPUT", "SELECT", "TEXTAREA", "MAP", "META", "PARAM"].includes(element.nodeName))\n    candidates.push({ engine: "css", selector: `${escapeNodeName(element)}[name=${quoteCSSAttributeValue(element.getAttribute("name"))}]`, score: kCSSInputTypeNameScore });\n  if (["INPUT", "TEXTAREA"].includes(element.nodeName) && element.getAttribute("type") !== "hidden") {\n    if (element.getAttribute("type"))\n      candidates.push({ engine: "css", selector: `${escapeNodeName(element)}[type=${quoteCSSAttributeValue(element.getAttribute("type"))}]`, score: kCSSInputTypeNameScore });\n  }\n  if (["INPUT", "TEXTAREA", "SELECT"].includes(element.nodeName) && element.getAttribute("type") !== "hidden")\n    candidates.push({ engine: "css", selector: escapeNodeName(element), score: kCSSInputTypeNameScore + 1 });\n  penalizeScoreForLength([candidates]);\n  return candidates;\n}\nfunction buildTextCandidates(injectedScript, element, isTargetNode) {\n  if (element.nodeName === "SELECT")\n    return [];\n  const candidates = [];\n  const title = element.getAttribute("title");\n  if (title) {\n    candidates.push([{ engine: "internal:attr", selector: `[title=${escapeForAttributeSelector(title, true)}]`, score: kTitleScoreExact }]);\n    for (const alternative of suitableTextAlternatives(title))\n      candidates.push([{ engine: "internal:attr", selector: `[title=${escapeForAttributeSelector(alternative.text, false)}]`, score: kTitleScore - alternative.scoreBonus }]);\n  }\n  const alt = element.getAttribute("alt");\n  if (alt && ["APPLET", "AREA", "IMG", "INPUT"].includes(element.nodeName)) {\n    candidates.push([{ engine: "internal:attr", selector: `[alt=${escapeForAttributeSelector(alt, true)}]`, score: kAltTextScoreExact }]);\n    for (const alternative of suitableTextAlternatives(alt))\n      candidates.push([{ engine: "internal:attr", selector: `[alt=${escapeForAttributeSelector(alternative.text, false)}]`, score: kAltTextScore - alternative.scoreBonus }]);\n  }\n  const text = elementText(injectedScript._evaluator._cacheText, element).normalized;\n  const textAlternatives = text ? suitableTextAlternatives(text) : [];\n  if (text) {\n    if (isTargetNode) {\n      if (text.length <= 80)\n        candidates.push([{ engine: "internal:text", selector: escapeForTextSelector(text, true), score: kTextScoreExact }]);\n      for (const alternative of textAlternatives)\n        candidates.push([{ engine: "internal:text", selector: escapeForTextSelector(alternative.text, false), score: kTextScore - alternative.scoreBonus }]);\n    }\n    const cssToken = { engine: "css", selector: escapeNodeName(element), score: kCSSTagNameScore };\n    for (const alternative of textAlternatives)\n      candidates.push([cssToken, { engine: "internal:has-text", selector: escapeForTextSelector(alternative.text, false), score: kTextScore - alternative.scoreBonus }]);\n    if (text.length <= 80) {\n      const re = new RegExp("^" + escapeRegExp(text) + "$");\n      candidates.push([cssToken, { engine: "internal:has-text", selector: escapeForTextSelector(re, false), score: kTextScoreRegex }]);\n    }\n  }\n  const ariaRole = getAriaRole(element);\n  if (ariaRole && !["none", "presentation"].includes(ariaRole)) {\n    const ariaName = getElementAccessibleName(element, false);\n    if (ariaName) {\n      const roleToken = { engine: "internal:role", selector: `${ariaRole}[name=${escapeForAttributeSelector(ariaName, true)}]`, score: kRoleWithNameScoreExact };\n      candidates.push([roleToken]);\n      for (const alternative of suitableTextAlternatives(ariaName))\n        candidates.push([{ engine: "internal:role", selector: `${ariaRole}[name=${escapeForAttributeSelector(alternative.text, false)}]`, score: kRoleWithNameScore - alternative.scoreBonus }]);\n    } else {\n      const roleToken = { engine: "internal:role", selector: `${ariaRole}`, score: kRoleWithoutNameScore };\n      for (const alternative of textAlternatives)\n        candidates.push([roleToken, { engine: "internal:has-text", selector: escapeForTextSelector(alternative.text, false), score: kTextScore - alternative.scoreBonus }]);\n      if (text.length <= 80) {\n        const re = new RegExp("^" + escapeRegExp(text) + "$");\n        candidates.push([roleToken, { engine: "internal:has-text", selector: escapeForTextSelector(re, false), score: kTextScoreRegex }]);\n      }\n    }\n  }\n  penalizeScoreForLength(candidates);\n  return candidates;\n}\nfunction makeSelectorForId(id) {\n  return /^[a-zA-Z][a-zA-Z0-9\\-\\_]+$/.test(id) ? "#" + id : `[id=${quoteCSSAttributeValue(id)}]`;\n}\nfunction hasCSSIdToken(tokens) {\n  return tokens.some((token) => token.engine === "css" && (token.selector.startsWith("#") || token.selector.startsWith(\'[id="\')));\n}\nfunction cssFallback(injectedScript, targetElement, options) {\n  var _a;\n  const root = (_a = options.root) != null ? _a : targetElement.ownerDocument;\n  const tokens = [];\n  function uniqueCSSSelector(prefix) {\n    const path = tokens.slice();\n    if (prefix)\n      path.unshift(prefix);\n    const selector = path.join(" > ");\n    const parsedSelector = injectedScript.parseSelector(selector);\n    const node = injectedScript.querySelector(parsedSelector, root, false);\n    return node === targetElement ? selector : void 0;\n  }\n  function makeStrict(selector) {\n    const token = { engine: "css", selector, score: kCSSFallbackScore };\n    const parsedSelector = injectedScript.parseSelector(selector);\n    const elements = injectedScript.querySelectorAll(parsedSelector, root);\n    if (elements.length === 1)\n      return [token];\n    const nth = { engine: "nth", selector: String(elements.indexOf(targetElement)), score: kNthScore };\n    return [token, nth];\n  }\n  for (let element = targetElement; element && element !== root; element = parentElementOrShadowHost(element)) {\n    let bestTokenForLevel = "";\n    if (element.id && !options.noCSSId) {\n      const token = makeSelectorForId(element.id);\n      const selector = uniqueCSSSelector(token);\n      if (selector)\n        return makeStrict(selector);\n      bestTokenForLevel = token;\n    }\n    const parent = element.parentNode;\n    const classes = [...element.classList].map(escapeClassName);\n    for (let i = 0; i < classes.length; ++i) {\n      const token = "." + classes.slice(0, i + 1).join(".");\n      const selector = uniqueCSSSelector(token);\n      if (selector)\n        return makeStrict(selector);\n      if (!bestTokenForLevel && parent) {\n        const sameClassSiblings = parent.querySelectorAll(token);\n        if (sameClassSiblings.length === 1)\n          bestTokenForLevel = token;\n      }\n    }\n    if (parent) {\n      const siblings = [...parent.children];\n      const nodeName = element.nodeName;\n      const sameTagSiblings = siblings.filter((sibling) => sibling.nodeName === nodeName);\n      const token = sameTagSiblings.indexOf(element) === 0 ? escapeNodeName(element) : `${escapeNodeName(element)}:nth-child(${1 + siblings.indexOf(element)})`;\n      const selector = uniqueCSSSelector(token);\n      if (selector)\n        return makeStrict(selector);\n      if (!bestTokenForLevel)\n        bestTokenForLevel = token;\n    } else if (!bestTokenForLevel) {\n      bestTokenForLevel = escapeNodeName(element);\n    }\n    tokens.unshift(bestTokenForLevel);\n  }\n  return makeStrict(uniqueCSSSelector());\n}\nfunction penalizeScoreForLength(groups) {\n  for (const group of groups) {\n    for (const token of group) {\n      if (token.score > kBeginPenalizedScore && token.score < kEndPenalizedScore)\n        token.score += Math.min(kTextScoreRange, token.selector.length / 10 | 0);\n    }\n  }\n}\nfunction joinTokens(tokens) {\n  const parts = [];\n  let lastEngine = "";\n  for (const { engine, selector } of tokens) {\n    if (parts.length && (lastEngine !== "css" || engine !== "css" || selector.startsWith(":nth-match(")))\n      parts.push(">>");\n    lastEngine = engine;\n    if (engine === "css")\n      parts.push(selector);\n    else\n      parts.push(`${engine}=${selector}`);\n  }\n  return parts.join(" ");\n}\nfunction combineScores(tokens) {\n  let score = 0;\n  for (let i = 0; i < tokens.length; i++)\n    score += tokens[i].score * (tokens.length - i);\n  return score;\n}\nfunction chooseFirstSelector(injectedScript, scope, targetElement, selectors, allowNthMatch) {\n  const joined = selectors.map((tokens) => ({ tokens, score: combineScores(tokens) }));\n  joined.sort((a, b) => a.score - b.score);\n  let bestWithIndex = null;\n  for (const { tokens } of joined) {\n    const parsedSelector = injectedScript.parseSelector(joinTokens(tokens));\n    const result = injectedScript.querySelectorAll(parsedSelector, scope);\n    if (result[0] === targetElement && result.length === 1) {\n      return tokens;\n    }\n    const index = result.indexOf(targetElement);\n    if (!allowNthMatch || bestWithIndex || index === -1 || result.length > 5)\n      continue;\n    const nth = { engine: "nth", selector: String(index), score: kNthScore };\n    bestWithIndex = [...tokens, nth];\n  }\n  return bestWithIndex;\n}\nfunction isGuidLike(id) {\n  let lastCharacterType;\n  let transitionCount = 0;\n  for (let i = 0; i < id.length; ++i) {\n    const c = id[i];\n    let characterType;\n    if (c === "-" || c === "_")\n      continue;\n    if (c >= "a" && c <= "z")\n      characterType = "lower";\n    else if (c >= "A" && c <= "Z")\n      characterType = "upper";\n    else if (c >= "0" && c <= "9")\n      characterType = "digit";\n    else\n      characterType = "other";\n    if (characterType === "lower" && lastCharacterType === "upper") {\n      lastCharacterType = characterType;\n      continue;\n    }\n    if (lastCharacterType && lastCharacterType !== characterType)\n      ++transitionCount;\n    lastCharacterType = characterType;\n  }\n  return transitionCount >= id.length / 4;\n}\nfunction trimWordBoundary(text, maxLength) {\n  if (text.length <= maxLength)\n    return text;\n  text = text.substring(0, maxLength);\n  const match = text.match(/^(.*)\\b(.+?)$/);\n  if (!match)\n    return "";\n  return match[1].trimEnd();\n}\nfunction suitableTextAlternatives(text) {\n  let result = [];\n  {\n    const match = text.match(/^([\\d.,]+)[^.,\\w]/);\n    const leadingNumberLength = match ? match[1].length : 0;\n    if (leadingNumberLength) {\n      const alt = trimWordBoundary(text.substring(leadingNumberLength).trimStart(), 80);\n      result.push({ text: alt, scoreBonus: alt.length <= 30 ? 2 : 1 });\n    }\n  }\n  {\n    const match = text.match(/[^.,\\w]([\\d.,]+)$/);\n    const trailingNumberLength = match ? match[1].length : 0;\n    if (trailingNumberLength) {\n      const alt = trimWordBoundary(text.substring(0, text.length - trailingNumberLength).trimEnd(), 80);\n      result.push({ text: alt, scoreBonus: alt.length <= 30 ? 2 : 1 });\n    }\n  }\n  if (text.length <= 30) {\n    result.push({ text, scoreBonus: 0 });\n  } else {\n    result.push({ text: trimWordBoundary(text, 80), scoreBonus: 0 });\n    result.push({ text: trimWordBoundary(text, 30), scoreBonus: 1 });\n  }\n  result = result.filter((r) => r.text);\n  if (!result.length)\n    result.push({ text: text.substring(0, 80), scoreBonus: 0 });\n  return result;\n}\nfunction escapeNodeName(node) {\n  return node.nodeName.toLocaleLowerCase().replace(/[:\\.]/g, (char) => "\\\\" + char);\n}\nfunction escapeClassName(className) {\n  let result = "";\n  for (let i = 0; i < className.length; i++)\n    result += cssEscapeCharacter(className, i);\n  return result;\n}\nfunction cssEscapeCharacter(s, i) {\n  const c = s.charCodeAt(i);\n  if (c === 0)\n    return "\\uFFFD";\n  if (c >= 1 && c <= 31 || c >= 48 && c <= 57 && (i === 0 || i === 1 && s.charCodeAt(0) === 45))\n    return "\\\\" + c.toString(16) + " ";\n  if (i === 0 && c === 45 && s.length === 1)\n    return "\\\\" + s.charAt(i);\n  if (c >= 128 || c === 45 || c === 95 || c >= 48 && c <= 57 || c >= 65 && c <= 90 || c >= 97 && c <= 122)\n    return s.charAt(i);\n  return "\\\\" + s.charAt(i);\n}\n\n// packages/injected/src/vueSelectorEngine.ts\nfunction basename(filename, ext) {\n  const normalized = filename.replace(/^[a-zA-Z]:/, "").replace(/\\\\/g, "/");\n  let result = normalized.substring(normalized.lastIndexOf("/") + 1);\n  if (ext && result.endsWith(ext))\n    result = result.substring(0, result.length - ext.length);\n  return result;\n}\nfunction toUpper(_, c) {\n  return c ? c.toUpperCase() : "";\n}\nvar classifyRE = /(?:^|[-_/])(\\w)/g;\nvar classify = (str) => {\n  return str && str.replace(classifyRE, toUpper);\n};\nfunction buildComponentsTreeVue3(instance) {\n  function getComponentTypeName(options) {\n    const name = options.name || options._componentTag || options.__playwright_guessedName;\n    if (name)\n      return name;\n    const file = options.__file;\n    if (file)\n      return classify(basename(file, ".vue"));\n  }\n  function saveComponentName(instance2, key) {\n    instance2.type.__playwright_guessedName = key;\n    return key;\n  }\n  function getInstanceName(instance2) {\n    var _a, _b, _c, _d;\n    const name = getComponentTypeName(instance2.type || {});\n    if (name)\n      return name;\n    if (instance2.root === instance2)\n      return "Root";\n    for (const key in (_b = (_a = instance2.parent) == null ? void 0 : _a.type) == null ? void 0 : _b.components) {\n      if (((_c = instance2.parent) == null ? void 0 : _c.type.components[key]) === instance2.type)\n        return saveComponentName(instance2, key);\n    }\n    for (const key in (_d = instance2.appContext) == null ? void 0 : _d.components) {\n      if (instance2.appContext.components[key] === instance2.type)\n        return saveComponentName(instance2, key);\n    }\n    return "Anonymous Component";\n  }\n  function isBeingDestroyed(instance2) {\n    return instance2._isBeingDestroyed || instance2.isUnmounted;\n  }\n  function isFragment(instance2) {\n    return instance2.subTree.type.toString() === "Symbol(Fragment)";\n  }\n  function getInternalInstanceChildren(subTree) {\n    const list = [];\n    if (subTree.component)\n      list.push(subTree.component);\n    if (subTree.suspense)\n      list.push(...getInternalInstanceChildren(subTree.suspense.activeBranch));\n    if (Array.isArray(subTree.children)) {\n      subTree.children.forEach((childSubTree) => {\n        if (childSubTree.component)\n          list.push(childSubTree.component);\n        else\n          list.push(...getInternalInstanceChildren(childSubTree));\n      });\n    }\n    return list.filter((child) => {\n      var _a;\n      return !isBeingDestroyed(child) && !((_a = child.type.devtools) == null ? void 0 : _a.hide);\n    });\n  }\n  function getRootElementsFromComponentInstance(instance2) {\n    if (isFragment(instance2))\n      return getFragmentRootElements(instance2.subTree);\n    return [instance2.subTree.el];\n  }\n  function getFragmentRootElements(vnode) {\n    if (!vnode.children)\n      return [];\n    const list = [];\n    for (let i = 0, l = vnode.children.length; i < l; i++) {\n      const childVnode = vnode.children[i];\n      if (childVnode.component)\n        list.push(...getRootElementsFromComponentInstance(childVnode.component));\n      else if (childVnode.el)\n        list.push(childVnode.el);\n    }\n    return list;\n  }\n  function buildComponentsTree2(instance2) {\n    return {\n      name: getInstanceName(instance2),\n      children: getInternalInstanceChildren(instance2.subTree).map(buildComponentsTree2),\n      rootElements: getRootElementsFromComponentInstance(instance2),\n      props: instance2.props\n    };\n  }\n  return buildComponentsTree2(instance);\n}\nfunction buildComponentsTreeVue2(instance) {\n  function getComponentName2(options) {\n    const name = options.displayName || options.name || options._componentTag;\n    if (name)\n      return name;\n    const file = options.__file;\n    if (file)\n      return classify(basename(file, ".vue"));\n  }\n  function getInstanceName(instance2) {\n    const name = getComponentName2(instance2.$options || instance2.fnOptions || {});\n    if (name)\n      return name;\n    return instance2.$root === instance2 ? "Root" : "Anonymous Component";\n  }\n  function getInternalInstanceChildren(instance2) {\n    if (instance2.$children)\n      return instance2.$children;\n    if (Array.isArray(instance2.subTree.children))\n      return instance2.subTree.children.filter((vnode) => !!vnode.component).map((vnode) => vnode.component);\n    return [];\n  }\n  function buildComponentsTree2(instance2) {\n    return {\n      name: getInstanceName(instance2),\n      children: getInternalInstanceChildren(instance2).map(buildComponentsTree2),\n      rootElements: [instance2.$el],\n      props: instance2._props\n    };\n  }\n  return buildComponentsTree2(instance);\n}\nfunction filterComponentsTree2(treeNode, searchFn, result = []) {\n  if (searchFn(treeNode))\n    result.push(treeNode);\n  for (const child of treeNode.children)\n    filterComponentsTree2(child, searchFn, result);\n  return result;\n}\nfunction findVueRoots(root, roots = []) {\n  const document = root.ownerDocument || root;\n  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);\n  const vue2Roots = /* @__PURE__ */ new Set();\n  do {\n    const node = walker.currentNode;\n    if (node.__vue__)\n      vue2Roots.add(node.__vue__.$root);\n    if (node.__vue_app__ && node._vnode && node._vnode.component)\n      roots.push({ root: node._vnode.component, version: 3 });\n    const shadowRoot = node instanceof Element ? node.shadowRoot : null;\n    if (shadowRoot)\n      findVueRoots(shadowRoot, roots);\n  } while (walker.nextNode());\n  for (const vue2root of vue2Roots) {\n    roots.push({\n      version: 2,\n      root: vue2root\n    });\n  }\n  return roots;\n}\nvar createVueEngine = () => ({\n  queryAll(scope, selector) {\n    const document = scope.ownerDocument || scope;\n    const { name, attributes } = parseAttributeSelector(selector, false);\n    const vueRoots = findVueRoots(document);\n    const trees = vueRoots.map((vueRoot) => vueRoot.version === 3 ? buildComponentsTreeVue3(vueRoot.root) : buildComponentsTreeVue2(vueRoot.root));\n    const treeNodes = trees.map((tree) => filterComponentsTree2(tree, (treeNode) => {\n      if (name && treeNode.name !== name)\n        return false;\n      if (treeNode.rootElements.some((rootElement) => !isInsideScope(scope, rootElement)))\n        return false;\n      for (const attr of attributes) {\n        if (!matchesComponentAttribute(treeNode.props, attr))\n          return false;\n      }\n      return true;\n    })).flat();\n    const allRootElements = /* @__PURE__ */ new Set();\n    for (const treeNode of treeNodes) {\n      for (const rootElement of treeNode.rootElements)\n        allRootElements.add(rootElement);\n    }\n    return [...allRootElements];\n  }\n});\n\n// packages/injected/src/xpathSelectorEngine.ts\nvar XPathEngine = {\n  queryAll(root, selector) {\n    if (selector.startsWith("/") && root.nodeType !== Node.DOCUMENT_NODE)\n      selector = "." + selector;\n    const result = [];\n    const document = root.ownerDocument || root;\n    if (!document)\n      return result;\n    const it = document.evaluate(selector, root, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);\n    for (let node = it.iterateNext(); node; node = it.iterateNext()) {\n      if (node.nodeType === Node.ELEMENT_NODE)\n        result.push(node);\n    }\n    return result;\n  }\n};\n\n// packages/playwright-core/src/utils/isomorphic/locatorUtils.ts\nfunction getByAttributeTextSelector(attrName, text, options) {\n  return `internal:attr=[${attrName}=${escapeForAttributeSelector(text, (options == null ? void 0 : options.exact) || false)}]`;\n}\nfunction getByTestIdSelector(testIdAttributeName, testId) {\n  return `internal:testid=[${testIdAttributeName}=${escapeForAttributeSelector(testId, true)}]`;\n}\nfunction getByLabelSelector(text, options) {\n  return "internal:label=" + escapeForTextSelector(text, !!(options == null ? void 0 : options.exact));\n}\nfunction getByAltTextSelector(text, options) {\n  return getByAttributeTextSelector("alt", text, options);\n}\nfunction getByTitleSelector(text, options) {\n  return getByAttributeTextSelector("title", text, options);\n}\nfunction getByPlaceholderSelector(text, options) {\n  return getByAttributeTextSelector("placeholder", text, options);\n}\nfunction getByTextSelector(text, options) {\n  return "internal:text=" + escapeForTextSelector(text, !!(options == null ? void 0 : options.exact));\n}\nfunction getByRoleSelector(role, options = {}) {\n  const props = [];\n  if (options.checked !== void 0)\n    props.push(["checked", String(options.checked)]);\n  if (options.disabled !== void 0)\n    props.push(["disabled", String(options.disabled)]);\n  if (options.selected !== void 0)\n    props.push(["selected", String(options.selected)]);\n  if (options.expanded !== void 0)\n    props.push(["expanded", String(options.expanded)]);\n  if (options.includeHidden !== void 0)\n    props.push(["include-hidden", String(options.includeHidden)]);\n  if (options.level !== void 0)\n    props.push(["level", String(options.level)]);\n  if (options.name !== void 0)\n    props.push(["name", escapeForAttributeSelector(options.name, !!options.exact)]);\n  if (options.pressed !== void 0)\n    props.push(["pressed", String(options.pressed)]);\n  return `internal:role=${role}${props.map(([n, v]) => `[${n}=${v}]`).join("")}`;\n}\n\n// packages/injected/src/consoleApi.ts\nvar selectorSymbol = Symbol("selector");\nselectorSymbol;\nvar _Locator = class _Locator {\n  constructor(injectedScript, selector, options) {\n    if (options == null ? void 0 : options.hasText)\n      selector += ` >> internal:has-text=${escapeForTextSelector(options.hasText, false)}`;\n    if (options == null ? void 0 : options.hasNotText)\n      selector += ` >> internal:has-not-text=${escapeForTextSelector(options.hasNotText, false)}`;\n    if (options == null ? void 0 : options.has)\n      selector += ` >> internal:has=` + JSON.stringify(options.has[selectorSymbol]);\n    if (options == null ? void 0 : options.hasNot)\n      selector += ` >> internal:has-not=` + JSON.stringify(options.hasNot[selectorSymbol]);\n    if ((options == null ? void 0 : options.visible) !== void 0)\n      selector += ` >> visible=${options.visible ? "true" : "false"}`;\n    this[selectorSymbol] = selector;\n    if (selector) {\n      const parsed = injectedScript.parseSelector(selector);\n      this.element = injectedScript.querySelector(parsed, injectedScript.document, false);\n      this.elements = injectedScript.querySelectorAll(parsed, injectedScript.document);\n    }\n    const selectorBase = selector;\n    const self = this;\n    self.locator = (selector2, options2) => {\n      return new _Locator(injectedScript, selectorBase ? selectorBase + " >> " + selector2 : selector2, options2);\n    };\n    self.getByTestId = (testId) => self.locator(getByTestIdSelector(injectedScript.testIdAttributeNameForStrictErrorAndConsoleCodegen(), testId));\n    self.getByAltText = (text, options2) => self.locator(getByAltTextSelector(text, options2));\n    self.getByLabel = (text, options2) => self.locator(getByLabelSelector(text, options2));\n    self.getByPlaceholder = (text, options2) => self.locator(getByPlaceholderSelector(text, options2));\n    self.getByText = (text, options2) => self.locator(getByTextSelector(text, options2));\n    self.getByTitle = (text, options2) => self.locator(getByTitleSelector(text, options2));\n    self.getByRole = (role, options2 = {}) => self.locator(getByRoleSelector(role, options2));\n    self.filter = (options2) => new _Locator(injectedScript, selector, options2);\n    self.first = () => self.locator("nth=0");\n    self.last = () => self.locator("nth=-1");\n    self.nth = (index) => self.locator(`nth=${index}`);\n    self.and = (locator) => new _Locator(injectedScript, selectorBase + ` >> internal:and=` + JSON.stringify(locator[selectorSymbol]));\n    self.or = (locator) => new _Locator(injectedScript, selectorBase + ` >> internal:or=` + JSON.stringify(locator[selectorSymbol]));\n  }\n};\nvar Locator = _Locator;\nvar ConsoleAPI = class {\n  constructor(injectedScript) {\n    this._injectedScript = injectedScript;\n  }\n  install() {\n    if (this._injectedScript.window.playwright)\n      return;\n    this._injectedScript.window.playwright = {\n      $: (selector, strict) => this._querySelector(selector, !!strict),\n      $$: (selector) => this._querySelectorAll(selector),\n      inspect: (selector) => this._inspect(selector),\n      selector: (element) => this._selector(element),\n      generateLocator: (element, language) => this._generateLocator(element, language),\n      ariaSnapshot: (element) => {\n        return this._injectedScript.ariaSnapshot(element || this._injectedScript.document.body, { mode: "expect" });\n      },\n      resume: () => this._resume(),\n      ...new Locator(this._injectedScript, "")\n    };\n    delete this._injectedScript.window.playwright.filter;\n    delete this._injectedScript.window.playwright.first;\n    delete this._injectedScript.window.playwright.last;\n    delete this._injectedScript.window.playwright.nth;\n    delete this._injectedScript.window.playwright.and;\n    delete this._injectedScript.window.playwright.or;\n  }\n  _querySelector(selector, strict) {\n    if (typeof selector !== "string")\n      throw new Error(`Usage: playwright.query(\'Playwright >> selector\').`);\n    const parsed = this._injectedScript.parseSelector(selector);\n    return this._injectedScript.querySelector(parsed, this._injectedScript.document, strict);\n  }\n  _querySelectorAll(selector) {\n    if (typeof selector !== "string")\n      throw new Error(`Usage: playwright.$$(\'Playwright >> selector\').`);\n    const parsed = this._injectedScript.parseSelector(selector);\n    return this._injectedScript.querySelectorAll(parsed, this._injectedScript.document);\n  }\n  _inspect(selector) {\n    if (typeof selector !== "string")\n      throw new Error(`Usage: playwright.inspect(\'Playwright >> selector\').`);\n    this._injectedScript.window.inspect(this._querySelector(selector, false));\n  }\n  _selector(element) {\n    if (!(element instanceof Element))\n      throw new Error(`Usage: playwright.selector(element).`);\n    return this._injectedScript.generateSelectorSimple(element);\n  }\n  _generateLocator(element, language) {\n    if (!(element instanceof Element))\n      throw new Error(`Usage: playwright.locator(element).`);\n    const selector = this._injectedScript.generateSelectorSimple(element);\n    return asLocator(language || "javascript", selector);\n  }\n  _resume() {\n    if (!this._injectedScript.window.__pw_resume)\n      return false;\n    this._injectedScript.window.__pw_resume().catch(() => {\n    });\n  }\n};\n\n// packages/playwright-core/src/utils/isomorphic/utilityScriptSerializers.ts\nfunction isRegExp2(obj) {\n  try {\n    return obj instanceof RegExp || Object.prototype.toString.call(obj) === "[object RegExp]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isDate(obj) {\n  try {\n    return obj instanceof Date || Object.prototype.toString.call(obj) === "[object Date]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isURL(obj) {\n  try {\n    return obj instanceof URL || Object.prototype.toString.call(obj) === "[object URL]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isError(obj) {\n  var _a;\n  try {\n    return obj instanceof Error || obj && ((_a = Object.getPrototypeOf(obj)) == null ? void 0 : _a.name) === "Error";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isTypedArray(obj, constructor) {\n  try {\n    return obj instanceof constructor || Object.prototype.toString.call(obj) === `[object ${constructor.name}]`;\n  } catch (error) {\n    return false;\n  }\n}\nvar typedArrayConstructors = {\n  i8: Int8Array,\n  ui8: Uint8Array,\n  ui8c: Uint8ClampedArray,\n  i16: Int16Array,\n  ui16: Uint16Array,\n  i32: Int32Array,\n  ui32: Uint32Array,\n  // TODO: add Float16Array once it\'s in baseline\n  f32: Float32Array,\n  f64: Float64Array,\n  bi64: BigInt64Array,\n  bui64: BigUint64Array\n};\nfunction typedArrayToBase64(array) {\n  if ("toBase64" in array)\n    return array.toBase64();\n  const binary = Array.from(new Uint8Array(array.buffer, array.byteOffset, array.byteLength)).map((b) => String.fromCharCode(b)).join("");\n  return btoa(binary);\n}\nfunction base64ToTypedArray(base64, TypedArrayConstructor) {\n  const binary = atob(base64);\n  const bytes = new Uint8Array(binary.length);\n  for (let i = 0; i < binary.length; i++)\n    bytes[i] = binary.charCodeAt(i);\n  return new TypedArrayConstructor(bytes.buffer);\n}\nfunction parseEvaluationResultValue(value, handles = [], refs = /* @__PURE__ */ new Map()) {\n  if (Object.is(value, void 0))\n    return void 0;\n  if (typeof value === "object" && value) {\n    if ("ref" in value)\n      return refs.get(value.ref);\n    if ("v" in value) {\n      if (value.v === "undefined")\n        return void 0;\n      if (value.v === "null")\n        return null;\n      if (value.v === "NaN")\n        return NaN;\n      if (value.v === "Infinity")\n        return Infinity;\n      if (value.v === "-Infinity")\n        return -Infinity;\n      if (value.v === "-0")\n        return -0;\n      return void 0;\n    }\n    if ("d" in value) {\n      return new Date(value.d);\n    }\n    if ("u" in value)\n      return new URL(value.u);\n    if ("bi" in value)\n      return BigInt(value.bi);\n    if ("e" in value) {\n      const error = new Error(value.e.m);\n      error.name = value.e.n;\n      error.stack = value.e.s;\n      return error;\n    }\n    if ("r" in value)\n      return new RegExp(value.r.p, value.r.f);\n    if ("a" in value) {\n      const result = [];\n      refs.set(value.id, result);\n      for (const a of value.a)\n        result.push(parseEvaluationResultValue(a, handles, refs));\n      return result;\n    }\n    if ("o" in value) {\n      const result = {};\n      refs.set(value.id, result);\n      for (const { k, v } of value.o) {\n        if (k === "__proto__")\n          continue;\n        result[k] = parseEvaluationResultValue(v, handles, refs);\n      }\n      return result;\n    }\n    if ("h" in value)\n      return handles[value.h];\n    if ("ta" in value)\n      return base64ToTypedArray(value.ta.b, typedArrayConstructors[value.ta.k]);\n  }\n  return value;\n}\nfunction serializeAsCallArgument(value, handleSerializer) {\n  return serialize(value, handleSerializer, { visited: /* @__PURE__ */ new Map(), lastId: 0 });\n}\nfunction serialize(value, handleSerializer, visitorInfo) {\n  if (value && typeof value === "object") {\n    if (typeof globalThis.Window === "function" && value instanceof globalThis.Window)\n      return "ref: <Window>";\n    if (typeof globalThis.Document === "function" && value instanceof globalThis.Document)\n      return "ref: <Document>";\n    if (typeof globalThis.Node === "function" && value instanceof globalThis.Node)\n      return "ref: <Node>";\n  }\n  return innerSerialize(value, handleSerializer, visitorInfo);\n}\nfunction innerSerialize(value, handleSerializer, visitorInfo) {\n  var _a;\n  const result = handleSerializer(value);\n  if ("fallThrough" in result)\n    value = result.fallThrough;\n  else\n    return result;\n  if (typeof value === "symbol")\n    return { v: "undefined" };\n  if (Object.is(value, void 0))\n    return { v: "undefined" };\n  if (Object.is(value, null))\n    return { v: "null" };\n  if (Object.is(value, NaN))\n    return { v: "NaN" };\n  if (Object.is(value, Infinity))\n    return { v: "Infinity" };\n  if (Object.is(value, -Infinity))\n    return { v: "-Infinity" };\n  if (Object.is(value, -0))\n    return { v: "-0" };\n  if (typeof value === "boolean")\n    return value;\n  if (typeof value === "number")\n    return value;\n  if (typeof value === "string")\n    return value;\n  if (typeof value === "bigint")\n    return { bi: value.toString() };\n  if (isError(value)) {\n    let stack;\n    if ((_a = value.stack) == null ? void 0 : _a.startsWith(value.name + ": " + value.message)) {\n      stack = value.stack;\n    } else {\n      stack = `${value.name}: ${value.message}\n${value.stack}`;\n    }\n    return { e: { n: value.name, m: value.message, s: stack } };\n  }\n  if (isDate(value))\n    return { d: value.toJSON() };\n  if (isURL(value))\n    return { u: value.toJSON() };\n  if (isRegExp2(value))\n    return { r: { p: value.source, f: value.flags } };\n  for (const [k, ctor] of Object.entries(typedArrayConstructors)) {\n    if (isTypedArray(value, ctor))\n      return { ta: { b: typedArrayToBase64(value), k } };\n  }\n  const id = visitorInfo.visited.get(value);\n  if (id)\n    return { ref: id };\n  if (Array.isArray(value)) {\n    const a = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (let i = 0; i < value.length; ++i)\n      a.push(serialize(value[i], handleSerializer, visitorInfo));\n    return { a, id: id2 };\n  }\n  if (typeof value === "object") {\n    const o = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (const name of Object.keys(value)) {\n      let item;\n      try {\n        item = value[name];\n      } catch (e) {\n        continue;\n      }\n      if (name === "toJSON" && typeof item === "function")\n        o.push({ k: name, v: { o: [], id: 0 } });\n      else\n        o.push({ k: name, v: serialize(item, handleSerializer, visitorInfo) });\n    }\n    let jsonWrapper;\n    try {\n      if (o.length === 0 && value.toJSON && typeof value.toJSON === "function")\n        jsonWrapper = { value: value.toJSON() };\n    } catch (e) {\n    }\n    if (jsonWrapper)\n      return innerSerialize(jsonWrapper.value, handleSerializer, visitorInfo);\n    return { o, id: id2 };\n  }\n}\n\n// packages/injected/src/utilityScript.ts\nvar UtilityScript = class {\n  // eslint-disable-next-line no-restricted-globals\n  constructor(global, isUnderTest) {\n    var _a, _b, _c, _d, _e, _f, _g, _h;\n    this.global = global;\n    this.isUnderTest = isUnderTest;\n    if (global.__pwClock) {\n      this.builtins = global.__pwClock.builtins;\n    } else {\n      this.builtins = {\n        setTimeout: (_a = global.setTimeout) == null ? void 0 : _a.bind(global),\n        clearTimeout: (_b = global.clearTimeout) == null ? void 0 : _b.bind(global),\n        setInterval: (_c = global.setInterval) == null ? void 0 : _c.bind(global),\n        clearInterval: (_d = global.clearInterval) == null ? void 0 : _d.bind(global),\n        requestAnimationFrame: (_e = global.requestAnimationFrame) == null ? void 0 : _e.bind(global),\n        cancelAnimationFrame: (_f = global.cancelAnimationFrame) == null ? void 0 : _f.bind(global),\n        requestIdleCallback: (_g = global.requestIdleCallback) == null ? void 0 : _g.bind(global),\n        cancelIdleCallback: (_h = global.cancelIdleCallback) == null ? void 0 : _h.bind(global),\n        performance: global.performance,\n        Intl: global.Intl,\n        Date: global.Date\n      };\n    }\n    if (this.isUnderTest)\n      global.builtins = this.builtins;\n  }\n  evaluate(isFunction, returnByValue, expression, argCount, ...argsAndHandles) {\n    const args = argsAndHandles.slice(0, argCount);\n    const handles = argsAndHandles.slice(argCount);\n    const parameters = [];\n    for (let i = 0; i < args.length; i++)\n      parameters[i] = parseEvaluationResultValue(args[i], handles);\n    let result = this.global.eval(expression);\n    if (isFunction === true) {\n      result = result(...parameters);\n    } else if (isFunction === false) {\n      result = result;\n    } else {\n      if (typeof result === "function")\n        result = result(...parameters);\n    }\n    return returnByValue ? this._promiseAwareJsonValueNoThrow(result) : result;\n  }\n  jsonValue(returnByValue, value) {\n    if (value === void 0)\n      return void 0;\n    return serializeAsCallArgument(value, (value2) => ({ fallThrough: value2 }));\n  }\n  _promiseAwareJsonValueNoThrow(value) {\n    const safeJson = (value2) => {\n      try {\n        return this.jsonValue(true, value2);\n      } catch (e) {\n        return void 0;\n      }\n    };\n    if (value && typeof value === "object" && typeof value.then === "function") {\n      return (async () => {\n        const promiseValue = await value;\n        return safeJson(promiseValue);\n      })();\n    }\n    return safeJson(value);\n  }\n};\n\n// packages/injected/src/injectedScript.ts\nvar InjectedScript = class {\n  // eslint-disable-next-line no-restricted-globals\n  constructor(window, options) {\n    this._testIdAttributeNameForStrictErrorAndConsoleCodegen = "data-testid";\n    // Recorder must use any external dependencies through InjectedScript.\n    // Otherwise it will end up with a copy of all modules it uses, and any\n    // module-level globals will be duplicated, which leads to subtle bugs.\n    this.utils = {\n      asLocator,\n      cacheNormalizedWhitespaces,\n      elementText,\n      getAriaRole,\n      getElementAccessibleDescription,\n      getElementAccessibleName,\n      isElementVisible,\n      isInsideScope,\n      normalizeWhiteSpace,\n      parseAriaSnapshot,\n      generateAriaTree,\n      // Builtins protect injected code from clock emulation.\n      builtins: null\n    };\n    this.window = window;\n    this.document = window.document;\n    this.isUnderTest = options.isUnderTest;\n    this.utils.builtins = new UtilityScript(window, options.isUnderTest).builtins;\n    this._sdkLanguage = options.sdkLanguage;\n    this._testIdAttributeNameForStrictErrorAndConsoleCodegen = options.testIdAttributeName;\n    this._evaluator = new SelectorEvaluatorImpl();\n    this.consoleApi = new ConsoleAPI(this);\n    this.onGlobalListenersRemoved = /* @__PURE__ */ new Set();\n    this._autoClosingTags = /* @__PURE__ */ new Set(["AREA", "BASE", "BR", "COL", "COMMAND", "EMBED", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "MENUITEM", "META", "PARAM", "SOURCE", "TRACK", "WBR"]);\n    this._booleanAttributes = /* @__PURE__ */ new Set(["checked", "selected", "disabled", "readonly", "multiple"]);\n    this._eventTypes = /* @__PURE__ */ new Map([\n      ["auxclick", "mouse"],\n      ["click", "mouse"],\n      ["dblclick", "mouse"],\n      ["mousedown", "mouse"],\n      ["mouseeenter", "mouse"],\n      ["mouseleave", "mouse"],\n      ["mousemove", "mouse"],\n      ["mouseout", "mouse"],\n      ["mouseover", "mouse"],\n      ["mouseup", "mouse"],\n      ["mouseleave", "mouse"],\n      ["mousewheel", "mouse"],\n      ["keydown", "keyboard"],\n      ["keyup", "keyboard"],\n      ["keypress", "keyboard"],\n      ["textInput", "keyboard"],\n      ["touchstart", "touch"],\n      ["touchmove", "touch"],\n      ["touchend", "touch"],\n      ["touchcancel", "touch"],\n      ["pointerover", "pointer"],\n      ["pointerout", "pointer"],\n      ["pointerenter", "pointer"],\n      ["pointerleave", "pointer"],\n      ["pointerdown", "pointer"],\n      ["pointerup", "pointer"],\n      ["pointermove", "pointer"],\n      ["pointercancel", "pointer"],\n      ["gotpointercapture", "pointer"],\n      ["lostpointercapture", "pointer"],\n      ["focus", "focus"],\n      ["blur", "focus"],\n      ["drag", "drag"],\n      ["dragstart", "drag"],\n      ["dragend", "drag"],\n      ["dragover", "drag"],\n      ["dragenter", "drag"],\n      ["dragleave", "drag"],\n      ["dragexit", "drag"],\n      ["drop", "drag"],\n      ["wheel", "wheel"],\n      ["deviceorientation", "deviceorientation"],\n      ["deviceorientationabsolute", "deviceorientation"],\n      ["devicemotion", "devicemotion"]\n    ]);\n    this._hoverHitTargetInterceptorEvents = /* @__PURE__ */ new Set(["mousemove"]);\n    this._tapHitTargetInterceptorEvents = /* @__PURE__ */ new Set(["pointerdown", "pointerup", "touchstart", "touchend", "touchcancel"]);\n    this._mouseHitTargetInterceptorEvents = /* @__PURE__ */ new Set(["mousedown", "mouseup", "pointerdown", "pointerup", "click", "auxclick", "dblclick", "contextmenu"]);\n    this._allHitTargetInterceptorEvents = /* @__PURE__ */ new Set([...this._hoverHitTargetInterceptorEvents, ...this._tapHitTargetInterceptorEvents, ...this._mouseHitTargetInterceptorEvents]);\n    this._engines = /* @__PURE__ */ new Map();\n    this._engines.set("xpath", XPathEngine);\n    this._engines.set("xpath:light", XPathEngine);\n    this._engines.set("_react", createReactEngine());\n    this._engines.set("_vue", createVueEngine());\n    this._engines.set("role", createRoleEngine(false));\n    this._engines.set("text", this._createTextEngine(true, false));\n    this._engines.set("text:light", this._createTextEngine(false, false));\n    this._engines.set("id", this._createAttributeEngine("id", true));\n    this._engines.set("id:light", this._createAttributeEngine("id", false));\n    this._engines.set("data-testid", this._createAttributeEngine("data-testid", true));\n    this._engines.set("data-testid:light", this._createAttributeEngine("data-testid", false));\n    this._engines.set("data-test-id", this._createAttributeEngine("data-test-id", true));\n    this._engines.set("data-test-id:light", this._createAttributeEngine("data-test-id", false));\n    this._engines.set("data-test", this._createAttributeEngine("data-test", true));\n    this._engines.set("data-test:light", this._createAttributeEngine("data-test", false));\n    this._engines.set("css", this._createCSSEngine());\n    this._engines.set("nth", { queryAll: () => [] });\n    this._engines.set("visible", this._createVisibleEngine());\n    this._engines.set("internal:control", this._createControlEngine());\n    this._engines.set("internal:has", this._createHasEngine());\n    this._engines.set("internal:has-not", this._createHasNotEngine());\n    this._engines.set("internal:and", { queryAll: () => [] });\n    this._engines.set("internal:or", { queryAll: () => [] });\n    this._engines.set("internal:chain", this._createInternalChainEngine());\n    this._engines.set("internal:label", this._createInternalLabelEngine());\n    this._engines.set("internal:text", this._createTextEngine(true, true));\n    this._engines.set("internal:has-text", this._createInternalHasTextEngine());\n    this._engines.set("internal:has-not-text", this._createInternalHasNotTextEngine());\n    this._engines.set("internal:attr", this._createNamedAttributeEngine());\n    this._engines.set("internal:testid", this._createNamedAttributeEngine());\n    this._engines.set("internal:role", createRoleEngine(true));\n    this._engines.set("internal:describe", this._createDescribeEngine());\n    this._engines.set("aria-ref", this._createAriaRefEngine());\n    for (const { name, source } of options.customEngines)\n      this._engines.set(name, this.eval(source));\n    this._stableRafCount = options.stableRafCount;\n    this._browserName = options.browserName;\n    setGlobalOptions({ browserNameForWorkarounds: options.browserName });\n    this._setupGlobalListenersRemovalDetection();\n    this._setupHitTargetInterceptors();\n    if (this.isUnderTest)\n      this.window.__injectedScript = this;\n  }\n  eval(expression) {\n    return this.window.eval(expression);\n  }\n  testIdAttributeNameForStrictErrorAndConsoleCodegen() {\n    return this._testIdAttributeNameForStrictErrorAndConsoleCodegen;\n  }\n  parseSelector(selector) {\n    const result = parseSelector(selector);\n    visitAllSelectorParts(result, (part) => {\n      if (!this._engines.has(part.name))\n        throw this.createStacklessError(`Unknown engine "${part.name}" while parsing selector ${selector}`);\n    });\n    return result;\n  }\n  generateSelector(targetElement, options) {\n    return generateSelector(this, targetElement, options);\n  }\n  generateSelectorSimple(targetElement, options) {\n    return generateSelector(this, targetElement, { ...options, testIdAttributeName: this._testIdAttributeNameForStrictErrorAndConsoleCodegen }).selector;\n  }\n  querySelector(selector, root, strict) {\n    const result = this.querySelectorAll(selector, root);\n    if (strict && result.length > 1)\n      throw this.strictModeViolationError(selector, result);\n    return result[0];\n  }\n  _queryNth(elements, part) {\n    const list = [...elements];\n    let nth = +part.body;\n    if (nth === -1)\n      nth = list.length - 1;\n    return new Set(list.slice(nth, nth + 1));\n  }\n  _queryLayoutSelector(elements, part, originalRoot) {\n    const name = part.name;\n    const body = part.body;\n    const result = [];\n    const inner = this.querySelectorAll(body.parsed, originalRoot);\n    for (const element of elements) {\n      const score = layoutSelectorScore(name, element, inner, body.distance);\n      if (score !== void 0)\n        result.push({ element, score });\n    }\n    result.sort((a, b) => a.score - b.score);\n    return new Set(result.map((r) => r.element));\n  }\n  ariaSnapshot(node, options) {\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      throw this.createStacklessError("Can only capture aria snapshot of Element nodes.");\n    this._lastAriaSnapshot = generateAriaTree(node, options);\n    return renderAriaTree(this._lastAriaSnapshot, options);\n  }\n  ariaSnapshotForRecorder() {\n    const tree = generateAriaTree(this.document.body, { mode: "ai" });\n    const ariaSnapshot = renderAriaTree(tree, { mode: "ai" });\n    return { ariaSnapshot, refs: tree.refs };\n  }\n  getAllElementsMatchingExpectAriaTemplate(document, template) {\n    return getAllElementsMatchingExpectAriaTemplate(document.documentElement, template);\n  }\n  querySelectorAll(selector, root) {\n    if (selector.capture !== void 0) {\n      if (selector.parts.some((part) => part.name === "nth"))\n        throw this.createStacklessError(`Can\'t query n-th element in a request with the capture.`);\n      const withHas = { parts: selector.parts.slice(0, selector.capture + 1) };\n      if (selector.capture < selector.parts.length - 1) {\n        const parsed = { parts: selector.parts.slice(selector.capture + 1) };\n        const has = { name: "internal:has", body: { parsed }, source: stringifySelector(parsed) };\n        withHas.parts.push(has);\n      }\n      return this.querySelectorAll(withHas, root);\n    }\n    if (!root["querySelectorAll"])\n      throw this.createStacklessError("Node is not queryable.");\n    if (selector.capture !== void 0) {\n      throw this.createStacklessError("Internal error: there should not be a capture in the selector.");\n    }\n    if (root.nodeType === 11 && selector.parts.length === 1 && selector.parts[0].name === "css" && selector.parts[0].source === ":scope")\n      return [root];\n    this._evaluator.begin();\n    try {\n      let roots = /* @__PURE__ */ new Set([root]);\n      for (const part of selector.parts) {\n        if (part.name === "nth") {\n          roots = this._queryNth(roots, part);\n        } else if (part.name === "internal:and") {\n          const andElements = this.querySelectorAll(part.body.parsed, root);\n          roots = new Set(andElements.filter((e) => roots.has(e)));\n        } else if (part.name === "internal:or") {\n          const orElements = this.querySelectorAll(part.body.parsed, root);\n          roots = new Set(sortInDOMOrder(/* @__PURE__ */ new Set([...roots, ...orElements])));\n        } else if (kLayoutSelectorNames.includes(part.name)) {\n          roots = this._queryLayoutSelector(roots, part, root);\n        } else {\n          const next = /* @__PURE__ */ new Set();\n          for (const root2 of roots) {\n            const all = this._queryEngineAll(part, root2);\n            for (const one of all)\n              next.add(one);\n          }\n          roots = next;\n        }\n      }\n      return [...roots];\n    } finally {\n      this._evaluator.end();\n    }\n  }\n  _queryEngineAll(part, root) {\n    const result = this._engines.get(part.name).queryAll(root, part.body);\n    for (const element of result) {\n      if (!("nodeName" in element))\n        throw this.createStacklessError(`Expected a Node but got ${Object.prototype.toString.call(element)}`);\n    }\n    return result;\n  }\n  _createAttributeEngine(attribute, shadow) {\n    const toCSS = (selector) => {\n      const css = `[${attribute}=${JSON.stringify(selector)}]`;\n      return [{ simples: [{ selector: { css, functions: [] }, combinator: "" }] }];\n    };\n    return {\n      queryAll: (root, selector) => {\n        return this._evaluator.query({ scope: root, pierceShadow: shadow }, toCSS(selector));\n      }\n    };\n  }\n  _createCSSEngine() {\n    return {\n      queryAll: (root, body) => {\n        return this._evaluator.query({ scope: root, pierceShadow: true }, body);\n      }\n    };\n  }\n  _createTextEngine(shadow, internal) {\n    const queryAll = (root, selector) => {\n      const { matcher, kind } = createTextMatcher(selector, internal);\n      const result = [];\n      let lastDidNotMatchSelf = null;\n      const appendElement = (element) => {\n        if (kind === "lax" && lastDidNotMatchSelf && lastDidNotMatchSelf.contains(element))\n          return false;\n        const matches = elementMatchesText(this._evaluator._cacheText, element, matcher);\n        if (matches === "none")\n          lastDidNotMatchSelf = element;\n        if (matches === "self" || matches === "selfAndChildren" && kind === "strict" && !internal)\n          result.push(element);\n      };\n      if (root.nodeType === Node.ELEMENT_NODE)\n        appendElement(root);\n      const elements = this._evaluator._queryCSS({ scope: root, pierceShadow: shadow }, "*");\n      for (const element of elements)\n        appendElement(element);\n      return result;\n    };\n    return { queryAll };\n  }\n  _createInternalHasTextEngine() {\n    return {\n      queryAll: (root, selector) => {\n        if (root.nodeType !== 1)\n          return [];\n        const element = root;\n        const text = elementText(this._evaluator._cacheText, element);\n        const { matcher } = createTextMatcher(selector, true);\n        return matcher(text) ? [element] : [];\n      }\n    };\n  }\n  _createInternalHasNotTextEngine() {\n    return {\n      queryAll: (root, selector) => {\n        if (root.nodeType !== 1)\n          return [];\n        const element = root;\n        const text = elementText(this._evaluator._cacheText, element);\n        const { matcher } = createTextMatcher(selector, true);\n        return matcher(text) ? [] : [element];\n      }\n    };\n  }\n  _createInternalLabelEngine() {\n    return {\n      queryAll: (root, selector) => {\n        const { matcher } = createTextMatcher(selector, true);\n        const allElements = this._evaluator._queryCSS({ scope: root, pierceShadow: true }, "*");\n        return allElements.filter((element) => {\n          return getElementLabels(this._evaluator._cacheText, element).some((label) => matcher(label));\n        });\n      }\n    };\n  }\n  _createNamedAttributeEngine() {\n    const queryAll = (root, selector) => {\n      const parsed = parseAttributeSelector(selector, true);\n      if (parsed.name || parsed.attributes.length !== 1)\n        throw new Error("Malformed attribute selector: " + selector);\n      const { name, value, caseSensitive } = parsed.attributes[0];\n      const lowerCaseValue = caseSensitive ? null : value.toLowerCase();\n      let matcher;\n      if (value instanceof RegExp)\n        matcher = (s) => !!s.match(value);\n      else if (caseSensitive)\n        matcher = (s) => s === value;\n      else\n        matcher = (s) => s.toLowerCase().includes(lowerCaseValue);\n      const elements = this._evaluator._queryCSS({ scope: root, pierceShadow: true }, `[${name}]`);\n      return elements.filter((e) => matcher(e.getAttribute(name)));\n    };\n    return { queryAll };\n  }\n  _createDescribeEngine() {\n    const queryAll = (root) => {\n      if (root.nodeType !== 1)\n        return [];\n      return [root];\n    };\n    return { queryAll };\n  }\n  _createControlEngine() {\n    return {\n      queryAll(root, body) {\n        if (body === "enter-frame")\n          return [];\n        if (body === "return-empty")\n          return [];\n        if (body === "component") {\n          if (root.nodeType !== 1)\n            return [];\n          return [root.childElementCount === 1 ? root.firstElementChild : root];\n        }\n        throw new Error(`Internal error, unknown internal:control selector ${body}`);\n      }\n    };\n  }\n  _createHasEngine() {\n    const queryAll = (root, body) => {\n      if (root.nodeType !== 1)\n        return [];\n      const has = !!this.querySelector(body.parsed, root, false);\n      return has ? [root] : [];\n    };\n    return { queryAll };\n  }\n  _createHasNotEngine() {\n    const queryAll = (root, body) => {\n      if (root.nodeType !== 1)\n        return [];\n      const has = !!this.querySelector(body.parsed, root, false);\n      return has ? [] : [root];\n    };\n    return { queryAll };\n  }\n  _createVisibleEngine() {\n    const queryAll = (root, body) => {\n      if (root.nodeType !== 1)\n        return [];\n      const visible = body === "true";\n      return isElementVisible(root) === visible ? [root] : [];\n    };\n    return { queryAll };\n  }\n  _createInternalChainEngine() {\n    const queryAll = (root, body) => {\n      return this.querySelectorAll(body.parsed, root);\n    };\n    return { queryAll };\n  }\n  extend(source, params) {\n    const constrFunction = this.window.eval(`\n    (() => {\n      const module = {};\n      ${source}\n      return module.exports.default();\n    })()`);\n    return new constrFunction(this, params);\n  }\n  async viewportRatio(element) {\n    return await new Promise((resolve) => {\n      const observer = new IntersectionObserver((entries) => {\n        resolve(entries[0].intersectionRatio);\n        observer.disconnect();\n      });\n      observer.observe(element);\n      this.utils.builtins.requestAnimationFrame(() => {\n      });\n    });\n  }\n  getElementBorderWidth(node) {\n    if (node.nodeType !== Node.ELEMENT_NODE || !node.ownerDocument || !node.ownerDocument.defaultView)\n      return { left: 0, top: 0 };\n    const style = node.ownerDocument.defaultView.getComputedStyle(node);\n    return { left: parseInt(style.borderLeftWidth || "", 10), top: parseInt(style.borderTopWidth || "", 10) };\n  }\n  describeIFrameStyle(iframe) {\n    if (!iframe.ownerDocument || !iframe.ownerDocument.defaultView)\n      return "error:notconnected";\n    const defaultView = iframe.ownerDocument.defaultView;\n    for (let e = iframe; e; e = parentElementOrShadowHost(e)) {\n      if (defaultView.getComputedStyle(e).transform !== "none")\n        return "transformed";\n    }\n    const iframeStyle = defaultView.getComputedStyle(iframe);\n    return {\n      left: parseInt(iframeStyle.borderLeftWidth || "", 10) + parseInt(iframeStyle.paddingLeft || "", 10),\n      top: parseInt(iframeStyle.borderTopWidth || "", 10) + parseInt(iframeStyle.paddingTop || "", 10)\n    };\n  }\n  retarget(node, behavior) {\n    let element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;\n    if (!element)\n      return null;\n    if (behavior === "none")\n      return element;\n    if (!element.matches("input, textarea, select") && !element.isContentEditable) {\n      if (behavior === "button-link")\n        element = element.closest("button, [role=button], a, [role=link]") || element;\n      else\n        element = element.closest("button, [role=button], [role=checkbox], [role=radio]") || element;\n    }\n    if (behavior === "follow-label") {\n      if (!element.matches("a, input, textarea, button, select, [role=link], [role=button], [role=checkbox], [role=radio]") && !element.isContentEditable) {\n        const enclosingLabel = element.closest("label");\n        if (enclosingLabel && enclosingLabel.control)\n          element = enclosingLabel.control;\n      }\n    }\n    return element;\n  }\n  async checkElementStates(node, states) {\n    if (states.includes("stable")) {\n      const stableResult = await this._checkElementIsStable(node);\n      if (stableResult === false)\n        return { missingState: "stable" };\n      if (stableResult === "error:notconnected")\n        return "error:notconnected";\n    }\n    for (const state of states) {\n      if (state !== "stable") {\n        const result = this.elementState(node, state);\n        if (result.received === "error:notconnected")\n          return "error:notconnected";\n        if (!result.matches)\n          return { missingState: state };\n      }\n    }\n  }\n  async _checkElementIsStable(node) {\n    const continuePolling = Symbol("continuePolling");\n    let lastRect;\n    let stableRafCounter = 0;\n    let lastTime = 0;\n    const check = () => {\n      const element = this.retarget(node, "no-follow-label");\n      if (!element)\n        return "error:notconnected";\n      const time = this.utils.builtins.performance.now();\n      if (this._stableRafCount > 1 && time - lastTime < 15)\n        return continuePolling;\n      lastTime = time;\n      const clientRect = element.getBoundingClientRect();\n      const rect = { x: clientRect.top, y: clientRect.left, width: clientRect.width, height: clientRect.height };\n      if (lastRect) {\n        const samePosition = rect.x === lastRect.x && rect.y === lastRect.y && rect.width === lastRect.width && rect.height === lastRect.height;\n        if (!samePosition)\n          return false;\n        if (++stableRafCounter >= this._stableRafCount)\n          return true;\n      }\n      lastRect = rect;\n      return continuePolling;\n    };\n    let fulfill;\n    let reject;\n    const result = new Promise((f, r) => {\n      fulfill = f;\n      reject = r;\n    });\n    const raf = () => {\n      try {\n        const success = check();\n        if (success !== continuePolling)\n          fulfill(success);\n        else\n          this.utils.builtins.requestAnimationFrame(raf);\n      } catch (e) {\n        reject(e);\n      }\n    };\n    this.utils.builtins.requestAnimationFrame(raf);\n    return result;\n  }\n  _createAriaRefEngine() {\n    const queryAll = (root, selector) => {\n      var _a, _b;\n      const result = (_b = (_a = this._lastAriaSnapshot) == null ? void 0 : _a.elements) == null ? void 0 : _b.get(selector);\n      return result && result.isConnected ? [result] : [];\n    };\n    return { queryAll };\n  }\n  elementState(node, state) {\n    const element = this.retarget(node, ["visible", "hidden"].includes(state) ? "none" : "follow-label");\n    if (!element || !element.isConnected) {\n      if (state === "hidden")\n        return { matches: true, received: "hidden" };\n      return { matches: false, received: "error:notconnected" };\n    }\n    if (state === "visible" || state === "hidden") {\n      const visible = isElementVisible(element);\n      return {\n        matches: state === "visible" ? visible : !visible,\n        received: visible ? "visible" : "hidden"\n      };\n    }\n    if (state === "disabled" || state === "enabled") {\n      const disabled = getAriaDisabled(element);\n      return {\n        matches: state === "disabled" ? disabled : !disabled,\n        received: disabled ? "disabled" : "enabled"\n      };\n    }\n    if (state === "editable") {\n      const disabled = getAriaDisabled(element);\n      const readonly = getReadonly(element);\n      if (readonly === "error")\n        throw this.createStacklessError("Element is not an <input>, <textarea>, <select> or [contenteditable] and does not have a role allowing [aria-readonly]");\n      return {\n        matches: !disabled && !readonly,\n        received: disabled ? "disabled" : readonly ? "readOnly" : "editable"\n      };\n    }\n    if (state === "checked" || state === "unchecked") {\n      const need = state === "checked";\n      const checked = getCheckedWithoutMixed(element);\n      if (checked === "error")\n        throw this.createStacklessError("Not a checkbox or radio button");\n      return {\n        matches: need === checked,\n        received: checked ? "checked" : "unchecked"\n      };\n    }\n    if (state === "indeterminate") {\n      const checked = getCheckedAllowMixed(element);\n      if (checked === "error")\n        throw this.createStacklessError("Not a checkbox or radio button");\n      return {\n        matches: checked === "mixed",\n        received: checked === true ? "checked" : checked === false ? "unchecked" : "mixed"\n      };\n    }\n    throw this.createStacklessError(`Unexpected element state "${state}"`);\n  }\n  selectOptions(node, optionsToSelect) {\n    const element = this.retarget(node, "follow-label");\n    if (!element)\n      return "error:notconnected";\n    if (element.nodeName.toLowerCase() !== "select")\n      throw this.createStacklessError("Element is not a <select> element");\n    const select = element;\n    const options = [...select.options];\n    const selectedOptions = [];\n    let remainingOptionsToSelect = optionsToSelect.slice();\n    for (let index = 0; index < options.length; index++) {\n      const option = options[index];\n      const filter = (optionToSelect) => {\n        if (optionToSelect instanceof Node)\n          return option === optionToSelect;\n        let matches = true;\n        if (optionToSelect.valueOrLabel !== void 0)\n          matches = matches && (optionToSelect.valueOrLabel === option.value || optionToSelect.valueOrLabel === option.label);\n        if (optionToSelect.value !== void 0)\n          matches = matches && optionToSelect.value === option.value;\n        if (optionToSelect.label !== void 0)\n          matches = matches && optionToSelect.label === option.label;\n        if (optionToSelect.index !== void 0)\n          matches = matches && optionToSelect.index === index;\n        return matches;\n      };\n      if (!remainingOptionsToSelect.some(filter))\n        continue;\n      if (!this.elementState(option, "enabled").matches)\n        return "error:optionnotenabled";\n      selectedOptions.push(option);\n      if (select.multiple) {\n        remainingOptionsToSelect = remainingOptionsToSelect.filter((o) => !filter(o));\n      } else {\n        remainingOptionsToSelect = [];\n        break;\n      }\n    }\n    if (remainingOptionsToSelect.length)\n      return "error:optionsnotfound";\n    select.value = void 0;\n    selectedOptions.forEach((option) => option.selected = true);\n    select.dispatchEvent(new Event("input", { bubbles: true, composed: true }));\n    select.dispatchEvent(new Event("change", { bubbles: true }));\n    return selectedOptions.map((option) => option.value);\n  }\n  fill(node, value) {\n    const element = this.retarget(node, "follow-label");\n    if (!element)\n      return "error:notconnected";\n    if (element.nodeName.toLowerCase() === "input") {\n      const input = element;\n      const type = input.type.toLowerCase();\n      const kInputTypesToSetValue = /* @__PURE__ */ new Set(["color", "date", "time", "datetime-local", "month", "range", "week"]);\n      const kInputTypesToTypeInto = /* @__PURE__ */ new Set(["", "email", "number", "password", "search", "tel", "text", "url"]);\n      if (!kInputTypesToTypeInto.has(type) && !kInputTypesToSetValue.has(type))\n        throw this.createStacklessError(`Input of type "${type}" cannot be filled`);\n      if (type === "number") {\n        value = value.trim();\n        if (isNaN(Number(value)))\n          throw this.createStacklessError("Cannot type text into input[type=number]");\n      }\n      if (kInputTypesToSetValue.has(type)) {\n        value = value.trim();\n        input.focus();\n        input.value = value;\n        if (input.value !== value)\n          throw this.createStacklessError("Malformed value");\n        element.dispatchEvent(new Event("input", { bubbles: true, composed: true }));\n        element.dispatchEvent(new Event("change", { bubbles: true }));\n        return "done";\n      }\n    } else if (element.nodeName.toLowerCase() === "textarea") {\n    } else if (!element.isContentEditable) {\n      throw this.createStacklessError("Element is not an <input>, <textarea> or [contenteditable] element");\n    }\n    this.selectText(element);\n    return "needsinput";\n  }\n  selectText(node) {\n    const element = this.retarget(node, "follow-label");\n    if (!element)\n      return "error:notconnected";\n    if (element.nodeName.toLowerCase() === "input") {\n      const input = element;\n      input.select();\n      input.focus();\n      return "done";\n    }\n    if (element.nodeName.toLowerCase() === "textarea") {\n      const textarea = element;\n      textarea.selectionStart = 0;\n      textarea.selectionEnd = textarea.value.length;\n      textarea.focus();\n      return "done";\n    }\n    const range = element.ownerDocument.createRange();\n    range.selectNodeContents(element);\n    const selection = element.ownerDocument.defaultView.getSelection();\n    if (selection) {\n      selection.removeAllRanges();\n      selection.addRange(range);\n    }\n    element.focus();\n    return "done";\n  }\n  _activelyFocused(node) {\n    const activeElement = node.getRootNode().activeElement;\n    const isFocused = activeElement === node && !!node.ownerDocument && node.ownerDocument.hasFocus();\n    return { activeElement, isFocused };\n  }\n  focusNode(node, resetSelectionIfNotFocused) {\n    if (!node.isConnected)\n      return "error:notconnected";\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      throw this.createStacklessError("Node is not an element");\n    const { activeElement, isFocused: wasFocused } = this._activelyFocused(node);\n    if (node.isContentEditable && !wasFocused && activeElement && activeElement.blur) {\n      activeElement.blur();\n    }\n    node.focus();\n    node.focus();\n    if (resetSelectionIfNotFocused && !wasFocused && node.nodeName.toLowerCase() === "input") {\n      try {\n        const input = node;\n        input.setSelectionRange(0, 0);\n      } catch (e) {\n      }\n    }\n    return "done";\n  }\n  blurNode(node) {\n    if (!node.isConnected)\n      return "error:notconnected";\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      throw this.createStacklessError("Node is not an element");\n    node.blur();\n    return "done";\n  }\n  setInputFiles(node, payloads) {\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      return "Node is not of type HTMLElement";\n    const element = node;\n    if (element.nodeName !== "INPUT")\n      return "Not an <input> element";\n    const input = element;\n    const type = (input.getAttribute("type") || "").toLowerCase();\n    if (type !== "file")\n      return "Not an input[type=file] element";\n    const files = payloads.map((file) => {\n      const bytes = Uint8Array.from(atob(file.buffer), (c) => c.charCodeAt(0));\n      return new File([bytes], file.name, { type: file.mimeType, lastModified: file.lastModifiedMs });\n    });\n    const dt = new DataTransfer();\n    for (const file of files)\n      dt.items.add(file);\n    input.files = dt.files;\n    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));\n    input.dispatchEvent(new Event("change", { bubbles: true }));\n  }\n  expectHitTarget(hitPoint, targetElement) {\n    const roots = [];\n    let parentElement = targetElement;\n    while (parentElement) {\n      const root = enclosingShadowRootOrDocument(parentElement);\n      if (!root)\n        break;\n      roots.push(root);\n      if (root.nodeType === 9)\n        break;\n      parentElement = root.host;\n    }\n    let hitElement;\n    for (let index = roots.length - 1; index >= 0; index--) {\n      const root = roots[index];\n      const elements = root.elementsFromPoint(hitPoint.x, hitPoint.y);\n      const singleElement = root.elementFromPoint(hitPoint.x, hitPoint.y);\n      if (singleElement && elements[0] && parentElementOrShadowHost(singleElement) === elements[0]) {\n        const style = this.window.getComputedStyle(singleElement);\n        if ((style == null ? void 0 : style.display) === "contents") {\n          elements.unshift(singleElement);\n        }\n      }\n      if (elements[0] && elements[0].shadowRoot === root && elements[1] === singleElement) {\n        elements.shift();\n      }\n      const innerElement = elements[0];\n      if (!innerElement)\n        break;\n      hitElement = innerElement;\n      if (index && innerElement !== roots[index - 1].host)\n        break;\n    }\n    const hitParents = [];\n    while (hitElement && hitElement !== targetElement) {\n      hitParents.push(hitElement);\n      hitElement = parentElementOrShadowHost(hitElement);\n    }\n    if (hitElement === targetElement)\n      return "done";\n    const hitTargetDescription = this.previewNode(hitParents[0] || this.document.documentElement);\n    let rootHitTargetDescription;\n    let element = targetElement;\n    while (element) {\n      const index = hitParents.indexOf(element);\n      if (index !== -1) {\n        if (index > 1)\n          rootHitTargetDescription = this.previewNode(hitParents[index - 1]);\n        break;\n      }\n      element = parentElementOrShadowHost(element);\n    }\n    if (rootHitTargetDescription)\n      return { hitTargetDescription: `${hitTargetDescription} from ${rootHitTargetDescription} subtree` };\n    return { hitTargetDescription };\n  }\n  // Life of a pointer action, for example click.\n  //\n  // 0. Retry items 1 and 2 while action fails due to navigation or element being detached.\n  //   1. Resolve selector to an element.\n  //   2. Retry the following steps until the element is detached or frame navigates away.\n  //     2a. Wait for the element to be stable (not moving), visible and enabled.\n  //     2b. Scroll element into view. Scrolling alternates between:\n  //         - Built-in protocol scrolling.\n  //         - Anchoring to the top/left, bottom/right and center/center.\n  //         This is to scroll elements from under sticky headers/footers.\n  //     2c. Click point is calculated, either based on explicitly specified position,\n  //         or some visible point of the element based on protocol content quads.\n  //     2d. Click point relative to page viewport is converted relative to the target iframe\n  //         for the next hit-point check.\n  //     2e. (injected) Hit target at the click point must be a descendant of the target element.\n  //         This prevents mis-clicking in edge cases like <iframe> overlaying the target.\n  //     2f. (injected) Events specific for click (or some other action type) are intercepted on\n  //         the Window with capture:true. See 2i for details.\n  //         Note: this step is skipped for drag&drop (see inline comments for the reason).\n  //     2g. Necessary keyboard modifiers are pressed.\n  //     2h. Click event is issued (mousemove + mousedown + mouseup).\n  //     2i. (injected) For each event, we check that hit target at the event point\n  //         is a descendant of the target element.\n  //         This guarantees no race between issuing the event and handling it in the page,\n  //         for example due to layout shift.\n  //         When hit target check fails, we block all future events in the page.\n  //     2j. Keyboard modifiers are restored.\n  //     2k. (injected) Event interceptor is removed.\n  //     2l. All navigations triggered between 2g-2k are awaited to be either committed or canceled.\n  //     2m. If failed, wait for increasing amount of time before the next retry.\n  setupHitTargetInterceptor(node, action, hitPoint, blockAllEvents) {\n    const element = this.retarget(node, "button-link");\n    if (!element || !element.isConnected)\n      return "error:notconnected";\n    if (hitPoint) {\n      const preliminaryResult = this.expectHitTarget(hitPoint, element);\n      if (preliminaryResult !== "done")\n        return preliminaryResult.hitTargetDescription;\n    }\n    if (action === "drag")\n      return { stop: () => "done" };\n    const events = {\n      "hover": this._hoverHitTargetInterceptorEvents,\n      "tap": this._tapHitTargetInterceptorEvents,\n      "mouse": this._mouseHitTargetInterceptorEvents\n    }[action];\n    let result;\n    const listener = (event) => {\n      if (!events.has(event.type))\n        return;\n      if (!event.isTrusted)\n        return;\n      const point = !!this.window.TouchEvent && event instanceof this.window.TouchEvent ? event.touches[0] : event;\n      if (result === void 0 && point)\n        result = this.expectHitTarget({ x: point.clientX, y: point.clientY }, element);\n      if (blockAllEvents || result !== "done" && result !== void 0) {\n        event.preventDefault();\n        event.stopPropagation();\n        event.stopImmediatePropagation();\n      }\n    };\n    const stop = () => {\n      if (this._hitTargetInterceptor === listener)\n        this._hitTargetInterceptor = void 0;\n      return result || "done";\n    };\n    this._hitTargetInterceptor = listener;\n    return { stop };\n  }\n  dispatchEvent(node, type, eventInitObj) {\n    var _a, _b, _c, _d, _e;\n    let event;\n    const eventInit = { bubbles: true, cancelable: true, composed: true, ...eventInitObj };\n    switch (this._eventTypes.get(type)) {\n      case "mouse":\n        event = new MouseEvent(type, eventInit);\n        break;\n      case "keyboard":\n        event = new KeyboardEvent(type, eventInit);\n        break;\n      case "touch": {\n        if (this._browserName === "webkit") {\n          const createTouch = (t) => {\n            var _a2, _b2, _c2;\n            if (t instanceof Touch)\n              return t;\n            let pageX = t.pageX;\n            if (pageX === void 0 && t.clientX !== void 0)\n              pageX = t.clientX + (((_a2 = this.document.scrollingElement) == null ? void 0 : _a2.scrollLeft) || 0);\n            let pageY = t.pageY;\n            if (pageY === void 0 && t.clientY !== void 0)\n              pageY = t.clientY + (((_b2 = this.document.scrollingElement) == null ? void 0 : _b2.scrollTop) || 0);\n            return this.document.createTouch(this.window, (_c2 = t.target) != null ? _c2 : node, t.identifier, pageX, pageY, t.screenX, t.screenY, t.radiusX, t.radiusY, t.rotationAngle, t.force);\n          };\n          const createTouchList = (touches) => {\n            if (touches instanceof TouchList || !touches)\n              return touches;\n            return this.document.createTouchList(...touches.map(createTouch));\n          };\n          (_a = eventInit.target) != null ? _a : eventInit.target = node;\n          eventInit.touches = createTouchList(eventInit.touches);\n          eventInit.targetTouches = createTouchList(eventInit.targetTouches);\n          eventInit.changedTouches = createTouchList(eventInit.changedTouches);\n          event = new TouchEvent(type, eventInit);\n        } else {\n          (_b = eventInit.target) != null ? _b : eventInit.target = node;\n          eventInit.touches = (_c = eventInit.touches) == null ? void 0 : _c.map((t) => {\n            var _a2;\n            return t instanceof Touch ? t : new Touch({ ...t, target: (_a2 = t.target) != null ? _a2 : node });\n          });\n          eventInit.targetTouches = (_d = eventInit.targetTouches) == null ? void 0 : _d.map((t) => {\n            var _a2;\n            return t instanceof Touch ? t : new Touch({ ...t, target: (_a2 = t.target) != null ? _a2 : node });\n          });\n          eventInit.changedTouches = (_e = eventInit.changedTouches) == null ? void 0 : _e.map((t) => {\n            var _a2;\n            return t instanceof Touch ? t : new Touch({ ...t, target: (_a2 = t.target) != null ? _a2 : node });\n          });\n          event = new TouchEvent(type, eventInit);\n        }\n        break;\n      }\n      case "pointer":\n        event = new PointerEvent(type, eventInit);\n        break;\n      case "focus":\n        event = new FocusEvent(type, eventInit);\n        break;\n      case "drag":\n        event = new DragEvent(type, eventInit);\n        break;\n      case "wheel":\n        event = new WheelEvent(type, eventInit);\n        break;\n      case "deviceorientation":\n        try {\n          event = new DeviceOrientationEvent(type, eventInit);\n        } catch {\n          const { bubbles, cancelable, alpha, beta, gamma, absolute } = eventInit;\n          event = this.document.createEvent("DeviceOrientationEvent");\n          event.initDeviceOrientationEvent(type, bubbles, cancelable, alpha, beta, gamma, absolute);\n        }\n        break;\n      case "devicemotion":\n        try {\n          event = new DeviceMotionEvent(type, eventInit);\n        } catch {\n          const { bubbles, cancelable, acceleration, accelerationIncludingGravity, rotationRate, interval } = eventInit;\n          event = this.document.createEvent("DeviceMotionEvent");\n          event.initDeviceMotionEvent(type, bubbles, cancelable, acceleration, accelerationIncludingGravity, rotationRate, interval);\n        }\n        break;\n      default:\n        event = new Event(type, eventInit);\n        break;\n    }\n    node.dispatchEvent(event);\n  }\n  previewNode(node) {\n    if (node.nodeType === Node.TEXT_NODE)\n      return oneLine(`#text=${node.nodeValue || ""}`);\n    if (node.nodeType !== Node.ELEMENT_NODE)\n      return oneLine(`<${node.nodeName.toLowerCase()} />`);\n    const element = node;\n    const attrs = [];\n    for (let i = 0; i < element.attributes.length; i++) {\n      const { name, value } = element.attributes[i];\n      if (name === "style")\n        continue;\n      if (!value && this._booleanAttributes.has(name))\n        attrs.push(` ${name}`);\n      else\n        attrs.push(` ${name}="${value}"`);\n    }\n    attrs.sort((a, b) => a.length - b.length);\n    const attrText = trimStringWithEllipsis(attrs.join(""), 500);\n    if (this._autoClosingTags.has(element.nodeName))\n      return oneLine(`<${element.nodeName.toLowerCase()}${attrText}/>`);\n    const children = element.childNodes;\n    let onlyText = false;\n    if (children.length <= 5) {\n      onlyText = true;\n      for (let i = 0; i < children.length; i++)\n        onlyText = onlyText && children[i].nodeType === Node.TEXT_NODE;\n    }\n    const text = onlyText ? element.textContent || "" : children.length ? "\\u2026" : "";\n    return oneLine(`<${element.nodeName.toLowerCase()}${attrText}>${trimStringWithEllipsis(text, 50)}</${element.nodeName.toLowerCase()}>`);\n  }\n  strictModeViolationError(selector, matches) {\n    const infos = matches.slice(0, 10).map((m) => ({\n      preview: this.previewNode(m),\n      selector: this.generateSelectorSimple(m)\n    }));\n    const lines = infos.map((info, i) => `\n    ${i + 1}) ${info.preview} aka ${asLocator(this._sdkLanguage, info.selector)}`);\n    if (infos.length < matches.length)\n      lines.push("\\n    ...");\n    return this.createStacklessError(`strict mode violation: ${asLocator(this._sdkLanguage, stringifySelector(selector))} resolved to ${matches.length} elements:${lines.join("")}\n`);\n  }\n  createStacklessError(message) {\n    if (this._browserName === "firefox") {\n      const error2 = new Error("Error: " + message);\n      error2.stack = "";\n      return error2;\n    }\n    const error = new Error(message);\n    delete error.stack;\n    return error;\n  }\n  createHighlight() {\n    return new Highlight(this);\n  }\n  maskSelectors(selectors, color) {\n    if (this._highlight)\n      this.hideHighlight();\n    this._highlight = new Highlight(this);\n    this._highlight.install();\n    const elements = [];\n    for (const selector of selectors)\n      elements.push(this.querySelectorAll(selector, this.document.documentElement));\n    this._highlight.maskElements(elements.flat(), color);\n  }\n  highlight(selector) {\n    if (!this._highlight) {\n      this._highlight = new Highlight(this);\n      this._highlight.install();\n    }\n    this._highlight.runHighlightOnRaf(selector);\n  }\n  hideHighlight() {\n    if (this._highlight) {\n      this._highlight.uninstall();\n      delete this._highlight;\n    }\n  }\n  markTargetElements(markedElements, callId) {\n    var _a, _b;\n    if (((_a = this._markedElements) == null ? void 0 : _a.callId) !== callId)\n      this._markedElements = void 0;\n    const previous = ((_b = this._markedElements) == null ? void 0 : _b.elements) || /* @__PURE__ */ new Set();\n    const unmarkEvent = new CustomEvent("__playwright_unmark_target__", {\n      bubbles: true,\n      cancelable: true,\n      detail: callId,\n      composed: true\n    });\n    for (const element of previous) {\n      if (!markedElements.has(element))\n        element.dispatchEvent(unmarkEvent);\n    }\n    const markEvent = new CustomEvent("__playwright_mark_target__", {\n      bubbles: true,\n      cancelable: true,\n      detail: callId,\n      composed: true\n    });\n    for (const element of markedElements) {\n      if (!previous.has(element))\n        element.dispatchEvent(markEvent);\n    }\n    this._markedElements = { callId, elements: markedElements };\n  }\n  _setupGlobalListenersRemovalDetection() {\n    const customEventName = "__playwright_global_listeners_check__";\n    let seenEvent = false;\n    const handleCustomEvent = () => seenEvent = true;\n    this.window.addEventListener(customEventName, handleCustomEvent);\n    new MutationObserver((entries) => {\n      const newDocumentElement = entries.some((entry) => Array.from(entry.addedNodes).includes(this.document.documentElement));\n      if (!newDocumentElement)\n        return;\n      seenEvent = false;\n      this.window.dispatchEvent(new CustomEvent(customEventName));\n      if (seenEvent)\n        return;\n      this.window.addEventListener(customEventName, handleCustomEvent);\n      for (const callback of this.onGlobalListenersRemoved)\n        callback();\n    }).observe(this.document, { childList: true });\n  }\n  _setupHitTargetInterceptors() {\n    const listener = (event) => {\n      var _a;\n      return (_a = this._hitTargetInterceptor) == null ? void 0 : _a.call(this, event);\n    };\n    const addHitTargetInterceptorListeners = () => {\n      for (const event of this._allHitTargetInterceptorEvents)\n        this.window.addEventListener(event, listener, { capture: true, passive: false });\n    };\n    addHitTargetInterceptorListeners();\n    this.onGlobalListenersRemoved.add(addHitTargetInterceptorListeners);\n  }\n  async expect(element, options, elements) {\n    var _a, _b;\n    const isArray = options.expression === "to.have.count" || options.expression.endsWith(".array");\n    if (isArray)\n      return this.expectArray(elements, options);\n    if (!element) {\n      if (!options.isNot && options.expression === "to.be.hidden")\n        return { matches: true };\n      if (options.isNot && options.expression === "to.be.visible")\n        return { matches: false };\n      if (!options.isNot && options.expression === "to.be.detached")\n        return { matches: true };\n      if (options.isNot && options.expression === "to.be.attached")\n        return { matches: false };\n      if (options.isNot && options.expression === "to.be.in.viewport")\n        return { matches: false };\n      if (options.expression === "to.have.title" && ((_a = options == null ? void 0 : options.expectedText) == null ? void 0 : _a[0])) {\n        const matcher = new ExpectedTextMatcher(options.expectedText[0]);\n        const received = this.document.title;\n        return { received, matches: matcher.matches(received) };\n      }\n      if (options.expression === "to.have.url" && ((_b = options == null ? void 0 : options.expectedText) == null ? void 0 : _b[0])) {\n        const matcher = new ExpectedTextMatcher(options.expectedText[0]);\n        const received = this.document.location.href;\n        return { received, matches: matcher.matches(received) };\n      }\n      return { matches: options.isNot, missingReceived: true };\n    }\n    return await this.expectSingleElement(element, options);\n  }\n  async expectSingleElement(element, options) {\n    var _a, _b;\n    const expression = options.expression;\n    {\n      let result;\n      if (expression === "to.have.attribute") {\n        const hasAttribute = element.hasAttribute(options.expressionArg);\n        result = {\n          matches: hasAttribute,\n          received: hasAttribute ? "attribute present" : "attribute not present"\n        };\n      } else if (expression === "to.be.checked") {\n        const { checked, indeterminate } = options.expectedValue;\n        if (indeterminate) {\n          if (checked !== void 0)\n            throw this.createStacklessError("Can\'t assert indeterminate and checked at the same time");\n          result = this.elementState(element, "indeterminate");\n        } else {\n          result = this.elementState(element, checked === false ? "unchecked" : "checked");\n        }\n      } else if (expression === "to.be.disabled") {\n        result = this.elementState(element, "disabled");\n      } else if (expression === "to.be.editable") {\n        result = this.elementState(element, "editable");\n      } else if (expression === "to.be.readonly") {\n        result = this.elementState(element, "editable");\n        result.matches = !result.matches;\n      } else if (expression === "to.be.empty") {\n        if (element.nodeName === "INPUT" || element.nodeName === "TEXTAREA") {\n          const value = element.value;\n          result = { matches: !value, received: value ? "notEmpty" : "empty" };\n        } else {\n          const text = (_a = element.textContent) == null ? void 0 : _a.trim();\n          result = { matches: !text, received: text ? "notEmpty" : "empty" };\n        }\n      } else if (expression === "to.be.enabled") {\n        result = this.elementState(element, "enabled");\n      } else if (expression === "to.be.focused") {\n        const focused = this._activelyFocused(element).isFocused;\n        result = {\n          matches: focused,\n          received: focused ? "focused" : "inactive"\n        };\n      } else if (expression === "to.be.hidden") {\n        result = this.elementState(element, "hidden");\n      } else if (expression === "to.be.visible") {\n        result = this.elementState(element, "visible");\n      } else if (expression === "to.be.attached") {\n        result = {\n          matches: true,\n          received: "attached"\n        };\n      } else if (expression === "to.be.detached") {\n        result = {\n          matches: false,\n          received: "attached"\n        };\n      }\n      if (result) {\n        if (result.received === "error:notconnected")\n          throw this.createStacklessError("Element is not connected");\n        return result;\n      }\n    }\n    {\n      if (expression === "to.have.property") {\n        let target = element;\n        const properties = options.expressionArg.split(".");\n        for (let i = 0; i < properties.length - 1; i++) {\n          if (typeof target !== "object" || !(properties[i] in target))\n            return { received: void 0, matches: false };\n          target = target[properties[i]];\n        }\n        const received = target[properties[properties.length - 1]];\n        const matches = deepEquals(received, options.expectedValue);\n        return { received, matches };\n      }\n    }\n    {\n      if (expression === "to.be.in.viewport") {\n        const ratio = await this.viewportRatio(element);\n        return { received: `viewport ratio ${ratio}`, matches: ratio > 0 && ratio > ((_b = options.expectedNumber) != null ? _b : 0) - 1e-9 };\n      }\n    }\n    {\n      if (expression === "to.have.values") {\n        element = this.retarget(element, "follow-label");\n        if (element.nodeName !== "SELECT" || !element.multiple)\n          throw this.createStacklessError("Not a select element with a multiple attribute");\n        const received = [...element.selectedOptions].map((o) => o.value);\n        if (received.length !== options.expectedText.length)\n          return { received, matches: false };\n        return { received, matches: received.map((r, i) => new ExpectedTextMatcher(options.expectedText[i]).matches(r)).every(Boolean) };\n      }\n    }\n    {\n      if (expression === "to.match.aria") {\n        const result = matchesExpectAriaTemplate(element, options.expectedValue);\n        return {\n          received: result.received,\n          matches: !!result.matches.length\n        };\n      }\n    }\n    {\n      let received;\n      if (expression === "to.have.attribute.value") {\n        const value = element.getAttribute(options.expressionArg);\n        if (value === null)\n          return { received: null, matches: false };\n        received = value;\n      } else if (["to.have.class", "to.contain.class"].includes(expression)) {\n        if (!options.expectedText)\n          throw this.createStacklessError("Expected text is not provided for " + expression);\n        return {\n          received: element.classList.toString(),\n          matches: new ExpectedTextMatcher(options.expectedText[0]).matchesClassList(\n            this,\n            element.classList,\n            /* partial */\n            expression === "to.contain.class"\n          )\n        };\n      } else if (expression === "to.have.css") {\n        received = this.window.getComputedStyle(element).getPropertyValue(options.expressionArg);\n      } else if (expression === "to.have.id") {\n        received = element.id;\n      } else if (expression === "to.have.text") {\n        received = options.useInnerText ? element.innerText : elementText(/* @__PURE__ */ new Map(), element).full;\n      } else if (expression === "to.have.accessible.name") {\n        received = getElementAccessibleName(\n          element,\n          false\n          /* includeHidden */\n        );\n      } else if (expression === "to.have.accessible.description") {\n        received = getElementAccessibleDescription(\n          element,\n          false\n          /* includeHidden */\n        );\n      } else if (expression === "to.have.accessible.error.message") {\n        received = getElementAccessibleErrorMessage(element);\n      } else if (expression === "to.have.role") {\n        received = getAriaRole(element) || "";\n      } else if (expression === "to.have.value") {\n        element = this.retarget(element, "follow-label");\n        if (element.nodeName !== "INPUT" && element.nodeName !== "TEXTAREA" && element.nodeName !== "SELECT")\n          throw this.createStacklessError("Not an input element");\n        received = element.value;\n      }\n      if (received !== void 0 && options.expectedText) {\n        const matcher = new ExpectedTextMatcher(options.expectedText[0]);\n        return { received, matches: matcher.matches(received) };\n      }\n    }\n    throw this.createStacklessError("Unknown expect matcher: " + expression);\n  }\n  expectArray(elements, options) {\n    const expression = options.expression;\n    if (expression === "to.have.count") {\n      const received2 = elements.length;\n      const matches2 = received2 === options.expectedNumber;\n      return { received: received2, matches: matches2 };\n    }\n    if (!options.expectedText)\n      throw this.createStacklessError("Expected text is not provided for " + expression);\n    if (["to.have.class.array", "to.contain.class.array"].includes(expression)) {\n      const receivedClassLists = elements.map((e) => e.classList);\n      const received2 = receivedClassLists.map(String);\n      if (receivedClassLists.length !== options.expectedText.length)\n        return { received: received2, matches: false };\n      const matches2 = this._matchSequentially(\n        options.expectedText,\n        receivedClassLists,\n        (matcher, r) => matcher.matchesClassList(\n          this,\n          r,\n          /* partial */\n          expression === "to.contain.class.array"\n        )\n      );\n      return {\n        received: received2,\n        matches: matches2\n      };\n    }\n    if (!["to.contain.text.array", "to.have.text.array"].includes(expression))\n      throw this.createStacklessError("Unknown expect matcher: " + expression);\n    const received = elements.map((e) => options.useInnerText ? e.innerText : elementText(/* @__PURE__ */ new Map(), e).full);\n    const lengthShouldMatch = expression !== "to.contain.text.array";\n    const matchesLength = received.length === options.expectedText.length || !lengthShouldMatch;\n    if (!matchesLength)\n      return { received, matches: false };\n    const matches = this._matchSequentially(options.expectedText, received, (matcher, r) => matcher.matches(r));\n    return { received, matches };\n  }\n  _matchSequentially(expectedText, received, matchFn) {\n    const matchers = expectedText.map((e) => new ExpectedTextMatcher(e));\n    let mIndex = 0;\n    let rIndex = 0;\n    while (mIndex < matchers.length && rIndex < received.length) {\n      if (matchFn(matchers[mIndex], received[rIndex]))\n        ++mIndex;\n      ++rIndex;\n    }\n    return mIndex === matchers.length;\n  }\n};\nfunction oneLine(s) {\n  return s.replace(/\\n/g, "\\u21B5").replace(/\\t/g, "\\u21C6");\n}\nfunction cssUnquote(s) {\n  s = s.substring(1, s.length - 1);\n  if (!s.includes("\\\\"))\n    return s;\n  const r = [];\n  let i = 0;\n  while (i < s.length) {\n    if (s[i] === "\\\\" && i + 1 < s.length)\n      i++;\n    r.push(s[i++]);\n  }\n  return r.join("");\n}\nfunction createTextMatcher(selector, internal) {\n  if (selector[0] === "/" && selector.lastIndexOf("/") > 0) {\n    const lastSlash = selector.lastIndexOf("/");\n    const re = new RegExp(selector.substring(1, lastSlash), selector.substring(lastSlash + 1));\n    return { matcher: (elementText2) => re.test(elementText2.full), kind: "regex" };\n  }\n  const unquote = internal ? JSON.parse.bind(JSON) : cssUnquote;\n  let strict = false;\n  if (selector.length > 1 && selector[0] === \'"\' && selector[selector.length - 1] === \'"\') {\n    selector = unquote(selector);\n    strict = true;\n  } else if (internal && selector.length > 1 && selector[0] === \'"\' && selector[selector.length - 2] === \'"\' && selector[selector.length - 1] === "i") {\n    selector = unquote(selector.substring(0, selector.length - 1));\n    strict = false;\n  } else if (internal && selector.length > 1 && selector[0] === \'"\' && selector[selector.length - 2] === \'"\' && selector[selector.length - 1] === "s") {\n    selector = unquote(selector.substring(0, selector.length - 1));\n    strict = true;\n  } else if (selector.length > 1 && selector[0] === "\'" && selector[selector.length - 1] === "\'") {\n    selector = unquote(selector);\n    strict = true;\n  }\n  selector = normalizeWhiteSpace(selector);\n  if (strict) {\n    if (internal)\n      return { kind: "strict", matcher: (elementText2) => elementText2.normalized === selector };\n    const strictTextNodeMatcher = (elementText2) => {\n      if (!selector && !elementText2.immediate.length)\n        return true;\n      return elementText2.immediate.some((s) => normalizeWhiteSpace(s) === selector);\n    };\n    return { matcher: strictTextNodeMatcher, kind: "strict" };\n  }\n  selector = selector.toLowerCase();\n  return { kind: "lax", matcher: (elementText2) => elementText2.normalized.toLowerCase().includes(selector) };\n}\nvar ExpectedTextMatcher = class {\n  constructor(expected) {\n    this._normalizeWhiteSpace = expected.normalizeWhiteSpace;\n    this._ignoreCase = expected.ignoreCase;\n    this._string = expected.matchSubstring ? void 0 : this.normalize(expected.string);\n    this._substring = expected.matchSubstring ? this.normalize(expected.string) : void 0;\n    if (expected.regexSource) {\n      const flags = new Set((expected.regexFlags || "").split(""));\n      if (expected.ignoreCase === false)\n        flags.delete("i");\n      if (expected.ignoreCase === true)\n        flags.add("i");\n      this._regex = new RegExp(expected.regexSource, [...flags].join(""));\n    }\n  }\n  matches(text) {\n    if (!this._regex)\n      text = this.normalize(text);\n    if (this._string !== void 0)\n      return text === this._string;\n    if (this._substring !== void 0)\n      return text.includes(this._substring);\n    if (this._regex)\n      return !!this._regex.test(text);\n    return false;\n  }\n  matchesClassList(injectedScript, classList, partial) {\n    if (partial) {\n      if (this._regex)\n        throw injectedScript.createStacklessError("Partial matching does not support regular expressions. Please provide a string value.");\n      return this._string.split(/\\s+/g).filter(Boolean).every((className) => classList.contains(className));\n    }\n    return this.matches(classList.toString());\n  }\n  normalize(s) {\n    if (!s)\n      return s;\n    if (this._normalizeWhiteSpace)\n      s = normalizeWhiteSpace(s);\n    if (this._ignoreCase)\n      s = s.toLocaleLowerCase();\n    return s;\n  }\n};\nfunction deepEquals(a, b) {\n  if (a === b)\n    return true;\n  if (a && b && typeof a === "object" && typeof b === "object") {\n    if (a.constructor !== b.constructor)\n      return false;\n    if (Array.isArray(a)) {\n      if (a.length !== b.length)\n        return false;\n      for (let i = 0; i < a.length; ++i) {\n        if (!deepEquals(a[i], b[i]))\n          return false;\n      }\n      return true;\n    }\n    if (a instanceof RegExp)\n      return a.source === b.source && a.flags === b.flags;\n    if (a.valueOf !== Object.prototype.valueOf)\n      return a.valueOf() === b.valueOf();\n    if (a.toString !== Object.prototype.toString)\n      return a.toString() === b.toString();\n    const keys = Object.keys(a);\n    if (keys.length !== Object.keys(b).length)\n      return false;\n    for (let i = 0; i < keys.length; ++i) {\n      if (!b.hasOwnProperty(keys[i]))\n        return false;\n    }\n    for (const key of keys) {\n      if (!deepEquals(a[key], b[key]))\n        return false;\n    }\n    return true;\n  }\n  if (typeof a === "number" && typeof b === "number")\n    return isNaN(a) && isNaN(b);\n  return false;\n}\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dom.js
+// node_modules/playwright-core/lib/server/dom.js
 var jr = B((vWe, pj) => {
   "use strict";
   var ade = Object.create;
@@ -35287,7 +35287,7 @@ var jr = B((vWe, pj) => {
   var wde = "Unable to adopt element handle from a different document";
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/frameSelectors.js
+// node_modules/playwright-core/lib/server/frameSelectors.js
 var _j = B((wWe, gj) => {
   "use strict";
   var av = Object.defineProperty;
@@ -35443,7 +35443,7 @@ var _j = B((wWe, gj) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/helper.js
+// node_modules/playwright-core/lib/server/helper.js
 var Pt = B((yWe, yj) => {
   "use strict";
   var uv = Object.defineProperty;
@@ -35539,7 +35539,7 @@ var Pt = B((yWe, yj) => {
   var jde = cv;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/network.js
+// node_modules/playwright-core/lib/server/network.js
 var It = B((xWe, kj) => {
   "use strict";
   var gv = Object.defineProperty;
@@ -36144,7 +36144,7 @@ var It = B((xWe, kj) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/accessibility.js
+// node_modules/playwright-core/lib/server/accessibility.js
 var Aj = B((SWe, Tj) => {
   "use strict";
   var bv = Object.defineProperty;
@@ -36213,7 +36213,7 @@ var Aj = B((SWe, Tj) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/console.js
+// node_modules/playwright-core/lib/server/console.js
 var yv = B((OWe, Nj) => {
   "use strict";
   var wv = Object.defineProperty;
@@ -36266,7 +36266,7 @@ var yv = B((OWe, Nj) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/fileChooser.js
+// node_modules/playwright-core/lib/server/fileChooser.js
 var Dj = B((EWe, jj) => {
   "use strict";
   var Sv = Object.defineProperty;
@@ -36309,7 +36309,7 @@ var Dj = B((EWe, jj) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/usKeyboardLayout.js
+// node_modules/playwright-core/lib/server/usKeyboardLayout.js
 var Lj = B((kWe, Fj) => {
   "use strict";
   var Ov = Object.defineProperty;
@@ -36453,7 +36453,7 @@ var Lj = B((kWe, Fj) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/input.js
+// node_modules/playwright-core/lib/server/input.js
 var Ra = B((PWe, zj) => {
   "use strict";
   var yhe = Object.create;
@@ -36721,7 +36721,7 @@ var Ra = B((PWe, zj) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/screenshotter.js
+// node_modules/playwright-core/lib/server/screenshotter.js
 var Jj = B((CWe, Kj) => {
   "use strict";
   var Iv = Object.defineProperty;
@@ -37053,7 +37053,7 @@ var Jj = B((CWe, Kj) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/bindingsControllerSource.js
+// node_modules/playwright-core/lib/generated/bindingsControllerSource.js
 var Qj = B((TWe, Xj) => {
   "use strict";
   var Nv = Object.defineProperty;
@@ -37081,7 +37081,7 @@ var Qj = B((TWe, Xj) => {
   var Khe = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/bindingsController.ts\nvar bindingsController_exports = {};\n__export(bindingsController_exports, {\n  BindingsController: () => BindingsController\n});\nmodule.exports = __toCommonJS(bindingsController_exports);\n\n// packages/playwright-core/src/utils/isomorphic/utilityScriptSerializers.ts\nfunction isRegExp(obj) {\n  try {\n    return obj instanceof RegExp || Object.prototype.toString.call(obj) === "[object RegExp]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isDate(obj) {\n  try {\n    return obj instanceof Date || Object.prototype.toString.call(obj) === "[object Date]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isURL(obj) {\n  try {\n    return obj instanceof URL || Object.prototype.toString.call(obj) === "[object URL]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isError(obj) {\n  var _a;\n  try {\n    return obj instanceof Error || obj && ((_a = Object.getPrototypeOf(obj)) == null ? void 0 : _a.name) === "Error";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isTypedArray(obj, constructor) {\n  try {\n    return obj instanceof constructor || Object.prototype.toString.call(obj) === `[object ${constructor.name}]`;\n  } catch (error) {\n    return false;\n  }\n}\nvar typedArrayConstructors = {\n  i8: Int8Array,\n  ui8: Uint8Array,\n  ui8c: Uint8ClampedArray,\n  i16: Int16Array,\n  ui16: Uint16Array,\n  i32: Int32Array,\n  ui32: Uint32Array,\n  // TODO: add Float16Array once it\'s in baseline\n  f32: Float32Array,\n  f64: Float64Array,\n  bi64: BigInt64Array,\n  bui64: BigUint64Array\n};\nfunction typedArrayToBase64(array) {\n  if ("toBase64" in array)\n    return array.toBase64();\n  const binary = Array.from(new Uint8Array(array.buffer, array.byteOffset, array.byteLength)).map((b) => String.fromCharCode(b)).join("");\n  return btoa(binary);\n}\nfunction serializeAsCallArgument(value, handleSerializer) {\n  return serialize(value, handleSerializer, { visited: /* @__PURE__ */ new Map(), lastId: 0 });\n}\nfunction serialize(value, handleSerializer, visitorInfo) {\n  if (value && typeof value === "object") {\n    if (typeof globalThis.Window === "function" && value instanceof globalThis.Window)\n      return "ref: <Window>";\n    if (typeof globalThis.Document === "function" && value instanceof globalThis.Document)\n      return "ref: <Document>";\n    if (typeof globalThis.Node === "function" && value instanceof globalThis.Node)\n      return "ref: <Node>";\n  }\n  return innerSerialize(value, handleSerializer, visitorInfo);\n}\nfunction innerSerialize(value, handleSerializer, visitorInfo) {\n  var _a;\n  const result = handleSerializer(value);\n  if ("fallThrough" in result)\n    value = result.fallThrough;\n  else\n    return result;\n  if (typeof value === "symbol")\n    return { v: "undefined" };\n  if (Object.is(value, void 0))\n    return { v: "undefined" };\n  if (Object.is(value, null))\n    return { v: "null" };\n  if (Object.is(value, NaN))\n    return { v: "NaN" };\n  if (Object.is(value, Infinity))\n    return { v: "Infinity" };\n  if (Object.is(value, -Infinity))\n    return { v: "-Infinity" };\n  if (Object.is(value, -0))\n    return { v: "-0" };\n  if (typeof value === "boolean")\n    return value;\n  if (typeof value === "number")\n    return value;\n  if (typeof value === "string")\n    return value;\n  if (typeof value === "bigint")\n    return { bi: value.toString() };\n  if (isError(value)) {\n    let stack;\n    if ((_a = value.stack) == null ? void 0 : _a.startsWith(value.name + ": " + value.message)) {\n      stack = value.stack;\n    } else {\n      stack = `${value.name}: ${value.message}\n${value.stack}`;\n    }\n    return { e: { n: value.name, m: value.message, s: stack } };\n  }\n  if (isDate(value))\n    return { d: value.toJSON() };\n  if (isURL(value))\n    return { u: value.toJSON() };\n  if (isRegExp(value))\n    return { r: { p: value.source, f: value.flags } };\n  for (const [k, ctor] of Object.entries(typedArrayConstructors)) {\n    if (isTypedArray(value, ctor))\n      return { ta: { b: typedArrayToBase64(value), k } };\n  }\n  const id = visitorInfo.visited.get(value);\n  if (id)\n    return { ref: id };\n  if (Array.isArray(value)) {\n    const a = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (let i = 0; i < value.length; ++i)\n      a.push(serialize(value[i], handleSerializer, visitorInfo));\n    return { a, id: id2 };\n  }\n  if (typeof value === "object") {\n    const o = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (const name of Object.keys(value)) {\n      let item;\n      try {\n        item = value[name];\n      } catch (e) {\n        continue;\n      }\n      if (name === "toJSON" && typeof item === "function")\n        o.push({ k: name, v: { o: [], id: 0 } });\n      else\n        o.push({ k: name, v: serialize(item, handleSerializer, visitorInfo) });\n    }\n    let jsonWrapper;\n    try {\n      if (o.length === 0 && value.toJSON && typeof value.toJSON === "function")\n        jsonWrapper = { value: value.toJSON() };\n    } catch (e) {\n    }\n    if (jsonWrapper)\n      return innerSerialize(jsonWrapper.value, handleSerializer, visitorInfo);\n    return { o, id: id2 };\n  }\n}\n\n// packages/injected/src/bindingsController.ts\nvar BindingsController = class {\n  // eslint-disable-next-line no-restricted-globals\n  constructor(global, globalBindingName) {\n    this._bindings = /* @__PURE__ */ new Map();\n    this._global = global;\n    this._globalBindingName = globalBindingName;\n  }\n  addBinding(bindingName, needsHandle) {\n    const data = {\n      callbacks: /* @__PURE__ */ new Map(),\n      lastSeq: 0,\n      handles: /* @__PURE__ */ new Map(),\n      removed: false\n    };\n    this._bindings.set(bindingName, data);\n    this._global[bindingName] = (...args) => {\n      if (data.removed)\n        throw new Error(`binding "${bindingName}" has been removed`);\n      if (needsHandle && args.slice(1).some((arg) => arg !== void 0))\n        throw new Error(`exposeBindingHandle supports a single argument, ${args.length} received`);\n      const seq = ++data.lastSeq;\n      const promise = new Promise((resolve, reject) => data.callbacks.set(seq, { resolve, reject }));\n      let payload;\n      if (needsHandle) {\n        data.handles.set(seq, args[0]);\n        payload = { name: bindingName, seq };\n      } else {\n        const serializedArgs = [];\n        for (let i = 0; i < args.length; i++) {\n          serializedArgs[i] = serializeAsCallArgument(args[i], (v) => {\n            return { fallThrough: v };\n          });\n        }\n        payload = { name: bindingName, seq, serializedArgs };\n      }\n      this._global[this._globalBindingName](JSON.stringify(payload));\n      return promise;\n    };\n  }\n  removeBinding(bindingName) {\n    const data = this._bindings.get(bindingName);\n    if (data)\n      data.removed = true;\n    this._bindings.delete(bindingName);\n    delete this._global[bindingName];\n  }\n  takeBindingHandle(arg) {\n    const handles = this._bindings.get(arg.name).handles;\n    const handle = handles.get(arg.seq);\n    handles.delete(arg.seq);\n    return handle;\n  }\n  deliverBindingResult(arg) {\n    const callbacks = this._bindings.get(arg.name).callbacks;\n    if ("error" in arg)\n      callbacks.get(arg.seq).reject(arg.error);\n    else\n      callbacks.get(arg.seq).resolve(arg.result);\n    callbacks.delete(arg.seq);\n  }\n};\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/page.js
+// node_modules/playwright-core/lib/server/page.js
 var ot = B((AWe, oD) => {
   "use strict";
   var Jhe = Object.create;
@@ -37924,7 +37924,7 @@ var ot = B((AWe, oD) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/types.js
+// node_modules/playwright-core/lib/server/types.js
 var cD = B((IWe, lD) => {
   "use strict";
   var qv = Object.defineProperty;
@@ -37952,7 +37952,7 @@ var cD = B((IWe, lD) => {
   var _pe = /* @__PURE__ */ new Set(["load", "domcontentloaded", "networkidle", "commit"]);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/frames.js
+// node_modules/playwright-core/lib/server/frames.js
 var ti = B((NWe, gD) => {
   "use strict";
   var bpe = Object.create;
@@ -39390,7 +39390,7 @@ var ti = B((NWe, gD) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/har/harTracer.js
+// node_modules/playwright-core/lib/server/har/harTracer.js
 var Yv = B((RWe, SD) => {
   "use strict";
   var Rpe = Object.create;
@@ -39998,7 +39998,7 @@ var Yv = B((RWe, SD) => {
   var Gv = Symbol("startedDate");
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/har/harRecorder.js
+// node_modules/playwright-core/lib/server/har/harRecorder.js
 var AD = B((jWe, TD) => {
   "use strict";
   var Wpe = Object.create;
@@ -40145,7 +40145,7 @@ ${l}`);
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/launchApp.js
+// node_modules/playwright-core/lib/server/launchApp.js
 var qa = B((DWe, FD) => {
   "use strict";
   var ife = Object.create;
@@ -40272,7 +40272,7 @@ var qa = B((DWe, FD) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder/throttledFile.js
+// node_modules/playwright-core/lib/server/recorder/throttledFile.js
 var HD = B((FWe, qD) => {
   "use strict";
   var mfe = Object.create;
@@ -40329,7 +40329,7 @@ var HD = B((FWe, qD) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/language.js
+// node_modules/playwright-core/lib/server/codegen/language.js
 var ni = B((LWe, WD) => {
   "use strict";
   var Zv = Object.defineProperty;
@@ -40456,7 +40456,7 @@ var ni = B((LWe, WD) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/deviceDescriptorsSource.json
+// node_modules/playwright-core/lib/server/deviceDescriptorsSource.json
 var zD = B((BWe, Mfe) => {
   Mfe.exports = {
     "Blackberry PlayBook": {
@@ -42239,7 +42239,7 @@ var zD = B((BWe, Mfe) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/deviceDescriptors.js
+// node_modules/playwright-core/lib/server/deviceDescriptors.js
 var $s = B((qWe, KD) => {
   "use strict";
   var Ffe = Object.create;
@@ -42278,7 +42278,7 @@ var $s = B((qWe, KD) => {
   var Vfe = zfe.default;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/csharp.js
+// node_modules/playwright-core/lib/server/codegen/csharp.js
 var ZD = B((HWe, QD) => {
   "use strict";
   var rw = Object.defineProperty;
@@ -42612,7 +42612,7 @@ ${e}}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/javascript.js
+// node_modules/playwright-core/lib/server/codegen/javascript.js
 var xh = B(($We, oM) => {
   "use strict";
   var sw = Object.defineProperty;
@@ -42878,7 +42878,7 @@ ${e}\``;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/java.js
+// node_modules/playwright-core/lib/server/codegen/java.js
 var dM = B((UWe, uM) => {
   "use strict";
   var lw = Object.defineProperty;
@@ -43148,7 +43148,7 @@ var dM = B((UWe, uM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/jsonl.js
+// node_modules/playwright-core/lib/server/codegen/jsonl.js
 var fM = B((WWe, pM) => {
   "use strict";
   var uw = Object.defineProperty;
@@ -43200,7 +43200,7 @@ var fM = B((WWe, pM) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/python.js
+// node_modules/playwright-core/lib/server/codegen/python.js
 var _M = B((zWe, gM) => {
   "use strict";
   var pw = Object.defineProperty;
@@ -43477,7 +43477,7 @@ with sync_playwright() as playwright:
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/codegen/languages.js
+// node_modules/playwright-core/lib/server/codegen/languages.js
 var xM = B((VWe, yM) => {
   "use strict";
   var gw = Object.defineProperty;
@@ -43545,7 +43545,7 @@ var xM = B((VWe, yM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder/recorderUtils.js
+// node_modules/playwright-core/lib/server/recorder/recorderUtils.js
 var zs = B((GWe, PM) => {
   "use strict";
   var vw = Object.defineProperty;
@@ -43696,7 +43696,7 @@ var zs = B((GWe, PM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/locatorParser.js
+// node_modules/playwright-core/lib/utils/isomorphic/locatorParser.js
 var yw = B((KWe, jM) => {
   "use strict";
   var ww = Object.defineProperty;
@@ -43871,7 +43871,7 @@ var yw = B((KWe, jM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder/recorderSignalProcessor.js
+// node_modules/playwright-core/lib/server/recorder/recorderSignalProcessor.js
 var FM = B((JWe, MM) => {
   "use strict";
   var Sw = Object.defineProperty;
@@ -43954,7 +43954,7 @@ var FM = B((JWe, MM) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/pollingRecorderSource.js
+// node_modules/playwright-core/lib/generated/pollingRecorderSource.js
 var qM = B((YWe, BM) => {
   "use strict";
   var Ow = Object.defineProperty;
@@ -43982,7 +43982,7 @@ var qM = B((YWe, BM) => {
   var Tge = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/recorder/pollingRecorder.ts\nvar pollingRecorder_exports = {};\n__export(pollingRecorder_exports, {\n  PollingRecorder: () => PollingRecorder,\n  default: () => pollingRecorder_default\n});\nmodule.exports = __toCommonJS(pollingRecorder_exports);\n\n// packages/injected/src/recorder/clipPaths.ts\nvar svgJson = { "tagName": "svg", "children": [{ "tagName": "defs", "children": [{ "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-gripper" }, "children": [{ "tagName": "path", "attrs": { "d": "M5 3h2v2H5zm0 4h2v2H5zm0 4h2v2H5zm4-8h2v2H9zm0 4h2v2H9zm0 4h2v2H9z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-circle-large-filled" }, "children": [{ "tagName": "path", "attrs": { "d": "M8 1a6.8 6.8 0 0 1 1.86.253 6.899 6.899 0 0 1 3.083 1.805 6.903 6.903 0 0 1 1.804 3.083C14.916 6.738 15 7.357 15 8s-.084 1.262-.253 1.86a6.9 6.9 0 0 1-.704 1.674 7.157 7.157 0 0 1-2.516 2.509 6.966 6.966 0 0 1-1.668.71A6.984 6.984 0 0 1 8 15a6.984 6.984 0 0 1-1.86-.246 7.098 7.098 0 0 1-1.674-.711 7.3 7.3 0 0 1-1.415-1.094 7.295 7.295 0 0 1-1.094-1.415 7.098 7.098 0 0 1-.71-1.675A6.985 6.985 0 0 1 1 8c0-.643.082-1.262.246-1.86a6.968 6.968 0 0 1 .711-1.667 7.156 7.156 0 0 1 2.509-2.516 6.895 6.895 0 0 1 1.675-.704A6.808 6.808 0 0 1 8 1z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-inspect" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M1 3l1-1h12l1 1v6h-1V3H2v8h5v1H2l-1-1V3zm14.707 9.707L9 6v9.414l2.707-2.707h4zM10 13V8.414l3.293 3.293h-2L10 13z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-whole-word" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M0 11H1V13H15V11H16V14H15H1H0V11Z" } }, { "tagName": "path", "attrs": { "d": "M6.84048 11H5.95963V10.1406H5.93814C5.555 10.7995 4.99104 11.1289 4.24625 11.1289C3.69839 11.1289 3.26871 10.9839 2.95718 10.6938C2.64924 10.4038 2.49527 10.0189 2.49527 9.53906C2.49527 8.51139 3.10041 7.91341 4.3107 7.74512L5.95963 7.51416C5.95963 6.57959 5.58186 6.1123 4.82632 6.1123C4.16389 6.1123 3.56591 6.33789 3.03238 6.78906V5.88672C3.57307 5.54297 4.19612 5.37109 4.90152 5.37109C6.19416 5.37109 6.84048 6.05501 6.84048 7.42285V11ZM5.95963 8.21777L4.63297 8.40039C4.22476 8.45768 3.91682 8.55973 3.70914 8.70654C3.50145 8.84977 3.39761 9.10579 3.39761 9.47461C3.39761 9.74316 3.4925 9.96338 3.68228 10.1353C3.87564 10.3035 4.13166 10.3877 4.45035 10.3877C4.8872 10.3877 5.24706 10.2355 5.52994 9.93115C5.8164 9.62321 5.95963 9.2347 5.95963 8.76562V8.21777Z" } }, { "tagName": "path", "attrs": { "d": "M9.3475 10.2051H9.32601V11H8.44515V2.85742H9.32601V6.4668H9.3475C9.78076 5.73633 10.4146 5.37109 11.2489 5.37109C11.9543 5.37109 12.5057 5.61816 12.9032 6.1123C13.3042 6.60286 13.5047 7.26172 13.5047 8.08887C13.5047 9.00911 13.2809 9.74674 12.8333 10.3018C12.3857 10.8532 11.7734 11.1289 10.9964 11.1289C10.2695 11.1289 9.71989 10.821 9.3475 10.2051ZM9.32601 7.98682V8.75488C9.32601 9.20964 9.47282 9.59635 9.76644 9.91504C10.0636 10.2301 10.4396 10.3877 10.8944 10.3877C11.4279 10.3877 11.8451 10.1836 12.1458 9.77539C12.4502 9.36719 12.6024 8.79964 12.6024 8.07275C12.6024 7.46045 12.4609 6.98063 12.1781 6.6333C11.8952 6.28597 11.512 6.1123 11.0286 6.1123C10.5166 6.1123 10.1048 6.29134 9.7933 6.64941C9.48177 7.00391 9.32601 7.44971 9.32601 7.98682Z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-eye" }, "children": [{ "tagName": "path", "attrs": { "d": "M7.99993 6.00316C9.47266 6.00316 10.6666 7.19708 10.6666 8.66981C10.6666 10.1426 9.47266 11.3365 7.99993 11.3365C6.52715 11.3365 5.33324 10.1426 5.33324 8.66981C5.33324 7.19708 6.52715 6.00316 7.99993 6.00316ZM7.99993 7.00315C7.07946 7.00315 6.33324 7.74935 6.33324 8.66981C6.33324 9.59028 7.07946 10.3365 7.99993 10.3365C8.9204 10.3365 9.6666 9.59028 9.6666 8.66981C9.6666 7.74935 8.9204 7.00315 7.99993 7.00315ZM7.99993 3.66675C11.0756 3.66675 13.7307 5.76675 14.4673 8.70968C14.5344 8.97755 14.3716 9.24908 14.1037 9.31615C13.8358 9.38315 13.5643 9.22041 13.4973 8.95248C12.8713 6.45205 10.6141 4.66675 7.99993 4.66675C5.38454 4.66675 3.12664 6.45359 2.50182 8.95555C2.43491 9.22341 2.16348 9.38635 1.89557 9.31948C1.62766 9.25255 1.46471 8.98115 1.53162 8.71321C2.26701 5.76856 4.9229 3.66675 7.99993 3.66675Z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-symbol-constant" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M4 6h8v1H4V6zm8 3H4v1h8V9z" } }, { "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M1 4l1-1h12l1 1v8l-1 1H2l-1-1V4zm1 0v8h12V4H2z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-check" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M14.431 3.323l-8.47 10-.79-.036-3.35-4.77.818-.574 2.978 4.24 8.051-9.506.764.646z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-close" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M8 8.707l3.646 3.647.708-.707L8.707 8l3.647-3.646-.707-.708L8 7.293 4.354 3.646l-.707.708L7.293 8l-3.646 3.646.707.708L8 8.707z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-pass" }, "children": [{ "tagName": "path", "attrs": { "d": "M6.27 10.87h.71l4.56-4.56-.71-.71-4.2 4.21-1.92-1.92L4 8.6l2.27 2.27z" } }, { "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M8.6 1c1.6.1 3.1.9 4.2 2 1.3 1.4 2 3.1 2 5.1 0 1.6-.6 3.1-1.6 4.4-1 1.2-2.4 2.1-4 2.4-1.6.3-3.2.1-4.6-.7-1.4-.8-2.5-2-3.1-3.5C.9 9.2.8 7.5 1.3 6c.5-1.6 1.4-2.9 2.8-3.8C5.4 1.3 7 .9 8.6 1zm.5 12.9c1.3-.3 2.5-1 3.4-2.1.8-1.1 1.3-2.4 1.2-3.8 0-1.6-.6-3.2-1.7-4.3-1-1-2.2-1.6-3.6-1.7-1.3-.1-2.7.2-3.8 1-1.1.8-1.9 1.9-2.3 3.3-.4 1.3-.4 2.7.2 4 .6 1.3 1.5 2.3 2.7 3 1.2.7 2.6.9 3.9.6z" } }] }, { "tagName": "clipPath", "attrs": { "width": "16", "height": "16", "viewBox": "0 0 16 16", "fill": "currentColor", "id": "icon-gist" }, "children": [{ "tagName": "path", "attrs": { "fill-rule": "evenodd", "clip-rule": "evenodd", "d": "M10.57 1.14l3.28 3.3.15.36v9.7l-.5.5h-11l-.5-.5v-13l.5-.5h7.72l.35.14zM10 5h3l-3-3v3zM3 2v12h10V6H9.5L9 5.5V2H3zm2.062 7.533l1.817-1.828L6.17 7 4 9.179v.707l2.171 2.174.707-.707-1.816-1.82zM8.8 7.714l.7-.709 2.189 2.175v.709L9.5 12.062l-.705-.709 1.831-1.82L8.8 7.714z" } }] }] }] };\nvar clipPaths_default = svgJson;\n\n// packages/injected/src/recorder/recorder.ts\nvar HighlightColors = {\n  multiple: "#f6b26b7f",\n  single: "#6fa8dc7f",\n  assert: "#8acae480",\n  action: "#dc6f6f7f"\n};\nvar NoneTool = class {\n};\nvar InspectTool = class {\n  constructor(recorder, assertVisibility) {\n    this._hoveredModel = null;\n    this._hoveredElement = null;\n    this._recorder = recorder;\n    this._assertVisibility = assertVisibility;\n  }\n  cursor() {\n    return "pointer";\n  }\n  uninstall() {\n    this._hoveredModel = null;\n    this._hoveredElement = null;\n  }\n  onClick(event) {\n    var _a;\n    consumeEvent(event);\n    if (event.button !== 0)\n      return;\n    if ((_a = this._hoveredModel) == null ? void 0 : _a.selector)\n      this._commit(this._hoveredModel.selector, this._hoveredModel);\n  }\n  onPointerDown(event) {\n    consumeEvent(event);\n  }\n  onPointerUp(event) {\n    consumeEvent(event);\n  }\n  onMouseDown(event) {\n    consumeEvent(event);\n  }\n  onMouseUp(event) {\n    consumeEvent(event);\n  }\n  onMouseMove(event) {\n    var _a;\n    consumeEvent(event);\n    let target = this._recorder.deepEventTarget(event);\n    if (!target.isConnected)\n      target = null;\n    if (this._hoveredElement === target)\n      return;\n    this._hoveredElement = target;\n    let model = null;\n    if (this._hoveredElement) {\n      const generated = this._recorder.injectedScript.generateSelector(this._hoveredElement, { testIdAttributeName: this._recorder.state.testIdAttributeName, multiple: false });\n      model = {\n        selector: generated.selector,\n        elements: generated.elements,\n        tooltipText: this._recorder.injectedScript.utils.asLocator(this._recorder.state.language, generated.selector),\n        color: this._assertVisibility ? HighlightColors.assert : HighlightColors.single\n      };\n    }\n    if (((_a = this._hoveredModel) == null ? void 0 : _a.selector) === (model == null ? void 0 : model.selector))\n      return;\n    this._hoveredModel = model;\n    this._recorder.updateHighlight(model, true);\n  }\n  onMouseEnter(event) {\n    consumeEvent(event);\n  }\n  onMouseLeave(event) {\n    consumeEvent(event);\n    const window = this._recorder.injectedScript.window;\n    if (window.top !== window && this._recorder.deepEventTarget(event).nodeType === Node.DOCUMENT_NODE)\n      this._reset(true);\n  }\n  onKeyDown(event) {\n    consumeEvent(event);\n    if (event.key === "Escape") {\n      if (this._assertVisibility)\n        this._recorder.setMode("recording");\n    }\n  }\n  onKeyUp(event) {\n    consumeEvent(event);\n  }\n  onScroll(event) {\n    this._reset(false);\n  }\n  _commit(selector, model) {\n    var _a;\n    if (this._assertVisibility) {\n      this._recorder.recordAction({\n        name: "assertVisible",\n        selector,\n        signals: []\n      });\n      this._recorder.setMode("recording");\n      (_a = this._recorder.overlay) == null ? void 0 : _a.flashToolSucceeded("assertingVisibility");\n    } else {\n      this._recorder.elementPicked(selector, model);\n    }\n  }\n  _reset(userGesture) {\n    this._hoveredElement = null;\n    this._hoveredModel = null;\n    this._recorder.updateHighlight(null, userGesture);\n  }\n};\nvar RecordActionTool = class {\n  constructor(recorder) {\n    this._hoveredModel = null;\n    this._hoveredElement = null;\n    this._activeModel = null;\n    this._expectProgrammaticKeyUp = false;\n    this._observer = null;\n    this._recorder = recorder;\n    this._performingActions = /* @__PURE__ */ new Set();\n  }\n  cursor() {\n    return "pointer";\n  }\n  _installObserverIfNeeded() {\n    var _a;\n    if (this._observer)\n      return;\n    if (!((_a = this._recorder.injectedScript.document) == null ? void 0 : _a.body))\n      return;\n    this._observer = new MutationObserver((mutations) => {\n      if (!this._hoveredElement)\n        return;\n      for (const mutation of mutations) {\n        for (const node of mutation.removedNodes) {\n          if (node === this._hoveredElement || node.contains(this._hoveredElement))\n            this._resetHoveredModel();\n        }\n      }\n    });\n    this._observer.observe(this._recorder.injectedScript.document.body, { childList: true, subtree: true });\n  }\n  uninstall() {\n    var _a;\n    (_a = this._observer) == null ? void 0 : _a.disconnect();\n    this._observer = null;\n    this._hoveredModel = null;\n    this._hoveredElement = null;\n    this._activeModel = null;\n    this._expectProgrammaticKeyUp = false;\n  }\n  onClick(event) {\n    if (isRangeInput(this._hoveredElement))\n      return;\n    if (event.button === 2 && event.type === "auxclick")\n      return;\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    if (this._actionInProgress(event))\n      return;\n    if (this._consumedDueToNoModel(event, this._hoveredModel))\n      return;\n    const checkbox = asCheckbox(this._recorder.deepEventTarget(event));\n    if (checkbox && event.detail === 1) {\n      this._performAction({\n        name: checkbox.checked ? "check" : "uncheck",\n        selector: this._hoveredModel.selector,\n        signals: []\n      });\n      return;\n    }\n    this._cancelPendingClickAction();\n    if (event.detail === 1) {\n      this._pendingClickAction = {\n        action: {\n          name: "click",\n          selector: this._hoveredModel.selector,\n          position: positionForEvent(event),\n          signals: [],\n          button: buttonForEvent(event),\n          modifiers: modifiersForEvent(event),\n          clickCount: event.detail\n        },\n        timeout: this._recorder.injectedScript.utils.builtins.setTimeout(() => this._commitPendingClickAction(), 200)\n      };\n    }\n  }\n  onDblClick(event) {\n    if (isRangeInput(this._hoveredElement))\n      return;\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    if (this._actionInProgress(event))\n      return;\n    if (this._consumedDueToNoModel(event, this._hoveredModel))\n      return;\n    this._cancelPendingClickAction();\n    this._performAction({\n      name: "click",\n      selector: this._hoveredModel.selector,\n      position: positionForEvent(event),\n      signals: [],\n      button: buttonForEvent(event),\n      modifiers: modifiersForEvent(event),\n      clickCount: event.detail\n    });\n  }\n  _commitPendingClickAction() {\n    if (this._pendingClickAction)\n      this._performAction(this._pendingClickAction.action);\n    this._cancelPendingClickAction();\n  }\n  _cancelPendingClickAction() {\n    if (this._pendingClickAction)\n      this._recorder.injectedScript.utils.builtins.clearTimeout(this._pendingClickAction.timeout);\n    this._pendingClickAction = void 0;\n  }\n  onContextMenu(event) {\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    if (this._actionInProgress(event))\n      return;\n    if (this._consumedDueToNoModel(event, this._hoveredModel))\n      return;\n    this._performAction({\n      name: "click",\n      selector: this._hoveredModel.selector,\n      position: positionForEvent(event),\n      signals: [],\n      button: "right",\n      modifiers: 0,\n      clickCount: 0\n    });\n  }\n  onPointerDown(event) {\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    this._consumeWhenAboutToPerform(event);\n  }\n  onPointerUp(event) {\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    this._consumeWhenAboutToPerform(event);\n  }\n  onMouseDown(event) {\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    this._consumeWhenAboutToPerform(event);\n    this._activeModel = this._hoveredModel;\n  }\n  onMouseUp(event) {\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    this._consumeWhenAboutToPerform(event);\n  }\n  onMouseMove(event) {\n    const target = this._recorder.deepEventTarget(event);\n    if (this._hoveredElement === target)\n      return;\n    this._hoveredElement = target;\n    this._updateModelForHoveredElement();\n  }\n  onMouseLeave(event) {\n    const window = this._recorder.injectedScript.window;\n    if (window.top !== window && this._recorder.deepEventTarget(event).nodeType === Node.DOCUMENT_NODE) {\n      this._hoveredElement = null;\n      this._updateModelForHoveredElement();\n    }\n  }\n  onFocus(event) {\n    this._onFocus(true);\n  }\n  onInput(event) {\n    const target = this._recorder.deepEventTarget(event);\n    if (target.nodeName === "INPUT" && target.type.toLowerCase() === "file") {\n      this._recordAction({\n        name: "setInputFiles",\n        selector: this._activeModel.selector,\n        signals: [],\n        files: [...target.files || []].map((file) => file.name)\n      });\n      return;\n    }\n    if (isRangeInput(target)) {\n      this._recordAction({\n        name: "fill",\n        // must use hoveredModel instead of activeModel for it to work in webkit\n        selector: this._hoveredModel.selector,\n        signals: [],\n        text: target.value\n      });\n      return;\n    }\n    if (["INPUT", "TEXTAREA"].includes(target.nodeName) || target.isContentEditable) {\n      if (target.nodeName === "INPUT" && ["checkbox", "radio"].includes(target.type.toLowerCase())) {\n        return;\n      }\n      if (this._consumedDueWrongTarget(event))\n        return;\n      this._recordAction({\n        name: "fill",\n        selector: this._activeModel.selector,\n        signals: [],\n        text: target.isContentEditable ? target.innerText : target.value\n      });\n    }\n    if (target.nodeName === "SELECT") {\n      const selectElement = target;\n      this._recordAction({\n        name: "select",\n        selector: this._activeModel.selector,\n        options: [...selectElement.selectedOptions].map((option) => option.value),\n        signals: []\n      });\n    }\n  }\n  onKeyDown(event) {\n    if (!this._shouldGenerateKeyPressFor(event))\n      return;\n    if (this._actionInProgress(event)) {\n      this._expectProgrammaticKeyUp = true;\n      return;\n    }\n    if (this._consumedDueWrongTarget(event))\n      return;\n    if (event.key === " ") {\n      const checkbox = asCheckbox(this._recorder.deepEventTarget(event));\n      if (checkbox && event.detail === 0) {\n        this._performAction({\n          name: checkbox.checked ? "uncheck" : "check",\n          selector: this._activeModel.selector,\n          signals: []\n        });\n        return;\n      }\n    }\n    this._performAction({\n      name: "press",\n      selector: this._activeModel.selector,\n      signals: [],\n      key: event.key,\n      modifiers: modifiersForEvent(event)\n    });\n  }\n  onKeyUp(event) {\n    if (!this._shouldGenerateKeyPressFor(event))\n      return;\n    if (!this._expectProgrammaticKeyUp) {\n      consumeEvent(event);\n      return;\n    }\n    this._expectProgrammaticKeyUp = false;\n  }\n  onScroll(event) {\n    this._resetHoveredModel();\n  }\n  _resetHoveredModel() {\n    this._hoveredModel = null;\n    this._hoveredElement = null;\n    this._updateHighlight(false);\n  }\n  _onFocus(userGesture) {\n    const activeElement = deepActiveElement(this._recorder.document);\n    if (userGesture && activeElement === this._recorder.document.body)\n      return;\n    const result = activeElement ? this._recorder.injectedScript.generateSelector(activeElement, { testIdAttributeName: this._recorder.state.testIdAttributeName }) : null;\n    this._activeModel = result && result.selector ? { ...result, color: HighlightColors.action } : null;\n    if (userGesture) {\n      this._hoveredElement = activeElement;\n      this._updateModelForHoveredElement();\n    }\n  }\n  _shouldIgnoreMouseEvent(event) {\n    const target = this._recorder.deepEventTarget(event);\n    const nodeName = target.nodeName;\n    if (nodeName === "SELECT" || nodeName === "OPTION")\n      return true;\n    if (nodeName === "INPUT" && ["date", "range"].includes(target.type))\n      return true;\n    return false;\n  }\n  _actionInProgress(event) {\n    const isKeyEvent = event instanceof KeyboardEvent;\n    const isMouseOrPointerEvent = event instanceof MouseEvent || event instanceof PointerEvent;\n    for (const action of this._performingActions) {\n      if (isKeyEvent && action.name === "press" && event.key === action.key)\n        return true;\n      if (isMouseOrPointerEvent && (action.name === "click" || action.name === "check" || action.name === "uncheck"))\n        return true;\n    }\n    consumeEvent(event);\n    return false;\n  }\n  _consumedDueToNoModel(event, model) {\n    if (model)\n      return false;\n    consumeEvent(event);\n    return true;\n  }\n  _consumedDueWrongTarget(event) {\n    if (this._activeModel && this._activeModel.elements[0] === this._recorder.deepEventTarget(event))\n      return false;\n    consumeEvent(event);\n    return true;\n  }\n  _consumeWhenAboutToPerform(event) {\n    if (!this._performingActions.size)\n      consumeEvent(event);\n  }\n  _recordAction(action) {\n    this._recorder.recordAction(action);\n  }\n  _performAction(action) {\n    this._recorder.updateHighlight(null, false);\n    this._performingActions.add(action);\n    const promise = this._recorder.performAction(action).then(() => {\n      this._performingActions.delete(action);\n      this._onFocus(false);\n    });\n    if (!this._recorder.injectedScript.isUnderTest)\n      return;\n    void promise.then(() => {\n      console.error("Action performed for test: " + JSON.stringify({\n        // eslint-disable-line no-console\n        hovered: this._hoveredModel ? this._hoveredModel.selector : null,\n        active: this._activeModel ? this._activeModel.selector : null\n      }));\n    });\n  }\n  _shouldGenerateKeyPressFor(event) {\n    if (typeof event.key !== "string")\n      return false;\n    if (event.key === "Enter" && (this._recorder.deepEventTarget(event).nodeName === "TEXTAREA" || this._recorder.deepEventTarget(event).isContentEditable))\n      return false;\n    if (["Backspace", "Delete", "AltGraph"].includes(event.key))\n      return false;\n    if (event.key === "@" && event.code === "KeyL")\n      return false;\n    if (navigator.platform.includes("Mac")) {\n      if (event.key === "v" && event.metaKey)\n        return false;\n    } else {\n      if (event.key === "v" && event.ctrlKey)\n        return false;\n      if (event.key === "Insert" && event.shiftKey)\n        return false;\n    }\n    if (["Shift", "Control", "Meta", "Alt", "Process"].includes(event.key))\n      return false;\n    const hasModifier = event.ctrlKey || event.altKey || event.metaKey;\n    if (event.key.length === 1 && !hasModifier)\n      return !!asCheckbox(this._recorder.deepEventTarget(event));\n    return true;\n  }\n  _updateModelForHoveredElement() {\n    this._installObserverIfNeeded();\n    if (this._performingActions.size)\n      return;\n    if (!this._hoveredElement || !this._hoveredElement.isConnected) {\n      this._hoveredModel = null;\n      this._hoveredElement = null;\n      this._updateHighlight(true);\n      return;\n    }\n    const { selector, elements } = this._recorder.injectedScript.generateSelector(this._hoveredElement, { testIdAttributeName: this._recorder.state.testIdAttributeName });\n    if (this._hoveredModel && this._hoveredModel.selector === selector)\n      return;\n    this._hoveredModel = selector ? { selector, elements, color: HighlightColors.action } : null;\n    this._updateHighlight(true);\n  }\n  _updateHighlight(userGesture) {\n    this._recorder.updateHighlight(this._hoveredModel, userGesture);\n  }\n};\nvar JsonRecordActionTool = class {\n  constructor(recorder) {\n    this._recorder = recorder;\n  }\n  install() {\n    this._recorder.highlight.uninstall();\n  }\n  uninstall() {\n    this._recorder.highlight.install();\n  }\n  onClick(event) {\n    const element = this._recorder.deepEventTarget(event);\n    if (isRangeInput(element))\n      return;\n    if (event.button === 2 && event.type === "auxclick")\n      return;\n    if (this._shouldIgnoreMouseEvent(event))\n      return;\n    const checkbox = asCheckbox(element);\n    const { ariaSnapshot, selector, ref } = this._ariaSnapshot(element);\n    if (checkbox && event.detail === 1) {\n      this._recorder.recordAction({\n        name: checkbox.checked ? "check" : "uncheck",\n        selector,\n        ref,\n        signals: [],\n        ariaSnapshot\n      });\n      return;\n    }\n    this._recorder.recordAction({\n      name: "click",\n      selector,\n      ref,\n      ariaSnapshot,\n      position: positionForEvent(event),\n      signals: [],\n      button: buttonForEvent(event),\n      modifiers: modifiersForEvent(event),\n      clickCount: event.detail\n    });\n  }\n  onContextMenu(event) {\n    const element = this._recorder.deepEventTarget(event);\n    const { ariaSnapshot, selector, ref } = this._ariaSnapshot(element);\n    this._recorder.recordAction({\n      name: "click",\n      selector,\n      ref,\n      ariaSnapshot,\n      position: positionForEvent(event),\n      signals: [],\n      button: "right",\n      modifiers: modifiersForEvent(event),\n      clickCount: 1\n    });\n  }\n  onInput(event) {\n    const element = this._recorder.deepEventTarget(event);\n    const { ariaSnapshot, selector, ref } = this._ariaSnapshot(element);\n    if (isRangeInput(element)) {\n      this._recorder.recordAction({\n        name: "fill",\n        selector,\n        ref,\n        ariaSnapshot,\n        signals: [],\n        text: element.value\n      });\n      return;\n    }\n    if (["INPUT", "TEXTAREA"].includes(element.nodeName) || element.isContentEditable) {\n      if (element.nodeName === "INPUT" && ["checkbox", "radio"].includes(element.type.toLowerCase())) {\n        return;\n      }\n      this._recorder.recordAction({\n        name: "fill",\n        ref,\n        selector,\n        ariaSnapshot,\n        signals: [],\n        text: element.isContentEditable ? element.innerText : element.value\n      });\n      return;\n    }\n    if (element.nodeName === "SELECT") {\n      const selectElement = element;\n      this._recorder.recordAction({\n        name: "select",\n        selector,\n        ref,\n        ariaSnapshot,\n        options: [...selectElement.selectedOptions].map((option) => option.value),\n        signals: []\n      });\n      return;\n    }\n  }\n  onKeyDown(event) {\n    if (!this._shouldGenerateKeyPressFor(event))\n      return;\n    const element = this._recorder.deepEventTarget(event);\n    const { ariaSnapshot, selector, ref } = this._ariaSnapshot(element);\n    if (event.key === " ") {\n      const checkbox = asCheckbox(element);\n      if (checkbox && event.detail === 0) {\n        this._recorder.recordAction({\n          name: checkbox.checked ? "uncheck" : "check",\n          selector,\n          ref,\n          ariaSnapshot,\n          signals: []\n        });\n        return;\n      }\n    }\n    this._recorder.recordAction({\n      name: "press",\n      selector,\n      ref,\n      ariaSnapshot,\n      signals: [],\n      key: event.key,\n      modifiers: modifiersForEvent(event)\n    });\n  }\n  _shouldIgnoreMouseEvent(event) {\n    const target = this._recorder.deepEventTarget(event);\n    const nodeName = target.nodeName;\n    if (nodeName === "SELECT" || nodeName === "OPTION")\n      return true;\n    if (nodeName === "INPUT" && ["date", "range"].includes(target.type))\n      return true;\n    return false;\n  }\n  _shouldGenerateKeyPressFor(event) {\n    if (typeof event.key !== "string")\n      return false;\n    if (event.key === "Enter" && (this._recorder.deepEventTarget(event).nodeName === "TEXTAREA" || this._recorder.deepEventTarget(event).isContentEditable))\n      return false;\n    if (["Backspace", "Delete", "AltGraph"].includes(event.key))\n      return false;\n    if (event.key === "@" && event.code === "KeyL")\n      return false;\n    if (navigator.platform.includes("Mac")) {\n      if (event.key === "v" && event.metaKey)\n        return false;\n    } else {\n      if (event.key === "v" && event.ctrlKey)\n        return false;\n      if (event.key === "Insert" && event.shiftKey)\n        return false;\n    }\n    if (["Shift", "Control", "Meta", "Alt", "Process"].includes(event.key))\n      return false;\n    const hasModifier = event.ctrlKey || event.altKey || event.metaKey;\n    if (event.key.length === 1 && !hasModifier)\n      return !this._isEditable(this._recorder.deepEventTarget(event));\n    return true;\n  }\n  _isEditable(element) {\n    if (element.nodeName === "TEXTAREA" || element.nodeName === "INPUT")\n      return true;\n    if (element.isContentEditable)\n      return true;\n    return false;\n  }\n  _ariaSnapshot(element) {\n    const { ariaSnapshot, refs } = this._recorder.injectedScript.ariaSnapshotForRecorder();\n    const ref = element ? refs.get(element) : void 0;\n    const elementInfo = element ? this._recorder.injectedScript.generateSelector(element, { testIdAttributeName: this._recorder.state.testIdAttributeName }) : void 0;\n    return { ariaSnapshot, selector: elementInfo == null ? void 0 : elementInfo.selector, ref };\n  }\n};\nvar TextAssertionTool = class {\n  constructor(recorder, kind) {\n    this._hoverHighlight = null;\n    this._action = null;\n    this._recorder = recorder;\n    this._textCache = /* @__PURE__ */ new Map();\n    this._kind = kind;\n    this._dialog = new Dialog(recorder);\n  }\n  cursor() {\n    return "pointer";\n  }\n  uninstall() {\n    this._dialog.close();\n    this._hoverHighlight = null;\n  }\n  onClick(event) {\n    consumeEvent(event);\n    if (this._kind === "value") {\n      this._commitAssertValue();\n    } else {\n      if (!this._dialog.isShowing())\n        this._showDialog();\n    }\n  }\n  onMouseDown(event) {\n    const target = this._recorder.deepEventTarget(event);\n    if (this._elementHasValue(target))\n      event.preventDefault();\n  }\n  onPointerUp(event) {\n    var _a;\n    const target = (_a = this._hoverHighlight) == null ? void 0 : _a.elements[0];\n    if (this._kind === "value" && target && (target.nodeName === "INPUT" || target.nodeName === "SELECT") && target.disabled) {\n      this._commitAssertValue();\n    }\n  }\n  onMouseMove(event) {\n    var _a;\n    if (this._dialog.isShowing())\n      return;\n    const target = this._recorder.deepEventTarget(event);\n    if (((_a = this._hoverHighlight) == null ? void 0 : _a.elements[0]) === target)\n      return;\n    if (this._kind === "text" || this._kind === "snapshot") {\n      this._hoverHighlight = this._recorder.injectedScript.utils.elementText(this._textCache, target).full ? { elements: [target], selector: "", color: HighlightColors.assert } : null;\n    } else if (this._elementHasValue(target)) {\n      const generated = this._recorder.injectedScript.generateSelector(target, { testIdAttributeName: this._recorder.state.testIdAttributeName });\n      this._hoverHighlight = { selector: generated.selector, elements: generated.elements, color: HighlightColors.assert };\n    } else {\n      this._hoverHighlight = null;\n    }\n    this._recorder.updateHighlight(this._hoverHighlight, true);\n  }\n  onKeyDown(event) {\n    if (event.key === "Escape")\n      this._recorder.setMode("recording");\n    consumeEvent(event);\n  }\n  onScroll(event) {\n    this._recorder.updateHighlight(this._hoverHighlight, false);\n  }\n  _elementHasValue(element) {\n    return element.nodeName === "TEXTAREA" || element.nodeName === "SELECT" || element.nodeName === "INPUT" && !["button", "image", "reset", "submit"].includes(element.type);\n  }\n  _generateAction() {\n    var _a;\n    this._textCache.clear();\n    const target = (_a = this._hoverHighlight) == null ? void 0 : _a.elements[0];\n    if (!target)\n      return null;\n    if (this._kind === "value") {\n      if (!this._elementHasValue(target))\n        return null;\n      const { selector } = this._recorder.injectedScript.generateSelector(target, { testIdAttributeName: this._recorder.state.testIdAttributeName });\n      if (target.nodeName === "INPUT" && ["checkbox", "radio"].includes(target.type.toLowerCase())) {\n        return {\n          name: "assertChecked",\n          selector,\n          signals: [],\n          // Interestingly, inputElement.checked is reversed inside this event handler.\n          checked: !target.checked\n        };\n      } else {\n        return {\n          name: "assertValue",\n          selector,\n          signals: [],\n          value: target.value\n        };\n      }\n    } else if (this._kind === "snapshot") {\n      const generated = this._recorder.injectedScript.generateSelector(target, { testIdAttributeName: this._recorder.state.testIdAttributeName, forTextExpect: true });\n      this._hoverHighlight = { selector: generated.selector, elements: generated.elements, color: HighlightColors.assert };\n      this._recorder.updateHighlight(this._hoverHighlight, true);\n      return {\n        name: "assertSnapshot",\n        selector: this._hoverHighlight.selector,\n        signals: [],\n        ariaSnapshot: this._recorder.injectedScript.ariaSnapshot(target, { mode: "codegen" })\n      };\n    } else {\n      const generated = this._recorder.injectedScript.generateSelector(target, { testIdAttributeName: this._recorder.state.testIdAttributeName, forTextExpect: true });\n      this._hoverHighlight = { selector: generated.selector, elements: generated.elements, color: HighlightColors.assert };\n      this._recorder.updateHighlight(this._hoverHighlight, true);\n      return {\n        name: "assertText",\n        selector: this._hoverHighlight.selector,\n        signals: [],\n        text: this._recorder.injectedScript.utils.elementText(this._textCache, target).normalized,\n        substring: true\n      };\n    }\n  }\n  _renderValue(action) {\n    if ((action == null ? void 0 : action.name) === "assertText")\n      return this._recorder.injectedScript.utils.normalizeWhiteSpace(action.text);\n    if ((action == null ? void 0 : action.name) === "assertChecked")\n      return String(action.checked);\n    if ((action == null ? void 0 : action.name) === "assertValue")\n      return action.value;\n    if ((action == null ? void 0 : action.name) === "assertSnapshot")\n      return action.ariaSnapshot;\n    return "";\n  }\n  _commit() {\n    if (!this._action || !this._dialog.isShowing())\n      return;\n    this._dialog.close();\n    this._recorder.recordAction(this._action);\n    this._recorder.setMode("recording");\n  }\n  _showDialog() {\n    var _a, _b, _c, _d;\n    if (!((_a = this._hoverHighlight) == null ? void 0 : _a.elements[0]))\n      return;\n    this._action = this._generateAction();\n    if (((_b = this._action) == null ? void 0 : _b.name) === "assertText") {\n      this._showTextDialog(this._action);\n    } else if (((_c = this._action) == null ? void 0 : _c.name) === "assertSnapshot") {\n      this._recorder.recordAction(this._action);\n      this._recorder.setMode("recording");\n      (_d = this._recorder.overlay) == null ? void 0 : _d.flashToolSucceeded("assertingSnapshot");\n    }\n  }\n  _showTextDialog(action) {\n    const textElement = this._recorder.document.createElement("textarea");\n    textElement.setAttribute("spellcheck", "false");\n    textElement.value = this._renderValue(action);\n    textElement.classList.add("text-editor");\n    const updateAndValidate = () => {\n      var _a;\n      const newValue = this._recorder.injectedScript.utils.normalizeWhiteSpace(textElement.value);\n      const target = (_a = this._hoverHighlight) == null ? void 0 : _a.elements[0];\n      if (!target)\n        return;\n      action.text = newValue;\n      const targetText = this._recorder.injectedScript.utils.elementText(this._textCache, target).normalized;\n      const matches = newValue && targetText.includes(newValue);\n      textElement.classList.toggle("does-not-match", !matches);\n    };\n    textElement.addEventListener("input", updateAndValidate);\n    const label = "Assert that element contains text";\n    const dialogElement = this._dialog.show({\n      label,\n      body: textElement,\n      onCommit: () => this._commit()\n    });\n    const position = this._recorder.highlight.tooltipPosition(this._recorder.highlight.firstBox(), dialogElement);\n    this._dialog.moveTo(position.anchorTop, position.anchorLeft);\n    textElement.focus();\n  }\n  _commitAssertValue() {\n    var _a;\n    if (this._kind !== "value")\n      return;\n    const action = this._generateAction();\n    if (!action)\n      return;\n    this._recorder.recordAction(action);\n    this._recorder.setMode("recording");\n    (_a = this._recorder.overlay) == null ? void 0 : _a.flashToolSucceeded("assertingValue");\n  }\n};\nvar Overlay = class {\n  constructor(recorder) {\n    this._listeners = [];\n    this._offsetX = 0;\n    this._measure = { width: 0, height: 0 };\n    this._recorder = recorder;\n    const document = this._recorder.document;\n    this._overlayElement = document.createElement("x-pw-overlay");\n    const toolsListElement = document.createElement("x-pw-tools-list");\n    this._overlayElement.appendChild(toolsListElement);\n    this._dragHandle = document.createElement("x-pw-tool-gripper");\n    this._dragHandle.appendChild(document.createElement("x-div"));\n    toolsListElement.appendChild(this._dragHandle);\n    this._recordToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._recordToggle.title = "Record";\n    this._recordToggle.classList.add("record");\n    this._recordToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._recordToggle);\n    this._pickLocatorToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._pickLocatorToggle.title = "Pick locator";\n    this._pickLocatorToggle.classList.add("pick-locator");\n    this._pickLocatorToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._pickLocatorToggle);\n    this._assertVisibilityToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._assertVisibilityToggle.title = "Assert visibility";\n    this._assertVisibilityToggle.classList.add("visibility");\n    this._assertVisibilityToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._assertVisibilityToggle);\n    this._assertTextToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._assertTextToggle.title = "Assert text";\n    this._assertTextToggle.classList.add("text");\n    this._assertTextToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._assertTextToggle);\n    this._assertValuesToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._assertValuesToggle.title = "Assert value";\n    this._assertValuesToggle.classList.add("value");\n    this._assertValuesToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._assertValuesToggle);\n    this._assertSnapshotToggle = this._recorder.document.createElement("x-pw-tool-item");\n    this._assertSnapshotToggle.title = "Assert snapshot";\n    this._assertSnapshotToggle.classList.add("snapshot");\n    this._assertSnapshotToggle.appendChild(this._recorder.document.createElement("x-div"));\n    toolsListElement.appendChild(this._assertSnapshotToggle);\n    this._updateVisualPosition();\n    this._refreshListeners();\n  }\n  _refreshListeners() {\n    removeEventListeners(this._listeners);\n    this._listeners = [\n      addEventListener(this._dragHandle, "mousedown", (event) => {\n        this._dragState = { offsetX: this._offsetX, dragStart: { x: event.clientX, y: 0 } };\n      }),\n      addEventListener(this._recordToggle, "click", () => {\n        if (this._recordToggle.classList.contains("disabled"))\n          return;\n        this._recorder.setMode(this._recorder.state.mode === "none" || this._recorder.state.mode === "standby" || this._recorder.state.mode === "inspecting" ? "recording" : "standby");\n      }),\n      addEventListener(this._pickLocatorToggle, "click", () => {\n        if (this._pickLocatorToggle.classList.contains("disabled"))\n          return;\n        const newMode = {\n          "inspecting": "standby",\n          "none": "inspecting",\n          "standby": "inspecting",\n          "recording": "recording-inspecting",\n          "recording-inspecting": "recording",\n          "assertingText": "recording-inspecting",\n          "assertingVisibility": "recording-inspecting",\n          "assertingValue": "recording-inspecting",\n          "assertingSnapshot": "recording-inspecting"\n        };\n        this._recorder.setMode(newMode[this._recorder.state.mode]);\n      }),\n      addEventListener(this._assertVisibilityToggle, "click", () => {\n        if (!this._assertVisibilityToggle.classList.contains("disabled"))\n          this._recorder.setMode(this._recorder.state.mode === "assertingVisibility" ? "recording" : "assertingVisibility");\n      }),\n      addEventListener(this._assertTextToggle, "click", () => {\n        if (!this._assertTextToggle.classList.contains("disabled"))\n          this._recorder.setMode(this._recorder.state.mode === "assertingText" ? "recording" : "assertingText");\n      }),\n      addEventListener(this._assertValuesToggle, "click", () => {\n        if (!this._assertValuesToggle.classList.contains("disabled"))\n          this._recorder.setMode(this._recorder.state.mode === "assertingValue" ? "recording" : "assertingValue");\n      }),\n      addEventListener(this._assertSnapshotToggle, "click", () => {\n        if (!this._assertSnapshotToggle.classList.contains("disabled"))\n          this._recorder.setMode(this._recorder.state.mode === "assertingSnapshot" ? "recording" : "assertingSnapshot");\n      })\n    ];\n  }\n  install() {\n    this._recorder.highlight.appendChild(this._overlayElement);\n    this._refreshListeners();\n    this._updateVisualPosition();\n  }\n  contains(element) {\n    return this._recorder.injectedScript.utils.isInsideScope(this._overlayElement, element);\n  }\n  setUIState(state) {\n    this._recordToggle.classList.toggle("toggled", state.mode === "recording" || state.mode === "assertingText" || state.mode === "assertingVisibility" || state.mode === "assertingValue" || state.mode === "assertingSnapshot" || state.mode === "recording-inspecting");\n    this._pickLocatorToggle.classList.toggle("toggled", state.mode === "inspecting" || state.mode === "recording-inspecting");\n    this._assertVisibilityToggle.classList.toggle("toggled", state.mode === "assertingVisibility");\n    this._assertVisibilityToggle.classList.toggle("disabled", state.mode === "none" || state.mode === "standby" || state.mode === "inspecting");\n    this._assertTextToggle.classList.toggle("toggled", state.mode === "assertingText");\n    this._assertTextToggle.classList.toggle("disabled", state.mode === "none" || state.mode === "standby" || state.mode === "inspecting");\n    this._assertValuesToggle.classList.toggle("toggled", state.mode === "assertingValue");\n    this._assertValuesToggle.classList.toggle("disabled", state.mode === "none" || state.mode === "standby" || state.mode === "inspecting");\n    this._assertSnapshotToggle.classList.toggle("toggled", state.mode === "assertingSnapshot");\n    this._assertSnapshotToggle.classList.toggle("disabled", state.mode === "none" || state.mode === "standby" || state.mode === "inspecting");\n    if (this._offsetX !== state.overlay.offsetX) {\n      this._offsetX = state.overlay.offsetX;\n      this._updateVisualPosition();\n    }\n    if (state.mode === "none")\n      this._hideOverlay();\n    else\n      this._showOverlay();\n  }\n  flashToolSucceeded(tool) {\n    let element;\n    if (tool === "assertingVisibility")\n      element = this._assertVisibilityToggle;\n    else if (tool === "assertingSnapshot")\n      element = this._assertSnapshotToggle;\n    else\n      element = this._assertValuesToggle;\n    element.classList.add("succeeded");\n    this._recorder.injectedScript.utils.builtins.setTimeout(() => element.classList.remove("succeeded"), 2e3);\n  }\n  _hideOverlay() {\n    this._overlayElement.setAttribute("hidden", "true");\n  }\n  _showOverlay() {\n    if (!this._overlayElement.hasAttribute("hidden"))\n      return;\n    this._overlayElement.removeAttribute("hidden");\n    this._updateVisualPosition();\n  }\n  _updateVisualPosition() {\n    this._measure = this._overlayElement.getBoundingClientRect();\n    this._overlayElement.style.left = (this._recorder.injectedScript.window.innerWidth - this._measure.width) / 2 + this._offsetX + "px";\n  }\n  onMouseMove(event) {\n    if (!event.buttons) {\n      this._dragState = void 0;\n      return false;\n    }\n    if (this._dragState) {\n      this._offsetX = this._dragState.offsetX + event.clientX - this._dragState.dragStart.x;\n      const halfGapSize = (this._recorder.injectedScript.window.innerWidth - this._measure.width) / 2 - 10;\n      this._offsetX = Math.max(-halfGapSize, Math.min(halfGapSize, this._offsetX));\n      this._updateVisualPosition();\n      this._recorder.setOverlayState({ offsetX: this._offsetX });\n      consumeEvent(event);\n      return true;\n    }\n    return false;\n  }\n  onMouseUp(event) {\n    if (this._dragState) {\n      consumeEvent(event);\n      return true;\n    }\n    return false;\n  }\n  onClick(event) {\n    if (this._dragState) {\n      this._dragState = void 0;\n      consumeEvent(event);\n      return true;\n    }\n    return false;\n  }\n  onDblClick(event) {\n    return false;\n  }\n};\nvar Recorder = class {\n  constructor(injectedScript, options) {\n    this._listeners = [];\n    this._lastHighlightedSelector = void 0;\n    this._lastHighlightedAriaTemplateJSON = "undefined";\n    this.state = {\n      mode: "none",\n      testIdAttributeName: "data-testid",\n      language: "javascript",\n      overlay: { offsetX: 0 }\n    };\n    this._delegate = {};\n    var _a, _b;\n    this.document = injectedScript.document;\n    this.injectedScript = injectedScript;\n    this.highlight = injectedScript.createHighlight();\n    this._tools = {\n      "none": new NoneTool(),\n      "standby": new NoneTool(),\n      "inspecting": new InspectTool(this, false),\n      "recording": (options == null ? void 0 : options.recorderMode) === "api" ? new JsonRecordActionTool(this) : new RecordActionTool(this),\n      "recording-inspecting": new InspectTool(this, false),\n      "assertingText": new TextAssertionTool(this, "text"),\n      "assertingVisibility": new InspectTool(this, true),\n      "assertingValue": new TextAssertionTool(this, "value"),\n      "assertingSnapshot": new TextAssertionTool(this, "snapshot")\n    };\n    this._currentTool = this._tools.none;\n    (_b = (_a = this._currentTool).install) == null ? void 0 : _b.call(_a);\n    if (injectedScript.window.top === injectedScript.window) {\n      this.overlay = new Overlay(this);\n      this.overlay.setUIState(this.state);\n    }\n    this._stylesheet = new injectedScript.window.CSSStyleSheet();\n    this._stylesheet.replaceSync(`\n      body[data-pw-cursor=pointer] *, body[data-pw-cursor=pointer] *::after { cursor: pointer !important; }\n      body[data-pw-cursor=text] *, body[data-pw-cursor=text] *::after { cursor: text !important; }\n    `);\n    this.installListeners();\n    injectedScript.utils.cacheNormalizedWhitespaces();\n    if (injectedScript.isUnderTest)\n      console.error("Recorder script ready for test");\n    injectedScript.consoleApi.install();\n  }\n  installListeners() {\n    var _a, _b, _c;\n    removeEventListeners(this._listeners);\n    this._listeners = [\n      addEventListener(this.document, "click", (event) => this._onClick(event), true),\n      addEventListener(this.document, "auxclick", (event) => this._onClick(event), true),\n      addEventListener(this.document, "dblclick", (event) => this._onDblClick(event), true),\n      addEventListener(this.document, "contextmenu", (event) => this._onContextMenu(event), true),\n      addEventListener(this.document, "dragstart", (event) => this._onDragStart(event), true),\n      addEventListener(this.document, "input", (event) => this._onInput(event), true),\n      addEventListener(this.document, "keydown", (event) => this._onKeyDown(event), true),\n      addEventListener(this.document, "keyup", (event) => this._onKeyUp(event), true),\n      addEventListener(this.document, "pointerdown", (event) => this._onPointerDown(event), true),\n      addEventListener(this.document, "pointerup", (event) => this._onPointerUp(event), true),\n      addEventListener(this.document, "mousedown", (event) => this._onMouseDown(event), true),\n      addEventListener(this.document, "mouseup", (event) => this._onMouseUp(event), true),\n      addEventListener(this.document, "mousemove", (event) => this._onMouseMove(event), true),\n      addEventListener(this.document, "mouseleave", (event) => this._onMouseLeave(event), true),\n      addEventListener(this.document, "mouseenter", (event) => this._onMouseEnter(event), true),\n      addEventListener(this.document, "focus", (event) => this._onFocus(event), true),\n      addEventListener(this.document, "scroll", (event) => this._onScroll(event), true)\n    ];\n    this.highlight.install();\n    let recreationInterval;\n    const recreate = () => {\n      this.highlight.install();\n      recreationInterval = this.injectedScript.utils.builtins.setTimeout(recreate, 500);\n    };\n    recreationInterval = this.injectedScript.utils.builtins.setTimeout(recreate, 500);\n    this._listeners.push(() => this.injectedScript.utils.builtins.clearTimeout(recreationInterval));\n    this.highlight.appendChild(createSvgElement(this.document, clipPaths_default));\n    (_a = this.overlay) == null ? void 0 : _a.install();\n    (_c = (_b = this._currentTool) == null ? void 0 : _b.install) == null ? void 0 : _c.call(_b);\n    this.document.adoptedStyleSheets.push(this._stylesheet);\n  }\n  _switchCurrentTool() {\n    var _a, _b, _c, _d, _e, _f;\n    const newTool = this._tools[this.state.mode];\n    if (newTool === this._currentTool)\n      return;\n    (_b = (_a = this._currentTool).uninstall) == null ? void 0 : _b.call(_a);\n    this.clearHighlight();\n    this._currentTool = newTool;\n    (_d = (_c = this._currentTool).install) == null ? void 0 : _d.call(_c);\n    const cursor = (_e = newTool.cursor) == null ? void 0 : _e.call(newTool);\n    if (cursor)\n      (_f = this.injectedScript.document.body) == null ? void 0 : _f.setAttribute("data-pw-cursor", cursor);\n  }\n  setUIState(state, delegate) {\n    var _a;\n    this._delegate = delegate;\n    if (state.actionPoint && this.state.actionPoint && state.actionPoint.x === this.state.actionPoint.x && state.actionPoint.y === this.state.actionPoint.y) {\n    } else if (!state.actionPoint && !this.state.actionPoint) {\n    } else {\n      if (state.actionPoint)\n        this.highlight.showActionPoint(state.actionPoint.x, state.actionPoint.y);\n      else\n        this.highlight.hideActionPoint();\n    }\n    this.state = state;\n    this.highlight.setLanguage(state.language);\n    this._switchCurrentTool();\n    (_a = this.overlay) == null ? void 0 : _a.setUIState(state);\n    let highlight = "noop";\n    if (state.actionSelector !== this._lastHighlightedSelector) {\n      const entries = state.actionSelector ? entriesForSelectorHighlight(this.injectedScript, state.language, state.actionSelector, this.document) : null;\n      highlight = (entries == null ? void 0 : entries.length) ? entries : "clear";\n      this._lastHighlightedSelector = (entries == null ? void 0 : entries.length) ? state.actionSelector : void 0;\n    }\n    const ariaTemplateJSON = JSON.stringify(state.ariaTemplate);\n    if (this._lastHighlightedAriaTemplateJSON !== ariaTemplateJSON) {\n      const elements = state.ariaTemplate ? this.injectedScript.getAllElementsMatchingExpectAriaTemplate(this.document, state.ariaTemplate) : [];\n      if (elements.length) {\n        const color = elements.length > 1 ? HighlightColors.multiple : HighlightColors.single;\n        highlight = elements.map((element) => ({ element, color }));\n        this._lastHighlightedAriaTemplateJSON = ariaTemplateJSON;\n      } else {\n        if (!this._lastHighlightedSelector)\n          highlight = "clear";\n        this._lastHighlightedAriaTemplateJSON = "undefined";\n      }\n    }\n    if (highlight === "clear")\n      this.highlight.clearHighlight();\n    else if (highlight !== "noop")\n      this.highlight.updateHighlight(highlight);\n  }\n  clearHighlight() {\n    this.updateHighlight(null, false);\n  }\n  _onClick(event) {\n    var _a, _b, _c;\n    if (!event.isTrusted)\n      return;\n    if ((_a = this.overlay) == null ? void 0 : _a.onClick(event))\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_c = (_b = this._currentTool).onClick) == null ? void 0 : _c.call(_b, event);\n  }\n  _onDblClick(event) {\n    var _a, _b, _c;\n    if (!event.isTrusted)\n      return;\n    if ((_a = this.overlay) == null ? void 0 : _a.onDblClick(event))\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_c = (_b = this._currentTool).onDblClick) == null ? void 0 : _c.call(_b, event);\n  }\n  _onContextMenu(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onContextMenu) == null ? void 0 : _b.call(_a, event);\n  }\n  _onDragStart(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onDragStart) == null ? void 0 : _b.call(_a, event);\n  }\n  _onPointerDown(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onPointerDown) == null ? void 0 : _b.call(_a, event);\n  }\n  _onPointerUp(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onPointerUp) == null ? void 0 : _b.call(_a, event);\n  }\n  _onMouseDown(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onMouseDown) == null ? void 0 : _b.call(_a, event);\n  }\n  _onMouseUp(event) {\n    var _a, _b, _c;\n    if (!event.isTrusted)\n      return;\n    if ((_a = this.overlay) == null ? void 0 : _a.onMouseUp(event))\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_c = (_b = this._currentTool).onMouseUp) == null ? void 0 : _c.call(_b, event);\n  }\n  _onMouseMove(event) {\n    var _a, _b, _c;\n    if (!event.isTrusted)\n      return;\n    if ((_a = this.overlay) == null ? void 0 : _a.onMouseMove(event))\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_c = (_b = this._currentTool).onMouseMove) == null ? void 0 : _c.call(_b, event);\n  }\n  _onMouseEnter(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onMouseEnter) == null ? void 0 : _b.call(_a, event);\n  }\n  _onMouseLeave(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onMouseLeave) == null ? void 0 : _b.call(_a, event);\n  }\n  _onFocus(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onFocus) == null ? void 0 : _b.call(_a, event);\n  }\n  _onScroll(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    this._lastHighlightedSelector = void 0;\n    this._lastHighlightedAriaTemplateJSON = "undefined";\n    this.highlight.hideActionPoint();\n    (_b = (_a = this._currentTool).onScroll) == null ? void 0 : _b.call(_a, event);\n  }\n  _onInput(event) {\n    var _a, _b;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onInput) == null ? void 0 : _b.call(_a, event);\n  }\n  _onKeyDown(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onKeyDown) == null ? void 0 : _b.call(_a, event);\n  }\n  _onKeyUp(event) {\n    var _a, _b;\n    if (!event.isTrusted)\n      return;\n    if (this._ignoreOverlayEvent(event))\n      return;\n    (_b = (_a = this._currentTool).onKeyUp) == null ? void 0 : _b.call(_a, event);\n  }\n  updateHighlight(model, userGesture) {\n    this._lastHighlightedSelector = void 0;\n    this._lastHighlightedAriaTemplateJSON = "undefined";\n    this._updateHighlight(model, userGesture);\n  }\n  _updateHighlight(model, userGesture) {\n    var _a, _b;\n    let tooltipText = model == null ? void 0 : model.tooltipText;\n    if (tooltipText === void 0 && (model == null ? void 0 : model.selector))\n      tooltipText = this.injectedScript.utils.asLocator(this.state.language, model.selector);\n    if (model)\n      this.highlight.updateHighlight(model.elements.map((element) => ({ element, color: model.color, tooltipText })));\n    else\n      this.highlight.clearHighlight();\n    if (userGesture)\n      (_b = (_a = this._delegate).highlightUpdated) == null ? void 0 : _b.call(_a);\n  }\n  _ignoreOverlayEvent(event) {\n    return event.composedPath().some((e) => {\n      const nodeName = e.nodeName || "";\n      return nodeName.toLowerCase() === "x-pw-glass";\n    });\n  }\n  deepEventTarget(event) {\n    var _a;\n    for (const element of event.composedPath()) {\n      if (!((_a = this.overlay) == null ? void 0 : _a.contains(element)))\n        return element;\n    }\n    return event.composedPath()[0];\n  }\n  setMode(mode) {\n    var _a, _b;\n    void ((_b = (_a = this._delegate).setMode) == null ? void 0 : _b.call(_a, mode));\n  }\n  _captureAutoExpectSnapshot() {\n    const documentElement = this.injectedScript.document.documentElement;\n    return documentElement ? this.injectedScript.utils.generateAriaTree(documentElement, { mode: "autoexpect" }) : void 0;\n  }\n  async performAction(action) {\n    var _a, _b;\n    const previousSnapshot = this._lastActionAutoexpectSnapshot;\n    this._lastActionAutoexpectSnapshot = this._captureAutoExpectSnapshot();\n    if (!isAssertAction(action) && this._lastActionAutoexpectSnapshot) {\n      const element = findNewElement(previousSnapshot, this._lastActionAutoexpectSnapshot);\n      action.preconditionSelector = element ? this.injectedScript.generateSelector(element, { testIdAttributeName: this.state.testIdAttributeName }).selector : void 0;\n      if (action.preconditionSelector === action.selector)\n        action.preconditionSelector = void 0;\n    }\n    await ((_b = (_a = this._delegate).performAction) == null ? void 0 : _b.call(_a, action).catch(() => {\n    }));\n  }\n  recordAction(action) {\n    var _a, _b;\n    this._lastActionAutoexpectSnapshot = this._captureAutoExpectSnapshot();\n    void ((_b = (_a = this._delegate).recordAction) == null ? void 0 : _b.call(_a, action));\n  }\n  setOverlayState(state) {\n    var _a, _b;\n    void ((_b = (_a = this._delegate).setOverlayState) == null ? void 0 : _b.call(_a, state));\n  }\n  elementPicked(selector, model) {\n    var _a, _b;\n    const ariaSnapshot = this.injectedScript.ariaSnapshot(model.elements[0], { mode: "expect" });\n    void ((_b = (_a = this._delegate).elementPicked) == null ? void 0 : _b.call(_a, { selector, ariaSnapshot }));\n  }\n};\nvar Dialog = class {\n  constructor(recorder) {\n    this._dialogElement = null;\n    this._recorder = recorder;\n  }\n  isShowing() {\n    return !!this._dialogElement;\n  }\n  show(options) {\n    const acceptButton = this._recorder.document.createElement("x-pw-tool-item");\n    acceptButton.title = "Accept";\n    acceptButton.classList.add("accept");\n    acceptButton.appendChild(this._recorder.document.createElement("x-div"));\n    acceptButton.addEventListener("click", () => options.onCommit());\n    const cancelButton = this._recorder.document.createElement("x-pw-tool-item");\n    cancelButton.title = "Close";\n    cancelButton.classList.add("cancel");\n    cancelButton.appendChild(this._recorder.document.createElement("x-div"));\n    cancelButton.addEventListener("click", () => {\n      var _a;\n      this.close();\n      (_a = options.onCancel) == null ? void 0 : _a.call(options);\n    });\n    this._dialogElement = this._recorder.document.createElement("x-pw-dialog");\n    this._keyboardListener = (event) => {\n      var _a;\n      if (event.key === "Escape") {\n        this.close();\n        (_a = options.onCancel) == null ? void 0 : _a.call(options);\n        return;\n      }\n      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {\n        if (this._dialogElement)\n          options.onCommit();\n        return;\n      }\n    };\n    this._recorder.document.addEventListener("keydown", this._keyboardListener, true);\n    const toolbarElement = this._recorder.document.createElement("x-pw-tools-list");\n    const labelElement = this._recorder.document.createElement("label");\n    labelElement.textContent = options.label;\n    toolbarElement.appendChild(labelElement);\n    toolbarElement.appendChild(this._recorder.document.createElement("x-spacer"));\n    toolbarElement.appendChild(acceptButton);\n    toolbarElement.appendChild(cancelButton);\n    this._dialogElement.appendChild(toolbarElement);\n    const bodyElement = this._recorder.document.createElement("x-pw-dialog-body");\n    bodyElement.appendChild(options.body);\n    this._dialogElement.appendChild(bodyElement);\n    this._recorder.highlight.appendChild(this._dialogElement);\n    return this._dialogElement;\n  }\n  moveTo(top, left) {\n    if (!this._dialogElement)\n      return;\n    this._dialogElement.style.top = top + "px";\n    this._dialogElement.style.left = left + "px";\n  }\n  close() {\n    if (!this._dialogElement)\n      return;\n    this._dialogElement.remove();\n    this._recorder.document.removeEventListener("keydown", this._keyboardListener);\n    this._dialogElement = null;\n  }\n};\nfunction deepActiveElement(document) {\n  let activeElement = document.activeElement;\n  while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)\n    activeElement = activeElement.shadowRoot.activeElement;\n  return activeElement;\n}\nfunction modifiersForEvent(event) {\n  return (event.altKey ? 1 : 0) | (event.ctrlKey ? 2 : 0) | (event.metaKey ? 4 : 0) | (event.shiftKey ? 8 : 0);\n}\nfunction buttonForEvent(event) {\n  switch (event.which) {\n    case 1:\n      return "left";\n    case 2:\n      return "middle";\n    case 3:\n      return "right";\n  }\n  return "left";\n}\nfunction positionForEvent(event) {\n  const targetElement = event.target;\n  if (targetElement.nodeName !== "CANVAS")\n    return;\n  return {\n    x: event.offsetX,\n    y: event.offsetY\n  };\n}\nfunction consumeEvent(e) {\n  e.preventDefault();\n  e.stopPropagation();\n  e.stopImmediatePropagation();\n}\nfunction asCheckbox(node) {\n  if (!node || node.nodeName !== "INPUT")\n    return null;\n  const inputElement = node;\n  return ["checkbox", "radio"].includes(inputElement.type) ? inputElement : null;\n}\nfunction isRangeInput(node) {\n  if (!node || node.nodeName !== "INPUT")\n    return false;\n  const inputElement = node;\n  return inputElement.type.toLowerCase() === "range";\n}\nfunction addEventListener(target, eventName, listener, useCapture) {\n  target.addEventListener(eventName, listener, useCapture);\n  const remove = () => {\n    target.removeEventListener(eventName, listener, useCapture);\n  };\n  return remove;\n}\nfunction removeEventListeners(listeners) {\n  for (const listener of listeners)\n    listener();\n  listeners.splice(0, listeners.length);\n}\nfunction entriesForSelectorHighlight(injectedScript, language, selector, ownerDocument) {\n  try {\n    const parsedSelector = injectedScript.parseSelector(selector);\n    const elements = injectedScript.querySelectorAll(parsedSelector, ownerDocument);\n    const color = elements.length > 1 ? HighlightColors.multiple : HighlightColors.single;\n    const locator = injectedScript.utils.asLocator(language, selector);\n    return elements.map((element, index) => {\n      const suffix = elements.length > 1 ? ` [${index + 1} of ${elements.length}]` : "";\n      return { element, color, tooltipText: locator + suffix };\n    });\n  } catch (e) {\n    return [];\n  }\n}\nfunction createSvgElement(doc, { tagName, attrs, children }) {\n  const elem = doc.createElementNS("http://www.w3.org/2000/svg", tagName);\n  if (attrs) {\n    for (const [k, v] of Object.entries(attrs))\n      elem.setAttribute(k, v);\n  }\n  if (children) {\n    for (const c of children)\n      elem.appendChild(createSvgElement(doc, c));\n  }\n  return elem;\n}\nfunction isAssertAction(action) {\n  return action.name.startsWith("assert");\n}\nfunction findNewElement(from, to) {\n  var _a, _b;\n  function fillMap(root, map, position) {\n    let size = 1;\n    let childPosition = position + size;\n    for (const child of root.children || []) {\n      if (typeof child === "string") {\n        size++;\n        childPosition++;\n      } else {\n        size += fillMap(child, map, childPosition);\n        childPosition += size;\n      }\n    }\n    if (!["none", "presentation", "fragment", "iframe", "generic"].includes(root.role) && root.name) {\n      let byRole = map.get(root.role);\n      if (!byRole) {\n        byRole = /* @__PURE__ */ new Map();\n        map.set(root.role, byRole);\n      }\n      const existing = byRole.get(root.name);\n      const sizeAndPosition = size * 100 - position;\n      if (!existing || existing.sizeAndPosition < sizeAndPosition)\n        byRole.set(root.name, { node: root, sizeAndPosition });\n    }\n    return size;\n  }\n  const fromMap = /* @__PURE__ */ new Map();\n  if (from)\n    fillMap(from.root, fromMap, 0);\n  const toMap = /* @__PURE__ */ new Map();\n  fillMap(to.root, toMap, 0);\n  const result = [];\n  for (const [role, byRole] of toMap) {\n    for (const [name, byName] of byRole) {\n      const inFrom = (_a = fromMap.get(role)) == null ? void 0 : _a.get(name);\n      if (!inFrom)\n        result.push(byName);\n    }\n  }\n  result.sort((a, b) => b.sizeAndPosition - a.sizeAndPosition);\n  return (_b = result[0]) == null ? void 0 : _b.node.element;\n}\n\n// packages/injected/src/recorder/pollingRecorder.ts\nvar PollingRecorder = class {\n  constructor(injectedScript, options) {\n    this._recorder = new Recorder(injectedScript, options);\n    this._embedder = injectedScript.window;\n    injectedScript.onGlobalListenersRemoved.add(() => this._recorder.installListeners());\n    const refreshOverlay = () => {\n      this._lastStateJSON = void 0;\n      this._pollRecorderMode().catch((e) => console.log(e));\n    };\n    this._embedder.__pw_refreshOverlay = refreshOverlay;\n    refreshOverlay();\n  }\n  async _pollRecorderMode() {\n    const pollPeriod = 1e3;\n    if (this._pollRecorderModeTimer)\n      this._recorder.injectedScript.utils.builtins.clearTimeout(this._pollRecorderModeTimer);\n    const state = await this._embedder.__pw_recorderState().catch(() => null);\n    if (!state) {\n      this._pollRecorderModeTimer = this._recorder.injectedScript.utils.builtins.setTimeout(() => this._pollRecorderMode(), pollPeriod);\n      return;\n    }\n    const stringifiedState = JSON.stringify(state);\n    if (this._lastStateJSON !== stringifiedState) {\n      this._lastStateJSON = stringifiedState;\n      const win = this._recorder.document.defaultView;\n      if (win.top !== win) {\n        state.actionPoint = void 0;\n      }\n      this._recorder.setUIState(state, this);\n    }\n    this._pollRecorderModeTimer = this._recorder.injectedScript.utils.builtins.setTimeout(() => this._pollRecorderMode(), pollPeriod);\n  }\n  async performAction(action) {\n    await this._embedder.__pw_recorderPerformAction(action);\n  }\n  async recordAction(action) {\n    await this._embedder.__pw_recorderRecordAction(action);\n  }\n  async elementPicked(elementInfo) {\n    await this._embedder.__pw_recorderElementPicked(elementInfo);\n  }\n  async setMode(mode) {\n    await this._embedder.__pw_recorderSetMode(mode);\n  }\n  async setOverlayState(state) {\n    await this._embedder.__pw_recorderSetOverlayState(state);\n  }\n};\nvar pollingRecorder_default = PollingRecorder;\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder/recorderRunner.js
+// node_modules/playwright-core/lib/server/recorder/recorderRunner.js
 var VM = B((XWe, zM) => {
   "use strict";
   var Ew = Object.defineProperty;
@@ -44115,7 +44115,7 @@ var VM = B((XWe, zM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder.js
+// node_modules/playwright-core/lib/server/recorder.js
 var Ch = B((QWe, QM) => {
   "use strict";
   var qge = Object.create;
@@ -44612,7 +44612,7 @@ var Ch = B((QWe, QM) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/utils/pipeTransport.js
+// node_modules/playwright-core/lib/server/utils/pipeTransport.js
 var tF = B((ZWe, eF) => {
   "use strict";
   var Iw = Object.defineProperty;
@@ -44696,7 +44696,7 @@ var tF = B((ZWe, eF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/chromiumSwitches.js
+// node_modules/playwright-core/lib/server/chromium/chromiumSwitches.js
 var Th = B((eze, nF) => {
   "use strict";
   var Nw = Object.defineProperty;
@@ -44789,7 +44789,7 @@ var Th = B((eze, nF) => {
   ].filter(Boolean);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/download.js
+// node_modules/playwright-core/lib/server/download.js
 var aF = B((tze, oF) => {
   "use strict";
   var v_e = Object.create;
@@ -44859,7 +44859,7 @@ var aF = B((tze, oF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/socksClientCertificatesInterceptor.js
+// node_modules/playwright-core/lib/server/socksClientCertificatesInterceptor.js
 var Fh = B((rze, mF) => {
   "use strict";
   var I_e = Object.create;
@@ -45240,7 +45240,7 @@ var Fh = B((rze, mF) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/browser.js
+// node_modules/playwright-core/lib/server/browser.js
 var kn = B((nze, bF) => {
   "use strict";
   var qw = Object.defineProperty;
@@ -45389,7 +45389,7 @@ var kn = B((nze, bF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crConnection.js
+// node_modules/playwright-core/lib/server/chromium/crConnection.js
 var za = B((ize, SF) => {
   "use strict";
   var Uw = Object.defineProperty;
@@ -45587,7 +45587,7 @@ var za = B((ize, SF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crAccessibility.js
+// node_modules/playwright-core/lib/server/chromium/crAccessibility.js
 var kF = B((sze, EF) => {
   "use strict";
   var Vw = Object.defineProperty;
@@ -45850,7 +45850,7 @@ var kF = B((sze, EF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crCoverage.js
+// node_modules/playwright-core/lib/server/chromium/crCoverage.js
 var IF = B((oze, AF) => {
   "use strict";
   var Yw = Object.defineProperty;
@@ -46085,7 +46085,7 @@ var IF = B((oze, AF) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crProtocolHelper.js
+// node_modules/playwright-core/lib/server/chromium/crProtocolHelper.js
 var ii = B((aze, DF) => {
   "use strict";
   var kbe = Object.create;
@@ -46223,7 +46223,7 @@ var ii = B((aze, DF) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crDragDrop.js
+// node_modules/playwright-core/lib/server/chromium/crDragDrop.js
 var LF = B((lze, FF) => {
   "use strict";
   var Zw = Object.defineProperty;
@@ -46354,7 +46354,7 @@ var LF = B((lze, FF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crExecutionContext.js
+// node_modules/playwright-core/lib/server/chromium/crExecutionContext.js
 var Wh = B((cze, UF) => {
   "use strict";
   var Xbe = Object.create;
@@ -46499,7 +46499,7 @@ var Wh = B((cze, UF) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/macEditingCommands.js
+// node_modules/playwright-core/lib/server/macEditingCommands.js
 var ny = B((uze, zF) => {
   "use strict";
   var ry = Object.defineProperty;
@@ -46642,7 +46642,7 @@ var ny = B((uze, zF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crInput.js
+// node_modules/playwright-core/lib/server/chromium/crInput.js
 var JF = B((dze, KF) => {
   "use strict";
   var _ve = Object.create;
@@ -46827,7 +46827,7 @@ var JF = B((dze, KF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crNetworkManager.js
+// node_modules/playwright-core/lib/server/chromium/crNetworkManager.js
 var py = B((hze, ZF) => {
   "use strict";
   var Cve = Object.create;
@@ -47493,7 +47493,7 @@ var py = B((hze, ZF) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crPdf.js
+// node_modules/playwright-core/lib/server/chromium/crPdf.js
 var iL = B((pze, nL) => {
   "use strict";
   var my = Object.defineProperty;
@@ -47614,7 +47614,7 @@ var iL = B((pze, nL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/defaultFontFamilies.js
+// node_modules/playwright-core/lib/server/chromium/defaultFontFamilies.js
 var aL = B((fze, oL) => {
   "use strict";
   var gy = Object.defineProperty;
@@ -47776,7 +47776,7 @@ var aL = B((fze, oL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/videoRecorder.js
+// node_modules/playwright-core/lib/server/chromium/videoRecorder.js
 var dL = B((mze, uL) => {
   "use strict";
   var by = Object.defineProperty;
@@ -47889,7 +47889,7 @@ var dL = B((mze, uL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crPage.js
+// node_modules/playwright-core/lib/server/chromium/crPage.js
 var bL = B((gze, _L) => {
   "use strict";
   var awe = Object.create;
@@ -48960,7 +48960,7 @@ var bL = B((gze, _L) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crServiceWorker.js
+// node_modules/playwright-core/lib/server/chromium/crServiceWorker.js
 var xL = B((_ze, yL) => {
   "use strict";
   var Rwe = Object.create;
@@ -49083,7 +49083,7 @@ var xL = B((_ze, yL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crBrowser.js
+// node_modules/playwright-core/lib/server/chromium/crBrowser.js
 var Ks = B((bze, AL) => {
   "use strict";
   var zwe = Object.create;
@@ -49614,7 +49614,7 @@ var Ks = B((bze, AL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/android/android.js
+// node_modules/playwright-core/lib/server/android/android.js
 var ep = B((vze, FL) => {
   "use strict";
   var oye = Object.create;
@@ -50078,7 +50078,7 @@ Sec-WebSocket-Version: 13\r
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/android/backendAdb.js
+// node_modules/playwright-core/lib/server/android/backendAdb.js
 var UL = B((wze, $L) => {
   "use strict";
   var Tye = Object.create;
@@ -50255,7 +50255,7 @@ var UL = B((wze, $L) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/pipeTransport.js
+// node_modules/playwright-core/lib/server/pipeTransport.js
 var GL = B((yze, VL) => {
   "use strict";
   var Dy = Object.defineProperty;
@@ -50344,7 +50344,7 @@ var GL = B((yze, VL) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/transport.js
+// node_modules/playwright-core/lib/server/transport.js
 var Xa = B((xze, QL) => {
   "use strict";
   var Fy = Object.defineProperty;
@@ -50524,7 +50524,7 @@ ${Buffer.concat(p)}` : f;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/browserType.js
+// node_modules/playwright-core/lib/server/browserType.js
 var Xs = B((Sze, lB) => {
   "use strict";
   var e0e = Object.create;
@@ -50851,7 +50851,7 @@ var Xs = B((Sze, lB) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiConnection.js
+// node_modules/playwright-core/lib/server/bidi/bidiConnection.js
 var sp = B((Oze, hB) => {
   "use strict";
   var $y = Object.defineProperty;
@@ -51036,7 +51036,7 @@ var sp = B((Oze, hB) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/cookieStore.js
+// node_modules/playwright-core/lib/server/cookieStore.js
 var Vy = B((Eze, mB) => {
   "use strict";
   var zy = Object.defineProperty;
@@ -51239,7 +51239,7 @@ var Vy = B((Eze, mB) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocolCore.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocolCore.js
 var vB = B((kze, bB) => {
   "use strict";
   var Xy = Object.defineProperty;
@@ -51411,7 +51411,7 @@ var vB = B((kze, bB) => {
   })(Yy || (Yy = {}));
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocolPermissions.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocolPermissions.js
 var xB = B((Pze, yB) => {
   "use strict";
   var Zy = Object.defineProperty;
@@ -51447,7 +51447,7 @@ var xB = B((Pze, yB) => {
   })(Qy || (Qy = {}));
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocol.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiProtocol.js
 var Qs = B((Cze, ap) => {
   "use strict";
   var SB = Object.defineProperty;
@@ -51470,7 +51470,7 @@ var Qs = B((Cze, ap) => {
   OB(t0, xB(), ap.exports);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiNetworkManager.js
+// node_modules/playwright-core/lib/server/bidi/bidiNetworkManager.js
 var o0 = B((Tze, NB) => {
   "use strict";
   var Y0e = Object.create;
@@ -51786,7 +51786,7 @@ var o0 = B((Tze, NB) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiDeserializer.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiDeserializer.js
 var DB = B((Aze, jB) => {
   "use strict";
   var l0 = Object.defineProperty;
@@ -51878,7 +51878,7 @@ var DB = B((Aze, jB) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiSerializer.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiSerializer.js
 var HB = B((Ize, qB) => {
   "use strict";
   var u0 = Object.defineProperty;
@@ -52017,7 +52017,7 @@ var HB = B((Ize, qB) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiExecutionContext.js
+// node_modules/playwright-core/lib/server/bidi/bidiExecutionContext.js
 var GB = B((Nze, VB) => {
   "use strict";
   var bxe = Object.create;
@@ -52237,7 +52237,7 @@ var GB = B((Nze, VB) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/bidiKeyboard.js
+// node_modules/playwright-core/lib/server/bidi/third_party/bidiKeyboard.js
 var YB = B((Rze, JB) => {
   "use strict";
   var p0 = Object.defineProperty;
@@ -52487,7 +52487,7 @@ var YB = B((Rze, JB) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiInput.js
+// node_modules/playwright-core/lib/server/bidi/bidiInput.js
 var r6 = B((jze, t6) => {
   "use strict";
   var Fxe = Object.create;
@@ -52631,7 +52631,7 @@ var r6 = B((jze, t6) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiPdf.js
+// node_modules/playwright-core/lib/server/bidi/bidiPdf.js
 var a6 = B((Dze, o6) => {
   "use strict";
   var v0 = Object.defineProperty;
@@ -52737,7 +52737,7 @@ var a6 = B((Dze, o6) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiPage.js
+// node_modules/playwright-core/lib/server/bidi/bidiPage.js
 var m6 = B((Mze, f6) => {
   "use strict";
   var Zxe = Object.create;
@@ -53222,7 +53222,7 @@ var m6 = B((Mze, f6) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiBrowser.js
+// node_modules/playwright-core/lib/server/bidi/bidiBrowser.js
 var E0 = B((Fze, O6) => {
   "use strict";
   var dSe = Object.create;
@@ -53666,7 +53666,7 @@ var E0 = B((Fze, O6) => {
   })(O0 || (O0 = {}));
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/crDevTools.js
+// node_modules/playwright-core/lib/server/chromium/crDevTools.js
 var T6 = B((Lze, C6) => {
   "use strict";
   var OSe = Object.create;
@@ -53779,7 +53779,7 @@ var T6 = B((Lze, C6) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/chromium/chromium.js
+// node_modules/playwright-core/lib/server/chromium/chromium.js
 var I0 = B((Bze, $6) => {
   "use strict";
   var NSe = Object.create;
@@ -54169,7 +54169,7 @@ This does not look like a DevTools server, try connecting via ws://.`)
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiOverCdp.js
+// node_modules/playwright-core/lib/server/bidi/bidiOverCdp.js
 var K6 = B((qze, G6) => {
   "use strict";
   var tOe = Object.create;
@@ -54271,7 +54271,7 @@ var K6 = B((qze, G6) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiChromium.js
+// node_modules/playwright-core/lib/server/bidi/bidiChromium.js
 var e3 = B((Hze, Z6) => {
   "use strict";
   var hOe = Object.create;
@@ -54424,7 +54424,7 @@ var e3 = B((Hze, Z6) => {
   var Y6 = Symbol("kBidiConnectionWrapper");
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/third_party/firefoxPrefs.js
+// node_modules/playwright-core/lib/server/bidi/third_party/firefoxPrefs.js
 var s3 = B(($ze, i3) => {
   "use strict";
   var kOe = Object.create;
@@ -54678,7 +54678,7 @@ var s3 = B(($ze, i3) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/bidi/bidiFirefox.js
+// node_modules/playwright-core/lib/server/bidi/bidiFirefox.js
 var h3 = B((Uze, d3) => {
   "use strict";
   var MOe = Object.create;
@@ -54793,7 +54793,7 @@ Workaround: Set the HOME=/root environment variable${process.env.GITHUB_ACTION ?
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/debugController.js
+// node_modules/playwright-core/lib/server/debugController.js
 var q0 = B((Wze, _3) => {
   "use strict";
   var B0 = Object.defineProperty;
@@ -55012,7 +55012,7 @@ var q0 = B((Wze, _3) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/electron/electron.js
+// node_modules/playwright-core/lib/server/electron/electron.js
 var $0 = B((zze, C3) => {
   "use strict";
   var uEe = Object.create;
@@ -55281,7 +55281,7 @@ var $0 = B((zze, C3) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffConnection.js
+// node_modules/playwright-core/lib/server/firefox/ffConnection.js
 var Ep = B((Gze, j3) => {
   "use strict";
   var W0 = Object.defineProperty;
@@ -55425,7 +55425,7 @@ var Ep = B((Gze, j3) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffAccessibility.js
+// node_modules/playwright-core/lib/server/firefox/ffAccessibility.js
 var F3 = B((Kze, M3) => {
   "use strict";
   var V0 = Object.defineProperty;
@@ -55663,7 +55663,7 @@ var F3 = B((Kze, M3) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffExecutionContext.js
+// node_modules/playwright-core/lib/server/firefox/ffExecutionContext.js
 var U3 = B((Jze, $3) => {
   "use strict";
   var WEe = Object.create;
@@ -55812,7 +55812,7 @@ var U3 = B((Jze, $3) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffInput.js
+// node_modules/playwright-core/lib/server/firefox/ffInput.js
 var G3 = B((Yze, V3) => {
   "use strict";
   var ex = Object.defineProperty;
@@ -55969,7 +55969,7 @@ var G3 = B((Yze, V3) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffNetworkManager.js
+// node_modules/playwright-core/lib/server/firefox/ffNetworkManager.js
 var X3 = B((Xze, Y3) => {
   "use strict";
   var cke = Object.create;
@@ -56225,7 +56225,7 @@ var X3 = B((Xze, Y3) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffPage.js
+// node_modules/playwright-core/lib/server/firefox/ffPage.js
 var n4 = B((Qze, r4) => {
   "use strict";
   var wke = Object.create;
@@ -56728,7 +56728,7 @@ var n4 = B((Qze, r4) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/ffBrowser.js
+// node_modules/playwright-core/lib/server/firefox/ffBrowser.js
 var d4 = B((Zze, u4) => {
   "use strict";
   var Mke = Object.create;
@@ -57155,7 +57155,7 @@ var d4 = B((Zze, u4) => {
   var o4 = {};
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/firefox/firefox.js
+// node_modules/playwright-core/lib/server/firefox/firefox.js
 var b4 = B((e8e, _4) => {
   "use strict";
   var Kke = Object.create;
@@ -57260,7 +57260,7 @@ Workaround: Set the HOME=/root environment variable${process.env.GITHUB_ACTION ?
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkConnection.js
+// node_modules/playwright-core/lib/server/webkit/wkConnection.js
 var pl = B((t8e, S4) => {
   "use strict";
   var px = Object.defineProperty;
@@ -57406,7 +57406,7 @@ var pl = B((t8e, S4) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkAccessibility.js
+// node_modules/playwright-core/lib/server/webkit/wkAccessibility.js
 var k4 = B((r8e, E4) => {
   "use strict";
   var mx = Object.defineProperty;
@@ -57643,7 +57643,7 @@ var k4 = B((r8e, E4) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkExecutionContext.js
+// node_modules/playwright-core/lib/server/webkit/wkExecutionContext.js
 var bx = B((n8e, I4) => {
   "use strict";
   var OPe = Object.create;
@@ -57796,7 +57796,7 @@ var bx = B((n8e, I4) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkInput.js
+// node_modules/playwright-core/lib/server/webkit/wkInput.js
 var M4 = B((i8e, D4) => {
   "use strict";
   var MPe = Object.create;
@@ -57975,7 +57975,7 @@ var M4 = B((i8e, D4) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkInterceptableRequest.js
+// node_modules/playwright-core/lib/server/webkit/wkInterceptableRequest.js
 var q4 = B((s8e, B4) => {
   "use strict";
   var VPe = Object.create;
@@ -58143,7 +58143,7 @@ var q4 = B((s8e, B4) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkProvisionalPage.js
+// node_modules/playwright-core/lib/server/webkit/wkProvisionalPage.js
 var W4 = B((o8e, U4) => {
   "use strict";
   var Px = Object.defineProperty;
@@ -58226,7 +58226,7 @@ var W4 = B((o8e, U4) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkWorkers.js
+// node_modules/playwright-core/lib/server/webkit/wkWorkers.js
 var K4 = B((a8e, G4) => {
   "use strict";
   var Tx = Object.defineProperty;
@@ -58330,7 +58330,7 @@ var K4 = B((a8e, G4) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkPage.js
+// node_modules/playwright-core/lib/server/webkit/wkPage.js
 var sq = B((l8e, iq) => {
   "use strict";
   var mCe = Object.create;
@@ -59465,7 +59465,7 @@ var sq = B((l8e, iq) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/wkBrowser.js
+// node_modules/playwright-core/lib/server/webkit/wkBrowser.js
 var hq = B((c8e, dq) => {
   "use strict";
   var jCe = Object.create;
@@ -59799,7 +59799,7 @@ var hq = B((c8e, dq) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/webkit/webkit.js
+// node_modules/playwright-core/lib/server/webkit/webkit.js
 var _q = B((u8e, gq) => {
   "use strict";
   var VCe = Object.create;
@@ -59902,7 +59902,7 @@ var _q = B((u8e, gq) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/playwright.js
+// node_modules/playwright-core/lib/server/playwright.js
 var Zi = B((d8e, wq) => {
   "use strict";
   var Fx = Object.defineProperty;
@@ -59972,7 +59972,7 @@ var Zi = B((d8e, wq) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/recorder/recorderApp.js
+// node_modules/playwright-core/lib/server/recorder/recorderApp.js
 var $x = B((h8e, Tq) => {
   "use strict";
   var w1e = Object.create;
@@ -60358,7 +60358,7 @@ var $x = B((h8e, Tq) => {
   var Bx = Symbol("recorderApp");
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/selectors.js
+// node_modules/playwright-core/lib/server/selectors.js
 var Nq = B((f8e, Iq) => {
   "use strict";
   var Wx = Object.defineProperty;
@@ -60470,7 +60470,7 @@ var Nq = B((f8e, Iq) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/trace/recorder/snapshotterInjected.js
+// node_modules/playwright-core/lib/server/trace/recorder/snapshotterInjected.js
 var Dq = B((m8e, jq) => {
   "use strict";
   var zx = Object.defineProperty;
@@ -61009,7 +61009,7 @@ var Dq = B((m8e, jq) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/trace/recorder/snapshotter.js
+// node_modules/playwright-core/lib/server/trace/recorder/snapshotter.js
 var Bq = B((g8e, Lq) => {
   "use strict";
   var Gx = Object.defineProperty;
@@ -61145,7 +61145,7 @@ var Bq = B((g8e, Lq) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/trace/recorder/tracing.js
+// node_modules/playwright-core/lib/server/trace/recorder/tracing.js
 var Yx = B((_8e, Uq) => {
   "use strict";
   var oTe = Object.create;
@@ -61747,7 +61747,7 @@ var Yx = B((_8e, Uq) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/storageScriptSource.js
+// node_modules/playwright-core/lib/generated/storageScriptSource.js
 var Vq = B((b8e, zq) => {
   "use strict";
   var Xx = Object.defineProperty;
@@ -61775,7 +61775,7 @@ var Vq = B((b8e, zq) => {
   var BTe = '\nvar __commonJS = obj => {\n  let required = false;\n  let result;\n  return function __require() {\n    if (!required) {\n      required = true;\n      let fn;\n      for (const name in obj) { fn = obj[name]; break; }\n      const module = { exports: {} };\n      fn(module.exports, module);\n      result = module.exports;\n    }\n    return result;\n  }\n};\nvar __export = (target, all) => {for (var name in all) target[name] = all[name];};\nvar __toESM = mod => ({ ...mod, \'default\': mod });\nvar __toCommonJS = mod => ({ ...mod, __esModule: true });\n\n\n// packages/injected/src/storageScript.ts\nvar storageScript_exports = {};\n__export(storageScript_exports, {\n  StorageScript: () => StorageScript\n});\nmodule.exports = __toCommonJS(storageScript_exports);\n\n// packages/playwright-core/src/utils/isomorphic/utilityScriptSerializers.ts\nfunction isRegExp(obj) {\n  try {\n    return obj instanceof RegExp || Object.prototype.toString.call(obj) === "[object RegExp]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isDate(obj) {\n  try {\n    return obj instanceof Date || Object.prototype.toString.call(obj) === "[object Date]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isURL(obj) {\n  try {\n    return obj instanceof URL || Object.prototype.toString.call(obj) === "[object URL]";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isError(obj) {\n  var _a;\n  try {\n    return obj instanceof Error || obj && ((_a = Object.getPrototypeOf(obj)) == null ? void 0 : _a.name) === "Error";\n  } catch (error) {\n    return false;\n  }\n}\nfunction isTypedArray(obj, constructor) {\n  try {\n    return obj instanceof constructor || Object.prototype.toString.call(obj) === `[object ${constructor.name}]`;\n  } catch (error) {\n    return false;\n  }\n}\nvar typedArrayConstructors = {\n  i8: Int8Array,\n  ui8: Uint8Array,\n  ui8c: Uint8ClampedArray,\n  i16: Int16Array,\n  ui16: Uint16Array,\n  i32: Int32Array,\n  ui32: Uint32Array,\n  // TODO: add Float16Array once it\'s in baseline\n  f32: Float32Array,\n  f64: Float64Array,\n  bi64: BigInt64Array,\n  bui64: BigUint64Array\n};\nfunction typedArrayToBase64(array) {\n  if ("toBase64" in array)\n    return array.toBase64();\n  const binary = Array.from(new Uint8Array(array.buffer, array.byteOffset, array.byteLength)).map((b) => String.fromCharCode(b)).join("");\n  return btoa(binary);\n}\nfunction base64ToTypedArray(base64, TypedArrayConstructor) {\n  const binary = atob(base64);\n  const bytes = new Uint8Array(binary.length);\n  for (let i = 0; i < binary.length; i++)\n    bytes[i] = binary.charCodeAt(i);\n  return new TypedArrayConstructor(bytes.buffer);\n}\nfunction parseEvaluationResultValue(value, handles = [], refs = /* @__PURE__ */ new Map()) {\n  if (Object.is(value, void 0))\n    return void 0;\n  if (typeof value === "object" && value) {\n    if ("ref" in value)\n      return refs.get(value.ref);\n    if ("v" in value) {\n      if (value.v === "undefined")\n        return void 0;\n      if (value.v === "null")\n        return null;\n      if (value.v === "NaN")\n        return NaN;\n      if (value.v === "Infinity")\n        return Infinity;\n      if (value.v === "-Infinity")\n        return -Infinity;\n      if (value.v === "-0")\n        return -0;\n      return void 0;\n    }\n    if ("d" in value) {\n      return new Date(value.d);\n    }\n    if ("u" in value)\n      return new URL(value.u);\n    if ("bi" in value)\n      return BigInt(value.bi);\n    if ("e" in value) {\n      const error = new Error(value.e.m);\n      error.name = value.e.n;\n      error.stack = value.e.s;\n      return error;\n    }\n    if ("r" in value)\n      return new RegExp(value.r.p, value.r.f);\n    if ("a" in value) {\n      const result = [];\n      refs.set(value.id, result);\n      for (const a of value.a)\n        result.push(parseEvaluationResultValue(a, handles, refs));\n      return result;\n    }\n    if ("o" in value) {\n      const result = {};\n      refs.set(value.id, result);\n      for (const { k, v } of value.o) {\n        if (k === "__proto__")\n          continue;\n        result[k] = parseEvaluationResultValue(v, handles, refs);\n      }\n      return result;\n    }\n    if ("h" in value)\n      return handles[value.h];\n    if ("ta" in value)\n      return base64ToTypedArray(value.ta.b, typedArrayConstructors[value.ta.k]);\n  }\n  return value;\n}\nfunction serializeAsCallArgument(value, handleSerializer) {\n  return serialize(value, handleSerializer, { visited: /* @__PURE__ */ new Map(), lastId: 0 });\n}\nfunction serialize(value, handleSerializer, visitorInfo) {\n  if (value && typeof value === "object") {\n    if (typeof globalThis.Window === "function" && value instanceof globalThis.Window)\n      return "ref: <Window>";\n    if (typeof globalThis.Document === "function" && value instanceof globalThis.Document)\n      return "ref: <Document>";\n    if (typeof globalThis.Node === "function" && value instanceof globalThis.Node)\n      return "ref: <Node>";\n  }\n  return innerSerialize(value, handleSerializer, visitorInfo);\n}\nfunction innerSerialize(value, handleSerializer, visitorInfo) {\n  var _a;\n  const result = handleSerializer(value);\n  if ("fallThrough" in result)\n    value = result.fallThrough;\n  else\n    return result;\n  if (typeof value === "symbol")\n    return { v: "undefined" };\n  if (Object.is(value, void 0))\n    return { v: "undefined" };\n  if (Object.is(value, null))\n    return { v: "null" };\n  if (Object.is(value, NaN))\n    return { v: "NaN" };\n  if (Object.is(value, Infinity))\n    return { v: "Infinity" };\n  if (Object.is(value, -Infinity))\n    return { v: "-Infinity" };\n  if (Object.is(value, -0))\n    return { v: "-0" };\n  if (typeof value === "boolean")\n    return value;\n  if (typeof value === "number")\n    return value;\n  if (typeof value === "string")\n    return value;\n  if (typeof value === "bigint")\n    return { bi: value.toString() };\n  if (isError(value)) {\n    let stack;\n    if ((_a = value.stack) == null ? void 0 : _a.startsWith(value.name + ": " + value.message)) {\n      stack = value.stack;\n    } else {\n      stack = `${value.name}: ${value.message}\n${value.stack}`;\n    }\n    return { e: { n: value.name, m: value.message, s: stack } };\n  }\n  if (isDate(value))\n    return { d: value.toJSON() };\n  if (isURL(value))\n    return { u: value.toJSON() };\n  if (isRegExp(value))\n    return { r: { p: value.source, f: value.flags } };\n  for (const [k, ctor] of Object.entries(typedArrayConstructors)) {\n    if (isTypedArray(value, ctor))\n      return { ta: { b: typedArrayToBase64(value), k } };\n  }\n  const id = visitorInfo.visited.get(value);\n  if (id)\n    return { ref: id };\n  if (Array.isArray(value)) {\n    const a = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (let i = 0; i < value.length; ++i)\n      a.push(serialize(value[i], handleSerializer, visitorInfo));\n    return { a, id: id2 };\n  }\n  if (typeof value === "object") {\n    const o = [];\n    const id2 = ++visitorInfo.lastId;\n    visitorInfo.visited.set(value, id2);\n    for (const name of Object.keys(value)) {\n      let item;\n      try {\n        item = value[name];\n      } catch (e) {\n        continue;\n      }\n      if (name === "toJSON" && typeof item === "function")\n        o.push({ k: name, v: { o: [], id: 0 } });\n      else\n        o.push({ k: name, v: serialize(item, handleSerializer, visitorInfo) });\n    }\n    let jsonWrapper;\n    try {\n      if (o.length === 0 && value.toJSON && typeof value.toJSON === "function")\n        jsonWrapper = { value: value.toJSON() };\n    } catch (e) {\n    }\n    if (jsonWrapper)\n      return innerSerialize(jsonWrapper.value, handleSerializer, visitorInfo);\n    return { o, id: id2 };\n  }\n}\n\n// packages/injected/src/storageScript.ts\nvar StorageScript = class {\n  constructor(isFirefox) {\n    this._isFirefox = isFirefox;\n    this._global = globalThis;\n  }\n  _idbRequestToPromise(request) {\n    return new Promise((resolve, reject) => {\n      request.addEventListener("success", () => resolve(request.result));\n      request.addEventListener("error", () => reject(request.error));\n    });\n  }\n  _isPlainObject(v) {\n    const ctor = v == null ? void 0 : v.constructor;\n    if (this._isFirefox) {\n      const constructorImpl = ctor == null ? void 0 : ctor.toString();\n      if ((constructorImpl == null ? void 0 : constructorImpl.startsWith("function Object() {")) && (constructorImpl == null ? void 0 : constructorImpl.includes("[native code]")))\n        return true;\n    }\n    return ctor === Object;\n  }\n  _trySerialize(value) {\n    let trivial = true;\n    const encoded = serializeAsCallArgument(value, (v) => {\n      const isTrivial = this._isPlainObject(v) || Array.isArray(v) || typeof v === "string" || typeof v === "number" || typeof v === "boolean" || Object.is(v, null);\n      if (!isTrivial)\n        trivial = false;\n      return { fallThrough: v };\n    });\n    if (trivial)\n      return { trivial: value };\n    return { encoded };\n  }\n  async _collectDB(dbInfo) {\n    if (!dbInfo.name)\n      throw new Error("Database name is empty");\n    if (!dbInfo.version)\n      throw new Error("Database version is unset");\n    const db = await this._idbRequestToPromise(indexedDB.open(dbInfo.name));\n    if (db.objectStoreNames.length === 0)\n      return { name: dbInfo.name, version: dbInfo.version, stores: [] };\n    const transaction = db.transaction(db.objectStoreNames, "readonly");\n    const stores = await Promise.all([...db.objectStoreNames].map(async (storeName) => {\n      const objectStore = transaction.objectStore(storeName);\n      const keys = await this._idbRequestToPromise(objectStore.getAllKeys());\n      const records = await Promise.all(keys.map(async (key) => {\n        const record = {};\n        if (objectStore.keyPath === null) {\n          const { encoded: encoded2, trivial: trivial2 } = this._trySerialize(key);\n          if (trivial2)\n            record.key = trivial2;\n          else\n            record.keyEncoded = encoded2;\n        }\n        const value = await this._idbRequestToPromise(objectStore.get(key));\n        const { encoded, trivial } = this._trySerialize(value);\n        if (trivial)\n          record.value = trivial;\n        else\n          record.valueEncoded = encoded;\n        return record;\n      }));\n      const indexes = [...objectStore.indexNames].map((indexName) => {\n        const index = objectStore.index(indexName);\n        return {\n          name: index.name,\n          keyPath: typeof index.keyPath === "string" ? index.keyPath : void 0,\n          keyPathArray: Array.isArray(index.keyPath) ? index.keyPath : void 0,\n          multiEntry: index.multiEntry,\n          unique: index.unique\n        };\n      });\n      return {\n        name: storeName,\n        records,\n        indexes,\n        autoIncrement: objectStore.autoIncrement,\n        keyPath: typeof objectStore.keyPath === "string" ? objectStore.keyPath : void 0,\n        keyPathArray: Array.isArray(objectStore.keyPath) ? objectStore.keyPath : void 0\n      };\n    }));\n    return {\n      name: dbInfo.name,\n      version: dbInfo.version,\n      stores\n    };\n  }\n  async collect(recordIndexedDB) {\n    const localStorage = Object.keys(this._global.localStorage).map((name) => ({ name, value: this._global.localStorage.getItem(name) }));\n    if (!recordIndexedDB)\n      return { localStorage };\n    try {\n      const databases = await this._global.indexedDB.databases();\n      const indexedDB2 = await Promise.all(databases.map((db) => this._collectDB(db)));\n      return { localStorage, indexedDB: indexedDB2 };\n    } catch (e) {\n      throw new Error("Unable to serialize IndexedDB: " + e.message);\n    }\n  }\n  async _restoreDB(dbInfo) {\n    const openRequest = this._global.indexedDB.open(dbInfo.name, dbInfo.version);\n    openRequest.addEventListener("upgradeneeded", () => {\n      var _a, _b;\n      const db2 = openRequest.result;\n      for (const store of dbInfo.stores) {\n        const objectStore = db2.createObjectStore(store.name, { autoIncrement: store.autoIncrement, keyPath: (_a = store.keyPathArray) != null ? _a : store.keyPath });\n        for (const index of store.indexes)\n          objectStore.createIndex(index.name, (_b = index.keyPathArray) != null ? _b : index.keyPath, { unique: index.unique, multiEntry: index.multiEntry });\n      }\n    });\n    const db = await this._idbRequestToPromise(openRequest);\n    if (db.objectStoreNames.length === 0)\n      return;\n    const transaction = db.transaction(db.objectStoreNames, "readwrite");\n    await Promise.all(dbInfo.stores.map(async (store) => {\n      const objectStore = transaction.objectStore(store.name);\n      await Promise.all(store.records.map(async (record) => {\n        var _a, _b;\n        await this._idbRequestToPromise(\n          objectStore.add(\n            (_a = record.value) != null ? _a : parseEvaluationResultValue(record.valueEncoded),\n            (_b = record.key) != null ? _b : parseEvaluationResultValue(record.keyEncoded)\n          )\n        );\n      }));\n    }));\n  }\n  async restore(originState) {\n    var _a, _b, _c;\n    const registrations = this._global.navigator.serviceWorker ? await this._global.navigator.serviceWorker.getRegistrations() : [];\n    await Promise.all(registrations.map(async (r) => {\n      if (!r.installing && !r.waiting && !r.active)\n        r.unregister().catch(() => {\n        });\n      else\n        await r.unregister().catch(() => {\n        });\n    }));\n    try {\n      for (const db of await ((_b = (_a = this._global.indexedDB).databases) == null ? void 0 : _b.call(_a)) || []) {\n        if (db.name)\n          this._global.indexedDB.deleteDatabase(db.name);\n      }\n      await Promise.all(((_c = originState == null ? void 0 : originState.indexedDB) != null ? _c : []).map((dbInfo) => this._restoreDB(dbInfo)));\n    } catch (e) {\n      throw new Error("Unable to restore IndexedDB: " + e.message);\n    }\n    this._global.sessionStorage.clear();\n    this._global.localStorage.clear();\n    for (const { name, value } of (originState == null ? void 0 : originState.localStorage) || [])\n      this._global.localStorage.setItem(name, value);\n  }\n};\n';
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/browserContext.js
+// node_modules/playwright-core/lib/server/browserContext.js
 var Je = B((v8e, rH) => {
   "use strict";
   var qTe = Object.create;
@@ -62467,7 +62467,7 @@ if (navigator.serviceWorker) navigator.serviceWorker.register = async () => { co
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/formData.js
+// node_modules/playwright-core/lib/server/formData.js
 var oH = B((w8e, sH) => {
   "use strict";
   var tS = Object.defineProperty;
@@ -62614,7 +62614,7 @@ content-type: ${t.mimeType || gAe.mime.getType(t.name) || "application/octet-str
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/fetch.js
+// node_modules/playwright-core/lib/server/fetch.js
 var Na = B((y8e, hH) => {
   "use strict";
   var bAe = Object.create;
@@ -63233,7 +63233,7 @@ ${w}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/streamDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/streamDispatcher.js
 var mH = B((x8e, fH) => {
   "use strict";
   var dS = Object.defineProperty;
@@ -63300,7 +63300,7 @@ var mH = B((x8e, fH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/artifactDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/artifactDispatcher.js
 var bl = B((S8e, vH) => {
   "use strict";
   var GAe = Object.create;
@@ -63418,7 +63418,7 @@ var bl = B((S8e, vH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/cdpSessionDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/cdpSessionDispatcher.js
 var gS = B((O8e, xH) => {
   "use strict";
   var mS = Object.defineProperty;
@@ -63462,7 +63462,7 @@ var gS = B((O8e, xH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/jsHandleDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/jsHandleDispatcher.js
 var lo = B((E8e, OH) => {
   "use strict";
   var yS = Object.defineProperty;
@@ -63544,7 +63544,7 @@ var lo = B((E8e, OH) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/tracingDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/tracingDispatcher.js
 var ES = B((k8e, kH) => {
   "use strict";
   var OS = Object.defineProperty;
@@ -63612,7 +63612,7 @@ var ES = B((k8e, kH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/networkDispatchers.js
+// node_modules/playwright-core/lib/server/dispatchers/networkDispatchers.js
 var si = B((P8e, TH) => {
   "use strict";
   var TS = Object.defineProperty;
@@ -63818,7 +63818,7 @@ var si = B((P8e, TH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/frameDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/frameDispatcher.js
 var yl = B((C8e, IH) => {
   "use strict";
   var NS = Object.defineProperty;
@@ -64045,7 +64045,7 @@ var yl = B((C8e, IH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/elementHandlerDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/elementHandlerDispatcher.js
 var vl = B((T8e, jH) => {
   "use strict";
   var jS = Object.defineProperty;
@@ -64226,7 +64226,7 @@ var vl = B((T8e, jH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/generated/webSocketMockSource.js
+// node_modules/playwright-core/lib/generated/webSocketMockSource.js
 var FH = B((A8e, MH) => {
   "use strict";
   var DS = Object.defineProperty;
@@ -64562,7 +64562,7 @@ function inject(globalThis) {
 `;
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/webSocketRouteDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/webSocketRouteDispatcher.js
 var LS = B((I8e, HH) => {
   "use strict";
   var sNe = Object.create;
@@ -64727,7 +64727,7 @@ var LS = B((I8e, HH) => {
   var MS = "__pwWebSocketBinding";
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/pageDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/pageDispatcher.js
 var xl = B((N8e, VH) => {
   "use strict";
   var $S = Object.defineProperty;
@@ -65102,7 +65102,7 @@ var xl = B((N8e, VH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/dialogDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/dialogDispatcher.js
 var JH = B((R8e, KH) => {
   "use strict";
   var zS = Object.defineProperty;
@@ -65149,7 +65149,7 @@ var JH = B((R8e, KH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/writableStreamDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/writableStreamDispatcher.js
 var ZH = B((j8e, QH) => {
   "use strict";
   var MNe = Object.create;
@@ -65228,7 +65228,7 @@ var ZH = B((j8e, QH) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/browserContextDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/browserContextDispatcher.js
 var co = B((D8e, a5) => {
   "use strict";
   var GNe = Object.create;
@@ -65606,7 +65606,7 @@ var co = B((D8e, a5) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/androidDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/androidDispatcher.js
 var nO = B((M8e, d5) => {
   "use strict";
   var tO = Object.defineProperty;
@@ -65912,7 +65912,7 @@ var nO = B((M8e, d5) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/browserDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/browserDispatcher.js
 var oO = B((F8e, f5) => {
   "use strict";
   var sO = Object.defineProperty;
@@ -66030,7 +66030,7 @@ var oO = B((F8e, f5) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/browserTypeDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/browserTypeDispatcher.js
 var b5 = B((L8e, _5) => {
   "use strict";
   var cO = Object.defineProperty;
@@ -66094,7 +66094,7 @@ var b5 = B((L8e, _5) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/electronDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/electronDispatcher.js
 var S5 = B((B8e, x5) => {
   "use strict";
   var dO = Object.defineProperty;
@@ -66182,7 +66182,7 @@ var S5 = B((B8e, x5) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/harBackend.js
+// node_modules/playwright-core/lib/server/harBackend.js
 var T5 = B((q8e, C5) => {
   "use strict";
   var URe = Object.create;
@@ -66339,7 +66339,7 @@ var T5 = B((q8e, C5) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/traceUtils.js
+// node_modules/playwright-core/lib/utils/isomorphic/traceUtils.js
 var N5 = B((H8e, I5) => {
   "use strict";
   var pO = Object.defineProperty;
@@ -66396,7 +66396,7 @@ var N5 = B((H8e, I5) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/localUtils.js
+// node_modules/playwright-core/lib/server/localUtils.js
 var q5 = B(($8e, B5) => {
   "use strict";
   var c2e = Object.create;
@@ -66607,7 +66607,7 @@ var q5 = B(($8e, B5) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/jsonPipeDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/jsonPipeDispatcher.js
 var U5 = B((U8e, $5) => {
   "use strict";
   var _O = Object.defineProperty;
@@ -66665,7 +66665,7 @@ var U5 = B((U8e, $5) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/socksInterceptor.js
+// node_modules/playwright-core/lib/server/socksInterceptor.js
 var Y5 = B((W8e, J5) => {
   "use strict";
   var F2e = Object.create;
@@ -66760,7 +66760,7 @@ var Y5 = B((W8e, J5) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/localUtilsDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/localUtilsDispatcher.js
 var t$ = B((z8e, e$) => {
   "use strict";
   var z2e = Object.create;
@@ -66909,7 +66909,7 @@ This does not look like a Playwright server, try connecting via ws://.`);
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/playwrightDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/playwrightDispatcher.js
 var s$ = B((V8e, i$) => {
   "use strict";
   var OO = Object.defineProperty;
@@ -67021,7 +67021,7 @@ var s$ = B((V8e, i$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/trace/viewer/traceViewer.js
+// node_modules/playwright-core/lib/server/trace/viewer/traceViewer.js
 var f$ = B((G8e, p$) => {
   "use strict";
   var xje = Object.create;
@@ -67256,7 +67256,7 @@ var f$ = B((G8e, p$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/index.js
+// node_modules/playwright-core/lib/server/index.js
 var TO = B((K8e, _$) => {
   "use strict";
   var CO = Object.defineProperty;
@@ -67301,7 +67301,7 @@ var TO = B((K8e, _$) => {
   var El = f$();
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/server/dispatchers/debugControllerDispatcher.js
+// node_modules/playwright-core/lib/server/dispatchers/debugControllerDispatcher.js
 var w$ = B((J8e, v$) => {
   "use strict";
   var IO = Object.defineProperty;
@@ -67379,7 +67379,7 @@ var w$ = B((J8e, v$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/remote/playwrightConnection.js
+// node_modules/playwright-core/lib/remote/playwrightConnection.js
 var E$ = B((Y8e, O$) => {
   "use strict";
   var jO = Object.defineProperty;
@@ -67508,7 +67508,7 @@ var E$ = B((Y8e, O$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/remote/playwrightServer.js
+// node_modules/playwright-core/lib/remote/playwrightServer.js
 var qO = B((X8e, C$) => {
   "use strict";
   var BO = Object.defineProperty;
@@ -67845,7 +67845,7 @@ ${l}` };
   ];
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/androidServerImpl.js
+// node_modules/playwright-core/lib/androidServerImpl.js
 var I$ = B((Q8e, A$) => {
   "use strict";
   var $O = Object.defineProperty;
@@ -67910,7 +67910,7 @@ var I$ = B((Q8e, A$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/browserServerImpl.js
+// node_modules/playwright-core/lib/browserServerImpl.js
 var D$ = B((Z8e, j$) => {
   "use strict";
   var DDe = Object.create;
@@ -68033,7 +68033,7 @@ var D$ = B((Z8e, j$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/eventEmitter.js
+// node_modules/playwright-core/lib/client/eventEmitter.js
 var Pl = B((e9e, L$) => {
   "use strict";
   var VO = Object.defineProperty;
@@ -68347,7 +68347,7 @@ var Pl = B((e9e, L$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/clientStackTrace.js
+// node_modules/playwright-core/lib/client/clientStackTrace.js
 var $$ = B((t9e, H$) => {
   "use strict";
   var GO = Object.defineProperty;
@@ -68416,7 +68416,7 @@ var $$ = B((t9e, H$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/channelOwner.js
+// node_modules/playwright-core/lib/client/channelOwner.js
 var ht = B((r9e, V$) => {
   "use strict";
   var JO = Object.defineProperty;
@@ -68617,7 +68617,7 @@ var ht = B((r9e, V$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/stream.js
+// node_modules/playwright-core/lib/client/stream.js
 var QO = B((n9e, K$) => {
   "use strict";
   var XO = Object.defineProperty;
@@ -68656,7 +68656,7 @@ var QO = B((n9e, K$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/fileUtils.js
+// node_modules/playwright-core/lib/client/fileUtils.js
 var is = B((i9e, Y$) => {
   "use strict";
   var ZO = Object.defineProperty;
@@ -68689,7 +68689,7 @@ var is = B((i9e, Y$) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/artifact.js
+// node_modules/playwright-core/lib/client/artifact.js
 var yo = B((s9e, Z$) => {
   "use strict";
   var tE = Object.defineProperty;
@@ -68768,7 +68768,7 @@ var yo = B((s9e, Z$) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/cdpSession.js
+// node_modules/playwright-core/lib/client/cdpSession.js
 var Cf = B((o9e, tU) => {
   "use strict";
   var nE = Object.defineProperty;
@@ -68819,7 +68819,7 @@ var Cf = B((o9e, tU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/clientHelper.js
+// node_modules/playwright-core/lib/client/clientHelper.js
 var ss = B((a9e, iU) => {
   "use strict";
   var iE = Object.defineProperty;
@@ -68881,7 +68881,7 @@ var ss = B((a9e, iU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/clock.js
+// node_modules/playwright-core/lib/client/clock.js
 var lU = B((l9e, aU) => {
   "use strict";
   var oE = Object.defineProperty;
@@ -68949,7 +68949,7 @@ var lU = B((l9e, aU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/errors.js
+// node_modules/playwright-core/lib/client/errors.js
 var dr = B((c9e, dU) => {
   "use strict";
   var aE = Object.defineProperty;
@@ -69022,7 +69022,7 @@ var dr = B((c9e, dU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/jsHandle.js
+// node_modules/playwright-core/lib/client/jsHandle.js
 var ci = B((u9e, fU) => {
   "use strict";
   var lE = Object.defineProperty;
@@ -69128,7 +69128,7 @@ var ci = B((u9e, fU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/accessibility.js
+// node_modules/playwright-core/lib/client/accessibility.js
 var bU = B((d9e, _U) => {
   "use strict";
   var uE = Object.defineProperty;
@@ -69177,7 +69177,7 @@ var bU = B((d9e, _U) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/coverage.js
+// node_modules/playwright-core/lib/client/coverage.js
 var yU = B((h9e, wU) => {
   "use strict";
   var hE = Object.defineProperty;
@@ -69221,7 +69221,7 @@ var yU = B((h9e, wU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/download.js
+// node_modules/playwright-core/lib/client/download.js
 var OU = B((p9e, SU) => {
   "use strict";
   var fE = Object.defineProperty;
@@ -69283,7 +69283,7 @@ var OU = B((p9e, SU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/events.js
+// node_modules/playwright-core/lib/client/events.js
 var rn = B((f9e, kU) => {
   "use strict";
   var mE = Object.defineProperty;
@@ -69381,7 +69381,7 @@ var rn = B((f9e, kU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/utils/isomorphic/locatorUtils.js
+// node_modules/playwright-core/lib/utils/isomorphic/locatorUtils.js
 var bE = B((m9e, CU) => {
   "use strict";
   var gE = Object.defineProperty;
@@ -69456,7 +69456,7 @@ var bE = B((m9e, CU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/locator.js
+// node_modules/playwright-core/lib/client/locator.js
 var yE = B((g9e, jU) => {
   "use strict";
   var vE = Object.defineProperty;
@@ -69819,7 +69819,7 @@ var yE = B((g9e, jU) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/tracing.js
+// node_modules/playwright-core/lib/client/tracing.js
 var jf = B((_9e, MU) => {
   "use strict";
   var SE = Object.defineProperty;
@@ -69936,7 +69936,7 @@ var jf = B((_9e, MU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/timeoutSettings.js
+// node_modules/playwright-core/lib/client/timeoutSettings.js
 var ui = B((b9e, LU) => {
   "use strict";
   var kE = Object.defineProperty;
@@ -70015,7 +70015,7 @@ var ui = B((b9e, LU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/fetch.js
+// node_modules/playwright-core/lib/client/fetch.js
 var Nl = B((v9e, $U) => {
   "use strict";
   var TE = Object.defineProperty;
@@ -70382,7 +70382,7 @@ ${e.join("\n")}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/waiter.js
+// node_modules/playwright-core/lib/client/waiter.js
 var as = B((w9e, zU) => {
   "use strict";
   var IE = Object.defineProperty;
@@ -70524,7 +70524,7 @@ ${"=".repeat(t)}`;
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/worker.js
+// node_modules/playwright-core/lib/client/worker.js
 var Rl = B((y9e, KU) => {
   "use strict";
   var RE = Object.defineProperty;
@@ -70586,7 +70586,7 @@ var Rl = B((y9e, KU) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/network.js
+// node_modules/playwright-core/lib/client/network.js
 var So = B((x9e, eW) => {
   "use strict";
   var BE = Object.defineProperty;
@@ -71322,7 +71322,7 @@ before the end of the test to ignore remaining routes in flight.`);
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/types.js
+// node_modules/playwright-core/lib/client/types.js
 var nW = B((S9e, rW) => {
   "use strict";
   var qE = Object.defineProperty;
@@ -71350,7 +71350,7 @@ var nW = B((S9e, rW) => {
   var WBe = /* @__PURE__ */ new Set(["load", "domcontentloaded", "networkidle", "commit"]);
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/frame.js
+// node_modules/playwright-core/lib/client/frame.js
 var Eo = B((O9e, cW) => {
   "use strict";
   var zBe = Object.create;
@@ -71757,7 +71757,7 @@ var Eo = B((O9e, cW) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/writableStream.js
+// node_modules/playwright-core/lib/client/writableStream.js
 var zE = B((E9e, dW) => {
   "use strict";
   var WE = Object.defineProperty;
@@ -71796,7 +71796,7 @@ var zE = B((E9e, dW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/elementHandle.js
+// node_modules/playwright-core/lib/client/elementHandle.js
 var Il = B((k9e, bW) => {
   "use strict";
   var VE = Object.defineProperty;
@@ -72074,7 +72074,7 @@ var Il = B((k9e, bW) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/fileChooser.js
+// node_modules/playwright-core/lib/client/fileChooser.js
 var yW = B((P9e, wW) => {
   "use strict";
   var KE = Object.defineProperty;
@@ -72120,7 +72120,7 @@ var yW = B((P9e, wW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/harRouter.js
+// node_modules/playwright-core/lib/client/harRouter.js
 var XE = B((C9e, SW) => {
   "use strict";
   var YE = Object.defineProperty;
@@ -72207,7 +72207,7 @@ var XE = B((C9e, SW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/input.js
+// node_modules/playwright-core/lib/client/input.js
 var kW = B((T9e, EW) => {
   "use strict";
   var tk = Object.defineProperty;
@@ -72289,7 +72289,7 @@ var kW = B((T9e, EW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/video.js
+// node_modules/playwright-core/lib/client/video.js
 var TW = B((A9e, CW) => {
   "use strict";
   var nk = Object.defineProperty;
@@ -72348,7 +72348,7 @@ var TW = B((A9e, CW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/page.js
+// node_modules/playwright-core/lib/client/page.js
 var Ll = B((I9e, MW) => {
   "use strict";
   var ok = Object.defineProperty;
@@ -73056,7 +73056,7 @@ var Ll = B((I9e, MW) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/consoleMessage.js
+// node_modules/playwright-core/lib/client/consoleMessage.js
 var ck = B((N9e, LW) => {
   "use strict";
   var lk = Object.defineProperty;
@@ -73111,7 +73111,7 @@ var ck = B((N9e, LW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/dialog.js
+// node_modules/playwright-core/lib/client/dialog.js
 var hk = B((R9e, qW) => {
   "use strict";
   var dk = Object.defineProperty;
@@ -73167,7 +73167,7 @@ var hk = B((R9e, qW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/webError.js
+// node_modules/playwright-core/lib/client/webError.js
 var UW = B((j9e, $W) => {
   "use strict";
   var fk = Object.defineProperty;
@@ -73206,7 +73206,7 @@ var UW = B((j9e, $W) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/browserContext.js
+// node_modules/playwright-core/lib/client/browserContext.js
 var os = B((D9e, JW) => {
   "use strict";
   var F3e = Object.create;
@@ -73738,7 +73738,7 @@ var os = B((D9e, JW) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/webSocket.js
+// node_modules/playwright-core/lib/client/webSocket.js
 var vk = B((M9e, XW) => {
   "use strict";
   var bk = Object.defineProperty;
@@ -73831,7 +73831,7 @@ var vk = B((M9e, XW) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/android.js
+// node_modules/playwright-core/lib/client/android.js
 var Ek = B((F9e, nz) => {
   "use strict";
   var Sk = Object.defineProperty;
@@ -74188,7 +74188,7 @@ var Ek = B((F9e, nz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/browser.js
+// node_modules/playwright-core/lib/client/browser.js
 var Jf = B((L9e, oz) => {
   "use strict";
   var Ck = Object.defineProperty;
@@ -74361,7 +74361,7 @@ var Jf = B((L9e, oz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/browserType.js
+// node_modules/playwright-core/lib/client/browserType.js
 var Rk = B((B9e, cz) => {
   "use strict";
   var Nk = Object.defineProperty;
@@ -74545,7 +74545,7 @@ var Rk = B((B9e, cz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/clientInstrumentation.js
+// node_modules/playwright-core/lib/client/clientInstrumentation.js
 var hz = B((q9e, dz) => {
   "use strict";
   var jk = Object.defineProperty;
@@ -74600,7 +74600,7 @@ var hz = B((q9e, dz) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/electron.js
+// node_modules/playwright-core/lib/client/electron.js
 var Fk = B((H9e, bz) => {
   "use strict";
   var Mk = Object.defineProperty;
@@ -74737,7 +74737,7 @@ var Fk = B((H9e, bz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/jsonPipe.js
+// node_modules/playwright-core/lib/client/jsonPipe.js
 var yz = B(($9e, wz) => {
   "use strict";
   var Bk = Object.defineProperty;
@@ -74776,7 +74776,7 @@ var yz = B(($9e, wz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/localUtils.js
+// node_modules/playwright-core/lib/client/localUtils.js
 var Oz = B((U9e, Sz) => {
   "use strict";
   var Hk = Object.defineProperty;
@@ -74836,7 +74836,7 @@ var Oz = B((U9e, Sz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/selectors.js
+// node_modules/playwright-core/lib/client/selectors.js
 var Pz = B((W9e, kz) => {
   "use strict";
   var Uk = Object.defineProperty;
@@ -74891,7 +74891,7 @@ var Pz = B((W9e, kz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/playwright.js
+// node_modules/playwright-core/lib/client/playwright.js
 var Az = B((z9e, Tz) => {
   "use strict";
   var zk = Object.defineProperty;
@@ -74966,7 +74966,7 @@ var Az = B((z9e, Tz) => {
   };
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/client/connection.js
+// node_modules/playwright-core/lib/client/connection.js
 var wk = B((V9e, Fz) => {
   "use strict";
   var Yk = Object.defineProperty;
@@ -75280,7 +75280,7 @@ ${r.colors.dim(e.join("\n"))}
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/inProcessFactory.js
+// node_modules/playwright-core/lib/inProcessFactory.js
 var Hz = B((G9e, qz) => {
   "use strict";
   var Xk = Object.defineProperty;
@@ -75342,14 +75342,14 @@ var Hz = B((G9e, qz) => {
   }
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/lib/inprocess.js
+// node_modules/playwright-core/lib/inprocess.js
 var Uz = B((K9e, $z) => {
   "use strict";
   var NHe = Hz();
   $z.exports = (0, NHe.createInProcessPlaywright)();
 });
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/index.js
+// node_modules/playwright-core/index.js
 var Gz = B((J9e, Vz) => {
   var Wz = 18;
   var zz = process.versions.node;
@@ -75366,12 +75366,12 @@ Please update your version of Node.js.`
   Vz.exports = Uz();
 });
 
-// node_modules/.pnpm/@sparticuz+chromium-min@153.0.0/node_modules/@sparticuz/chromium-min/build/index.js
+// node_modules/@sparticuz/chromium-min/build/index.js
 import { existsSync as GC } from "node:fs";
 import { tmpdir as Jm } from "node:os";
 import { join as xi } from "node:path";
 
-// node_modules/.pnpm/@sparticuz+chromium-min@153.0.0/node_modules/@sparticuz/chromium-min/build/helper.js
+// node_modules/@sparticuz/chromium-min/build/helper.js
 import { createWriteStream as D5e, rm as SV } from "node:fs";
 var BC = hm(Vm(), 1);
 import { tmpdir as Gm } from "node:os";
@@ -75440,7 +75440,7 @@ var $C = async (r) => {
   return e;
 };
 
-// node_modules/.pnpm/@sparticuz+chromium-min@153.0.0/node_modules/@sparticuz/chromium-min/build/lambdafs.js
+// node_modules/@sparticuz/chromium-min/build/lambdafs.js
 var zC = hm(Vm(), 1);
 import { createReadStream as kV, createWriteStream as PV, existsSync as UC } from "node:fs";
 import { tmpdir as WC } from "node:os";
@@ -75494,14 +75494,14 @@ var Jo = (r) => {
   });
 };
 
-// node_modules/.pnpm/@sparticuz+chromium-min@153.0.0/node_modules/@sparticuz/chromium-min/build/paths.js
+// node_modules/@sparticuz/chromium-min/build/paths.js
 import { dirname as MV, join as FV } from "node:path";
 import { fileURLToPath as LV } from "node:url";
 function VC() {
   return FV(MV(LV(import.meta.url)), "..", "bin");
 }
 
-// node_modules/.pnpm/@sparticuz+chromium-min@153.0.0/node_modules/@sparticuz/chromium-min/build/index.js
+// node_modules/@sparticuz/chromium-min/build/index.js
 var KC = Number.parseInt(process.versions.node.split(".")[0] ?? "");
 if (Km(KC)) {
   qC(xi(Jm(), "al2023", "lib"));
@@ -75636,7 +75636,7 @@ var Ym = class {
 };
 var Tc = Ym;
 
-// node_modules/.pnpm/playwright-core@1.55.0/node_modules/playwright-core/index.mjs
+// node_modules/playwright-core/index.mjs
 var nn = hm(Gz(), 1);
 var Kz = nn.default.chromium;
 var Y9e = nn.default.firefox;
@@ -75648,7 +75648,7 @@ var t7e = nn.default.request;
 var r7e = nn.default._electron;
 var n7e = nn.default._android;
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/buffer_utils.js
+// node_modules/jose/dist/webapi/lib/buffer_utils.js
 var Zf = new TextEncoder();
 var em = new TextDecoder();
 var tm = new TextDecoder("utf-8", { fatal: true });
@@ -75690,7 +75690,7 @@ function Yz(r, e = false) {
   return n;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/util/errors.js
+// node_modules/jose/dist/webapi/util/errors.js
 var Ht = class extends Error {
   static code = "ERR_JOSE_GENERIC";
   code = "ERR_JOSE_GENERIC";
@@ -75769,7 +75769,7 @@ var sm = class extends Ht {
   }
 };
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/util/base64url.js
+// node_modules/jose/dist/webapi/util/base64url.js
 var MHe = "The input to be decoded is not correctly encoded.";
 function Kl(r) {
   try {
@@ -75779,7 +75779,7 @@ function Kl(r) {
   }
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/validate.js
+// node_modules/jose/dist/webapi/lib/validate.js
 function pi(r) {
   if (typeof r != "object" || r === null || Object.prototype.toString.call(r) !== "[object Object]")
     return false;
@@ -75859,7 +75859,7 @@ function n8(r, e) {
   return true;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/key.js
+// node_modules/jose/dist/webapi/lib/key.js
 var FHe = (r) => r[Symbol.toStringTag];
 var LHe = (r, e, t) => {
   const { alg: n } = r;
@@ -75990,7 +75990,7 @@ async function l8(r, e, t, n = false) {
   return r instanceof Uint8Array && (r = await crypto.subtle.importKey("raw", r, e, n, [t])), WHe(r, e, t), r;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/key_descriptor.js
+// node_modules/jose/dist/webapi/lib/key_descriptor.js
 function c8(r) {
   const e = { __proto__: null };
   for (const t in r)
@@ -75998,7 +75998,7 @@ function c8(r) {
   return e;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/jws_algorithms.js
+// node_modules/jose/dist/webapi/lib/jws_algorithms.js
 var Jl = [["verify"], ["sign"]];
 function rP(r) {
   const e = { name: "HMAC", hash: `SHA-${r}` };
@@ -76068,7 +76068,7 @@ function d8(r) {
   return e;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/jws_verify.js
+// node_modules/jose/dist/webapi/lib/jws_verify.js
 function h8(r) {
   return [r && t8("algorithms", r.algorithms), r?.crit];
 }
@@ -76120,7 +76120,7 @@ async function p8(r, e, t) {
   return KHe({ payload: i, protected: n, signature: s }, e, t, GHe);
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/jwt_claims_set.js
+// node_modules/jose/dist/webapi/lib/jwt_claims_set.js
 var JHe = (r) => Math.floor(r.getTime() / 1e3);
 var YHe = {
   s: 1,
@@ -76206,7 +76206,7 @@ function g8(r, e, t = {}) {
   return n;
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/jwt/verify.js
+// node_modules/jose/dist/webapi/jwt/verify.js
 async function uP(r, e, t) {
   const [n, i] = await p8(r, h8(t), e);
   if (!i)
@@ -76215,7 +76215,7 @@ async function uP(r, e, t) {
   return { ...n, payload: s };
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/jwks/local.js
+// node_modules/jose/dist/webapi/jwks/local.js
 function ZHe(r, e, t, n) {
   const { kty: i, key_ops: s, ext: a, kid: l, alg: c, use: u, crv: d } = r;
   return (a === void 0 || typeof a == "boolean") && (s === void 0 || Array.isArray(s) && s.every((h, p) => typeof h == "string" && s.indexOf(h) === p) && s.includes("verify")) && e.kty.includes(i) && (n === void 0 || typeof n == "string" && n === l) && (c === void 0 ? i !== "AKP" : t === c) && (u === void 0 || u === "sig") && (!e.crv || d === e.crv);
@@ -76269,7 +76269,7 @@ function dP(r) {
   });
 }
 
-// node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/jwks/remote.js
+// node_modules/jose/dist/webapi/jwks/remote.js
 function e5e() {
   return typeof WebSocketPair < "u" || typeof navigator < "u" && navigator.userAgent === "Cloudflare-Workers" || typeof EdgeRuntime < "u" && EdgeRuntime === "vercel";
 }
@@ -76652,29 +76652,8 @@ playwright-core/lib/utilsBundleImpl/index.js:
   *)
 
 playwright-core/lib/server/bidi/third_party/bidiProtocolPermissions.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * Modifications copyright (c) Microsoft Corporation.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
 playwright-core/lib/server/bidi/third_party/bidiDeserializer.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * Modifications copyright (c) Microsoft Corporation.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
 playwright-core/lib/server/bidi/third_party/bidiSerializer.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * Modifications copyright (c) Microsoft Corporation.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
 playwright-core/lib/server/bidi/third_party/bidiKeyboard.js:
   (**
    * @license

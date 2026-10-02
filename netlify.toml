@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20.19.6"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_PROJECT_ID"
 
 [functions]
   node_bundler = "nft"
