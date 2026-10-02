@@ -9,15 +9,15 @@
  *
  * FINAL SCHEMA:
  * O = Purchase Date / Tanggal
- * P = Expiration Date
- * Q = Status Account
- * R = Device Handphone (DISPLAY LABEL)
- * S = Device Laptop (DISPLAY LABEL)
- * T = Status transaksi Lynk.id (READ ONLY)
- * U = Buyer Email
- * V = Mobile Device ID
- * W = Laptop/Desktop Device ID
- * X = Buyer Name (optional)
+ * P = Status transaksi Lynk.id (READ ONLY)
+ * Q = Buyer Email
+ * R = Buyer Name (optional)
+ * AA = AU Expiration Date
+ * AB = AU Status Account
+ * AC = AU Device Handphone (DISPLAY LABEL)
+ * AD = AU Device Laptop (DISPLAY LABEL)
+ * AE = Mobile Device ID
+ * AF = Laptop/Desktop Device ID
  *****************************************************/
 
 const CONFIG = {
@@ -25,15 +25,16 @@ const CONFIG = {
   SHEET_NAME: 'order',
 
   PURCHASE_DATE_COLUMN: 15,        // O = Tanggal
-  EXPIRATION_DATE_COLUMN: 16,      // P = Expiration Date
-  STATUS_ACCOUNT_COLUMN: 17,       // Q = Status Account
-  DEVICE_MOBILE_LABEL_COLUMN: 18,  // R = Device Handphone
-  DEVICE_DESKTOP_LABEL_COLUMN: 19, // S = Device Laptop
-  ORDER_STATUS_COLUMN: 20,         // T = Status transaksi Lynk.id (READ ONLY)
-  BUYER_EMAIL_COLUMN: 21,          // U = Buyer Email
-  DEVICE_MOBILE_ID_COLUMN: 22,     // V = Mobile Device ID
-  DEVICE_DESKTOP_ID_COLUMN: 23,    // W = Laptop/Desktop Device ID
-  BUYER_NAME_COLUMN: 24,           // X = Buyer Name
+  ORDER_STATUS_COLUMN: 16,         // P = Status transaksi Lynk.id (READ ONLY)
+  BUYER_EMAIL_COLUMN: 17,          // Q = Buyer Email
+  BUYER_NAME_COLUMN: 18,           // R = Buyer Name
+
+  EXPIRATION_DATE_COLUMN: 27,      // AA = AU Expiration Date
+  STATUS_ACCOUNT_COLUMN: 28,       // AB = AU Status Account
+  DEVICE_MOBILE_LABEL_COLUMN: 29,  // AC = AU Device Handphone
+  DEVICE_DESKTOP_LABEL_COLUMN: 30, // AD = AU Device Laptop
+  DEVICE_MOBILE_ID_COLUMN: 31,     // AE = Mobile Device ID
+  DEVICE_DESKTOP_ID_COLUMN: 32,    // AF = Laptop/Desktop Device ID
 
   SUBSCRIPTION_DAYS: 30,
   ACTIVE_STATUS: 'Active',
@@ -46,11 +47,19 @@ const CONFIG = {
  * WEB APP — HEALTH CHECK
  *****************************************************/
 function doGet() {
+  let selectedSheetName = null;
+  try {
+    selectedSheetName = getMainSheet().getName();
+  } catch (error) {
+    selectedSheetName = 'ERROR: ' + safeErrorMessage(error);
+  }
+
   return jsonResponse({
     success: true,
     service: 'AU Toolkit Access API',
     status: 'online',
-    version: '3.0'
+    version: '3.1-adaptive-sheet',
+    selectedSheetName: selectedSheetName
   });
 }
 
@@ -111,10 +120,19 @@ function doPost(e) {
         return jsonResponse(refreshSingleSubscription(payload));
 
       case 'healthCheck':
+        let selectedSheetName = null;
+        try {
+          selectedSheetName = getMainSheet().getName();
+        } catch (error) {
+          selectedSheetName = 'ERROR: ' + safeErrorMessage(error);
+        }
+
         return jsonResponse({
           success: true,
           service: 'AU Toolkit Access API',
-          status: 'online'
+          status: 'online',
+          version: '3.1-adaptive-sheet',
+          selectedSheetName: selectedSheetName
         });
 
       default:
@@ -712,7 +730,41 @@ function getMainSheet() {
     CONFIG.SPREADSHEET_ID
   );
 
-  return spreadsheet.getSheetByName(CONFIG.SHEET_NAME) || spreadsheet.getSheets()[0];
+  const configuredSheet = spreadsheet.getSheetByName(CONFIG.SHEET_NAME);
+  if (configuredSheet) {
+    return configuredSheet;
+  }
+
+  const sheets = spreadsheet.getSheets();
+  for (let i = 0; i < sheets.length; i++) {
+    const sheet = sheets[i];
+    const lastColumn = Math.max(sheet.getLastColumn(), CONFIG.DEVICE_DESKTOP_ID_COLUMN);
+    if (sheet.getLastRow() < 1 || lastColumn < CONFIG.BUYER_EMAIL_COLUMN) {
+      continue;
+    }
+
+    const headers = sheet
+      .getRange(1, 1, 1, lastColumn)
+      .getDisplayValues()[0]
+      .map(function(value) {
+        return cleanString(value).toLowerCase();
+      });
+
+    const hasLynkHeaders =
+      headers[CONFIG.PURCHASE_DATE_COLUMN - 1] === 'tanggal' &&
+      headers[CONFIG.ORDER_STATUS_COLUMN - 1] === 'status' &&
+      headers[CONFIG.BUYER_EMAIL_COLUMN - 1] === 'buyer email';
+
+    if (hasLynkHeaders) {
+      return sheet;
+    }
+  }
+
+  if (sheets.length > 0) {
+    return sheets[0];
+  }
+
+  throw new Error('Tidak ada sheet yang tersedia di spreadsheet.');
 }
 
 /*****************************************************
