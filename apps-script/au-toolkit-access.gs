@@ -5,7 +5,7 @@
  * Spreadsheet ID:
  * 1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88
  *
- * Sheet: order
+ * Sheet: AU Toolkit PRO
  *
  * FINAL SCHEMA:
  * O = Purchase Date / Tanggal
@@ -21,8 +21,9 @@
  *****************************************************/
 
 const CONFIG = {
+  VERSION: '3.2-au-toolkit-pro-sheet',
   SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
-  SHEET_NAME: 'order',
+  SHEET_NAME: 'AU Toolkit PRO',
 
   PURCHASE_DATE_COLUMN: 15,        // O = Tanggal
   ORDER_STATUS_COLUMN: 16,         // P = Status transaksi Lynk.id (READ ONLY)
@@ -58,7 +59,8 @@ function doGet() {
     success: true,
     service: 'AU Toolkit Access API',
     status: 'online',
-    version: '3.1-adaptive-sheet',
+    version: CONFIG.VERSION,
+    configuredSheetName: CONFIG.SHEET_NAME,
     selectedSheetName: selectedSheetName
   });
 }
@@ -131,7 +133,8 @@ function doPost(e) {
           success: true,
           service: 'AU Toolkit Access API',
           status: 'online',
-          version: '3.1-adaptive-sheet',
+          version: CONFIG.VERSION,
+          configuredSheetName: CONFIG.SHEET_NAME,
           selectedSheetName: selectedSheetName
         });
 

@@ -105,7 +105,7 @@ export const Login: React.FC<LoginProps> = ({
         await signOutUser();
       } catch {}
       setErrorMessage(
-        entitlement.message || 'Data tanggal pembelian tidak valid atau kosong di sheet order.'
+        entitlement.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.'
       );
       return false;
     }

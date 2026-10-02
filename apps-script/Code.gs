@@ -1,7 +1,7 @@
 /**
  * AU TOOLKIT BUYER ACCESS SYSTEM — GOOGLE APPS SCRIPT BACKEND
  *
- * REAL SPREADSHEET SCHEMA (Sheet name: "order"):
+ * REAL SPREADSHEET SCHEMA (Sheet name: "AU Toolkit PRO"):
  * - Column O (col 15, index 14): Tanggal / Purchase Date (Lynk.id Order Date)
  * - Column P (col 16, index 15): Expiration Date (P = O + 30 calendar days or preserved manual date)
  * - Column Q (col 17, index 16): Status Account ("Active" | "Expired")
@@ -12,13 +12,19 @@
  * - Column V (col 22, index 21): Mobile Device ID (technical Mobile Device ID, e.g. "dev_mobile_xxxxxx")
  * - Column W (col 23, index 22): Laptop/Desktop Device ID (technical Laptop/Desktop Device ID, e.g. "dev_desktop_xxxxxx")
  * - Column X (col 24, index 23): Buyer Name (optional)
+ *
+ * Current AU Toolkit PRO fallback schema:
+ * O = Purchase Date, P = Lynk.id Status, Q = Buyer Email, R = Buyer Name,
+ * AA = Expiration Date, AB = Status Account, AC = Device Handphone,
+ * AD = Device Laptop, AE = Mobile Device ID, AF = Laptop/Desktop Device ID.
  */
 
 // Exact Google Spreadsheet ID (or configure in Script Properties under SPREADSHEET_ID)
 var SPREADSHEET_ID = "1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88";
+var SHEET_NAME = "AU Toolkit PRO";
 
 /**
- * Helper to open the "order" sheet using the exact spreadsheet ID.
+ * Helper to open the configured buyer sheet using the exact spreadsheet ID.
  * Strictly avoids SpreadsheetApp.getActiveSpreadsheet() and SpreadsheetApp.getActiveSheet().
  */
 function getOrderSheet(providedSpreadsheetId) {
@@ -37,10 +43,8 @@ function getOrderSheet(providedSpreadsheetId) {
   try {
     var ss = SpreadsheetApp.openById(id);
     if (!ss) return null;
-    var sheet = ss.getSheetByName("order");
-    if (!sheet) {
-      sheet = ss.getSheets()[0];
-    }
+    var sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheetByName("order");
+    if (!sheet) throw new Error('Sheet "' + SHEET_NAME + '" tidak ditemukan.');
     return { ss: ss, sheet: sheet };
   } catch (err) {
     Logger.log("Error opening spreadsheet by ID: " + err);
@@ -125,7 +129,7 @@ function processVerification(params) {
     };
   }
 
-  // 2. Open spreadsheet strictly using exact ID and sheet "order"
+  // 2. Open spreadsheet strictly using exact ID and configured buyer sheet
   var sheetContext = getOrderSheet(params.spreadsheetId);
   if (!sheetContext || !sheetContext.sheet) {
     return {
@@ -133,7 +137,7 @@ function processVerification(params) {
       accessGranted: false,
       reason: "BACKEND_ERROR",
       status: "BACKEND_ERROR",
-      message: "Gagal membuka sheet order pada Google Spreadsheet."
+      message: 'Gagal membuka sheet "' + SHEET_NAME + '" pada Google Spreadsheet.'
     };
   }
 
@@ -148,7 +152,7 @@ function processVerification(params) {
       accessGranted: false,
       reason: "BACKEND_ERROR",
       status: "BACKEND_ERROR",
-      message: "Gagal membaca data dari sheet order."
+      message: 'Gagal membaca data dari sheet "' + SHEET_NAME + '".'
     };
   }
 
@@ -262,7 +266,7 @@ function processVerification(params) {
       reason: "INVALID_PURCHASE_DATA",
       status: "INVALID_PURCHASE_DATA",
       buyerEmail: queryEmail,
-      message: "Data tanggal pembelian tidak valid atau kosong di sheet order."
+      message: 'Data tanggal pembelian tidak valid atau kosong di sheet "' + SHEET_NAME + '".'
     };
   }
 
@@ -765,7 +769,7 @@ function buildHeaderMapping(headers) {
       if (map.deviceHandphone === -1) map.deviceHandphone = c;
     } else if (h.indexOf('device laptop') !== -1 || h.indexOf('device pc') !== -1 || h.indexOf('laptop') !== -1) {
       if (map.deviceLaptop === -1) map.deviceLaptop = c;
-    } else if (h.indexOf('lynk.id status') !== -1 || h.indexOf('order status') !== -1 || h.indexOf('lynk') !== -1) {
+    } else if (h === 'status' || h.indexOf('lynk.id status') !== -1 || h.indexOf('order status') !== -1 || h.indexOf('lynk') !== -1) {
       if (map.orderStatus === -1) map.orderStatus = c;
     } else if (h.indexOf('buyer email') !== -1 || h === 'email' || h.indexOf('user email') !== -1) {
       if (map.email === -1) map.email = c;
@@ -776,18 +780,20 @@ function buildHeaderMapping(headers) {
     }
   }
 
-  // Canonical index fallbacks from REAL schema:
-  // O=14 (col 15), P=15 (col 16), Q=16 (col 17), R=17 (col 18), S=18 (col 19), T=19 (col 20), U=20 (col 21), V=21 (col 22), W=22 (col 23), X=23 (col 24)
+  // Canonical index fallbacks from current AU Toolkit PRO schema:
+  // O=14 (purchase), P=15 (order status), Q=16 (email), R=17 (buyer name),
+  // AA=26 (expiration), AB=27 (account status), AC=28 (mobile label),
+  // AD=29 (desktop label), AE=30 (mobile id), AF=31 (desktop id)
   if (map.purchaseDate === -1) map.purchaseDate = 14;
-  if (map.expirationDate === -1) map.expirationDate = 15;
-  if (map.statusAccount === -1) map.statusAccount = 16;
-  if (map.deviceHandphone === -1) map.deviceHandphone = 17;
-  if (map.deviceLaptop === -1) map.deviceLaptop = 18;
-  if (map.orderStatus === -1) map.orderStatus = 19;
-  if (map.email === -1) map.email = 20;
-  if (map.mobileDeviceId === -1) map.mobileDeviceId = 21;
-  if (map.laptopDeviceId === -1) map.laptopDeviceId = 22;
-  if (map.name === -1) map.name = 23;
+  if (map.expirationDate === -1) map.expirationDate = 26;
+  if (map.statusAccount === -1) map.statusAccount = 27;
+  if (map.deviceHandphone === -1) map.deviceHandphone = 28;
+  if (map.deviceLaptop === -1) map.deviceLaptop = 29;
+  if (map.orderStatus === -1) map.orderStatus = 15;
+  if (map.email === -1) map.email = 16;
+  if (map.mobileDeviceId === -1) map.mobileDeviceId = 30;
+  if (map.laptopDeviceId === -1) map.laptopDeviceId = 31;
+  if (map.name === -1) map.name = 17;
 
   return map;
 }

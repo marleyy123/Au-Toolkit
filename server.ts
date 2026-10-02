@@ -449,7 +449,7 @@ async function startServer() {
         });
       }
 
-      // 2. ORDER_NOT_SUCCESS: Lynk.id order status in Column T is not SUCCESS (e.g. PENDING, FAILED, CANCELLED, REFUNDED)
+      // 2. ORDER_NOT_SUCCESS: Lynk.id order status is not SUCCESS (e.g. PENDING, FAILED, CANCELLED, REFUNDED)
       if (reasonCode === 'ORDER_NOT_SUCCESS') {
         return res.json({
           success: true,
@@ -476,7 +476,7 @@ async function startServer() {
           isValid: false,
           email: verifiedEmail,
           buyerName: parsedGasResult.buyerName || verifiedEmail.split('@')[0],
-          message: parsedGasResult.message || 'Data tanggal pembelian tidak valid atau kosong di sheet order.',
+          message: parsedGasResult.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.',
         });
       }
 

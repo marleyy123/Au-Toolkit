@@ -346,7 +346,7 @@ export async function handler(event) {
     return json(200, { success: true, accessGranted: false, reason, status: reason, isRegisteredBuyer: true, isValid: false, email, orderStatus: upstream.orderStatus || 'NOT_SUCCESS', buyerName: upstream.buyerName || email.split('@')[0], message: upstream.message || 'Status pesanan Lynk.id belum berstatus SUCCESS.' }, cors);
   }
   if (reason === 'INVALID_PURCHASE_DATA') {
-    return json(200, { success: true, accessGranted: false, reason, status: reason, isRegisteredBuyer: true, isValid: false, email, buyerName: upstream.buyerName || email.split('@')[0], message: upstream.message || 'Data tanggal pembelian tidak valid atau kosong di sheet order.' }, cors);
+    return json(200, { success: true, accessGranted: false, reason, status: reason, isRegisteredBuyer: true, isValid: false, email, buyerName: upstream.buyerName || email.split('@')[0], message: upstream.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.' }, cors);
   }
 
   const expirationDate = normalizeExpirationDate(upstream.expirationDate);

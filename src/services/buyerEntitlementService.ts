@@ -411,7 +411,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     };
   }
 
-  // 8. ORDER_NOT_SUCCESS: Lynk.id order status in Column T is not SUCCESS
+  // 8. ORDER_NOT_SUCCESS: Lynk.id order status is not SUCCESS
   if (reasonCode === 'ORDER_NOT_SUCCESS') {
     return {
       allowed: false,
@@ -426,7 +426,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'INVALID_PURCHASE_DATA',
-      message: resData.message || 'Data tanggal pembelian tidak valid atau kosong di sheet order.',
+      message: resData.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.',
       data: resData,
     };
   }
@@ -606,7 +606,7 @@ export async function checkBuyerEntitlement(rawEmail: string): Promise<Entitleme
       email: cleanEmail,
       deviceSlot: slot,
       deviceModel: detectedDeviceLabel,
-      message: access.message || 'Data tanggal pembelian tidak valid atau kosong di sheet order.',
+      message: access.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.',
     };
   }
 
