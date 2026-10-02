@@ -25,16 +25,15 @@ const CONFIG = {
   SHEET_NAME: 'order',
 
   PURCHASE_DATE_COLUMN: 15,        // O = Tanggal
-  ORDER_STATUS_COLUMN: 16,         // P = Status (READ ONLY)
-  BUYER_EMAIL_COLUMN: 17,          // Q = Buyer Email
-  BUYER_NAME_COLUMN: 18,           // R = Buyer Name
-
-  EXPIRATION_DATE_COLUMN: 27,      // AA
-  STATUS_ACCOUNT_COLUMN: 28,       // AB
-  DEVICE_MOBILE_LABEL_COLUMN: 29,  // AC
-  DEVICE_DESKTOP_LABEL_COLUMN: 30, // AD
-  DEVICE_MOBILE_ID_COLUMN: 31,     // AE
-  DEVICE_DESKTOP_ID_COLUMN: 32,    // AF
+  EXPIRATION_DATE_COLUMN: 16,      // P = Expiration Date
+  STATUS_ACCOUNT_COLUMN: 17,       // Q = Status Account
+  DEVICE_MOBILE_LABEL_COLUMN: 18,  // R = Device Handphone
+  DEVICE_DESKTOP_LABEL_COLUMN: 19, // S = Device Laptop
+  ORDER_STATUS_COLUMN: 20,         // T = Status transaksi Lynk.id (READ ONLY)
+  BUYER_EMAIL_COLUMN: 21,          // U = Buyer Email
+  DEVICE_MOBILE_ID_COLUMN: 22,     // V = Mobile Device ID
+  DEVICE_DESKTOP_ID_COLUMN: 23,    // W = Laptop/Desktop Device ID
+  BUYER_NAME_COLUMN: 24,           // X = Buyer Name
 
   SUBSCRIPTION_DAYS: 30,
   ACTIVE_STATUS: 'Active',

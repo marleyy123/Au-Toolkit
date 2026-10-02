@@ -299,6 +299,46 @@ export async function handler(event) {
     }, cors);
   }
 
+  if (reason === 'APPS_SCRIPT_CONFIG_ERROR') {
+    return json(502, {
+      success: false,
+      accessGranted: false,
+      reason: 'APPS_SCRIPT_CONFIG_ERROR',
+      status: 'APPS_SCRIPT_CONFIG_ERROR',
+      isRegisteredBuyer: false,
+      isValid: false,
+      email,
+      message: upstream.message || 'Konfigurasi Apps Script belum lengkap.',
+    }, cors);
+  }
+
+  if (reason === 'BACKEND_ERROR') {
+    return json(502, {
+      success: false,
+      accessGranted: false,
+      reason: 'BACKEND_ERROR',
+      status: 'BACKEND_ERROR',
+      isRegisteredBuyer: false,
+      isValid: false,
+      email,
+      upstreamMessage: upstream.message || null,
+      message: upstream.message || 'Server spreadsheet mengembalikan error internal.',
+    }, cors);
+  }
+
+  if (reason === 'INVALID_REQUEST' || reason === 'INVALID_JSON_REQUEST' || reason === 'INVALID_DEVICE_TYPE' || reason === 'DEVICE_ID_REQUIRED' || reason === 'EMAIL_REQUIRED') {
+    return json(400, {
+      success: false,
+      accessGranted: false,
+      reason,
+      status: reason,
+      isRegisteredBuyer: false,
+      isValid: false,
+      email,
+      message: upstream.message || 'Request verifikasi tidak valid.',
+    }, cors);
+  }
+
   if (reason === 'BUYER_NOT_FOUND' || upstream.isRegisteredBuyer === false) {
     return json(200, { success: true, accessGranted: false, reason: 'BUYER_NOT_FOUND', status: 'BUYER_NOT_FOUND', isRegisteredBuyer: false, isValid: false, email, buyerName: upstream.buyerName || email.split('@')[0], message: 'Email ini tidak ditemukan dalam data pembelian.' }, cors);
   }
