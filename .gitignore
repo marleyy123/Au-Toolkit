@@ -8,3 +8,6 @@ coverage/
 
 # Local Netlify folder
 .netlify
+
+# Generated Netlify Functions bundles
+netlify/functions-dist/
