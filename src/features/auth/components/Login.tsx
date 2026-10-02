@@ -352,7 +352,7 @@ export const Login: React.FC<LoginProps> = ({
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
-              AU Toolkit
+              AU Toolkitttt
             </h1>
           </div>
         </div>
