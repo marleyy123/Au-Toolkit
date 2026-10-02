@@ -190,6 +190,56 @@ export async function handler(event) {
     }, cors);
   }
 
+  const requestedAction = String(body.action || '').trim();
+  const scriptUrl = resolveAppsScriptUrl();
+  const sharedSecret = resolveAppsScriptSecret();
+
+  if (requestedAction === 'healthCheck') {
+    if (!scriptUrl || !sharedSecret) {
+      return json(500, {
+        success: false,
+        reason: 'APPS_SCRIPT_CONFIG_ERROR',
+        status: 'APPS_SCRIPT_CONFIG_ERROR',
+        hasScriptUrl: Boolean(scriptUrl),
+        hasSharedSecret: Boolean(sharedSecret),
+        message: 'Konfigurasi server spreadsheet akses belum lengkap.',
+      }, cors);
+    }
+
+    try {
+      const upstreamResponse = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'healthCheck', serverSecret: sharedSecret }),
+        redirect: 'follow',
+      });
+      const raw = await upstreamResponse.text();
+      let upstream = null;
+      try {
+        upstream = JSON.parse(raw);
+      } catch {}
+
+      return json(200, {
+        success: upstreamResponse.ok,
+        reason: 'HEALTH_CHECK',
+        status: 'HEALTH_CHECK',
+        upstreamHttpStatus: upstreamResponse.status,
+        upstreamVersion: upstream?.version || null,
+        configuredSheetName: upstream?.configuredSheetName || null,
+        selectedSheetName: upstream?.selectedSheetName || null,
+        upstreamReason: upstream?.reason || upstream?.status || null,
+        upstreamMessage: upstream?.message || null,
+      }, cors);
+    } catch {
+      return json(503, {
+        success: false,
+        reason: 'APPS_SCRIPT_UNAVAILABLE',
+        status: 'APPS_SCRIPT_UNAVAILABLE',
+        message: 'Server verifikasi spreadsheet sedang tidak dapat dijangkau.',
+      }, cors);
+    }
+  }
+
   const firebaseUser = decodeFirebaseUser(event.headers?.authorization || event.headers?.Authorization);
   const email = String(body.email || body.buyer_email || body.user_email || firebaseUser?.email || '').trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -213,7 +263,6 @@ export async function handler(event) {
     }, cors);
   }
 
-  const scriptUrl = resolveAppsScriptUrl();
   if (!scriptUrl) {
     return json(500, {
       success: false,
@@ -224,7 +273,6 @@ export async function handler(event) {
     }, cors);
   }
 
-  const sharedSecret = resolveAppsScriptSecret();
   if (!sharedSecret) {
     return json(500, {
       success: false,
@@ -239,7 +287,7 @@ export async function handler(event) {
   const deviceLabel = String(body.deviceLabel || body.device_label || body.deviceModel || '').trim() || (deviceType === 'mobile' ? 'Mobile Device' : 'Desktop Device');
   const stableDeviceId = extractStableDeviceSignature(deviceId) || deviceId;
   const payload = {
-    action: String(body.action || '') === 'registerDevice' ? 'registerDevice' : 'validateAccess',
+    action: requestedAction === 'registerDevice' ? 'registerDevice' : 'validateAccess',
     email,
     deviceType,
     deviceId: stableDeviceId,
