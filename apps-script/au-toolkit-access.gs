@@ -21,7 +21,7 @@
  *****************************************************/
 
 const CONFIG = {
-  VERSION: '3.2-au-toolkit-pro-sheet',
+  VERSION: '3.3-fast-buyer-lookup',
   SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
   SHEET_NAME: 'AU Toolkit PRO',
 
@@ -293,15 +293,17 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
   }
 
   const rowCount = lastRow - 1;
-  const purchaseDates = sheet.getRange(2, CONFIG.PURCHASE_DATE_COLUMN, rowCount, 1).getValues();
-  const orderStatuses = sheet.getRange(2, CONFIG.ORDER_STATUS_COLUMN, rowCount, 1).getValues();
-  const buyerEmails = sheet.getRange(2, CONFIG.BUYER_EMAIL_COLUMN, rowCount, 1).getValues();
-  const buyerNames = sheet.getRange(2, CONFIG.BUYER_NAME_COLUMN, rowCount, 1).getValues();
-  const expirations = sheet.getRange(2, CONFIG.EXPIRATION_DATE_COLUMN, rowCount, 1).getValues();
-  const accountStatuses = sheet.getRange(2, CONFIG.STATUS_ACCOUNT_COLUMN, rowCount, 1).getValues();
+  const lastColumn = Math.max(
+    sheet.getLastColumn(),
+    CONFIG.STATUS_ACCOUNT_COLUMN
+  );
+  const rows = sheet
+    .getRange(2, 1, rowCount, lastColumn)
+    .getValues();
 
   for (let i = 0; i < rowCount; i++) {
-    const rowEmail = normalizeEmail(buyerEmails[i][0]);
+    const row = rows[i];
+    const rowEmail = normalizeEmail(row[CONFIG.BUYER_EMAIL_COLUMN - 1]);
 
     if (!rowEmail || rowEmail !== targetEmail) {
       continue;
@@ -309,21 +311,14 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
 
     emailFound = true;
 
-    const orderStatus = normalizeOrderStatus(orderStatuses[i][0]);
+    const orderStatus = normalizeOrderStatus(row[CONFIG.ORDER_STATUS_COLUMN - 1]);
 
     if (orderStatus !== CONFIG.SUCCESS_ORDER_STATUS) {
       continue;
     }
 
-    const purchaseDate = normalizeDate(purchaseDates[i][0]);
+    const purchaseDate = normalizeDate(row[CONFIG.PURCHASE_DATE_COLUMN - 1]);
     const rowNumber = i + 2;
-    const row = [];
-    row[CONFIG.PURCHASE_DATE_COLUMN - 1] = purchaseDates[i][0];
-    row[CONFIG.ORDER_STATUS_COLUMN - 1] = orderStatuses[i][0];
-    row[CONFIG.BUYER_EMAIL_COLUMN - 1] = buyerEmails[i][0];
-    row[CONFIG.BUYER_NAME_COLUMN - 1] = buyerNames[i][0];
-    row[CONFIG.EXPIRATION_DATE_COLUMN - 1] = expirations[i][0];
-    row[CONFIG.STATUS_ACCOUNT_COLUMN - 1] = accountStatuses[i][0];
 
     successfulRows.push({
       rowNumber: rowNumber,

@@ -171,23 +171,20 @@ export const Login: React.FC<LoginProps> = ({
     setInfoMessage(null);
 
     try {
-      // 2. Backend checks Google Spreadsheet entitlement
-      const entitlement = await checkBuyerEntitlement(cleanEmail);
-      const isAllowed = await validateEntitlementStatus(cleanEmail, entitlement);
-      if (!isAllowed) {
-        setIsLoading(false);
-        return;
-      }
-
       if (!password) {
         setIsLoading(false);
         setErrorMessage('Masukkan password Firebase untuk akun ini.');
         return;
       }
 
+      const entitlementPromise = checkBuyerEntitlement(cleanEmail);
       let currentUser;
+      let entitlement: EntitlementCheckResult;
       try {
-        currentUser = await signInWithEmail(cleanEmail, password);
+        [currentUser, entitlement] = await Promise.all([
+          signInWithEmail(cleanEmail, password),
+          entitlementPromise,
+        ]);
       } catch (authError: any) {
         setIsLoading(false);
         const code = String(authError?.code || '').trim();
@@ -196,6 +193,12 @@ export const Login: React.FC<LoginProps> = ({
             ? `Login Email/Password gagal (${code}). Periksa email dan password Anda.`
             : 'Login Email/Password gagal. Periksa email dan password Anda.'
         );
+        return;
+      }
+
+      const isAllowed = await validateEntitlementStatus(cleanEmail, entitlement);
+      if (!isAllowed) {
+        setIsLoading(false);
         return;
       }
 
