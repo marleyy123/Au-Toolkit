@@ -5,6 +5,9 @@
 
 [build.environment]
   NODE_VERSION = "20.19.6"
+  VITE_FIREBASE_AUTH_DOMAIN = "auth.autoolkit.com"
+  APP_URL = "https://autoolkit.com"
+  ALLOWED_ORIGINS = "https://autoolkit.com"
   SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_PROJECT_ID,FIREBASE_PROJECT_ID,ALLOWED_ORIGINS,APP_URL"
 
 [functions]
