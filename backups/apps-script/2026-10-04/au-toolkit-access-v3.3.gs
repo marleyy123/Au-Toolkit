@@ -12,40 +12,30 @@
  * P = Status transaksi Lynk.id (READ ONLY)
  * Q = Buyer Email
  * R = Buyer Name (optional)
- * Z = Ref
- * Lynk spreadsheet is READ ONLY. Access state lives in AU Access:
- * A email, B Ref, C name, D purchase date, E expiry, F status,
- * G/H device labels, I/J device IDs, K source spreadsheet ID, L source label.
+ * AA = AU Expiration Date
+ * AB = AU Status Account
+ * AC = AU Device Handphone (DISPLAY LABEL)
+ * AD = AU Device Laptop (DISPLAY LABEL)
+ * AE = Mobile Device ID
+ * AF = Laptop/Desktop Device ID
  *****************************************************/
 
 const CONFIG = {
-  VERSION: '3.5.2-stable-fast-track-tab',
+  VERSION: '3.3-fast-buyer-lookup',
   SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
   SHEET_NAME: 'AU Toolkit PRO',
-  FAST_TRACK_SPREADSHEET_ID: '1OinUvkN6ih9vKoues14q3Akt1Gdqnc45J_-cPXn2DEQ',
-  FAST_TRACK_SHEET_NAME: 'Fast Track',
-  FAST_TRACK_SHEET_ID: 437086551,
-  ACCESS_SPREADSHEET_ID: '1B0lN8Cfn7-Tev81vSRsGS7OWeAtaWpoGrcmG7A6-FoQ',
-  ACCESS_SHEET_NAME: 'AU Access',
 
   PURCHASE_DATE_COLUMN: 15,        // O = Tanggal
   ORDER_STATUS_COLUMN: 16,         // P = Status transaksi Lynk.id (READ ONLY)
   BUYER_EMAIL_COLUMN: 17,          // Q = Buyer Email
   BUYER_NAME_COLUMN: 18,           // R = Buyer Name
 
-  TRANSACTION_REF_COLUMN: 26,
-  ACCESS_EMAIL_COLUMN: 1,
-  ACCESS_REF_COLUMN: 2,
-  ACCESS_NAME_COLUMN: 3,
-  ACCESS_PURCHASE_DATE_COLUMN: 4,
-  EXPIRATION_DATE_COLUMN: 5,
-  STATUS_ACCOUNT_COLUMN: 6,
-  DEVICE_MOBILE_LABEL_COLUMN: 7,
-  DEVICE_DESKTOP_LABEL_COLUMN: 8,
-  DEVICE_MOBILE_ID_COLUMN: 9,
-  DEVICE_DESKTOP_ID_COLUMN: 10,
-  ACCESS_SOURCE_COLUMN: 11,
-  ACCESS_SOURCE_LABEL_COLUMN: 12,
+  EXPIRATION_DATE_COLUMN: 27,      // AA = AU Expiration Date
+  STATUS_ACCOUNT_COLUMN: 28,       // AB = AU Status Account
+  DEVICE_MOBILE_LABEL_COLUMN: 29,  // AC = AU Device Handphone
+  DEVICE_DESKTOP_LABEL_COLUMN: 30, // AD = AU Device Laptop
+  DEVICE_MOBILE_ID_COLUMN: 31,     // AE = Mobile Device ID
+  DEVICE_DESKTOP_ID_COLUMN: 32,    // AF = Laptop/Desktop Device ID
 
   SUBSCRIPTION_DAYS: 30,
   ACTIVE_STATUS: 'Active',
@@ -59,29 +49,21 @@ const CONFIG = {
  * WEB APP — HEALTH CHECK
  *****************************************************/
 function doGet() {
+  let selectedSheetName = null;
   try {
-    const source = getMainSheet();
-    const fastTrack = getTransactionSheet(CONFIG.FAST_TRACK_SPREADSHEET_ID);
-    const access = getAccessSheet();
-    return jsonResponse({
-      success: true,
-      service: 'AU Toolkit Access API',
-      status: 'online',
-      version: CONFIG.VERSION,
-      configuredSheetName: CONFIG.SHEET_NAME,
-      selectedSheetName: source.getName(),
-      fastTrackSheetName: fastTrack.getName(),
-      accessSheetName: access.getName()
-    });
+    selectedSheetName = getMainSheet().getName();
   } catch (error) {
-    return jsonResponse({
-      success: false,
-      service: 'AU Toolkit Access API',
-      status: 'configuration_error',
-      version: CONFIG.VERSION,
-      message: safeErrorMessage(error)
-    });
+    selectedSheetName = 'ERROR: ' + safeErrorMessage(error);
   }
+
+  return jsonResponse({
+    success: true,
+    service: 'AU Toolkit Access API',
+    status: 'online',
+    version: CONFIG.VERSION,
+    configuredSheetName: CONFIG.SHEET_NAME,
+    selectedSheetName: selectedSheetName
+  });
 }
 
 /*****************************************************
@@ -144,7 +126,21 @@ function doPost(e) {
         return jsonResponse(refreshSingleSubscription(payload));
 
       case 'healthCheck':
-        return doGet();
+        let selectedSheetName = null;
+        try {
+          selectedSheetName = getMainSheet().getName();
+        } catch (error) {
+          selectedSheetName = 'ERROR: ' + safeErrorMessage(error);
+        }
+
+        return jsonResponse({
+          success: true,
+          service: 'AU Toolkit Access API',
+          status: 'online',
+          version: CONFIG.VERSION,
+          configuredSheetName: CONFIG.SHEET_NAME,
+          selectedSheetName: selectedSheetName
+        });
 
       default:
         return jsonResponse({
@@ -167,8 +163,9 @@ function doPost(e) {
 /*****************************************************
  * READ-ONLY BUYER EMAIL CHECK
  *
- * Compatibility endpoint. This intentionally does not write
- * subscription, status, device cells, or headers.
+ * Used before Google popup so unknown emails do not create
+ * Firebase Auth accounts. This intentionally does not write
+ * subscription, status, or device cells.
  *****************************************************/
 function checkBuyerEmail(payload) {
   const email = normalizeEmail(payload.email);
@@ -177,7 +174,13 @@ function checkBuyerEmail(payload) {
     return deny('EMAIL_REQUIRED');
   }
 
-  const buyerSelection = findBuyerAcrossSources(email);
+  const sheet = getMainSheet();
+
+  if (sheet.getLastRow() < 2) {
+    return deny('NO_BUYER_DATA');
+  }
+
+  const buyerSelection = findLatestSuccessfulBuyer(sheet, email);
 
   if (!buyerSelection.emailFound) {
     return {
@@ -199,9 +202,7 @@ function checkBuyerEmail(payload) {
   }
 
   const row = buyerSelection.buyer.row;
-  const access = getAccessRecord(buyerSelection.buyer, false);
-  const accessRow = access.row;
-  const purchaseDate = normalizeDate(accessRow[CONFIG.ACCESS_PURCHASE_DATE_COLUMN - 1]);
+  const purchaseDate = normalizeDate(row[CONFIG.PURCHASE_DATE_COLUMN - 1]);
   if (!purchaseDate) {
     return {
       success: true,
@@ -213,7 +214,7 @@ function checkBuyerEmail(payload) {
     };
   }
 
-  const manualStatus = normalizeAccountStatus(accessRow[CONFIG.STATUS_ACCOUNT_COLUMN - 1]);
+  const manualStatus = normalizeAccountStatus(row[CONFIG.STATUS_ACCOUNT_COLUMN - 1]);
   if (manualStatus === CONFIG.INACTIVE_STATUS) {
     return {
       success: true,
@@ -225,10 +226,7 @@ function checkBuyerEmail(payload) {
       buyerName: getBuyerName(row)
     };
   }
-  let expirationDate = normalizeDate(accessRow[CONFIG.EXPIRATION_DATE_COLUMN - 1]);
-  if (!expirationDate && !isBlankValue(accessRow[CONFIG.EXPIRATION_DATE_COLUMN - 1])) {
-    return deny('INVALID_PURCHASE_DATA');
-  }
+  let expirationDate = normalizeDate(row[CONFIG.EXPIRATION_DATE_COLUMN - 1]);
   if (!expirationDate) {
     expirationDate = new Date(purchaseDate.getTime());
     expirationDate.setDate(expirationDate.getDate() + CONFIG.SUBSCRIPTION_DAYS);
@@ -272,12 +270,6 @@ function checkBuyerEmail(payload) {
  * MAIN ACCESS VALIDATION
  *****************************************************/
 function validateAccess(payload) {
-  return withAccessLock(function() {
-    return validateAccessLocked(payload);
-  });
-}
-
-function validateAccessLocked(payload) {
   const email = normalizeEmail(payload.email);
   const deviceType = normalizeDeviceType(payload.deviceType);
   const deviceId = cleanString(payload.deviceId);
@@ -295,7 +287,13 @@ function validateAccessLocked(payload) {
     return deny('DEVICE_ID_REQUIRED');
   }
 
-  const buyerSelection = findBuyerAcrossSources(email);
+  const sheet = getMainSheet();
+
+  if (sheet.getLastRow() < 2) {
+    return deny('NO_BUYER_DATA');
+  }
+
+  const buyerSelection = findLatestSuccessfulBuyer(sheet, email);
 
   if (!buyerSelection.emailFound) {
     return {
@@ -315,9 +313,10 @@ function validateAccessLocked(payload) {
   }
 
   const buyer = buyerSelection.buyer;
+  const rowNumber = buyer.rowNumber;
   const row = buyer.row;
-  const access = getAccessRecord(buyer, true);
-  const subscription = ensureSubscriptionData(access.sheet, access.rowNumber, access.row);
+
+  const subscription = ensureSubscriptionData(sheet, rowNumber, row);
 
   if (!subscription.valid) {
     return {
@@ -355,8 +354,8 @@ function validateAccessLocked(payload) {
   }
 
   const deviceValidation = validateAndRegisterDevice(
-    access.sheet,
-    access.rowNumber,
+    sheet,
+    rowNumber,
     deviceType,
     deviceId,
     deviceLabel
@@ -379,7 +378,7 @@ function validateAccessLocked(payload) {
     };
   }
 
-  // Never write to the Lynk transaction spreadsheet.
+  // IMPORTANT: NEVER WRITE TO COLUMN T.
   return {
     success: true,
     accessGranted: true,
@@ -400,8 +399,8 @@ function validateAccessLocked(payload) {
  * FIND BUYER
  *
  * Rules:
- * - Search ALL rows matching Q (Buyer Email)
- * - Only P = SUCCESS is eligible
+ * - Search ALL rows matching U (Buyer Email)
+ * - Only T = SUCCESS is eligible
  * - If multiple SUCCESS rows exist, choose the newest
  *   valid Purchase Date from O
  *****************************************************/
@@ -417,7 +416,7 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
   const rowCount = lastRow - 1;
   const lastColumn = Math.max(
     sheet.getLastColumn(),
-    CONFIG.TRANSACTION_REF_COLUMN
+    CONFIG.STATUS_ACCOUNT_COLUMN
   );
   const rows = sheet
     .getRange(2, 1, rowCount, lastColumn)
@@ -481,81 +480,24 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
   };
 }
 
-function getTransactionSources() {
-  return [
-    { id: CONFIG.SPREADSHEET_ID, name: CONFIG.SHEET_NAME },
-    { id: CONFIG.FAST_TRACK_SPREADSHEET_ID, name: CONFIG.FAST_TRACK_SHEET_NAME }
-  ];
-}
-
-function getTransactionSheet(sourceId) {
-  if (sourceId === CONFIG.SPREADSHEET_ID) return getMainSheet();
-  if (sourceId !== CONFIG.FAST_TRACK_SPREADSHEET_ID) {
-    throw new Error('Sumber transaksi tidak dikenal.');
-  }
-  const spreadsheet = SpreadsheetApp.openById(sourceId);
-  const sheets = spreadsheet.getSheets();
-  // gid stays stable when the existing Lynk tab is renamed.
-  let sheet = sheets.find(function(item) {
-    return item.getSheetId() === CONFIG.FAST_TRACK_SHEET_ID;
-  });
-  if (!sheet) sheet = spreadsheet.getSheetByName(CONFIG.FAST_TRACK_SHEET_NAME);
-  if (!sheet) {
-    const expectedName = cleanString(CONFIG.FAST_TRACK_SHEET_NAME).toLowerCase();
-    const matches = sheets.filter(function(item) {
-      return cleanString(item.getName()).toLowerCase() === expectedName;
-    });
-    if (matches.length === 1) sheet = matches[0];
-  }
-  if (!sheet) {
-    throw new Error('Tab Fast Track tidak ditemukan. Tab tersedia: ' + sheets.map(function(item) {
-      return item.getName();
-    }).join(', '));
-  }
-  const headers = sheet.getRange(1, 1, 1, CONFIG.TRANSACTION_REF_COLUMN).getDisplayValues()[0];
-  const expected = [
-    [CONFIG.PURCHASE_DATE_COLUMN, 'tanggal'],
-    [CONFIG.ORDER_STATUS_COLUMN, 'status'],
-    [CONFIG.BUYER_EMAIL_COLUMN, 'buyer email'],
-    [CONFIG.TRANSACTION_REF_COLUMN, 'ref']
-  ];
-  if (!expected.every(function(item) {
-    return cleanString(headers[item[0] - 1]).toLowerCase() === item[1];
-  })) {
-    throw new Error('Header tab Fast Track tidak sesuai format transaksi Lynk: ' + sheet.getName());
-  }
-  return sheet;
-}
-
-// Keep the existing newest SUCCESS rule; regular wins exact-date ties.
-function findBuyerAcrossSources(email) {
-  let emailFound = false;
-  let buyer = null;
-  getTransactionSources().forEach(function(source) {
-    const selection = findLatestSuccessfulBuyer(getTransactionSheet(source.id), email);
-    emailFound = emailFound || selection.emailFound;
-    if (!selection.buyer) return;
-    const candidate = selection.buyer;
-    candidate.sourceId = source.id;
-    if (!buyer || (!buyer.purchaseDate && candidate.purchaseDate) ||
-        (candidate.purchaseDate && buyer.purchaseDate && candidate.purchaseDate > buyer.purchaseDate)) {
-      buyer = candidate;
-    }
-  });
-  return { emailFound: emailFound, buyer: buyer };
-}
-
 /*****************************************************
  * SUBSCRIPTION — AUTOMATIC + MANUAL
  *
- * AU Access: D = purchase date, E = expiration date, F = status.
+ * O = original purchase date
+ * P = canonical expiration date
+ * Q = canonical account status
  *
  * Rules:
- * Preserve manual expiry and Inactive/Expired status.
- * Initialize a blank expiry once from purchase date + 30 days.
+ * 1. If P is blank -> P = O + 30 days
+ * 2. If P already has a valid date -> preserve it
+ * 3. If P exists but is invalid -> INVALID_PURCHASE_DATA
+ * 4. If Q is manually Expired -> keep Expired, deny access
+ * 5. If today >= P -> set Q = Expired
+ * 6. If today < P and Q blank -> set Q = Active
+ * 7. Manual renewal = set P to future + Q to Active
  *****************************************************/
 function ensureSubscriptionData(sheet, rowNumber, row) {
-  const purchaseRaw = row[CONFIG.ACCESS_PURCHASE_DATE_COLUMN - 1];
+  const purchaseRaw = row[CONFIG.PURCHASE_DATE_COLUMN - 1];
   const expirationRaw = row[CONFIG.EXPIRATION_DATE_COLUMN - 1];
   const statusRaw = cleanString(row[CONFIG.STATUS_ACCOUNT_COLUMN - 1]);
 
@@ -575,8 +517,8 @@ function ensureSubscriptionData(sheet, rowNumber, row) {
 
     sheet
       .getRange(rowNumber, CONFIG.EXPIRATION_DATE_COLUMN)
-      .setNumberFormat('@')
-      .setValue(formatDate(expirationDate));
+      .setValue(expirationDate)
+      .setNumberFormat('dd-MM-yyyy');
   } else {
     expirationDate = normalizeDate(expirationRaw);
 
@@ -673,17 +615,16 @@ function invalidSubscription() {
  * DEVICE LOCK
  *
  * Mobile:
- * G = label
- * I = ID
+ * R = label
+ * V = ID
  *
  * Desktop:
- * H = label
- * J = ID
+ * S = label
+ * W = ID
  *
  * Admin reset:
- * - clear I to allow a new phone
- * - clear J to allow a new laptop
- * Caller must hold the script lock through lookup and registration.
+ * - clear V to allow a new phone
+ * - clear W to allow a new laptop
  *****************************************************/
 function validateAndRegisterDevice(
   sheet,
@@ -702,14 +643,17 @@ function validateAndRegisterDevice(
     ? CONFIG.DEVICE_MOBILE_ID_COLUMN
     : CONFIG.DEVICE_DESKTOP_ID_COLUMN;
 
-  {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
     const labelCell = sheet.getRange(rowNumber, labelColumn);
     const idCell = sheet.getRange(rowNumber, idColumn);
 
     let registeredLabel = cleanString(labelCell.getDisplayValue());
     let registeredId = cleanString(idCell.getDisplayValue());
 
-    // Migrate old combined device-label format:
+    // Migrate old combined format from R/S:
     // dev_xxx || Windows Laptop
     if (registeredLabel && registeredLabel.indexOf(' || ') !== -1) {
       const legacy = decodeLegacyDevice(registeredLabel);
@@ -761,6 +705,8 @@ function validateAndRegisterDevice(
       registeredDevice:
         registeredLabel || defaultDeviceLabel(deviceType)
     };
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -773,28 +719,16 @@ function validateAndRegisterDevice(
  * the newest SUCCESS purchase for entitlement.
  *****************************************************/
 function updateAllSubscriptions() {
-  const summary = { processed: 0, invalid: 0, failed: 0 };
-  getTransactionSources().forEach(function(source) {
-    const result = updateSourceSubscriptions(source.id);
-    summary.processed += result.processed;
-    summary.invalid += result.invalid;
-    summary.failed += result.failed;
-  });
-  return summary;
-}
-
-function updateSourceSubscriptions(sourceId) {
-  const sheet = getTransactionSheet(sourceId);
+  const sheet = getMainSheet();
   const lastRow = sheet.getLastRow();
-  const summary = { processed: 0, invalid: 0, failed: 0 };
 
   if (lastRow < 2) {
-    return summary;
+    return;
   }
 
   const lastColumn = Math.max(
     sheet.getLastColumn(),
-    CONFIG.TRANSACTION_REF_COLUMN
+    CONFIG.DEVICE_DESKTOP_ID_COLUMN
   );
 
   const rows = sheet
@@ -813,14 +747,8 @@ function updateSourceSubscriptions(sourceId) {
     }
 
     try {
-      const result = withAccessLock(function() {
-        const access = getAccessRecord({ row: row, rowNumber: rowNumber, sourceId: sourceId }, true);
-        return ensureSubscriptionData(access.sheet, access.rowNumber, access.row);
-      });
-      if (result.valid) summary.processed++;
-      else summary.invalid++;
+      ensureSubscriptionData(sheet, rowNumber, row);
     } catch (error) {
-      summary.failed++;
       console.error(
         'Subscription update failed at row ' +
           rowNumber +
@@ -829,7 +757,6 @@ function updateSourceSubscriptions(sourceId) {
       );
     }
   });
-  return summary;
 }
 
 /*****************************************************
@@ -864,12 +791,6 @@ function runSubscriptionUpdateNow() {
  * SINGLE BUYER REFRESH
  *****************************************************/
 function refreshSingleSubscription(payload) {
-  return withAccessLock(function() {
-    return refreshSingleSubscriptionLocked(payload);
-  });
-}
-
-function refreshSingleSubscriptionLocked(payload) {
   const email = normalizeEmail(payload.email);
 
   if (!email) {
@@ -879,7 +800,8 @@ function refreshSingleSubscriptionLocked(payload) {
     };
   }
 
-  const buyerSelection = findBuyerAcrossSources(email);
+  const sheet = getMainSheet();
+  const buyerSelection = findLatestSuccessfulBuyer(sheet, email);
 
   if (!buyerSelection.emailFound) {
     return {
@@ -897,8 +819,11 @@ function refreshSingleSubscriptionLocked(payload) {
     };
   }
 
-  const access = getAccessRecord(buyerSelection.buyer, true);
-  const result = ensureSubscriptionData(access.sheet, access.rowNumber, access.row);
+  const result = ensureSubscriptionData(
+    sheet,
+    buyerSelection.buyer.rowNumber,
+    buyerSelection.buyer.row
+  );
 
   if (!result.valid) {
     return {
@@ -956,7 +881,7 @@ function getMainSheet() {
   const sheets = spreadsheet.getSheets();
   for (let i = 0; i < sheets.length; i++) {
     const sheet = sheets[i];
-    const lastColumn = Math.max(sheet.getLastColumn(), CONFIG.TRANSACTION_REF_COLUMN);
+    const lastColumn = Math.max(sheet.getLastColumn(), CONFIG.DEVICE_DESKTOP_ID_COLUMN);
     if (sheet.getLastRow() < 1 || lastColumn < CONFIG.BUYER_EMAIL_COLUMN) {
       continue;
     }
@@ -978,158 +903,15 @@ function getMainSheet() {
     }
   }
 
-  throw new Error('Tab transaksi Lynk tidak ditemukan. Periksa SHEET_NAME.');
-}
-
-const ACCESS_HEADERS = [
-  'Buyer Email', 'Ref', 'Buyer Name', 'Purchase Date',
-  'AU Expiration Date', 'AU Status Account', 'AU Device Handphone',
-  'AU Device Laptop', 'Mobile Device ID', 'Laptop Device ID', 'Transaction Source',
-  'Jalur Pembelian'
-];
-
-function getAccessSheet() {
-  if (getTransactionSources().some(function(source) { return source.id === CONFIG.ACCESS_SPREADSHEET_ID; })) {
-    throw new Error('Spreadsheet akses harus terpisah dari spreadsheet Lynk.');
-  }
-  const spreadsheet = SpreadsheetApp.openById(CONFIG.ACCESS_SPREADSHEET_ID);
-  const sheet = spreadsheet.getSheetByName(CONFIG.ACCESS_SHEET_NAME);
-  if (!sheet) {
-    throw new Error('Tab AU Access tidak ditemukan di spreadsheet akses.');
-  }
-  if (sheet.getLastRow() > 0) {
-    const headers = sheet.getRange(1, 1, 1, ACCESS_HEADERS.length).getDisplayValues()[0];
-    ACCESS_HEADERS.forEach(function(header, index) {
-      // Older schemas remain valid; blank K means regular, L is display metadata.
-      if ((index === CONFIG.ACCESS_SOURCE_COLUMN - 1 ||
-           index === CONFIG.ACCESS_SOURCE_LABEL_COLUMN - 1) && !cleanString(headers[index])) return;
-      if (cleanString(headers[index]) !== header) {
-        throw new Error('Header AU Access tidak sesuai pada kolom ' + (index + 1));
-      }
-    });
-  }
-  return sheet;
-}
-
-function withAccessLock(callback) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
-    return callback();
-  } finally {
-    // Flush writes before another execution reads or registers a device.
-    try {
-      SpreadsheetApp.flush();
-    } finally {
-      lock.releaseLock();
-    }
-  }
-}
-
-// Ref identifies the transaction, not its mutable row position in Lynk.
-// Existing AU Access rows are authoritative, even when legacy AA:AF vanish.
-function getAccessRecord(buyer, create) {
-  const source = buyer.row;
-  const sourceId = buyer.sourceId || CONFIG.SPREADSHEET_ID;
-  const email = normalizeEmail(source[CONFIG.BUYER_EMAIL_COLUMN - 1]);
-  const ref = cleanString(source[CONFIG.TRANSACTION_REF_COLUMN - 1]);
-  if (!email || !ref) {
-    throw new Error('Transaksi tidak memiliki Buyer Email atau Ref.');
-  }
-  const sheet = getAccessSheet();
-  const count = Math.max(0, sheet.getLastRow() - 1);
-  const rows = count ? sheet.getRange(2, 1, count, ACCESS_HEADERS.length).getValues() : [];
-  let match = null;
-  rows.forEach(function(row, index) {
-    const storedSource = cleanString(row[CONFIG.ACCESS_SOURCE_COLUMN - 1]) || CONFIG.SPREADSHEET_ID;
-    if (storedSource !== sourceId) return;
-    if (cleanString(row[CONFIG.ACCESS_REF_COLUMN - 1]) !== ref) return;
-    if (normalizeEmail(row[CONFIG.ACCESS_EMAIL_COLUMN - 1]) !== email || match) {
-      throw new Error('Ref duplikat atau email transaksi tidak sesuai di AU Access.');
-    }
-    const timezone = sheet.getParent().getSpreadsheetTimeZone();
-    const calendarRow = row.slice();
-    calendarRow[CONFIG.ACCESS_PURCHASE_DATE_COLUMN - 1] = calendarDateText(
-      row[CONFIG.ACCESS_PURCHASE_DATE_COLUMN - 1], timezone, true
-    );
-    calendarRow[CONFIG.EXPIRATION_DATE_COLUMN - 1] = calendarDateText(
-      row[CONFIG.EXPIRATION_DATE_COLUMN - 1], timezone, false
-    );
-    match = { sheet: sheet, rowNumber: index + 2, row: calendarRow };
-  });
-  // An inactive account cannot bypass its block by buying through another source.
-  const related = rows.filter(function(row) {
-    return normalizeEmail(row[CONFIG.ACCESS_EMAIL_COLUMN - 1]) === email;
-  });
-  const inactive = related.some(function(row) {
-    return normalizeAccountStatus(row[CONFIG.STATUS_ACCOUNT_COLUMN - 1]) === CONFIG.INACTIVE_STATUS;
-  });
-  if (match) {
-    if (inactive) match.row[CONFIG.STATUS_ACCOUNT_COLUMN - 1] = CONFIG.INACTIVE_STATUS;
-    if (create) {
-      ensureAccessSourceHeader(sheet);
-      if (!cleanString(match.row[CONFIG.ACCESS_SOURCE_COLUMN - 1])) {
-        sheet.getRange(match.rowNumber, CONFIG.ACCESS_SOURCE_COLUMN).setValue(sourceId);
-        match.row[CONFIG.ACCESS_SOURCE_COLUMN - 1] = sourceId;
-      }
-      const sourceLabel = getTransactionSourceLabel(sourceId);
-      if (cleanString(match.row[CONFIG.ACCESS_SOURCE_LABEL_COLUMN - 1]) !== sourceLabel) {
-        sheet.getRange(match.rowNumber, CONFIG.ACCESS_SOURCE_LABEL_COLUMN).setValue(sourceLabel);
-        match.row[CONFIG.ACCESS_SOURCE_LABEL_COLUMN - 1] = sourceLabel;
-      }
-    }
-    return match;
+  if (sheets.length > 0) {
+    return sheets[0];
   }
 
-  // Bootstrap only missing records. Never merge legacy blanks over saved state.
-  const sourceTimezone = getTransactionSheet(sourceId).getParent().getSpreadsheetTimeZone();
-  const row = [email, ref, getBuyerName(source), calendarDateText(
-    source[CONFIG.PURCHASE_DATE_COLUMN - 1], sourceTimezone, true
-  )];
-  for (let i = 26; i < 32; i++) {
-    row.push(source[i] === undefined || source[i] === null ? '' : source[i]);
-  }
-  row[CONFIG.EXPIRATION_DATE_COLUMN - 1] = calendarDateText(source[26], sourceTimezone, false);
-  row.push(sourceId);
-  row.push(getTransactionSourceLabel(sourceId));
-  if (inactive) row[CONFIG.STATUS_ACCOUNT_COLUMN - 1] = CONFIG.INACTIVE_STATUS;
-  // A new purchase must not reset an already saved phone/computer registration.
-  related.sort(function(a, b) {
-    const timezone = sheet.getParent().getSpreadsheetTimeZone();
-    const aDate = normalizeDate(calendarDateText(a[3], timezone, true));
-    const bDate = normalizeDate(calendarDateText(b[3], timezone, true));
-    return (bDate ? bDate.getTime() : 0) - (aDate ? aDate.getTime() : 0);
-  });
-  [
-    [CONFIG.DEVICE_MOBILE_ID_COLUMN, CONFIG.DEVICE_MOBILE_LABEL_COLUMN],
-    [CONFIG.DEVICE_DESKTOP_ID_COLUMN, CONFIG.DEVICE_DESKTOP_LABEL_COLUMN]
-  ].forEach(function(columns) {
-    const saved = related.find(function(item) { return !!cleanString(item[columns[0] - 1]); });
-    if (saved) {
-      row[columns[0] - 1] = saved[columns[0] - 1];
-      row[columns[1] - 1] = saved[columns[1] - 1];
-    }
-  });
-  if (!create || !normalizeDate(row[CONFIG.ACCESS_PURCHASE_DATE_COLUMN - 1])) {
-    return { sheet: sheet, rowNumber: null, row: row };
-  }
-  if (sheet.getLastRow() === 0) {
-    sheet.getRange(1, 1, 1, ACCESS_HEADERS.length).setValues([ACCESS_HEADERS]);
-  }
-  ensureAccessSourceHeader(sheet);
-  const rowNumber = sheet.getLastRow() + 1;
-  // Treat buyer-supplied text as data, never as spreadsheet formulas.
-  const values = row.map(function(value) {
-    return typeof value === 'string' && /^\s*=/.test(value) ? "'" + value : value;
-  });
-  sheet.getRange(rowNumber, CONFIG.ACCESS_PURCHASE_DATE_COLUMN, 1, 2)
-    .setNumberFormat('@');
-  sheet.getRange(rowNumber, 1, 1, row.length).setValues([values]);
-  return { sheet: sheet, rowNumber: rowNumber, row: row };
+  throw new Error('Tidak ada sheet yang tersedia di spreadsheet.');
 }
 
 /*****************************************************
- * BUYER NAME — LYNK COLUMN R
+ * BUYER NAME — COLUMN X
  *****************************************************/
 function getBuyerName(row) {
   return cleanString(
@@ -1141,152 +923,22 @@ function getBuyerName(row) {
  * OPTIONAL HEADER SETUP
  *****************************************************/
 function setupTechnicalHeaders() {
-  return withAccessLock(function() {
-    const sheet = getAccessSheet();
-    if (sheet.getLastRow() === 0) {
-      sheet.getRange(1, 1, 1, ACCESS_HEADERS.length).setValues([ACCESS_HEADERS]);
+  const sheet = getMainSheet();
+
+  const headers = [
+    [CONFIG.EXPIRATION_DATE_COLUMN, 'AU Expiration Date'],
+    [CONFIG.STATUS_ACCOUNT_COLUMN, 'AU Status Account'],
+    [CONFIG.DEVICE_MOBILE_LABEL_COLUMN, 'AU Device Handphone'],
+    [CONFIG.DEVICE_DESKTOP_LABEL_COLUMN, 'AU Device Laptop'],
+    [CONFIG.DEVICE_MOBILE_ID_COLUMN, 'Mobile Device ID'],
+    [CONFIG.DEVICE_DESKTOP_ID_COLUMN, 'Laptop Device ID']
+  ];
+
+  headers.forEach(function(item) {
+    const cell = sheet.getRange(1, item[0]);
+    if (!cleanString(cell.getValue())) {
+      cell.setValue(item[1]);
     }
-    ensureAccessSourceHeader(sheet);
-  });
-}
-
-function ensureAccessSourceHeader(sheet) {
-  [CONFIG.ACCESS_SOURCE_COLUMN, CONFIG.ACCESS_SOURCE_LABEL_COLUMN].forEach(function(column) {
-    const cell = sheet.getRange(1, column);
-    if (!cleanString(cell.getValue())) cell.setValue(ACCESS_HEADERS[column - 1]);
-  });
-}
-
-function getTransactionSourceLabel(sourceId) {
-  if (sourceId === CONFIG.SPREADSHEET_ID) return 'Reguler';
-  if (sourceId === CONFIG.FAST_TRACK_SPREADSHEET_ID) return 'Fast Track';
-  return '';
-}
-
-// Editor-only metadata backfill. Never changes existing A:K data or imports transactions.
-function updateTransactionSourceLabels() {
-  return withAccessLock(function() {
-    const sheet = getAccessSheet();
-    if (sheet.getLastRow() === 0) {
-      sheet.getRange(1, 1, 1, ACCESS_HEADERS.length).setValues([ACCESS_HEADERS]);
-    }
-    ensureAccessSourceHeader(sheet);
-    const count = Math.max(0, sheet.getLastRow() - 1);
-    const rows = count ? sheet.getRange(2, 1, count, ACCESS_HEADERS.length).getValues() : [];
-    const summary = { updated: 0, unchanged: 0, skipped: 0 };
-    rows.forEach(function(row, index) {
-      if (!normalizeEmail(row[CONFIG.ACCESS_EMAIL_COLUMN - 1]) || !cleanString(row[CONFIG.ACCESS_REF_COLUMN - 1])) {
-        summary.skipped++;
-        return;
-      }
-      const sourceId = cleanString(row[CONFIG.ACCESS_SOURCE_COLUMN - 1]) || CONFIG.SPREADSHEET_ID;
-      const label = getTransactionSourceLabel(sourceId);
-      if (!label) {
-        summary.skipped++;
-      } else if (cleanString(row[CONFIG.ACCESS_SOURCE_LABEL_COLUMN - 1]) === label) {
-        summary.unchanged++;
-      } else {
-        sheet.getRange(index + 2, CONFIG.ACCESS_SOURCE_LABEL_COLUMN).setValue(label);
-        summary.updated++;
-      }
-    });
-    console.log('Transaction source labels: ' + JSON.stringify(summary));
-    return summary;
-  });
-}
-
-// Editor-only migration: imports surviving legacy data, never overwrites access rows.
-function migrateLegacyAccessData() {
-  const result = updateAllSubscriptions();
-  console.log('Access migration summary: ' + JSON.stringify(result));
-  if (result.failed || result.invalid) {
-    throw new Error('Migrasi belum lengkap. Periksa log dan data transaksi sebelum deployment.');
-  }
-  return result;
-}
-
-function calendarDateText(value, timezone, includeTime) {
-  if (Object.prototype.toString.call(value) !== '[object Date]' || isNaN(value.getTime())) {
-    return value === undefined || value === null ? '' : value;
-  }
-  return Utilities.formatDate(value, timezone, includeTime ? 'dd-MM-yyyy HH:mm' : 'dd-MM-yyyy');
-}
-
-// Editor-only, read-only preview. Never exposed through doPost.
-function previewLegacyDateAlignment() {
-  const result = buildLegacyDateAlignment();
-  console.log('Legacy date alignment preview: ' + JSON.stringify(result));
-  return result;
-}
-
-function buildLegacyDateAlignment() {
-  const source = getMainSheet();
-  const access = getAccessSheet();
-  const sourceTimezone = source.getParent().getSpreadsheetTimeZone();
-  const accessTimezone = access.getParent().getSpreadsheetTimeZone();
-  const accessRows = access.getLastRow() < 2 ? [] : access.getRange(
-    2, 1, access.getLastRow() - 1, ACCESS_HEADERS.length
-  ).getValues();
-  const transactions = Object.create(null);
-  getTransactionSources().forEach(function(sourceConfig) {
-    const sourceSheet = getTransactionSheet(sourceConfig.id);
-    const timezone = sourceSheet.getParent().getSpreadsheetTimeZone();
-    const sourceRows = sourceSheet.getLastRow() < 2 ? [] : sourceSheet.getRange(
-      2, 1, sourceSheet.getLastRow() - 1, Math.max(sourceSheet.getLastColumn(), CONFIG.TRANSACTION_REF_COLUMN)
-    ).getValues();
-    sourceRows.forEach(function(row) {
-      if (normalizeOrderStatus(row[CONFIG.ORDER_STATUS_COLUMN - 1]) !== CONFIG.SUCCESS_ORDER_STATUS) return;
-      const ref = cleanString(row[CONFIG.TRANSACTION_REF_COLUMN - 1]);
-      if (!ref) return;
-      const key = sourceConfig.id + '|' + ref;
-      if (transactions[key]) throw new Error('Ref transaksi Lynk duplikat. Periksa data sebelum koreksi.');
-      transactions[key] = { row: row, timezone: timezone };
-    });
-  });
-  const result = { sourceTimezone: sourceTimezone, accessTimezone: accessTimezone, changes: [], skipped: [] };
-  const seen = Object.create(null);
-  accessRows.forEach(function(row, index) {
-    const ref = cleanString(row[CONFIG.ACCESS_REF_COLUMN - 1]);
-    const sourceId = cleanString(row[CONFIG.ACCESS_SOURCE_COLUMN - 1]) || CONFIG.SPREADSHEET_ID;
-    const key = sourceId + '|' + ref;
-    if (seen[key]) throw new Error('Ref AU Access duplikat. Periksa data sebelum koreksi.');
-    seen[key] = true;
-    const transaction = transactions[key];
-    const legacy = transaction ? transaction.row : null;
-    if (!legacy || normalizeEmail(legacy[CONFIG.BUYER_EMAIL_COLUMN - 1]) !== normalizeEmail(row[0])) return;
-    [
-      [CONFIG.ACCESS_PURCHASE_DATE_COLUMN, CONFIG.PURCHASE_DATE_COLUMN - 1, true],
-      [CONFIG.EXPIRATION_DATE_COLUMN, 26, false]
-    ].forEach(function(mapping) {
-      const column = mapping[0];
-      const oldValue = legacy[mapping[1]];
-      const currentValue = row[column - 1];
-      if (Object.prototype.toString.call(oldValue) !== '[object Date]' || isNaN(oldValue.getTime())) return;
-      const desired = calendarDateText(oldValue, transaction.timezone, mapping[2]);
-      const displayed = calendarDateText(currentValue, accessTimezone, mapping[2]);
-      if (displayed === desired) return;
-      // Only repair unchanged raw timestamps copied by 3.4, never manual edits.
-      if (Object.prototype.toString.call(currentValue) !== '[object Date]' ||
-          isNaN(currentValue.getTime()) || Math.abs(currentValue.getTime() - oldValue.getTime()) > 1000) {
-        result.skipped.push({ rowNumber: index + 2, column: column, ref: ref, reason: 'VALUE_CHANGED_REVIEW_MANUALLY' });
-        return;
-      }
-      result.changes.push({ rowNumber: index + 2, column: column, ref: ref, from: displayed, to: desired });
-    });
-  });
-  return result;
-}
-
-// Run only after reviewing the preview and backing up AU Access.
-function alignLegacyDatesToSource() {
-  return withAccessLock(function() {
-    const plan = buildLegacyDateAlignment();
-    const sheet = getAccessSheet();
-    plan.changes.forEach(function(change) {
-      sheet.getRange(change.rowNumber, change.column).setNumberFormat('@').setValue(change.to);
-    });
-    console.log('Legacy date alignment applied: ' + JSON.stringify(plan));
-    return plan;
   });
 }
 
@@ -1299,12 +951,6 @@ function testSpreadsheetConnection() {
   Logger.log('Connected to sheet: ' + sheet.getName());
   Logger.log('Rows: ' + sheet.getLastRow());
   Logger.log('Columns: ' + sheet.getLastColumn());
-  const fastTrack = getTransactionSheet(CONFIG.FAST_TRACK_SPREADSHEET_ID);
-  Logger.log('Fast Track sheet: ' + fastTrack.getName());
-  Logger.log('Fast Track rows: ' + fastTrack.getLastRow());
-  const access = getAccessSheet();
-  Logger.log('Access sheet: ' + access.getName());
-  Logger.log('Access rows: ' + access.getLastRow());
 }
 
 /*****************************************************
@@ -1390,7 +1036,7 @@ function sanitizeDeviceLabel(value, deviceType) {
     return defaultDeviceLabel(deviceType);
   }
 
-  // Prevent raw technical IDs being shown in device-label columns.
+  // Prevent raw technical IDs being shown in R/S.
   if (label.indexOf('dev_') === 0) {
     return defaultDeviceLabel(deviceType);
   }
@@ -1539,8 +1185,11 @@ function formatDate(date) {
     return null;
   }
 
-  // These are calendar dates already normalized to the source sheet, not instants.
-  return padDatePart(date.getDate()) + '-' + padDatePart(date.getMonth() + 1) + '-' + date.getFullYear();
+  return Utilities.formatDate(
+    date,
+    CONFIG.TIMEZONE,
+    'dd-MM-yyyy'
+  );
 }
 
 function formatDateTime(date) {
@@ -1548,11 +1197,11 @@ function formatDateTime(date) {
     return null;
   }
 
-  return formatDate(date) + ' ' + padDatePart(date.getHours()) + ':' + padDatePart(date.getMinutes());
-}
-
-function padDatePart(value) {
-  return value < 10 ? '0' + value : String(value);
+  return Utilities.formatDate(
+    date,
+    CONFIG.TIMEZONE,
+    'dd-MM-yyyy HH:mm'
+  );
 }
 
 function cleanString(value) {
