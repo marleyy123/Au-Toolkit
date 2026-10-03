@@ -5,6 +5,9 @@ coverage/
 .DS_Store
 *.log
 .env*
+buyer-sheet.csv
+firebase-auth-*.json
+firebase-auth-delete-uids.txt
 
 # Local Netlify folder
 .netlify

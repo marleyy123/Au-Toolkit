@@ -16,8 +16,9 @@ import {
   setStoredAuthUser,
   signOutUser,
   requestPasswordReset,
+  deleteSignedInAuthUser,
 } from '../../../firebase';
-import { checkBuyerEntitlement, normalizeEmail, EntitlementCheckResult } from '../../../services/buyerEntitlementService';
+import { checkBuyerEmailBeforeGoogle, checkBuyerEntitlement, normalizeEmail, EntitlementCheckResult } from '../../../services/buyerEntitlementService';
 
 interface LoginProps {
   onLoginSuccess: (email: string, user: any, entitlement?: EntitlementCheckResult) => void;
@@ -245,22 +246,45 @@ export const Login: React.FC<LoginProps> = ({
 
   // Direct Google Sign-In handler
   const handleGoogleSignIn = async () => {
+    const cleanInputEmail = normalizeEmail(email);
+
+    if (!cleanInputEmail) {
+      setErrorMessage('Masukkan email pembelian terlebih dahulu sebelum masuk dengan Google.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanInputEmail)) {
+      setErrorMessage('Format email tidak valid. Mohon masukkan email yang benar.');
+      return;
+    }
+
     setIsGoogleLoading(true);
     setErrorMessage(null);
     setInfoMessage(null);
 
     try {
-      const user = await signInWithGoogle();
+      const preflight = await checkBuyerEmailBeforeGoogle(cleanInputEmail);
+      const preflightAllowed = await validateEntitlementStatus(cleanInputEmail, preflight);
+      if (!preflightAllowed) {
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      const user = await signInWithGoogle(cleanInputEmail);
       if (!user || !user.email) {
         setIsGoogleLoading(false);
         return;
       }
 
       const cleanGoogleEmail = normalizeEmail(user.email);
-      const cleanInputEmail = normalizeEmail(email);
 
-      if (cleanInputEmail && cleanInputEmail !== cleanGoogleEmail) {
-        await signOutUser();
+      if (cleanInputEmail !== cleanGoogleEmail) {
+        try {
+          await deleteSignedInAuthUser();
+        } catch {
+          await signOutUser();
+        }
         setIsGoogleLoading(false);
         setErrorMessage(
           `Email akun Google (${cleanGoogleEmail}) tidak cocok dengan email pembelian (${cleanInputEmail}) [EMAIL_ACCOUNT_MISMATCH]. Silakan gunakan akun Google ${cleanInputEmail}.`
@@ -432,7 +456,7 @@ export const Login: React.FC<LoginProps> = ({
               <input
                 id="buyer-email-input"
                 type="email"
-                required={authMode === 'email'}
+                required
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);

@@ -240,6 +240,116 @@ export async function handler(event) {
     }
   }
 
+  if (requestedAction === 'checkBuyerEmail') {
+    const email = String(body.email || body.buyer_email || body.user_email || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return json(400, {
+        success: false,
+        accessGranted: false,
+        reason: 'EMAIL_REQUIRED',
+        status: 'EMAIL_REQUIRED',
+        message: 'Format email pembelian tidak valid.',
+      }, cors);
+    }
+
+    if (!scriptUrl || !sharedSecret) {
+      return json(500, {
+        success: false,
+        accessGranted: false,
+        reason: 'APPS_SCRIPT_CONFIG_ERROR',
+        status: 'APPS_SCRIPT_CONFIG_ERROR',
+        message: 'Konfigurasi server spreadsheet akses belum disetel dengan benar.',
+      }, cors);
+    }
+
+    let upstreamResponse;
+    try {
+      upstreamResponse = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'checkBuyerEmail', email, serverSecret: sharedSecret }),
+        redirect: 'follow',
+      });
+    } catch {
+      return json(503, {
+        success: false,
+        accessGranted: false,
+        reason: 'APPS_SCRIPT_UNAVAILABLE',
+        status: 'APPS_SCRIPT_UNAVAILABLE',
+        message: 'Server verifikasi spreadsheet sedang tidak dapat dijangkau.',
+      }, cors);
+    }
+
+    const raw = await upstreamResponse.text();
+    let upstream;
+    try {
+      if (raw.trim().startsWith('<')) throw new Error('HTML response');
+      upstream = JSON.parse(raw);
+      if (!upstream || typeof upstream !== 'object') throw new Error('Invalid JSON object');
+    } catch {
+      return json(502, {
+        success: false,
+        accessGranted: false,
+        reason: 'INVALID_API_RESPONSE',
+        status: 'INVALID_API_RESPONSE',
+        message: 'Format respon dari server akses tidak valid.',
+      }, cors);
+    }
+
+    const reason = String(upstream.reason || upstream.status || '').trim();
+    if (reason === 'UNAUTHORIZED') {
+      return json(401, {
+        success: false,
+        accessGranted: false,
+        reason: 'UNAUTHORIZED',
+        status: 'UNAUTHORIZED',
+        message: 'Credential server verifikasi ditolak.',
+      }, cors);
+    }
+
+    if (reason === 'BUYER_EMAIL_OK' || upstream.accessGranted === true) {
+      return json(200, {
+        success: true,
+        accessGranted: true,
+        reason: 'BUYER_EMAIL_OK',
+        status: 'BUYER_EMAIL_OK',
+        isRegisteredBuyer: true,
+        isValid: true,
+        email,
+        buyerName: upstream.buyerName || email.split('@')[0],
+        purchaseDate: normalizeExpirationDate(upstream.purchaseDate),
+        expirationDate: normalizeExpirationDate(upstream.expirationDate),
+        daysRemaining: normalizeDaysRemaining(upstream.daysRemaining, normalizeExpirationDate(upstream.expirationDate)),
+        statusAccount: upstream.statusAccount || 'Active',
+        message: 'Email pembelian valid.',
+      }, cors);
+    }
+
+    if (reason === 'BUYER_NOT_FOUND' || upstream.isRegisteredBuyer === false) {
+      return json(200, { success: true, accessGranted: false, reason: 'BUYER_NOT_FOUND', status: 'BUYER_NOT_FOUND', isRegisteredBuyer: false, isValid: false, email, message: 'Email ini tidak ditemukan dalam data pembelian.' }, cors);
+    }
+    if (reason === 'ORDER_NOT_SUCCESS') {
+      return json(200, { success: true, accessGranted: false, reason, status: reason, isRegisteredBuyer: true, isValid: false, email, message: upstream.message || 'Status pesanan Lynk.id belum berstatus SUCCESS.' }, cors);
+    }
+    if (reason === 'INVALID_PURCHASE_DATA') {
+      return json(200, { success: true, accessGranted: false, reason, status: reason, isRegisteredBuyer: true, isValid: false, email, message: upstream.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.' }, cors);
+    }
+    if (reason === 'ACCOUNT_EXPIRED' || String(upstream.statusAccount || '').trim().toLowerCase() === 'expired') {
+      return json(200, { success: true, accessGranted: false, reason: 'ACCOUNT_EXPIRED', status: 'ACCOUNT_EXPIRED', statusAccount: 'Expired', isRegisteredBuyer: true, isValid: false, email, buyerName: upstream.buyerName || email.split('@')[0], purchaseDate: normalizeExpirationDate(upstream.purchaseDate), expirationDate: normalizeExpirationDate(upstream.expirationDate), daysRemaining: 0, message: 'Masa berlangganan Anda telah habis.' }, cors);
+    }
+
+    return json(500, {
+      success: false,
+      accessGranted: false,
+      reason: 'BACKEND_ERROR',
+      status: 'BACKEND_ERROR',
+      isRegisteredBuyer: false,
+      isValid: false,
+      email,
+      message: upstream.message || 'Koneksi ke server sedang bermasalah. Silakan coba lagi.',
+    }, cors);
+  }
+
   const firebaseUser = decodeFirebaseUser(event.headers?.authorization || event.headers?.Authorization);
   const email = String(body.email || body.buyer_email || body.user_email || firebaseUser?.email || '').trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

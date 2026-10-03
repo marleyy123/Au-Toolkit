@@ -230,6 +230,85 @@ export interface ValidateAccessResponse {
   data?: any;
 }
 
+export async function checkBuyerEmailBeforeGoogle(rawEmail: string): Promise<EntitlementCheckResult> {
+  const cleanEmail = normalizeEmail(rawEmail);
+  if (!cleanEmail) {
+    return {
+      isRegisteredBuyer: false,
+      isValid: false,
+      status: 'NOT_REGISTERED',
+      email: '',
+      message: 'Silakan masukkan alamat email pembelian Anda yang terdaftar.',
+    };
+  }
+
+  try {
+    const res = await fetch('/api/verify-buyer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'checkBuyerEmail', email: cleanEmail }),
+    });
+    const data = await res.json().catch(() => null);
+    const reason = String(data?.reason || data?.status || '').trim();
+
+    if (res.status === 403 || reason === 'CORS_ORIGIN_BLOCKED') {
+      return { isRegisteredBuyer: false, isValid: false, status: 'CORS_ORIGIN_BLOCKED', email: cleanEmail, message: data?.message || 'Preview ini tidak diizinkan mengakses server verifikasi buyer.' };
+    }
+    if (res.status === 503 || reason === 'APPS_SCRIPT_UNAVAILABLE') {
+      return { isRegisteredBuyer: false, isValid: false, status: 'APPS_SCRIPT_UNAVAILABLE', email: cleanEmail, message: data?.message || 'Server verifikasi spreadsheet sedang tidak dapat dijangkau. Silakan coba lagi.' };
+    }
+    if (res.status === 502 || reason === 'INVALID_API_RESPONSE') {
+      return { isRegisteredBuyer: false, isValid: false, status: 'INVALID_API_RESPONSE', email: cleanEmail, message: data?.message || 'Format respon dari server akses tidak valid.' };
+    }
+    if (res.status >= 500 || reason === 'BACKEND_ERROR' || reason === 'APPS_SCRIPT_CONFIG_ERROR') {
+      return { isRegisteredBuyer: false, isValid: false, status: 'BACKEND_ERROR', email: cleanEmail, message: data?.message || 'Koneksi ke server sedang bermasalah. Silakan coba lagi.' };
+    }
+    if (reason === 'BUYER_NOT_FOUND' || data?.isRegisteredBuyer === false) {
+      return { isRegisteredBuyer: false, isValid: false, status: 'NOT_REGISTERED', email: cleanEmail, message: 'Email ini tidak ditemukan dalam data pembelian.' };
+    }
+    if (reason === 'ORDER_NOT_SUCCESS') {
+      return { isRegisteredBuyer: true, isValid: false, status: 'ORDER_NOT_SUCCESS', email: cleanEmail, message: data?.message || 'Status pesanan Lynk.id belum berstatus SUCCESS.' };
+    }
+    if (reason === 'INVALID_PURCHASE_DATA') {
+      return { isRegisteredBuyer: true, isValid: false, status: 'INVALID_PURCHASE_DATA', email: cleanEmail, message: data?.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.' };
+    }
+    if (reason === 'ACCOUNT_EXPIRED' || String(data?.statusAccount || '').trim().toLowerCase() === 'expired') {
+      return { isRegisteredBuyer: true, isValid: false, status: 'EXPIRED', statusAccount: 'Expired', email: cleanEmail, message: 'Masa berlangganan Anda telah habis.' };
+    }
+    if (reason === 'BUYER_EMAIL_OK' && data?.accessGranted === true) {
+      return {
+        isRegisteredBuyer: true,
+        isValid: true,
+        status: 'ACTIVE',
+        statusAccount: 'Active',
+        email: cleanEmail,
+        buyerName: data?.buyerName || cleanEmail.split('@')[0],
+        purchaseDate: normalizeExpirationDate(data?.purchaseDate) || undefined,
+        accessExpiresAt: normalizeExpirationDate(data?.expirationDate) || undefined,
+        expirationDate: normalizeExpirationDate(data?.expirationDate),
+        daysRemaining: normalizeDaysRemaining(data?.daysRemaining, data?.expirationDate),
+        message: 'Email pembelian valid.',
+      };
+    }
+  } catch {
+    return {
+      isRegisteredBuyer: false,
+      isValid: false,
+      status: 'BACKEND_ERROR',
+      email: cleanEmail,
+      message: 'Koneksi ke server sedang bermasalah. Silakan coba lagi.',
+    };
+  }
+
+  return {
+    isRegisteredBuyer: false,
+    isValid: false,
+    status: 'BACKEND_ERROR',
+    email: cleanEmail,
+    message: 'Koneksi ke server sedang bermasalah. Silakan coba lagi.',
+  };
+}
+
 /**
  * Validates buyer access via the server proxy (/api/verify-buyer).
  * Google Sheets is the single source of truth.

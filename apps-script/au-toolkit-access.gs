@@ -115,6 +115,9 @@ function doPost(e) {
   const action = cleanString(payload.action || 'validateAccess');
 
     switch (action) {
+      case 'checkBuyerEmail':
+        return jsonResponse(checkBuyerEmail(payload));
+
       case 'validateAccess':
         return jsonResponse(validateAccess(payload));
 
@@ -154,6 +157,101 @@ function doPost(e) {
       message: safeErrorMessage(error)
     });
   }
+}
+
+/*****************************************************
+ * READ-ONLY BUYER EMAIL CHECK
+ *
+ * Used before Google popup so unknown emails do not create
+ * Firebase Auth accounts. This intentionally does not write
+ * subscription, status, or device cells.
+ *****************************************************/
+function checkBuyerEmail(payload) {
+  const email = normalizeEmail(payload.email);
+
+  if (!email) {
+    return deny('EMAIL_REQUIRED');
+  }
+
+  const sheet = getMainSheet();
+
+  if (sheet.getLastRow() < 2) {
+    return deny('NO_BUYER_DATA');
+  }
+
+  const buyerSelection = findLatestSuccessfulBuyer(sheet, email);
+
+  if (!buyerSelection.emailFound) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'BUYER_NOT_FOUND',
+      isRegisteredBuyer: false
+    };
+  }
+
+  if (!buyerSelection.buyer) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'ORDER_NOT_SUCCESS',
+      isRegisteredBuyer: true,
+      buyerEmail: email
+    };
+  }
+
+  const row = buyerSelection.buyer.row;
+  const purchaseDate = normalizeDate(row[CONFIG.PURCHASE_DATE_COLUMN - 1]);
+  if (!purchaseDate) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'INVALID_PURCHASE_DATA',
+      isRegisteredBuyer: true,
+      buyerEmail: email,
+      buyerName: getBuyerName(row)
+    };
+  }
+
+  const manualStatus = normalizeAccountStatus(row[CONFIG.STATUS_ACCOUNT_COLUMN - 1]);
+  let expirationDate = normalizeDate(row[CONFIG.EXPIRATION_DATE_COLUMN - 1]);
+  if (!expirationDate) {
+    expirationDate = new Date(purchaseDate.getTime());
+    expirationDate.setDate(expirationDate.getDate() + CONFIG.SUBSCRIPTION_DAYS);
+  }
+
+  const today = getTodayInTimezone();
+  const expirationOnly = toDateOnly(expirationDate);
+  const daysRemaining = Math.ceil((expirationOnly.getTime() - today.getTime()) / 86400000);
+  const expired = manualStatus === CONFIG.EXPIRED_STATUS || daysRemaining <= 0;
+
+  if (expired) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_EXPIRED',
+      statusAccount: CONFIG.EXPIRED_STATUS,
+      isRegisteredBuyer: true,
+      buyerEmail: email,
+      buyerName: getBuyerName(row),
+      purchaseDate: formatDateTime(purchaseDate),
+      expirationDate: formatDate(expirationDate),
+      daysRemaining: 0
+    };
+  }
+
+  return {
+    success: true,
+    accessGranted: true,
+    reason: 'BUYER_EMAIL_OK',
+    statusAccount: CONFIG.ACTIVE_STATUS,
+    isRegisteredBuyer: true,
+    buyerEmail: email,
+    buyerName: getBuyerName(row),
+    purchaseDate: formatDateTime(purchaseDate),
+    expirationDate: formatDate(expirationDate),
+    daysRemaining: daysRemaining
+  };
 }
 
 /*****************************************************

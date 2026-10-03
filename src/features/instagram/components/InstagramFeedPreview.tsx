@@ -2,6 +2,7 @@ import React from 'react';
 import { InstagramFeedData } from '../../../types';
 import { DEFAULT_AVATAR } from '../../../data/defaultTemplates';
 import { renderFormattedTextWithAppleEmojis } from '../../../utils/emojiUtils';
+import { resolveLocalImageReference } from '../../../utils/imageManager';
 import { useLanguage } from '../../../context/LanguageContext';
 import {
   InstagramVerifiedBadge,
@@ -26,21 +27,30 @@ const ReposterAvatar: React.FC<{ src?: string; alt: string }> = ({ src, alt }) =
     setLoadedSource(null);
     if (!src) return () => { cancelled = true; };
 
+    const prepareSource = async () => {
+      const cleanSource = src.trim();
+      if (!cleanSource) return;
+      const resolvedSource = cleanSource.startsWith('au-local-media://')
+        ? await resolveLocalImageReference(cleanSource)
+        : cleanSource;
+      if (cancelled || !resolvedSource) return;
+
     const image = new Image();
     image.onload = () => {
       if (!cancelled && image.naturalWidth > 0 && image.naturalHeight > 0) {
-        setLoadedSource(src);
+          setLoadedSource(resolvedSource);
       }
     };
     image.onerror = () => {
       if (!cancelled) setLoadedSource(null);
     };
-    image.src = src;
+      image.src = resolvedSource;
+    };
+
+    void prepareSource();
 
     return () => {
       cancelled = true;
-      image.onload = null;
-      image.onerror = null;
     };
   }, [src]);
 

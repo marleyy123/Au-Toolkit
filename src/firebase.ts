@@ -23,6 +23,7 @@ import {
   sendPasswordResetEmail,
   updatePassword,
   updateProfile,
+  deleteUser,
   signOut,
   onAuthStateChanged,
   User,
@@ -129,8 +130,13 @@ export function setStoredAuthUser(user: any) {
 
 // Google Sign-in helper. The current production failure was a mixed Firebase
 // configuration, not popup incompatibility, so keep the existing SDK popup flow.
-export async function signInWithGoogle(): Promise<User | null> {
+export async function signInWithGoogle(loginHint?: string): Promise<User | null> {
   try {
+    if (loginHint?.trim()) {
+      googleProvider.setCustomParameters({ prompt: 'select_account', login_hint: loginHint.trim().toLowerCase() });
+    } else {
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
+    }
     const result = await signInWithPopup(auth, googleProvider);
     if (result?.user) {
       setStoredAuthUser({
@@ -156,6 +162,16 @@ export async function signInWithGoogle(): Promise<User | null> {
 
     console.error('Google sign-in error:', error);
     throw error;
+  }
+}
+
+export async function deleteSignedInAuthUser(): Promise<void> {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+  try {
+    await deleteUser(currentUser);
+  } finally {
+    setStoredAuthUser(null);
   }
 }
 
