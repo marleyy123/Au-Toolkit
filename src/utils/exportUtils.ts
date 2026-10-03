@@ -425,6 +425,23 @@ interface DesktopCanonicalStage {
   destroy: () => void;
 }
 
+type ChatScrollPosition = { top: number; left: number };
+
+function readChatScrollPositions(element: HTMLElement): ChatScrollPosition[] {
+  return Array.from(element.querySelectorAll<HTMLElement>('[data-chat-scroll="true"]'))
+    .map((chat) => ({ top: chat.scrollTop, left: chat.scrollLeft }));
+}
+
+function restoreChatScrollPositions(element: HTMLElement, positions: ChatScrollPosition[]): void {
+  element.querySelectorAll<HTMLElement>('[data-chat-scroll="true"]').forEach((chat, index) => {
+    const position = positions[index];
+    if (!position) return;
+    chat.style.scrollBehavior = 'auto';
+    chat.scrollTop = position.top;
+    chat.scrollLeft = position.left;
+  });
+}
+
 function readPixelWidthFromClasses(element: HTMLElement): number | null {
   const className = [
     typeof element.className === 'string' ? element.className : '',
@@ -479,7 +496,9 @@ async function waitForStageStyles(stageDocument: Document): Promise<void> {
 
 async function createDesktopCanonicalStage(
   source: HTMLElement,
-  canonicalWidth: number
+  canonicalWidth: number,
+  chatScrollPositions: ChatScrollPosition[],
+  chatViewportHeight: number
 ): Promise<DesktopCanonicalStage> {
   const iframe = document.createElement('iframe');
   iframe.setAttribute('aria-hidden', 'true');
@@ -539,9 +558,9 @@ async function createDesktopCanonicalStage(
     width: `${canonicalWidth}px`,
     minWidth: `${canonicalWidth}px`,
     maxWidth: `${canonicalWidth}px`,
-    height: '',
-    minHeight: '',
-    maxHeight: '',
+    height: chatViewportHeight ? `${chatViewportHeight}px` : '',
+    minHeight: chatViewportHeight ? `${chatViewportHeight}px` : '',
+    maxHeight: chatViewportHeight ? `${chatViewportHeight}px` : '',
     margin: '0',
     transform: 'none',
     zoom: '1',
@@ -561,6 +580,9 @@ async function createDesktopCanonicalStage(
   await Promise.all(Array.from(clone.querySelectorAll('img')).map(waitForImageReady));
   await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
   await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
+
+  // Scroll offsets set before styles load can be clamped back to zero.
+  restoreChatScrollPositions(clone, chatScrollPositions);
 
   return {
     iframe,
@@ -1084,6 +1106,9 @@ export async function exportPreviewToImage(
     throw new Error('Preview bukan canonical export source yang terdaftar.');
   }
 
+  const chatScrollPositions = readChatScrollPositions(targetEl);
+  const chatViewportHeight = chatScrollPositions.length ? targetEl.offsetHeight : 0;
+
   const isJpg =
     options.format === 'jpeg' ||
     options.format === 'jpg' ||
@@ -1143,7 +1168,7 @@ export async function exportPreviewToImage(
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
     options.onProgress?.('Creating isolated desktop canonical stage...');
-    desktopStage = await createDesktopCanonicalStage(targetEl, canonicalWidth);
+    desktopStage = await createDesktopCanonicalStage(targetEl, canonicalWidth, chatScrollPositions, chatViewportHeight);
     canonicalHeight = options.height || Math.round(desktopStage.element.offsetHeight);
     if (!canonicalWidth || !canonicalHeight) {
       throw new Error('Canonical desktop preview geometry tidak valid.');
@@ -1157,6 +1182,7 @@ export async function exportPreviewToImage(
       maxHeight: `${canonicalHeight}px`,
     });
     desktopStage.iframe.style.height = `${Math.max(DESKTOP_EXPORT_VIEWPORT_HEIGHT, canonicalHeight + 256)}px`;
+    restoreChatScrollPositions(desktopStage.element, chatScrollPositions);
     exportWidth = Math.round(canonicalWidth * scaleMultiplier);
     exportHeight = Math.round(canonicalHeight * scaleMultiplier);
 
@@ -1253,6 +1279,7 @@ export async function exportPreviewToImage(
             await waitForImageReady(clonedImage);
           }
         }));
+        restoreChatScrollPositions(clonedNode, chatScrollPositions);
         diagnosticBridge?.record?.({
           stage: 'direct-canvas-clone-layout',
           nodes: readDiagnosticMetrics(clonedNode),

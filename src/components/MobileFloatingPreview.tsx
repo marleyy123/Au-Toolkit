@@ -140,11 +140,13 @@ export const MobileFloatingPreview: React.FC<Props> = ({
     const resize = new ResizeObserver(schedule);
     resize.observe(source);
     source.addEventListener('load', schedule, true);
+    source.addEventListener('scroll', schedule, true);
     void document.fonts?.ready.then(schedule).catch(() => {});
     return () => {
       mutations.disconnect();
       resize.disconnect();
       source.removeEventListener('load', schedule, true);
+      source.removeEventListener('scroll', schedule, true);
       refreshPendingRef.current = false;
     };
   }, [isOpen, isMinimized, refreshKey, refreshMirror, sourceRef]);
