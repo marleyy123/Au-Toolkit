@@ -128,8 +128,7 @@ export function setStoredAuthUser(user: any) {
   } catch (e) {}
 }
 
-// Google Sign-in helper. The current production failure was a mixed Firebase
-// configuration, not popup incompatibility, so keep the existing SDK popup flow.
+// Call directly from user interaction, before awaiting access verification.
 export async function signInWithGoogle(loginHint?: string): Promise<User | null> {
   try {
     if (loginHint?.trim()) {

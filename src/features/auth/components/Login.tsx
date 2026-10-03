@@ -16,9 +16,8 @@ import {
   setStoredAuthUser,
   signOutUser,
   requestPasswordReset,
-  deleteSignedInAuthUser,
 } from '../../../firebase';
-import { checkBuyerEmailBeforeGoogle, checkBuyerEntitlement, normalizeEmail, EntitlementCheckResult } from '../../../services/buyerEntitlementService';
+import { checkBuyerEntitlement, normalizeEmail, EntitlementCheckResult } from '../../../services/buyerEntitlementService';
 
 interface LoginProps {
   onLoginSuccess: (email: string, user: any, entitlement?: EntitlementCheckResult) => void;
@@ -41,6 +40,7 @@ export const Login: React.FC<LoginProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleVerifying, setIsGoogleVerifying] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
@@ -139,6 +139,12 @@ export const Login: React.FC<LoginProps> = ({
         await signOutUser();
       } catch {}
       setErrorMessage('Perangkat ini tidak terdaftar.');
+      return false;
+    }
+
+    if (!entitlement.isValid || entitlement.status !== 'ACTIVE') {
+      await signOutUser();
+      setErrorMessage(entitlement.message || 'Akses akun belum dapat diverifikasi. Silakan coba lagi.');
       return false;
     }
 
@@ -246,58 +252,32 @@ export const Login: React.FC<LoginProps> = ({
 
   // Direct Google Sign-In handler
   const handleGoogleSignIn = async () => {
-    const cleanInputEmail = normalizeEmail(email);
-
-    if (!cleanInputEmail) {
-      setErrorMessage('Masukkan email pembelian terlebih dahulu sebelum masuk dengan Google.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanInputEmail)) {
-      setErrorMessage('Format email tidak valid. Mohon masukkan email yang benar.');
-      return;
-    }
+    if (isGoogleLoading || isLoading || isResetLoading) return;
 
     setIsGoogleLoading(true);
     setErrorMessage(null);
     setInfoMessage(null);
 
+    let googleAuthenticated = false;
     try {
-      const preflight = await checkBuyerEmailBeforeGoogle(cleanInputEmail);
-      const preflightAllowed = await validateEntitlementStatus(cleanInputEmail, preflight);
-      if (!preflightAllowed) {
-        setIsGoogleLoading(false);
-        return;
-      }
-
-      const user = await signInWithGoogle(cleanInputEmail);
-      if (!user || !user.email) {
-        setIsGoogleLoading(false);
-        return;
-      }
-
-      const cleanGoogleEmail = normalizeEmail(user.email);
-
-      if (cleanInputEmail !== cleanGoogleEmail) {
-        try {
-          await deleteSignedInAuthUser();
-        } catch {
-          await signOutUser();
-        }
-        setIsGoogleLoading(false);
-        setErrorMessage(
-          `Email akun Google (${cleanGoogleEmail}) tidak cocok dengan email pembelian (${cleanInputEmail}) [EMAIL_ACCOUNT_MISMATCH]. Silakan gunakan akun Google ${cleanInputEmail}.`
-        );
+      // Keep the popup attached to the click; verify access only after Google returns.
+      const user = await signInWithGoogle();
+      if (!user) return;
+      googleAuthenticated = true;
+      const cleanGoogleEmail = normalizeEmail(user.email || '');
+      if (!cleanGoogleEmail) {
+        await signOutUser();
+        setErrorMessage('Akun Google tidak memiliki email yang dapat diverifikasi.');
         return;
       }
 
       setEmail(cleanGoogleEmail);
+      setIsGoogleVerifying(true);
 
-      const entitlement = await checkBuyerEntitlement(cleanGoogleEmail);
+      const entitlement = await checkBuyerEntitlement(cleanGoogleEmail, { allowCachedFallback: false });
       const isAllowed = await validateEntitlementStatus(cleanGoogleEmail, entitlement);
       if (!isAllowed) {
-        setIsGoogleLoading(false);
+        await signOutUser();
         return;
       }
 
@@ -324,6 +304,7 @@ export const Login: React.FC<LoginProps> = ({
 
       onLoginSuccess(cleanGoogleEmail, finalUser, entitlement);
     } catch (err: unknown) {
+      if (googleAuthenticated) await signOutUser();
       const code = String((err as any)?.code || 'auth/unknown').trim();
       const message = String((err as any)?.message || 'Google Sign-In gagal.').trim();
       console.error('Google sign-in error:', { code, message });
@@ -332,6 +313,7 @@ export const Login: React.FC<LoginProps> = ({
       // Every popup, verification, timeout, and workspace transition path must
       // release the Google loading state.
       setIsGoogleLoading(false);
+      setIsGoogleVerifying(false);
     }
   };
 
@@ -384,12 +366,13 @@ export const Login: React.FC<LoginProps> = ({
           </div>
         </div>
 
-        {/* Authentication method tabs; handlers and backend flow remain unchanged. */}
+        {/* Authentication method tabs */}
         <div className="grid grid-cols-2 gap-1 rounded-2xl border border-slate-200 bg-slate-100 p-1" role="tablist" aria-label="Metode masuk">
           <button
             type="button"
             role="tab"
             aria-selected={authMode === 'google'}
+            disabled={isLoading || isGoogleLoading || isResetLoading}
             onClick={() => {
               setAuthMode('google');
               setErrorMessage(null);
@@ -406,6 +389,7 @@ export const Login: React.FC<LoginProps> = ({
             type="button"
             role="tab"
             aria-selected={authMode === 'email'}
+            disabled={isLoading || isGoogleLoading || isResetLoading}
             onClick={() => {
               setAuthMode('email');
               setErrorMessage(null);
@@ -444,7 +428,7 @@ export const Login: React.FC<LoginProps> = ({
           }}
           className="space-y-4"
         >
-          <div className="space-y-1.5">
+          {authMode === 'email' && <div className="space-y-1.5">
             <label
               htmlFor="buyer-email-input"
               className="text-xs font-bold text-slate-700 flex items-center gap-1.5"
@@ -473,7 +457,7 @@ export const Login: React.FC<LoginProps> = ({
             <p className="text-[11px] text-slate-400">
               Gunakan email yang Anda gunakan saat membeli akses AU Toolkit.
             </p>
-          </div>
+          </div>}
 
           {authMode === 'email' && (
             <div className="space-y-1.5">
@@ -524,7 +508,7 @@ export const Login: React.FC<LoginProps> = ({
             ) : isGoogleLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Memeriksa Akun Google...</span>
+                <span>{isGoogleVerifying ? 'Memverifikasi Hak Akses...' : 'Menghubungkan ke Google...'}</span>
               </>
             ) : (
               <>

@@ -216,6 +216,7 @@ export interface ValidateAccessResponse {
   status:
     | 'ACCESS_GRANTED'
     | 'ACCOUNT_EXPIRED'
+    | 'ACCOUNT_INACTIVE'
     | 'DEVICE_MISMATCH'
     | 'ORDER_NOT_SUCCESS'
     | 'BUYER_NOT_FOUND'
@@ -521,6 +522,15 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     };
   }
 
+  if (reasonCode === 'ACCOUNT_INACTIVE' || String(resData.statusAccount || '').trim().toLowerCase() === 'inactive') {
+    return {
+      allowed: false,
+      status: 'ACCOUNT_INACTIVE',
+      message: 'Status akun tidak aktif. Silakan hubungi administrator.',
+      data: resData,
+    };
+  }
+
   // 10. DEVICE_MISMATCH
   if (reasonCode === 'DEVICE_MISMATCH') {
     return {
@@ -561,7 +571,10 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
  * - Column U = Buyer Email
  * - Column V = Buyer Name
  */
-export async function checkBuyerEntitlement(rawEmail: string): Promise<EntitlementCheckResult> {
+export async function checkBuyerEntitlement(
+  rawEmail: string,
+  { allowCachedFallback = true }: { allowCachedFallback?: boolean } = {}
+): Promise<EntitlementCheckResult> {
   const cleanEmail = normalizeEmail(rawEmail);
   if (!cleanEmail) {
     return {
@@ -608,7 +621,7 @@ export async function checkBuyerEntitlement(rawEmail: string): Promise<Entitleme
   }
 
   if (access.status === 'APPS_SCRIPT_UNAVAILABLE') {
-    const cached = getCachedEntitlement(cleanEmail);
+    const cached = allowCachedFallback ? getCachedEntitlement(cleanEmail) : null;
     if (cached && cached.isValid && cached.expirationDate) {
       const remaining = normalizeDaysRemaining(null, cached.expirationDate);
       if (remaining !== null && remaining > 0) {
@@ -655,7 +668,7 @@ export async function checkBuyerEntitlement(rawEmail: string): Promise<Entitleme
   }
 
   if (access.status === 'BACKEND_ERROR') {
-    const cached = getCachedEntitlement(cleanEmail);
+    const cached = allowCachedFallback ? getCachedEntitlement(cleanEmail) : null;
     if (cached && cached.isValid && cached.expirationDate) {
       const remaining = normalizeDaysRemaining(null, cached.expirationDate);
       if (remaining !== null && remaining > 0) {
@@ -711,6 +724,17 @@ export async function checkBuyerEntitlement(rawEmail: string): Promise<Entitleme
       deviceSlot: slot,
       deviceModel: detectedDeviceLabel,
       message: access.message || 'Status pesanan Lynk.id belum berstatus SUCCESS.',
+    };
+  }
+
+  if (access.status === 'ACCOUNT_INACTIVE') {
+    return {
+      isRegisteredBuyer: true,
+      isValid: false,
+      status: 'INACTIVE',
+      statusAccount: 'Inactive',
+      email: cleanEmail,
+      message: access.message,
     };
   }
 

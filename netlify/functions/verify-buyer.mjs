@@ -307,6 +307,10 @@ export async function handler(event) {
       }, cors);
     }
 
+    if (reason === 'ACCOUNT_INACTIVE' || String(upstream.statusAccount || '').trim().toLowerCase() === 'inactive') {
+      return json(200, { success: true, accessGranted: false, reason: 'ACCOUNT_INACTIVE', status: 'ACCOUNT_INACTIVE', statusAccount: 'Inactive', isRegisteredBuyer: true, isValid: false, email, message: 'Status akun tidak aktif. Silakan hubungi administrator.' }, cors);
+    }
+
     if (reason === 'BUYER_EMAIL_OK' || upstream.accessGranted === true) {
       return json(200, {
         success: true,
@@ -508,6 +512,9 @@ export async function handler(event) {
   }
 
   const expirationDate = normalizeExpirationDate(upstream.expirationDate);
+  if (reason === 'ACCOUNT_INACTIVE' || String(upstream.statusAccount || '').trim().toLowerCase() === 'inactive') {
+    return json(200, { success: true, accessGranted: false, reason: 'ACCOUNT_INACTIVE', status: 'ACCOUNT_INACTIVE', isRegisteredBuyer: true, isValid: false, ...commonAccessData(upstream, email, deviceType, deviceLabel, expirationDate), statusAccount: 'Inactive', message: 'Status akun tidak aktif. Silakan hubungi administrator.' }, cors);
+  }
   if (reason === 'ACCOUNT_EXPIRED' || String(upstream.statusAccount || '').trim().toLowerCase() === 'expired') {
     return json(200, { success: true, accessGranted: false, reason: 'ACCOUNT_EXPIRED', status: 'ACCOUNT_EXPIRED', statusAccount: 'Expired', isRegisteredBuyer: true, isValid: false, ...commonAccessData(upstream, email, deviceType, deviceLabel, expirationDate), daysRemaining: 0, message: 'Masa berlangganan Anda telah habis.' }, cors);
   }

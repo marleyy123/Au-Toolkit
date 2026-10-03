@@ -39,6 +39,7 @@ const CONFIG = {
 
   SUBSCRIPTION_DAYS: 30,
   ACTIVE_STATUS: 'Active',
+  INACTIVE_STATUS: 'Inactive',
   EXPIRED_STATUS: 'Expired',
   SUCCESS_ORDER_STATUS: 'SUCCESS',
   TIMEZONE: 'Asia/Jakarta'
@@ -214,6 +215,17 @@ function checkBuyerEmail(payload) {
   }
 
   const manualStatus = normalizeAccountStatus(row[CONFIG.STATUS_ACCOUNT_COLUMN - 1]);
+  if (manualStatus === CONFIG.INACTIVE_STATUS) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_INACTIVE',
+      statusAccount: CONFIG.INACTIVE_STATUS,
+      isRegisteredBuyer: true,
+      buyerEmail: email,
+      buyerName: getBuyerName(row)
+    };
+  }
   let expirationDate = normalizeDate(row[CONFIG.EXPIRATION_DATE_COLUMN - 1]);
   if (!expirationDate) {
     expirationDate = new Date(purchaseDate.getTime());
@@ -311,6 +323,17 @@ function validateAccess(payload) {
       success: true,
       accessGranted: false,
       reason: 'INVALID_PURCHASE_DATA',
+      buyerEmail: email,
+      buyerName: getBuyerName(row)
+    };
+  }
+
+  if (subscription.statusAccount === CONFIG.INACTIVE_STATUS) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_INACTIVE',
+      statusAccount: CONFIG.INACTIVE_STATUS,
       buyerEmail: email,
       buyerName: getBuyerName(row)
     };
@@ -513,6 +536,19 @@ function ensureSubscriptionData(sheet, rowNumber, row) {
   const daysRemaining = Math.max(0, daysRemainingRaw);
 
   const normalizedStatus = normalizeAccountStatus(statusRaw);
+
+  // Manual deactivation must survive subscription refreshes.
+  if (normalizedStatus === CONFIG.INACTIVE_STATUS) {
+    return {
+      valid: true,
+      purchaseDate: purchaseDate,
+      expirationDate: expirationDate,
+      statusAccount: CONFIG.INACTIVE_STATUS,
+      daysRemaining: daysRemaining,
+      purchaseDateFormatted: formatDateTime(purchaseDate),
+      expirationDateFormatted: formatDate(expirationDate)
+    };
+  }
 
   // Manual Expired is authoritative.
   if (normalizedStatus === CONFIG.EXPIRED_STATUS) {
@@ -797,6 +833,17 @@ function refreshSingleSubscription(payload) {
     };
   }
 
+  if (result.statusAccount === CONFIG.INACTIVE_STATUS) {
+    return {
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_INACTIVE',
+      statusAccount: CONFIG.INACTIVE_STATUS,
+      expirationDate: result.expirationDateFormatted,
+      daysRemaining: result.daysRemaining
+    };
+  }
+
   if (result.statusAccount === CONFIG.EXPIRED_STATUS) {
     return {
       success: true,
@@ -923,6 +970,10 @@ function normalizeOrderStatus(value) {
 
 function normalizeAccountStatus(value) {
   const status = cleanString(value).toLowerCase();
+
+  if (status === 'inactive') {
+    return CONFIG.INACTIVE_STATUS;
+  }
 
   if (status === 'expired') {
     return CONFIG.EXPIRED_STATUS;
