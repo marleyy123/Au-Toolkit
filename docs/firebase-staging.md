@@ -19,29 +19,31 @@ firebase deploy --only firestore:rules --project au-toolkit-staging-20261005 --c
 
 Do not run a plain `firebase deploy`: the default alias still points to production.
 
-## Remaining Authentication Setup
+## Authentication
 
 Firebase Authentication has been activated, Email/Password requires passwords,
 and Google sign-in has an OAuth client configured. Do not upgrade to
 Identity Platform or attach billing just to enable ordinary Firebase Auth.
 
-Add the actual Vercel testing hostname under Authentication > Settings >
-Authorized domains when the deployment is available. The current authorized
-domains are `localhost`, `au-toolkit-staging-20261005.firebaseapp.com`, and
-`au-toolkit-staging-20261005.web.app`. Create fresh test users; production users
-are separate.
+The Vercel testing hostname has been added to Authentication > Settings >
+Authorized domains. The current authorized domains are `localhost`,
+`au-toolkit-staging-20261005.firebaseapp.com`,
+`au-toolkit-staging-20261005.web.app`, and `au-toolkit-testing.vercel.app`.
+Create fresh test users; production users are separate. Additional preview
+hostnames require their own authorized-domain configuration if used for login.
 
 ## Vercel Testing
 
 Branch `development` contains the staging setup; `main` remains production.
+Testing URL: https://au-toolkit-testing.vercel.app/ (HTTP 200 confirmed).
 Create a separate Vercel project from the AU Toolkit repository, and set its
 Production Branch to `development`. Use the Vite framework preset and `dist`
 as the output directory. Use `npx vite build` for the frontend build so the
 standalone Express server bundle is not included as a public static asset.
 
-This is not yet a complete Vercel backend: `/api/verify-buyer` and
-`/api/export-render` currently use Netlify Functions. Add Vercel-compatible
-handlers before treating the staging deployment as ready for end-to-end tests.
+The staging-only Vercel `/api/verify-buyer` adapter is implemented and locally
+tested, but its live deployment and login still need verification.
+`/api/export-render` has not been ported from Netlify Functions yet.
 Do not redirect these calls to production as a workaround.
 
 The local, git-ignored `.env.staging.vercel` contains the staging Firebase values.
@@ -50,9 +52,10 @@ and Development environments. Its Production Branch should be `development`.
 The filename is not automatically loaded by Vite and the production `.env`
 has not been changed.
 
-Spreadsheet URL, shared secrets, allowed origins, and app URL remain unset until
-separate testing integrations are available. Buyer verification requires that
-testing backend as well as Firebase; creating Firebase alone does not bypass it.
+Testing spreadsheets and an Apps Script web app are now provisioned; see
+`spreadsheet-staging.md` for their configuration. Backend ENV values must be set
+in Vercel and redeployed. The ignored local ENV integration fields remain blank.
+Buyer verification requires that testing backend as well as Firebase.
 Never point testing at the production buyer spreadsheet or payment callbacks.
 
 Cloud Storage has not been provisioned because it requires Blaze billing.
