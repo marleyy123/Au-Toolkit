@@ -34,6 +34,8 @@ const bundle = await build({
           {id: 'more', sender: 'incoming', type: 'text', senderName: 'Karun', text: 'One more message', time: '12:31'},
           {id: 'other', sender: 'incoming', type: 'text', senderName: 'Maya', text: 'Different person', time: '12:32'},
         ];
+        if (new URLSearchParams(location.search).has('sender-always')) data.messages[1].showSenderName = true;
+        if (new URLSearchParams(location.search).has('sender-hidden')) data.messages[0].showSenderName = false;
       }
       function App() {
         const ref = useRef(null);
@@ -108,7 +110,7 @@ try {
     }
   }
   for (const width of [1440, 390]) {
-    for (const mode of ['normal', 'compact', 'photo-small']) {
+    for (const mode of ['normal', 'compact', 'photo-small', 'sender-always', 'sender-hidden']) {
     const compact = mode === 'compact';
     const page = await browser.newPage({viewport: {width, height: 900}});
     await page.goto(`http://127.0.0.1:${server.address().port}/?chat=whatsapp&group=true&${mode}=true`);
@@ -137,7 +139,7 @@ try {
         photoWidth: photo.getBoundingClientRect().width, exportedPhotoWidth,
         textWidth: text.getBoundingClientRect().width};
     });
-    assert.equal(result.karun, 1, 'Photo and two texts should share one sender label');
+    assert.equal(result.karun, mode === 'sender-always' ? 2 : mode === 'sender-hidden' ? 0 : 1, 'Sender display override must preserve grouping');
     assert.equal(result.maya, 1, 'A new participant should show their name');
     assert.equal(result.fontSize, compact ? '11px' : '15px');
     assert.equal(result.overlapsTimestamp, false, 'Caption must not overlap timestamp');

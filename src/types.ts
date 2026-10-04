@@ -363,6 +363,7 @@ export interface WhatsAppChatMessage {
   isRecalled?: boolean;
   deletedForMe?: boolean;
   senderName?: string;
+  showSenderName?: boolean;
   senderColor?: string;
   showReplyQuote?: boolean;
   replyToMessageId?: string;

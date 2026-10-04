@@ -951,7 +951,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
             // Tail is ONLY rendered on the LAST message in a group AND NOT for stickers!
             const isLastInGroup = !isNextSameSender;
-            const showSenderName = Boolean((isGroupChat || msg.senderName) && !isOutgoing && !isPrevSameSender);
+            const showSenderName = Boolean((isGroupChat || msg.senderName) && !isOutgoing &&
+              (msg.showSenderName ?? !isPrevSameSender));
             const photoWidth = Math.min(260, Math.max(120, msg.photoWidth ?? 260));
             const showTail = isLastInGroup && msgType !== 'sticker';
 

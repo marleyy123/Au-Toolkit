@@ -1728,7 +1728,7 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                             onChange={(e) => {
                               const checked = e.target.checked;
                               setOpenSenderNameIds((prev) => ({ ...prev, [msg.id]: checked }));
-                              if (!checked) handleUpdateMessage(index, { senderName: '' });
+                              handleUpdateMessage(index, { showSenderName: checked });
                             }}
                             className="rounded text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer w-3.5 h-3.5"
                           />
@@ -1757,6 +1757,20 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                     {/* SENDER NAME & COLOR (Only visible when enabled) */}
                     {(!isOutgoing || data.isGroupChat) && isSenderNameChecked && (
                       <div className={`p-2.5 rounded-lg border space-y-2 ${innerBoxClass}`}>
+                        <label className={`text-[11px] font-semibold block ${labelColorClass}`}>
+                          {isId ? 'Tampilan Nama Pengirim' : 'Sender Name Display'}
+                          <select
+                            value={msg.showSenderName === undefined ? 'auto' : msg.showSenderName ? 'always' : 'hidden'}
+                            onChange={(e) => handleUpdateMessage(index, {
+                              showSenderName: e.target.value === 'auto' ? undefined : e.target.value === 'always',
+                            })}
+                            className={`${singleLineInputClass} mt-1`}
+                          >
+                            <option value="auto">{isId ? 'Otomatis' : 'Automatic'}</option>
+                            <option value="always">{isId ? 'Selalu tampil' : 'Always show'}</option>
+                            <option value="hidden">{isId ? 'Sembunyikan' : 'Hide'}</option>
+                          </select>
+                        </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>
                             <label className={`text-[11px] font-semibold block mb-0.5 ${labelColorClass}`}>

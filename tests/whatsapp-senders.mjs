@@ -32,6 +32,8 @@ await build({
       const html = markup(original);
       assert.equal((html.match(/>Karun</g) || []).length, 1, 'Name appears once for photo + consecutive text');
       assert.equal((html.match(/>Maya</g) || []).length, 1, 'A different participant gets their own label');
+      assert.equal((markup([photo, message('force', {showSenderName:true})]).match(/>Karun</g)||[]).length,2,'Can repeat the same sender label');
+      assert.equal((markup([{...photo,showSenderName:false},message('force',{showSenderName:true})]).match(/>Karun</g)||[]).length,1,'Hidden label preserves sender identity');
       assert.equal((markup([photo, message('out', {sender: 'outgoing'}), photo]).match(/>Karun</g) || []).length, 2);
       assert(markup([message('unnamed')], 'en').includes('>User<'));
       assert(markup([message('unnamed')], 'id').includes('>Pengguna<'));
