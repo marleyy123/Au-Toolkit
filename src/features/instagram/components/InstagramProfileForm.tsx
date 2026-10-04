@@ -7,7 +7,10 @@ import {
   createSafeObjectURL,
   revokeSafeObjectURL,
   isBlobUrl,
+  persistLocalImageBlob,
+  getLocalMediaOwnerUid,
 } from '../../../utils/imageManager';
+import { auth, getStoredAuthUser } from '../../../firebase';
 import { useLanguage } from '../../../context/LanguageContext';
 
 interface Props {
@@ -44,86 +47,20 @@ export const InstagramProfileForm: React.FC<Props> = ({
 }) => {
   const { t, isId } = useLanguage();
   const fileInputMultipleRef = useRef<HTMLInputElement>(null);
+  const latest = useRef({ data, onChange });
+  latest.current = { data, onChange };
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const updateField = <K extends keyof InstagramProfileData>(key: K, value: InstagramProfileData[K]) => {
-    onChange({ ...data, [key]: value });
+    const updated = { ...latest.current.data, [key]: value };
+    latest.current.data = updated;
+    latest.current.onChange(updated);
   };
 
-  // Helper to handle reading uploaded file, compressing it, and updating state + live preview DOM directly
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    callback: (dataUrl: string) => void,
-    domTargetId?: string
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const result = await compressAndReadAsDataURL(file);
-      if (result) {
-        callback(result);
-        // Direct JS DOM manipulation
-        if (domTargetId) {
-          const targetEl = document.getElementById(domTargetId) as HTMLImageElement | null;
-          if (targetEl) {
-            targetEl.src = result;
-            targetEl.classList.remove('hidden');
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Error compressing image:', err);
-    }
-    e.target.value = '';
-  };
-
-  // Attach JS Event Listeners via DOM IDs on mount/update for robust event handling
-  useEffect(() => {
-    // Attach listener for Multiple Grid Files upload
-    const multiInput = document.getElementById('input-grid-multiple-files') as HTMLInputElement | null;
-    if (multiInput) {
-      const handleMultiChange = async (event: Event) => {
-        const target = event.target as HTMLInputElement;
-        const files = target.files;
-        if (!files || files.length === 0) return;
-
-        const newPosts = [...(data.gridPosts || [])];
-        const fileList = Array.from(files);
-
-        for (let idx = 0; idx < fileList.length; idx++) {
-          const file = fileList[idx];
-          try {
-            const dataUrl = await compressAndReadAsDataURL(file);
-            if (dataUrl) {
-              if (idx < newPosts.length) {
-                newPosts[idx] = { ...newPosts[idx], image: dataUrl };
-              } else {
-                newPosts.push({ id: 'gp-' + Date.now() + '-' + idx, image: dataUrl });
-              }
-              // Direct DOM manipulation
-              const imgEl = document.getElementById(`preview-grid-img-${idx}`) as HTMLImageElement | null;
-              if (imgEl) imgEl.src = dataUrl;
-            }
-          } catch (err) {
-            console.error('Error compressing bulk image:', err);
-          }
-        }
-
-        const validCount = newPosts.filter((p) => !!p.image).length;
-        onChange({
-          ...data,
-          gridPosts: newPosts,
-          postsCount: String(validCount),
-        });
-        target.value = '';
-      };
-
-      multiInput.addEventListener('change', handleMultiChange);
-      return () => {
-        multiInput.removeEventListener('change', handleMultiChange);
-      };
-    }
-  }, [data.gridPosts, data]);
 
   // Handle adding new Highlight
   const handleAddHighlight = () => {
@@ -211,14 +148,27 @@ export const InstagramProfileForm: React.FC<Props> = ({
     });
 
     // 2. Asynchronously compress and persist in background
+    latest.current.data = { ...data, gridPosts: updatedPosts, postsCount: String(validCount) };
     newPosts.forEach(({ id, image: blobUrl, file }) => {
       compressAndReadAsDataURL(file)
-        .then((dataUrl) => {
+        .then(async (dataUrl) => {
           if (dataUrl) {
-            onChange({
-              ...data,
-              gridPosts: (data.gridPosts || []).map((p) => (p.id === id ? { ...p, image: dataUrl } : p)),
-            });
+            const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
+            const activeTab = localStorage.getItem('au_last_active_tab') || 'instagram-profile';
+            const folder = localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1';
+            const response = await fetch(dataUrl);
+            const persistentRef = await persistLocalImageBlob(uid, await response.blob(), `${activeTab}:${folder}:grid`);
+            const current = latest.current.data;
+            if (!mounted.current || !current.gridPosts?.some((p) => p.id === id && p.image === blobUrl)) {
+              revokeSafeObjectURL(blobUrl);
+              return;
+            }
+            const updated = {
+              ...current,
+              gridPosts: current.gridPosts.map((p) => (p.id === id ? { ...p, image: persistentRef } : p)),
+            };
+            latest.current.data = updated;
+            latest.current.onChange(updated);
             revokeSafeObjectURL(blobUrl);
           }
         })

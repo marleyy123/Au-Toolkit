@@ -101,8 +101,9 @@ export const formatWhatsAppBubbleText = (text?: string | null, maxCharsPerLine =
   return formattedParagraphs.join('\n');
 };
 
-const analyzeWhatsAppBubbleText = (text?: string | null, maxCharsPerLine = 30) => {
-  const formatted = formatWhatsAppBubbleText(text, maxCharsPerLine);
+const analyzeWhatsAppBubbleText = (text?: string | null) => {
+  // Let layout wrap words; preserve only line breaks authored by the user.
+  const formatted = String(text ?? '').replace(/\r\n?/g, '\n');
   const lineLengths = formatted.split('\n').map((line) => splitWhatsAppGraphemes(line).length);
   return {
     formatted,
@@ -1289,7 +1290,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                             {/* Photo Caption logic if text or caption present */}
                             {hasCaption ? (() => {
-                              const captionMetrics = analyzeWhatsAppBubbleText(captionContent, 30);
+                              const captionMetrics = analyzeWhatsAppBubbleText(captionContent);
                               const needsBottomRow = true;
                               return (
                               <div
@@ -1387,7 +1388,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                         const rawDisplayText = !isOutgoing
                           ? (msg.text || (language === 'id' ? 'Pesan masuk' : 'Received message'))
                           : (msg.text || 'Read a message');
-                        const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText, 30);
+                        const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText);
                         const hasHeaderOrQuote = Boolean((msg.showReplyQuote || msg.replyToText || msg.replyToSender) || showSenderName);
                         const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 25 && !hasHeaderOrQuote;
                         const needsBottomRow = !isShortSingleLine;

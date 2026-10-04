@@ -487,11 +487,54 @@ async function waitForStageStyles(stageDocument: Document): Promise<void> {
   const links = Array.from(stageDocument.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
   await Promise.all(links.map((link) => {
     if (link.sheet) return Promise.resolve();
-    return withExportTimeout(new Promise<void>((resolve) => {
+    return withExportTimeout(new Promise<void>((resolve, reject) => {
       link.addEventListener('load', () => resolve(), { once: true });
-      link.addEventListener('error', () => resolve(), { once: true });
+      link.addEventListener('error', () => reject(new Error(`Stylesheet export gagal dimuat: ${link.href}`)), { once: true });
     }), `Stylesheet export desktop tidak selesai dimuat: ${link.href}`);
   }));
+}
+
+function rebaseStylesheetUrls(cssText: string, baseUrl: string): string {
+  return cssText.replace(/url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi, (match, doubleQuoted, singleQuoted, unquoted) => {
+    const url = (doubleQuoted ?? singleQuoted ?? unquoted ?? '').trim();
+    if (!url || url.startsWith('#')) return match;
+    try {
+      return `url(${JSON.stringify(new URL(url, baseUrl).href)})`;
+    } catch {
+      return match;
+    }
+  });
+}
+
+function copyLoadedStylesheets(sourceDocument: Document, stageDocument: Document): void {
+  const base = stageDocument.createElement('base');
+  base.href = sourceDocument.baseURI;
+  stageDocument.head.appendChild(base);
+
+  // Copy the active CSSOM, including runtime-inserted rules. Reloading links can
+  // fail after a deploy or network interruption and leave intrinsic image sizes.
+  for (const sheet of [...Array.from(sourceDocument.styleSheets), ...(sourceDocument.adoptedStyleSheets || [])]) {
+    if (sheet.disabled) continue;
+    try {
+      const style = stageDocument.createElement('style');
+      style.media = sheet.media.mediaText;
+      style.textContent = rebaseStylesheetUrls(
+        Array.from(sheet.cssRules, rule => rule.cssText).join('\n'),
+        sheet.href || sourceDocument.baseURI
+      );
+      stageDocument.head.appendChild(style);
+    } catch {
+      // Cross-origin stylesheet rules can be unreadable even when loaded.
+      const owner = sheet.ownerNode;
+      if (owner instanceof HTMLLinkElement) {
+        const link = owner.cloneNode(true) as HTMLLinkElement;
+        link.href = owner.href;
+        stageDocument.head.appendChild(link);
+      } else if (owner instanceof HTMLStyleElement) {
+        stageDocument.head.appendChild(owner.cloneNode(true));
+      }
+    }
+  }
 }
 
 async function createDesktopCanonicalStage(
@@ -528,11 +571,7 @@ async function createDesktopCanonicalStage(
   stageDocument.body.className = document.body.className;
   stageDocument.documentElement.lang = document.documentElement.lang;
 
-  for (const node of Array.from(document.head.children)) {
-    if (node.tagName === 'STYLE' || (node.tagName === 'LINK' && (node as HTMLLinkElement).rel === 'stylesheet')) {
-      stageDocument.head.appendChild(node.cloneNode(true));
-    }
-  }
+  copyLoadedStylesheets(source.ownerDocument, stageDocument);
 
   Object.assign(stageDocument.documentElement.style, {
     width: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
@@ -570,19 +609,24 @@ async function createDesktopCanonicalStage(
   stageDocument.body.appendChild(clone);
   synchronizeClonedNode(clone, source);
 
-  await waitForStageStyles(stageDocument);
-  if (stageDocument.fonts) {
-    await withExportTimeout(
-      stageDocument.fonts.ready.then(() => undefined),
-      'Font desktop export belum selesai dimuat.'
-    );
-  }
-  await Promise.all(Array.from(clone.querySelectorAll('img')).map(waitForImageReady));
-  await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
-  await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
+  try {
+    await waitForStageStyles(stageDocument);
+    if (stageDocument.fonts) {
+      await withExportTimeout(
+        stageDocument.fonts.ready.then(() => undefined),
+        'Font desktop export belum selesai dimuat.'
+      );
+    }
+    await Promise.all(Array.from(clone.querySelectorAll('img')).map(waitForImageReady));
+    await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
+    await new Promise<void>((resolve) => iframe.contentWindow?.requestAnimationFrame(() => resolve()));
 
-  // Scroll offsets set before styles load can be clamped back to zero.
-  restoreChatScrollPositions(clone, chatScrollPositions);
+    // Scroll offsets set before styles load can be clamped back to zero.
+    restoreChatScrollPositions(clone, chatScrollPositions);
+  } catch (error) {
+    iframe.remove();
+    throw error;
+  }
 
   return {
     iframe,
@@ -1450,7 +1494,7 @@ export async function downloadElementAsImage(
             URL.revokeObjectURL(downloadUrl);
           }
         } catch {}
-      }, 1500);
+      }, 60000);
     } else {
       link.click();
       if (isObjectUrl) {
@@ -1458,7 +1502,7 @@ export async function downloadElementAsImage(
           try {
             URL.revokeObjectURL(downloadUrl);
           } catch {}
-        }, 1500);
+        }, 60000);
       }
     }
 

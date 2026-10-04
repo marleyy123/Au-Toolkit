@@ -7,6 +7,7 @@ import {
   copyElementToClipboard,
   downloadElementAsJpg,
   downloadElementAsPng,
+  exportPreviewToImage,
 } from '../../../utils/exportUtils';
 
 type UsePreviewExportArgs = {
@@ -45,6 +46,19 @@ export function usePreviewExport({
   const [copiedSuccess, setCopiedSuccess] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [downloadJpgSuccess, setDownloadJpgSuccess] = useState<boolean>(false);
+  const [preparedImage, setPreparedImage] = useState<File | null>(null);
+
+  const prepareAppleImage = async (target: HTMLElement, filename: string, scale: number, format: 'png' | 'jpeg') => {
+    const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isAppleMobile) return false;
+    const result = await exportPreviewToImage({element: target, filename, scale, format, quality: 1,
+      onProgress: setExportStatusText});
+    if (!result.success || !result.blob) throw new Error('No image was produced.');
+    setPreparedImage(new File([result.blob], result.filename, {type: format === 'png' ? 'image/png' : 'image/jpeg'}));
+    setExportStatusText(language === 'id' ? 'Gambar siap' : 'Image ready');
+    return true;
+  };
 
   const flushCurrentFormData = () => {
     const currentFormData = getCurrentTabFormData(activeTab);
@@ -74,6 +88,7 @@ export function usePreviewExport({
 
     try {
       const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.png`;
+      if (await prepareAppleImage(targetElement, filename, effectiveScale, 'png')) return;
       const success = await downloadElementAsPng(targetElement, filename, effectiveScale, (step) => {
         setExportStatusText(step);
       });
@@ -116,6 +131,7 @@ export function usePreviewExport({
 
     try {
       const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.jpg`;
+      if (await prepareAppleImage(targetElement, filename, effectiveScale, 'jpeg')) return;
       const success = await downloadElementAsJpg(targetElement, filename, effectiveScale, 1.0, (step) => {
         setExportStatusText(step);
       });
@@ -170,6 +186,8 @@ export function usePreviewExport({
   };
 
   return {
+    preparedImage,
+    closePreparedImage: () => {setPreparedImage(null); setExportStatusText('');},
     exportScale,
     setExportScale,
     isExporting,

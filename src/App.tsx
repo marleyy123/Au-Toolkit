@@ -37,6 +37,7 @@ import { useLineFormHandlers } from './features/line/hooks/useLineFormHandlers';
 import { useInstagramFormHandlers } from './features/instagram/hooks/useInstagramFormHandlers';
 import { useTwitterFormHandlers } from './features/twitter/hooks/useTwitterFormHandlers';
 import { usePreviewExport } from './features/editor/hooks/usePreviewExport';
+import { PreparedImageDialog } from './features/editor/components/PreparedImageDialog';
 import { usePreviewViewport } from './features/editor/hooks/usePreviewViewport';
 import { useWorkspaceFolders } from './features/workspace/hooks/useWorkspaceFolders';
 import { useWorkspaceAutoSaveProtection } from './features/workspace/hooks/useWorkspaceAutoSaveProtection';
@@ -709,6 +710,8 @@ export default function App() {
   });
 
   const {
+    preparedImage,
+    closePreparedImage,
     exportScale,
     setExportScale,
     isExporting,
@@ -998,6 +1001,8 @@ export default function App() {
         onSwitchToFullPreview={() => setMobileView('preview')}
         title={`Preview: ${getFloatingPreviewTitle(activeTab)}`}
       />
+
+      <PreparedImageDialog file={preparedImage} language={language} onClose={closePreparedImage}/>
 
       <DeveloperAccessControls
         uiTheme={uiTheme}

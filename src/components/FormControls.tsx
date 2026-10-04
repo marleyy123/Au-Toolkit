@@ -184,6 +184,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const { language } = useLanguage();
 
   const currentValue = value !== undefined ? value : (imageUrl !== undefined ? imageUrl : (currentImage !== undefined ? currentImage : ''));
+  const latestUpload = useRef({ onChange, onImageChange, currentValue });
+  latestUpload.current = { onChange, onImageChange, currentValue };
+  const uploadMounted = useRef(true);
   const displayedImage = pendingPreviewUrl || currentValue;
   const lowerLabel = displayLabel.toLowerCase();
   const isAvatarUpload =
@@ -224,7 +227,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   // Cleanup any uncommitted temporary object URLs on unmount
   useEffect(() => {
+    uploadMounted.current = true;
     return () => {
+      uploadMounted.current = false;
       if (activeSessionRef.current?.tempBlobUrl && isBlobUrl(activeSessionRef.current.tempBlobUrl)) {
         revokeSafeObjectURL(activeSessionRef.current.tempBlobUrl);
         activeSessionRef.current = null;
@@ -354,6 +359,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       const response = await fetch(croppedUrl);
       if (!response.ok) throw new Error('The cropped image could not be prepared.');
       const croppedBlob = await response.blob();
+      if (!uploadMounted.current) return;
       const validationError = validateImage(croppedBlob);
       if (validationError) throw new Error(validationError);
       const localPreviewUrl = createSafeObjectURL(croppedBlob);
@@ -362,8 +368,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       registerTransientImageUrl(localPreviewUrl, resolvePersistentImageUrl(currentValue));
       registerOriginalImage(localPreviewUrl, croppedBlob);
       setPendingPreviewUrl(localPreviewUrl);
-      if (onChange) onChange(localPreviewUrl);
-      if (onImageChange) onImageChange(localPreviewUrl);
+      latestUpload.current.onChange?.(localPreviewUrl);
+      latestUpload.current.onImageChange?.(localPreviewUrl);
 
       const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
       if (!uid) throw new Error(language === 'id' ? 'UID akun belum tersedia.' : 'The account UID is unavailable.');
@@ -373,8 +379,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
       bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
       registerOriginalImage(persistentRef, croppedBlob);
-      if (onChange) onChange(persistentRef);
-      if (onImageChange) onImageChange(persistentRef);
+      if (uploadMounted.current && latestUpload.current.currentValue === localPreviewUrl) {
+        latestUpload.current.onChange?.(persistentRef);
+        latestUpload.current.onImageChange?.(persistentRef);
+      }
       setPendingPreviewUrl('');
       setUploadNotice(
         language === 'id'
@@ -552,10 +560,20 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
   } | null>(null);
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const latestImages = useRef({ images, onChange });
+  latestImages.current = { images, onChange };
+  const uploadMounted = useRef(true);
+  const commitImages = (updated: string[]) => {
+    if (!uploadMounted.current) return;
+    latestImages.current.images = updated;
+    latestImages.current.onChange(updated);
+  };
 
   // Cleanup temporary object URLs on unmount
   useEffect(() => {
+    uploadMounted.current = true;
     return () => {
+      uploadMounted.current = false;
       if (activeSessionRef.current?.tempBlobUrls) {
         activeSessionRef.current.tempBlobUrls.forEach((url) => {
           if (isBlobUrl(url)) revokeSafeObjectURL(url);
@@ -680,6 +698,7 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
       const response = await fetch(croppedUrl);
       if (!response.ok) throw new Error('The cropped image could not be prepared.');
       croppedBlob = await response.blob();
+      if (!uploadMounted.current) return;
       localPreviewUrl = createSafeObjectURL(croppedBlob);
       if (!localPreviewUrl) throw new Error('The local image preview could not be created.');
       registerOriginalImage(localPreviewUrl, croppedBlob);
@@ -700,18 +719,17 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
       const idx = session.targetIndex;
       if (idx >= 0 && idx < images.length) {
         const oldUrl = images[idx];
-        const updated = [...images];
+        const updated = [...latestImages.current.images];
         updated[idx] = localPreviewUrl;
-        onChange(updated);
+        commitImages(updated);
         try {
           if (!uid) throw new Error('The account UID is unavailable.');
           const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
           bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
           registerTransientImageUrl(localPreviewUrl, persistentRef);
           registerOriginalImage(persistentRef, croppedBlob);
-          const persisted = [...images];
-          persisted[idx] = persistentRef;
-          onChange(persisted);
+          const persisted = latestImages.current.images.map((image) => image === localPreviewUrl ? persistentRef : image);
+          commitImages(persisted);
           void deleteLocalImageReference(oldUrl, uid);
           if (isBlobUrl(oldUrl)) revokeSafeObjectURL(oldUrl);
         } catch (error) {
@@ -733,15 +751,15 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
       revokeSafeObjectURL(currentSrc);
     }
 
-    const updated = [...images, localPreviewUrl];
-    onChange(updated);
+    const updated = [...latestImages.current.images, localPreviewUrl];
+    commitImages(updated);
     try {
       if (!uid) throw new Error('The account UID is unavailable.');
       const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
       bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
       registerTransientImageUrl(localPreviewUrl, persistentRef);
       registerOriginalImage(persistentRef, croppedBlob);
-      onChange([...images, persistentRef]);
+      commitImages(latestImages.current.images.map((image) => image === localPreviewUrl ? persistentRef : image));
     } catch (error) {
       console.error('Local media persistence failed:', error);
     }

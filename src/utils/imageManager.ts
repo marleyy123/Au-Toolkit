@@ -24,7 +24,8 @@ interface LocalMediaRecord {
   uid: string;
   context: string;
   mediaId: string;
-  blob: Blob;
+  blob?: Blob;
+  bytes?: ArrayBuffer;
   mimeType: string;
   size: number;
   updatedAt: string;
@@ -101,7 +102,8 @@ export async function persistLocalImageBlob(uid: string, blob: Blob, context: st
     uid: cleanUid,
     context: cleanContext,
     mediaId,
-    blob,
+    // Binary buffers avoid browser-specific failures serializing Blob handles.
+    bytes: await blob.arrayBuffer(),
     mimeType: blob.type || 'application/octet-stream',
     size: blob.size,
     updatedAt: new Date().toISOString(),
@@ -110,7 +112,8 @@ export async function persistLocalImageBlob(uid: string, blob: Blob, context: st
   try {
     await new Promise<void>((resolve, reject) => {
       const transaction = database.transaction(LOCAL_MEDIA_STORE, 'readwrite');
-      transaction.objectStore(LOCAL_MEDIA_STORE).put(record);
+      const request = transaction.objectStore(LOCAL_MEDIA_STORE).put(record);
+      request.onerror = () => reject(request.error || new Error('Unable to persist the local image.'));
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error || new Error('Unable to persist the local image.'));
       transaction.onabort = () => reject(transaction.error || new Error('Local image persistence was aborted.'));
@@ -141,8 +144,11 @@ export async function resolveLocalImageReference(ref: string, uid = currentStore
       request.onsuccess = () => resolve(request.result as LocalMediaRecord | undefined);
       request.onerror = () => reject(request.error || new Error('Unable to restore the local image.'));
     });
-    if (!record || record.uid !== uid || !(record.blob instanceof Blob)) return '';
-    const objectUrl = createSafeObjectURL(record.blob);
+    if (!record || record.uid !== uid) return '';
+    const blob = record.blob instanceof Blob ? record.blob
+      : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], {type: record.mimeType}) : null;
+    if (!blob) return '';
+    const objectUrl = createSafeObjectURL(blob);
     if (objectUrl) persistentObjectUrlCache.set(ref, objectUrl);
     return objectUrl;
   } finally {
