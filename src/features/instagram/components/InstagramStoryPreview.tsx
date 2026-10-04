@@ -165,7 +165,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
 
             {/* User Info Header */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 flex-1 min-w-0 mr-2">
                 <div className="w-8 h-8 rounded-full bg-neutral-700/60 border border-white/20 overflow-hidden flex items-center justify-center shrink-0">
                   {avatar && avatar.trim() !== '' ? (
                     <img src={avatar} alt={username || 'username'} className="w-full h-full object-cover" />
@@ -173,11 +173,11 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
                     <div className="w-full h-full bg-neutral-700/60" />
                   )}
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center space-x-1.5 leading-normal">
-                    <span className="text-xs font-semibold text-white tracking-wide">{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
-                    {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5" />}
-                    <span className="text-[11px] text-white/70">{renderFormattedTextWithAppleEmojis(timeAgo || '1h')}</span>
+                <div className="flex flex-col flex-1 min-w-0">
+                  <div className="flex items-center space-x-1.5 leading-normal min-w-0">
+                    <span className="text-xs font-semibold text-white tracking-wide truncate min-w-0">{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
+                    {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+                    <span className="text-[11px] text-white/70 shrink-0 whitespace-nowrap">{renderFormattedTextWithAppleEmojis(timeAgo || '1h')}</span>
                   </div>
                   {(musicArtist || musicTitle) && (
                     <div className="flex items-center gap-1.5 text-[10.5px] mt-0.5 text-white max-w-[210px] leading-normal py-0.5">
@@ -197,7 +197,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
               </div>
 
               {/* Close Button (X) */}
-              <button className="text-white opacity-80 hover:opacity-100 transition-opacity">
+              <button className="text-white opacity-80 hover:opacity-100 transition-opacity shrink-0">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -467,18 +467,18 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
 
         {/* User Profile Bar */}
         <div className="flex items-center justify-between px-3 pt-2.5">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-1 min-w-0 mr-2">
             <img
               src={(avatar && avatar.trim() !== '') ? avatar : DEFAULT_AVATAR}
               alt={username || 'username'}
               className="w-8 h-8 rounded-full object-cover shrink-0 bg-slate-200"
             />
 
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-center space-x-1.5 leading-normal">
-                <span className={`text-[13px] font-semibold drop-shadow-xs ${textHeaderClass}`}>{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
-                {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5" />}
-                <span className={`text-[12px] ${subtextClass}`}>{renderFormattedTextWithAppleEmojis(timeAgo || '12m')}</span>
+            <div className="flex flex-col flex-1 min-w-0">
+              <div className="flex items-center space-x-1.5 leading-normal min-w-0">
+                <span className={`text-[13px] font-semibold drop-shadow-xs truncate min-w-0 ${textHeaderClass}`}>{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
+                {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+                <span className={`text-[12px] shrink-0 whitespace-nowrap ${subtextClass}`}>{renderFormattedTextWithAppleEmojis(timeAgo || '12m')}</span>
               </div>
 
               {/* Music Indicator under Username */}
@@ -500,7 +500,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 shrink-0">
             {/* Close Friends Capsule Badge */}
             {isCloseFriends && (
               <div
