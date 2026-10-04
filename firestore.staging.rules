@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /test/{docId} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /users/{userId} {
+      allow get, list, create, update: if isOwner(userId);
+      allow delete: if false;
+
+      match /tabs/{tabKey} {
+        allow read, write: if isOwner(userId);
+      }
+      match /folders/{folderId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /devices/{deviceSlot} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
