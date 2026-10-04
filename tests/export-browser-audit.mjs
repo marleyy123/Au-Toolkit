@@ -7,6 +7,7 @@ import {chromium, webkit} from 'playwright-core';
 const cases = {
   twitter: 'TWITTER', 'instagram-feed': 'INSTAGRAM_FEED', 'instagram-story': 'INSTAGRAM_STORY',
   'instagram-profile': 'INSTAGRAM_PROFILE', 'instagram-live': 'INSTAGRAM_LIVE', 'instagram-notes': 'INSTAGRAM_NOTES',
+  'instagram-story-reply': 'INSTAGRAM_STORY_REPLY',
   'instagram-activity': 'INSTAGRAM_ACTIVITY', 'instagram-dm': 'INSTAGRAM_DM', 'instagram-dm-inbox': 'INSTAGRAM_DM_INBOX',
   'instagram-feed-comments': 'INSTAGRAM_FEED_COMMENTS', 'instagram-story-viewers': 'INSTAGRAM_STORY_VIEWERS',
   'whatsapp-chat': 'WHATSAPP_CHAT', 'whatsapp-call': 'WHATSAPP_CALL', 'whatsapp-status': 'WHATSAPP_STATUS',
@@ -34,8 +35,13 @@ const bundle = await build({stdin: {contents: `
     return value;
   }
   const data = {...sanitize(defaults['INITIAL_' + cases[key] + '_DATA']), avatar, contactAvatar: avatar,
-    username: 'audit_user', name: 'Audit User', contactName: 'Audit User', emojis: [], theme: 'light'};
+    username: 'audit_user', name: 'Audit User', contactName: 'loml', emojis: [], theme: 'light'};
   if (key === 'instagram-story') data.backgroundImage = media;
+  if (key === 'instagram-story-reply') {data.storyImageUrl=media;data.avatarUrl=avatar;data.messageText='Reply text';}
+  if (key === 'instagram-story-viewers') {
+    data.storyImage=media; data.storyImages=[media,avatar]; data.viewerCount='899';
+    data.viewers=[{id:'viewer',username:'gretamikaelson',name:'gretamikaelson',avatar}];
+  }
   if (key.endsWith('-chat') || key === 'instagram-dm') {
     data.messages = [{id:'1',type:'text',sender:'incoming',text:'A complete message must remain visible.',time:'12:30'},
       {id:'2',type:'text',sender:'outgoing',text:'The layout must retain its original size.',time:'12:31',status:'read'}];
@@ -64,6 +70,26 @@ try {
         await page.goto(`http://127.0.0.1:${server.address().port}/?key=${key}`);
         await page.waitForFunction(() => window.ready);
         await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(() => {
+          const sample=document.createElement('canvas').getContext('2d');
+          window.labels=Array.from(document.querySelectorAll('#root .truncate'))
+            .filter(node=>node.childElementCount===0 && node.clientWidth>0 && node.clientHeight>0 && node.textContent.trim() && node.scrollWidth<=node.clientWidth+1)
+            .map((node,index)=>{
+              const color='#'+(0x153080+index*17).toString(16);
+              node.style.color=color;sample.fillStyle=color;
+              return {color:sample.fillStyle,text:node.textContent.trim().replace(/\s+/g,' ')};
+            });
+          const original=CanvasRenderingContext2D.prototype.fillText;
+          window.painted=[];
+          CanvasRenderingContext2D.prototype.fillText=function(text,...args){
+            window.painted.push({text,color:this.fillStyle});return original.call(this,text,...args);
+          };
+          window.mediaMetrics=Array.from(document.querySelectorAll('#root img')).filter(n=>n.clientWidth>0).map((node,index)=>{
+            node.dataset.auExportDiag='media-'+index;
+            return {id:'media-'+index,width:node.getBoundingClientRect().width/.65,height:node.getBoundingClientRect().height/.65};
+          });
+          window.__AU_EXPORT_DIAGNOSTIC__={enabled:true,record:entry=>{if(entry.stage==='direct-canvas-clone-layout')window.cloneMetrics=entry.nodes;}};
+        });
         if (key === 'whatsapp-chat') {
           assert((await page.locator('#preview-target').textContent()).includes('The layout must retain its original size.'), 'WhatsApp must not insert line breaks into words');
         }
@@ -71,6 +97,7 @@ try {
         for (const format of ['png','jpeg']) {
           const shot = await page.evaluate(async format => {
             const before = window.geometry();
+            window.painted=[];
             const r = await window.capture({format,scale:1});
             if (!r.success) throw new Error(JSON.stringify(r));
             const image = new Image(); image.src=r.dataUrl; await image.decode();
@@ -82,13 +109,17 @@ try {
               if(p[i]>180 && p[i+1]<70 && p[i+2]<100) red++;
               if(p[i+3]>0 && (p[i]<240||p[i+1]<240||p[i+2]<240)) nonWhite++;
             }
-            return {before,after:window.geometry(),width:r.width,height:r.height,red,nonWhite,dataUrl:r.dataUrl};
+            const labels=window.labels.map(label=>({...label,painted:window.painted.filter(p=>p.color===label.color).map(p=>p.text).join('').trim().replace(/\s+/g,' ')}));
+            const media=window.mediaMetrics.map(m=>({...m,clone:window.cloneMetrics.find(n=>n.id===m.id)?.rect}));
+            return {before,after:window.geometry(),width:r.width,height:r.height,red,nonWhite,labels,media,dataUrl:r.dataUrl};
           },format);
           assert.deepEqual(shot.after,shot.before,key+' changed live geometry');
           assert(shot.width>=300 && shot.width<=1000,key+' invalid width');
           assert(shot.height>100 && shot.height<2500,key+' invalid height');
           assert(shot.nonWhite>100,key+' blank export');
           assert(shot.red<50000,key+' oversized avatar');
+          for(const label of shot.labels) assert.equal(label.painted,label.text,`${engine} ${key}: fitting name must be painted completely`);
+          for(const m of shot.media) assert(Math.abs(m.width-m.clone.width)<1 && Math.abs(m.height-m.clone.height)<1,`${engine} ${key}: media geometry differs from preview: ${JSON.stringify(m)}`);
           if (['twitter','instagram-profile','instagram-story','whatsapp-chat','instagram-dm'].includes(key)) {
             await writeFile(`dist/audit-${engine}-${key}.${format==='png'?'png':'jpg'}`,Buffer.from(shot.dataUrl.split(',')[1],'base64'));
           }

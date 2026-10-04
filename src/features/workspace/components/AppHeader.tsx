@@ -53,8 +53,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     uiTheme === 'dark' ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200 shadow-xs'
   }`}>
     <div className="max-w-7xl mx-auto flex flex-col gap-1.5">
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
-        <div className="flex items-center space-x-3 shrink-0 pt-0.5">
+      <div className="flex min-w-0 flex-col gap-3">
+        <div className="flex min-w-0 items-center space-x-3 pt-0.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-rose-500 to-amber-500 p-[2px] flex items-center justify-center shadow-lg shadow-purple-500/10 shrink-0">
             <div className={`w-full h-full rounded-[10px] flex items-center justify-center ${
               uiTheme === 'dark' ? 'bg-slate-900' : 'bg-white'
@@ -62,7 +62,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <Sparkles className="w-4 h-4 text-amber-500" />
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2.5">
               <h1 className={`font-extrabold text-base lg:text-lg tracking-tight leading-tight ${
                 uiTheme === 'dark' ? 'bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent' : 'text-slate-900'
@@ -78,8 +78,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-start lg:items-start gap-2.5 shrink-0">
-          <div className="flex flex-col items-start gap-1.5 shrink-0 max-w-full">
+        <div className="flex w-full min-w-0 flex-col lg:flex-row items-start gap-2.5">
+          <div className="flex w-full min-w-0 flex-col items-start gap-1.5 lg:flex-1">
             <PlatformCategoryNav
               uiTheme={uiTheme}
               activeCategory={activeCategory}

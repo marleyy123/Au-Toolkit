@@ -258,9 +258,7 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
     else if (tab === 'spotify-card') args.setSpotifyData(cloned);
   };
 
-  const currentPreviewData = args.activeTab === 'instagram-story-reply'
-    ? args.instagramStoryData
-    : getCurrentTabFormData(args.activeTab);
+  const currentPreviewData = getCurrentTabFormData(args.activeTab);
 
   return {
     updateCurrentTabIdentity,

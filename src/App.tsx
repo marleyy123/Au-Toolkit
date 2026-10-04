@@ -750,6 +750,7 @@ export default function App() {
     activeTab,
     handleTwitterDataChange,
     handleInstagramDMDataChange,
+    handleInstagramStoryReplyDataChange,
     handleUpdateInstagramDMMessageText,
     handleWhatsAppChatDataChange,
     handleWhatsAppCallDataChange,

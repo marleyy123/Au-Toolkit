@@ -418,10 +418,26 @@ function synchronizeClonedNode(
   }
 }
 
+function preserveFittingText(root: HTMLElement): void {
+  const ownerWindow = root.ownerDocument.defaultView;
+  if (!ownerWindow) return;
+  for (const node of [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))]) {
+    const style = ownerWindow.getComputedStyle(node);
+    // The canvas renderer compares unspaced glyph widths for ellipsis. Browser
+    // layout is authoritative, especially for tightly spaced short names.
+    if (style.textOverflow === 'ellipsis' && node.clientWidth > 0 &&
+        node.scrollWidth <= node.clientWidth + 1) {
+      node.style.textOverflow = 'clip';
+    }
+  }
+}
+
 interface DesktopCanonicalStage {
   iframe: HTMLIFrameElement;
   element: HTMLElement;
   document: Document;
+  viewportWidth: number;
+  viewportHeight: number;
   destroy: () => void;
 }
 
@@ -543,6 +559,9 @@ async function createDesktopCanonicalStage(
   chatScrollPositions: ChatScrollPosition[],
   chatViewportHeight: number
 ): Promise<DesktopCanonicalStage> {
+  const sourceWindow = source.ownerDocument.defaultView;
+  const viewportWidth = sourceWindow?.innerWidth || DESKTOP_EXPORT_VIEWPORT_WIDTH;
+  const viewportHeight = sourceWindow?.innerHeight || DESKTOP_EXPORT_VIEWPORT_HEIGHT;
   const iframe = document.createElement('iframe');
   iframe.setAttribute('aria-hidden', 'true');
   iframe.dataset.auDesktopExportStage = 'true';
@@ -550,8 +569,8 @@ async function createDesktopCanonicalStage(
     position: 'fixed',
     left: '-100000px',
     top: '0',
-    width: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
-    height: `${Math.max(DESKTOP_EXPORT_VIEWPORT_HEIGHT, source.scrollHeight + 256)}px`,
+    width: `${viewportWidth}px`,
+    height: `${viewportHeight}px`,
     border: '0',
     pointerEvents: 'none',
     zIndex: '-2147483647',
@@ -574,17 +593,17 @@ async function createDesktopCanonicalStage(
   copyLoadedStylesheets(source.ownerDocument, stageDocument);
 
   Object.assign(stageDocument.documentElement.style, {
-    width: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
-    minWidth: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
-    maxWidth: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
+    width: `${viewportWidth}px`,
+    minWidth: `${viewportWidth}px`,
+    maxWidth: `${viewportWidth}px`,
     margin: '0',
     padding: '0',
     overflow: 'visible',
   });
   Object.assign(stageDocument.body.style, {
-    width: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
-    minWidth: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
-    maxWidth: `${DESKTOP_EXPORT_VIEWPORT_WIDTH}px`,
+    width: `${viewportWidth}px`,
+    minWidth: `${viewportWidth}px`,
+    maxWidth: `${viewportWidth}px`,
     margin: '0',
     padding: '0',
     overflow: 'visible',
@@ -632,6 +651,8 @@ async function createDesktopCanonicalStage(
     iframe,
     element: clone,
     document: stageDocument,
+    viewportWidth,
+    viewportHeight,
     destroy: () => iframe.remove(),
   };
 }
@@ -1267,12 +1288,12 @@ export async function exportPreviewToImage(
     // second independent HTML/text layout when that SVG is decoded as an image.
     canvas = await html2canvas(desktopStage.element, {
       // Device DPR is intentionally excluded. 1x/2x/3x change backing pixels
-      // only while the desktop CSS viewport and element geometry stay fixed.
+      // only while preview CSS breakpoints and element geometry stay fixed.
       scale: scaleMultiplier,
       width: canonicalWidth,
       height: canonicalHeight,
-      windowWidth: DESKTOP_EXPORT_VIEWPORT_WIDTH,
-      windowHeight: Math.max(DESKTOP_EXPORT_VIEWPORT_HEIGHT, canonicalHeight + 256),
+      windowWidth: desktopStage.viewportWidth,
+      windowHeight: desktopStage.viewportHeight,
       scrollX: 0,
       scrollY: 0,
       backgroundColor: effectiveBg,
@@ -1295,6 +1316,7 @@ export async function exportPreviewToImage(
           zoom: '1',
         });
         synchronizeClonedNode(clonedNode, desktopStage!.element);
+        preserveFittingText(clonedNode);
         const originalImages = Array.from(desktopStage!.element.querySelectorAll<HTMLImageElement>('img'));
         const clonedImages = Array.from(clonedNode.querySelectorAll<HTMLImageElement>('img'));
         await Promise.all(clonedImages.map(async (clonedImage, index) => {

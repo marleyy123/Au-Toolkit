@@ -4,6 +4,7 @@ interface UseRegisteredPreviewHandlersArgs {
   activeTab: PlatformTab;
   handleTwitterDataChange: (next: any) => void;
   handleInstagramDMDataChange: (next: any) => void;
+  handleInstagramStoryReplyDataChange: (next: any) => void;
   handleUpdateInstagramDMMessageText: (id: string, text: string) => void;
   handleWhatsAppChatDataChange: (next: any) => void;
   handleWhatsAppCallDataChange: (next: any) => void;
@@ -23,6 +24,7 @@ export function useRegisteredPreviewHandlers({
   activeTab,
   handleTwitterDataChange,
   handleInstagramDMDataChange,
+  handleInstagramStoryReplyDataChange,
   handleUpdateInstagramDMMessageText,
   handleWhatsAppChatDataChange,
   handleWhatsAppCallDataChange,
@@ -41,6 +43,7 @@ export function useRegisteredPreviewHandlers({
     switch (activeTab) {
       case 'twitter': return handleTwitterDataChange(next);
       case 'instagram-dm': return handleInstagramDMDataChange(next);
+      case 'instagram-story-reply': return handleInstagramStoryReplyDataChange(next);
       case 'whatsapp-chat': return handleWhatsAppChatDataChange(next);
       case 'whatsapp-call': return handleWhatsAppCallDataChange(next);
       case 'whatsapp-status': return handleWhatsAppStatusDataChange(next);

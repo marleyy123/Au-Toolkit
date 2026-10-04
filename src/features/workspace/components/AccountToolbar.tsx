@@ -26,8 +26,8 @@ export const AccountToolbar: React.FC<AccountToolbarProps> = ({
   setIsPasswordModalOpen,
   setIsResetConfirmOpen,
 }) => (
-  <div className="flex flex-col items-start gap-1.5 shrink-0">
-    <div className="flex items-center gap-1.5 shrink-0">
+  <div className="flex max-w-full flex-col items-start gap-1.5 shrink-0">
+    <div className="flex max-w-full flex-wrap items-center gap-1.5">
       <button
         type="button"
         onClick={toggleLanguage}
@@ -85,8 +85,8 @@ export const AccountToolbar: React.FC<AccountToolbarProps> = ({
       </button>
     </div>
 
-    <div className="flex items-center gap-1.5 relative">
-      <div className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-xl border text-xs shrink-0 ${
+    <div className="flex max-w-full items-center gap-1.5 relative">
+      <div className={`flex max-w-full flex-wrap items-center gap-2 px-2.5 py-1.5 rounded-xl border text-xs ${
         uiTheme === 'dark'
           ? 'bg-purple-950/40 text-purple-200 border-purple-800/60'
           : 'bg-purple-50 text-purple-800 border-purple-200 shadow-xs'
@@ -102,7 +102,7 @@ export const AccountToolbar: React.FC<AccountToolbarProps> = ({
             {(authUser?.displayName || authUser?.email || localStorage.getItem('au_user_email') || 'A').charAt(0).toUpperCase()}
           </div>
         )}
-        <div className="flex flex-col text-left leading-tight">
+        <div className="flex min-w-0 flex-col text-left leading-tight">
           <span className="font-bold text-[11px] truncate max-w-[85px] sm:max-w-[120px]" title={authUser?.email || localStorage.getItem('au_user_email') || ''}>
             {authUser?.displayName || authUser?.email?.split('@')[0] || (localStorage.getItem('au_user_email') || '').split('@')[0] || 'Member'}
           </span>

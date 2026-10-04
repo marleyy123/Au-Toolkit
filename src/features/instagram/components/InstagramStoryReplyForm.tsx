@@ -113,8 +113,7 @@ export const InstagramStoryReplyForm: React.FC<Props> = ({
           label={isId ? 'Gambar Latar Cerita' : 'Story Background Image'}
           value={data.storyImageUrl || data.storyImage || data.backgroundImage || data.bgImage || ''}
           onChange={(val) => {
-            updateField('storyImageUrl', val);
-            updateField('storyImage', val);
+            onChange({ ...data, storyImageUrl: val, storyImage: val });
           }}
           aspectHint={isId ? 'Vertikal 9:16 (Resolusi HD Penuh)' : '9:16 Vertical (Full HD Native)'}
           skipCompression={true}

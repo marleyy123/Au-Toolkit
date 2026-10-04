@@ -155,7 +155,7 @@ export const InstagramStoryReplyPreview = forwardRef<HTMLDivElement, Props>(({ d
 
           {/* User Info Header */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0 mr-2">
               {/* Profile Avatar: image if present, blank circle if empty */}
               <div className="w-8 h-8 rounded-full bg-neutral-700/60 border border-white/20 overflow-hidden flex items-center justify-center shrink-0">
                 {avatarUrl && avatarUrl.trim() !== '' ? (
@@ -164,11 +164,11 @@ export const InstagramStoryReplyPreview = forwardRef<HTMLDivElement, Props>(({ d
                   <div className="w-full h-full bg-neutral-700/60" />
                 )}
               </div>
-              <span className="text-xs font-semibold text-white tracking-wide">{renderEmojiText(username)}</span>
+              <span className="text-xs font-semibold text-white truncate min-w-0">{renderEmojiText(username)}</span>
             </div>
 
             {/* Close Button (X) */}
-            <button type="button" className="text-white opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+            <button type="button" className="text-white opacity-80 hover:opacity-100 transition-opacity cursor-pointer shrink-0">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>

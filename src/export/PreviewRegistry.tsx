@@ -3,6 +3,7 @@ import type { PlatformTab } from '../types';
 import { TwitterPreview } from '../features/twitter/components/TwitterPreview';
 import { InstagramFeedPreview } from '../features/instagram/components/InstagramFeedPreview';
 import { InstagramStoryPreview } from '../features/instagram/components/InstagramStoryPreview';
+import { InstagramStoryReplyPreview } from '../features/instagram/components/InstagramStoryReplyPreview';
 import { InstagramStoryViewersPreview } from '../features/instagram/components/InstagramStoryViewersPreview';
 import { InstagramProfilePreview } from '../features/instagram/components/InstagramProfilePreview';
 import { InstagramLivePreview } from '../features/instagram/components/InstagramLivePreview';
@@ -61,8 +62,9 @@ export function PreviewRegistry({
     case 'instagram-feed':
       return <InstagramFeedPreview {...shared} />;
     case 'instagram-story':
-    case 'instagram-story-reply':
       return <InstagramStoryPreview {...shared} />;
+    case 'instagram-story-reply':
+      return <InstagramStoryReplyPreview ref={previewRef} data={data} onChange={handlers.onChange} />;
     case 'instagram-story-viewers':
       return <InstagramStoryViewersPreview {...shared} />;
     case 'instagram-profile':
