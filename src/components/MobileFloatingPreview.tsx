@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Eye, Maximize2, Minimize2, PictureInPicture2, Settings2, X } from 'lucide-react';
 
 interface Props {
   sourceRef: React.RefObject<HTMLElement | null>;
   refreshKey: string;
+  refreshData?: unknown;
   uiTheme: 'light' | 'dark';
   isOpen: boolean;
   onClose: () => void;
@@ -62,6 +63,7 @@ function remapSvgDefinitionIds(root: HTMLElement): void {
 export const MobileFloatingPreview: React.FC<Props> = ({
   sourceRef,
   refreshKey,
+  refreshData,
   uiTheme,
   isOpen,
   onClose,
@@ -122,19 +124,23 @@ export const MobileFloatingPreview: React.FC<Props> = ({
     });
   }, [sourceRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) return;
     const source = sourceRef.current;
     if (!source) return;
+    let active = true;
     const schedule = () => {
+      if (!active) return;
       if (refreshPendingRef.current) return;
       refreshPendingRef.current = true;
       queueMicrotask(() => {
+        if (!active) return;
         refreshPendingRef.current = false;
         refreshMirror();
       });
     };
-    schedule();
+    // Sync committed form changes even when the canonical preview is hidden.
+    refreshMirror();
     const mutations = new MutationObserver(schedule);
     mutations.observe(source, { attributes: true, characterData: true, childList: true, subtree: true });
     const resize = new ResizeObserver(schedule);
@@ -143,13 +149,14 @@ export const MobileFloatingPreview: React.FC<Props> = ({
     source.addEventListener('scroll', schedule, true);
     void document.fonts?.ready.then(schedule).catch(() => {});
     return () => {
+      active = false;
       mutations.disconnect();
       resize.disconnect();
       source.removeEventListener('load', schedule, true);
       source.removeEventListener('scroll', schedule, true);
       refreshPendingRef.current = false;
     };
-  }, [isOpen, isMinimized, refreshKey, refreshMirror, sourceRef]);
+  }, [isOpen, isMinimized, refreshKey, refreshData, refreshMirror, sourceRef]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

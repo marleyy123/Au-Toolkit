@@ -996,6 +996,7 @@ export default function App() {
       <MobileFloatingPreview
         sourceRef={previewRef}
         refreshKey={activeTab}
+        refreshData={currentPreviewData}
         uiTheme={uiTheme}
         isOpen={isMobileFloatingPreviewOpen && mobileView === 'editor'}
         onClose={() => setMobileFloatingPreviewOpen(false)}

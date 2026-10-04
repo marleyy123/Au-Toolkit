@@ -20,6 +20,7 @@ const bundle=await build({stdin:{contents:`
   canvas.getContext('2d').fillRect(0,0,32,32);const avatar=canvas.toDataURL();
   function App(){
     const ref=useRef(null);
+    const [generation,setGeneration]=useState(0);
     const [data,setData]=useState(key==='whatsapp-chat'?{...INITIAL_WHATSAPP_CHAT_DATA,contactName:'old',contactAvatar:avatar,
       messages:[{id:'one',type:'text',sender:'incoming',text:'Old text',time:'12:30'}]}:
       key==='instagram-story-reply'?{...INITIAL_INSTAGRAM_STORY_REPLY_DATA,username:'reply_old',avatarUrl:avatar,emojis:[]}:
@@ -27,9 +28,10 @@ const bundle=await build({stdin:{contents:`
     const registry=useTabFormDataRegistry({activeTab:key,whatsAppChatData:data,instagramProfileData:data,instagramStoryReplyData:data,instagramStoryData:{username:'wrong_story'}});
     useLayoutEffect(()=>{window.state=data;window.capture=()=>exportPreviewToImage({element:ref.current,scale:1});},[data]);
     const Form=key==='whatsapp-chat'?WhatsAppChatForm:key==='instagram-story-reply'?InstagramStoryReplyForm:InstagramProfileForm;
-    return <><Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/>
-      <div id="canonical" style={{display:'none'}}><PreviewRegistry previewKey={key} data={registry.currentPreviewData} previewRef={ref} fontCss="Arial"/></div>
-      <MobileFloatingPreview sourceRef={ref} refreshKey={key} uiTheme="light" isOpen={true} onClose={()=>{}}/></>;
+    return <><button id="remount" onClick={()=>setGeneration(v=>v+1)}>Remount</button>
+      <Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/>
+      <div id="canonical" style={{display:'none'}}><PreviewRegistry key={generation} previewKey={key} data={registry.currentPreviewData} previewRef={ref} fontCss="Arial"/></div>
+      <MobileFloatingPreview sourceRef={ref} refreshKey={key} refreshData={registry.currentPreviewData} uiTheme="light" isOpen={true} onClose={()=>{}}/></>;
   }
   createRoot(document.getElementById('root')).render(<App/>);
 `,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife',loader:{'.css':'empty'},plugins:[{
@@ -66,6 +68,12 @@ try{
           await page.getByPlaceholder('Name',{exact:true}).fill('J');
           await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone] #preview-username')?.textContent==='_07ayyden');
           assert.equal(await page.locator('[data-floating-preview-clone] #preview-name').textContent(),'J');
+          await page.locator('#remount').click();
+          const username=page.getByPlaceholder('username',{exact:true});
+          await username.fill('');
+          await username.pressSequentially('safari_updated',{delay:30});
+          await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone] #preview-username')?.textContent==='safari_updated');
+          assert.equal(await page.locator('#canonical #preview-username').textContent(),'safari_updated');
         }
         const result=await page.evaluate(async()=>{const r=await window.capture();return {success:r.success,width:r.width,height:r.height};});
         assert.equal(result.success,true);assert.equal(result.width,380);assert(result.height>300);
