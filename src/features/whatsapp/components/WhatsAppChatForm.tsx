@@ -7,6 +7,7 @@ import { Plus, Trash2, ArrowUp, ArrowDown, Check, CheckCheck, Sun, Moon, Smile, 
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { auth } from '../../../firebase';
+import { isWhatsAppMessageDivider, resolveWhatsAppGroupSenders } from '../messageSenders';
 import {
   readPersistentUserAssets,
   subscribePersistentUserAssets,
@@ -326,6 +327,8 @@ export const WhatsAppChatForm: React.FC<Props> = ({
 
   // Add Message
   const handleAddMessage = (sender: 'incoming' | 'outgoing', type: 'text' | 'image' | 'sticker' = 'text') => {
+    const lastMessage = data.isGroupChat ? resolveWhatsAppGroupSenders(data.messages || []).at(-1) : undefined;
+    const previous = lastMessage && !isWhatsAppMessageDivider(lastMessage) ? lastMessage : undefined;
     const newMessage: WhatsAppChatMessage = {
       id: 'wa-msg-' + Date.now(),
       sender,
@@ -336,6 +339,8 @@ export const WhatsAppChatForm: React.FC<Props> = ({
       stickerUrl: type === 'sticker' ? SAMPLE_STICKERS[0].url : '',
       time: '',
       isRead: true,
+      senderName: sender === 'incoming' && previous?.sender === 'incoming' ? previous.senderName : undefined,
+      senderColor: sender === 'incoming' && previous?.sender === 'incoming' ? previous.senderColor : undefined,
     };
     updateField('messages', [...(data.messages || []), newMessage]);
   };
@@ -571,6 +576,26 @@ export const WhatsAppChatForm: React.FC<Props> = ({
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
+              <label htmlFor="wa-bubble-width" className="flex justify-between items-center text-xs font-semibold text-slate-700">
+                <span>{isId ? 'Lebar Bubble' : 'Bubble Width'}</span>
+                <span className="font-mono text-purple-700">{data.bubbleWidthPercent ?? 94}%</span>
+              </label>
+              <input id="wa-bubble-width" type="range" min={50} max={94} step={1}
+                value={data.bubbleWidthPercent ?? 94}
+                onChange={(e) => updateField('bubbleWidthPercent', Number(e.target.value))}
+                className="w-full accent-purple-600 cursor-pointer" />
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
+              <label htmlFor="wa-message-font-size" className="flex justify-between items-center text-xs font-semibold text-slate-700">
+                <span>{isId ? 'Ukuran Teks Pesan' : 'Message Text Size'}</span>
+                <span className="font-mono text-purple-700">{data.messageFontSize ?? 15}px</span>
+              </label>
+              <input id="wa-message-font-size" type="range" min={11} max={18} step={1}
+                value={data.messageFontSize ?? 15}
+                onChange={(e) => updateField('messageFontSize', Number(e.target.value))}
+                className="w-full accent-purple-600 cursor-pointer" />
+            </div>
             {/* Same Sender Gap */}
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
               <div className="flex justify-between items-center text-xs">
@@ -1838,6 +1863,16 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                     {/* IMAGE TYPE (Single or Multi-Photo Album Grid) */}
                     {msgType === 'image' && (
                       <div className="space-y-3 p-2.5 rounded-lg bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                        <div>
+                          <label htmlFor={`wa-photo-width-${msg.id}`} className={`flex items-center justify-between text-[11px] font-semibold mb-1 ${labelColorClass}`}>
+                            <span>{isId ? 'Ukuran Foto' : 'Photo Size'}</span>
+                            <span className="font-mono">{msg.photoWidth ?? 260}px</span>
+                          </label>
+                          <input id={`wa-photo-width-${msg.id}`} type="range" min={120} max={260} step={10}
+                            value={msg.photoWidth ?? 260}
+                            onChange={(e) => handleUpdateMessage(index, { photoWidth: Number(e.target.value) })}
+                            className="w-full accent-purple-600 cursor-pointer" />
+                        </div>
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <label className={`text-[11px] font-semibold ${labelColorClass}`}>

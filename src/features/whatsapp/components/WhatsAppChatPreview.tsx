@@ -3,6 +3,7 @@ import { WhatsAppChatData, WhatsAppChatMessage } from '../../../types';
 import { DEFAULT_AVATAR, INITIAL_WHATSAPP_CHAT_DATA } from '../../../data/defaultTemplates';
 import { renderFormattedTextWithAppleEmojis } from '../../../utils/emojiUtils';
 import { useLanguage } from '../../../context/LanguageContext';
+import { isSameWhatsAppSender, resolveWhatsAppGroupSenders } from '../messageSenders';
 
 interface Props {
   data: WhatsAppChatData;
@@ -171,6 +172,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
     : isDark;
 
   const isAndroid = false; // WhatsApp is permanently locked to iOS mode per specification
+  const bubbleWidthPercent = Math.min(94, Math.max(50, data.bubbleWidthPercent ?? 94));
+  const messageFontSize = Math.min(18, Math.max(11, data.messageFontSize ?? 15));
 
   // Authentic natural WhatsApp background colors (never pitch black #000000 or #0b141a)
   // Light mode: #efeae2 (warm authentic WhatsApp background)
@@ -568,6 +571,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
     }
   }
 
+  if (isGroupChat) displayMessages = resolveWhatsAppGroupSenders(displayMessages);
+
   return (
     <div
       ref={previewRef}
@@ -927,7 +932,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
             const isPrevDivider = prevMsg?.type === 'unread_divider' || prevMsg?.type === 'date_divider' || prevMsg?.type === 'divider' || prevMsg?.type === 'system';
             const isPrevSameSender = !!(
               prevMsg &&
-              ((prevMsg.sender === 'outgoing' || prevMsg.sender === 'me') === isOutgoing) &&
+              isSameWhatsAppSender(prevMsg, msg) &&
               !isPrevDivider
             );
 
@@ -935,7 +940,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
             const nextMsgType = nextMsg ? (nextMsg.type || (nextMsg.stickerUrl ? 'sticker' : nextMsg.imageUrl ? 'image' : 'text')) : null;
             const isNextSameSender = !!(
               nextMsg &&
-              ((nextMsg.sender === 'outgoing' || nextMsg.sender === 'me') === isOutgoing) &&
+              isSameWhatsAppSender(nextMsg, msg) &&
               nextMsgType !== 'sticker' &&
               nextMsgType !== 'date_divider' &&
               nextMsgType !== 'divider' &&
@@ -945,6 +950,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
             // Tail is ONLY rendered on the LAST message in a group AND NOT for stickers!
             const isLastInGroup = !isNextSameSender;
+            const showSenderName = Boolean((isGroupChat || msg.senderName) && !isOutgoing && !isPrevSameSender);
+            const photoWidth = Math.min(260, Math.max(120, msg.photoWidth ?? 260));
             const showTail = isLastInGroup && msgType !== 'sticker';
 
             // Spacing: dynamic gap calculated in pixels (calibrated: slider 0 = 2px visual margin)
@@ -1053,12 +1060,12 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                       {/* Column 2 (Right): Sender Name, Title, Subtitle, and Timestamp */}
                       <div className="flex-1 flex flex-col justify-center min-w-0 pr-0.5">
-                        {((isGroupChat || msg.senderName) && !isOutgoing) && (
+                        {showSenderName && (
                           <span
                             style={{ color: msg.senderColor || '#e542a3' }}
                             className="text-[12px] font-bold leading-tight truncate mb-0.5 select-none"
                           >
-                            {renderIosEmojis(msg.senderName || 'Sender')}
+                            {renderIosEmojis(msg.senderName || (language === 'id' ? 'Pengguna' : 'User'))}
                           </span>
                         )}
                         <span
@@ -1111,7 +1118,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                   </div>
                 ) : (
                   /* 3. TEXT OR IMAGE TYPE - Render inside chat bubble with WhatsApp max-width (39 chars per line) */
-                  <div className="relative flex items-end max-w-[94%] sm:max-w-[358px]">
+                  <div className="relative flex items-end" style={{ maxWidth: `${bubbleWidthPercent}%` }}>
                     {/* SVG EKOR INCOMING - Nempel persis di pojok kiri bawah tanpa celah */}
                     {!isOutgoing && showTail && (
                       <svg
@@ -1127,7 +1134,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                     {/* BUBBLE UTAMA */}
                     <div
-                      style={bubbleStyles}
+                      style={{ ...bubbleStyles, ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
                       className={`relative z-10 w-fit max-w-full shadow-2xs ${
                         msgType === 'image'
                           ? 'p-1'
@@ -1137,14 +1144,14 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                       }`}
                     >
                       {/* Sender Name for Group Chat / Incoming Messages */}
-                      {((isGroupChat || msg.senderName) && !isOutgoing) && (
+                      {showSenderName && (
                         <div
                           style={{ color: msg.senderColor || '#e542a3' }}
                           className={`text-[12.5px] font-bold leading-tight mb-0.5 truncate select-none ${
                             (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-2 pt-0.5' : 'px-1'
                           }`}
                         >
-                          {renderIosEmojis(msg.senderName || 'Sender')}
+                          {renderIosEmojis(msg.senderName || (language === 'id' ? 'Pengguna' : 'User'))}
                         </div>
                       )}
 
@@ -1209,13 +1216,14 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                               <img
                                 src={rawPhotos[0].trim()}
                                 alt="attachment"
-                                className="w-full max-w-[260px] max-h-72 object-cover rounded-[7.5px]"
+                                className="w-full object-cover rounded-[7.5px]"
+                                style={{ maxWidth: `${photoWidth}px`, maxHeight: `${photoWidth * 288 / 260}px` }}
                               />
                             )}
 
                             {/* 2 Photos: 2 columns side by side */}
                             {count === 2 && (
-                              <div className="grid grid-cols-2 gap-[2px] w-[260px] max-w-full aspect-[4/3] rounded-[7.5px] overflow-hidden">
+                              <div style={{ width: `${photoWidth}px` }} className="grid grid-cols-2 gap-[2px] max-w-full aspect-[4/3] rounded-[7.5px] overflow-hidden">
                                 {rawPhotos.slice(0, 2).map((imgUrl, i) => (
                                   <div key={i} className="relative w-full h-full overflow-hidden bg-black/10">
                                     <img
@@ -1230,7 +1238,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                             {/* 3 Photos: 1 tall left, 2 stacked right */}
                             {count === 3 && (
-                              <div className="grid grid-cols-2 gap-[2px] w-[260px] max-w-full aspect-[4/3] rounded-[7.5px] overflow-hidden">
+                              <div style={{ width: `${photoWidth}px` }} className="grid grid-cols-2 gap-[2px] max-w-full aspect-[4/3] rounded-[7.5px] overflow-hidden">
                                 <div className="relative w-full h-full overflow-hidden bg-black/10">
                                   <img
                                     src={rawPhotos[0].trim()}
@@ -1254,7 +1262,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                             {/* 4 or more Photos: 2x2 Grid with optional '+N' badge on 4th photo */}
                             {count >= 4 && (
-                              <div className="grid grid-cols-2 gap-[2px] w-[260px] max-w-full aspect-square rounded-[7.5px] overflow-hidden">
+                              <div style={{ width: `${photoWidth}px` }} className="grid grid-cols-2 gap-[2px] max-w-full aspect-square rounded-[7.5px] overflow-hidden">
                                 {rawPhotos.slice(0, 4).map((imgUrl, i) => {
                                   const isLastTile = i === 3;
                                   const showOverlay = isLastTile && Boolean(extraBadgeText);
@@ -1282,12 +1290,13 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                             {/* Photo Caption logic if text or caption present */}
                             {hasCaption ? (() => {
                               const captionMetrics = analyzeWhatsAppBubbleText(captionContent, 30);
-                              const needsBottomRow = captionMetrics.lastLineLen >= 22;
+                              const needsBottomRow = true;
                               return (
                               <div
                                 style={{
                                   wordWrap: 'break-word',
                                   overflowWrap: 'anywhere',
+                                  fontSize: `${messageFontSize}px`,
                                 }}
                                 className={`px-1 pt-1 pb-0.5 relative block max-w-full text-[15px] font-sans leading-[1.35] text-current ${
                                   (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-2' : ''
@@ -1379,13 +1388,13 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                           ? (msg.text || (language === 'id' ? 'Pesan masuk' : 'Received message'))
                           : (msg.text || 'Read a message');
                         const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText, 30);
-                        const hasHeaderOrQuote = Boolean((msg.showReplyQuote || msg.replyToText || msg.replyToSender) || ((isGroupChat || msg.senderName) && !isOutgoing));
+                        const hasHeaderOrQuote = Boolean((msg.showReplyQuote || msg.replyToText || msg.replyToSender) || showSenderName);
                         const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 25 && !hasHeaderOrQuote;
-                        const needsBottomRow = !isShortSingleLine && textMetrics.lastLineLen >= 22;
+                        const needsBottomRow = !isShortSingleLine;
 
                         return (
                           <div
-                            style={{ wordWrap: 'break-word', overflowWrap: 'anywhere' }}
+                            style={{ wordWrap: 'break-word', overflowWrap: 'anywhere', fontSize: `${messageFontSize}px` }}
                             className={`relative ${isShortSingleLine ? 'flex items-end justify-end gap-x-1.5' : 'block'} max-w-full text-[15px] font-sans leading-[1.35] text-current ${
                               (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-1 pt-0.5 pb-0.5' : ''
                             }`}
@@ -1396,7 +1405,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                   onChange={(e) => setEditingText(e.target.value)}
                                   onBlur={() => handleSaveEditing(msg.id || String(index))}
                                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveEditing(msg.id || String(index)); } }}
-                                  style={{ wordWrap: 'break-word', overflowWrap: 'anywhere' }}
+                                  style={{ wordWrap: 'break-word', overflowWrap: 'anywhere', fontSize: `${messageFontSize}px` }}
                                   className="w-full bg-transparent border-b border-dashed border-sky-400 focus:outline-none text-[15px] font-sans leading-snug p-0 resize-none text-current break-words"
                                 />
                               </div>

@@ -174,19 +174,19 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
                   )}
                 </div>
                 <div className="flex flex-col flex-1 min-w-0">
-                  <div className="flex items-center space-x-1.5 leading-normal min-w-0">
+                  <div className="flex items-center space-x-1 leading-tight min-w-0">
                     <span className="text-xs font-semibold text-white tracking-wide truncate min-w-0">{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
                     {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
                     <span className="text-[11px] text-white/70 shrink-0 whitespace-nowrap">{renderFormattedTextWithAppleEmojis(timeAgo || '1h')}</span>
                   </div>
                   {(musicArtist || musicTitle) && (
-                    <div className="flex items-center gap-1.5 text-[10.5px] mt-0.5 text-white max-w-[210px] leading-normal py-0.5">
+                    <div className="flex items-center gap-1 text-[10.5px] mt-0.5 text-white max-w-[210px] leading-tight">
                       <svg className="w-2 h-2.5 fill-white shrink-0" viewBox="0 0 10 12">
                         <rect x="0" y="0.5" width="2.2" height="11" rx="1" />
                         <rect x="3.9" y="3.5" width="2.2" height="5" rx="1" />
                         <rect x="7.8" y="0.5" width="2.2" height="11" rx="1" />
                       </svg>
-                      <span className="truncate text-white inline-flex items-center leading-normal py-0.5">
+                      <span className="truncate text-white inline-flex items-center leading-tight">
                         {musicTitle && <span className="font-bold text-white tracking-tight">{renderFormattedTextWithAppleEmojis(musicTitle)}</span>}
                         {musicArtist && musicTitle && <span className="mx-1 font-normal text-white/90">•</span>}
                         {musicArtist && <span className="font-normal text-white/90 tracking-tight">{renderFormattedTextWithAppleEmojis(musicArtist)}</span>}
@@ -475,7 +475,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
             />
 
             <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center space-x-1.5 leading-normal min-w-0">
+              <div className="flex items-center space-x-1 leading-tight min-w-0">
                 <span className={`text-[13px] font-semibold drop-shadow-xs truncate min-w-0 ${textHeaderClass}`}>{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
                 {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
                 <span className={`text-[12px] shrink-0 whitespace-nowrap ${subtextClass}`}>{renderFormattedTextWithAppleEmojis(timeAgo || '12m')}</span>
@@ -483,14 +483,14 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
 
               {/* Music Indicator under Username */}
               {(musicArtist || musicTitle) && (
-                <div className="flex items-center gap-1.5 text-[11px] mt-0.5 text-white max-w-[240px] leading-normal py-0.5">
+                <div className="flex items-center gap-1 text-[11px] mt-0.5 text-white max-w-[240px] leading-tight">
                   {/* Equalizer Icon */}
                   <svg className="w-2.5 h-3 fill-white shrink-0" viewBox="0 0 10 12">
                     <rect x="0" y="0.5" width="2.2" height="11" rx="1" />
                     <rect x="3.9" y="3.5" width="2.2" height="5" rx="1" />
                     <rect x="7.8" y="0.5" width="2.2" height="11" rx="1" />
                   </svg>
-                  <span className="truncate text-white inline-flex items-center leading-normal py-0.5">
+                  <span className="truncate text-white inline-flex items-center leading-tight">
                     {musicTitle && <span className="font-bold text-white tracking-tight">{renderFormattedTextWithAppleEmojis(musicTitle)}</span>}
                     {musicArtist && musicTitle && <span className="mx-1 font-normal text-white/90">•</span>}
                     {musicArtist && <span className="font-normal text-white/90 tracking-tight">{renderFormattedTextWithAppleEmojis(musicArtist)}</span>}

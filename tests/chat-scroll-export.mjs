@@ -22,6 +22,19 @@ const bundle = await build({
         contactAvatar: avatar, avatar, aspectRatio: '4:5', showProfileCard: false,
         messages: Array.from({length: 45}, (_, i) => ({id: String(i), type: 'text',
           sender: i % 2 ? 'outgoing' : 'incoming', text: 'Message ' + String(i).padStart(2, '0') + ' - visible viewport test', time: '12:30', status: 'read'}))};
+      if (key === 'whatsapp' && new URLSearchParams(location.search).has('group')) {
+        data.isGroupChat = true;
+        data.contactAvatar = avatar;
+        const compact = new URLSearchParams(location.search).has('compact');
+        data.bubbleWidthPercent = compact ? 50 : 94;
+        data.messageFontSize = compact ? 11 : 15;
+        data.messages = [
+          {id: 'photo', sender: 'incoming', type: 'image', imageUrl: avatar, photoWidth: new URLSearchParams(location.search).has('photo-small') ? 140 : undefined, caption: 'Photo caption with enough words to wrap across several lines', senderName: 'Karun', time: '12:30'},
+          {id: 'text', sender: 'incoming', type: 'text', text: 'Same person after the photo', time: '12:30'},
+          {id: 'more', sender: 'incoming', type: 'text', senderName: 'Karun', text: 'One more message', time: '12:31'},
+          {id: 'other', sender: 'incoming', type: 'text', senderName: 'Maya', text: 'Different person', time: '12:32'},
+        ];
+      }
       function App() {
         const ref = useRef(null);
         useLayoutEffect(() => {
@@ -92,6 +105,52 @@ try {
       await page.locator('#preview-target').screenshot({path: `dist/chat-${chat}-${width}-preview.png`});
       console.log(`PASS ${chat} ${width}px: top/middle/bottom scroll, fixed header, PNG 1x/3x and JPG 2x`);
       await page.close();
+    }
+  }
+  for (const width of [1440, 390]) {
+    for (const mode of ['normal', 'compact', 'photo-small']) {
+    const compact = mode === 'compact';
+    const page = await browser.newPage({viewport: {width, height: 900}});
+    await page.goto(`http://127.0.0.1:${server.address().port}/?chat=whatsapp&group=true&${mode}=true`);
+    await page.waitForFunction(() => window.ready);
+    const result = await page.evaluate(async () => {
+      const root = document.getElementById('preview-target');
+      const labels = Array.from(root.querySelectorAll('div, span')).filter(node => node.children.length === 0);
+      const text = labels.find(node => node.textContent === 'Same person after the photo');
+      const caption = labels.find(node => node.textContent.includes('Photo caption with enough'));
+      const timestamp = caption.parentElement.parentElement.querySelector('span.tracking-tight');
+      const overlapsTimestamp = caption.getBoundingClientRect().bottom > timestamp.getBoundingClientRect().top;
+      const shot = await window.capture({scale: 1, format: 'png'});
+      const photo = root.querySelector('img[alt="attachment"]');
+      const image = new Image(); image.src = shot.dataUrl; await image.decode();
+      const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+      const context = canvas.getContext('2d'); context.drawImage(image, 0, 0);
+      const row = context.getImageData(0, 110, image.width, 1).data;
+      let exportedPhotoWidth = 0;
+      for (let i = 0; i < row.length; i += 4) {
+        if (row[i] < 5 && Math.abs(row[i + 1] - 136) < 5 && Math.abs(row[i + 2] - 120) < 5) exportedPhotoWidth++;
+      }
+      return {karun: labels.filter(node => node.textContent === 'Karun').length,
+        maya: labels.filter(node => node.textContent === 'Maya').length, image: shot.dataUrl,
+        fontSize: getComputedStyle(text).fontSize, overlapsTimestamp,
+        avatarLoaded: root.querySelector('img').naturalWidth > 0,
+        photoWidth: photo.getBoundingClientRect().width, exportedPhotoWidth,
+        textWidth: text.getBoundingClientRect().width};
+    });
+    assert.equal(result.karun, 1, 'Photo and two texts should share one sender label');
+    assert.equal(result.maya, 1, 'A new participant should show their name');
+    assert.equal(result.fontSize, compact ? '11px' : '15px');
+    assert.equal(result.overlapsTimestamp, false, 'Caption must not overlap timestamp');
+    assert.equal(result.avatarLoaded, true, 'Profile avatar must load for a named contact');
+    if (compact) assert(result.textWidth < 190, 'Compact bubble must constrain text width');
+    if (mode === 'photo-small') {
+      assert.equal(result.photoWidth, 140, 'Photo slider must resize the photo independently');
+      assert.equal(result.exportedPhotoWidth, 140, 'Export must preserve the selected photo width');
+    }
+    await writeFile(`dist/whatsapp-group-${width}-${mode}-export.png`, Buffer.from(result.image.split(',')[1], 'base64'));
+    await page.locator('#preview-target').screenshot({path: `dist/whatsapp-group-${width}-${mode}-preview.png`});
+    console.log(`PASS WhatsApp group ${width}px ${mode}: sender grouping, text/photo sizing, caption spacing, profile avatar, PNG export`);
+    await page.close();
     }
   }
 } finally {

@@ -354,6 +354,7 @@ export interface WhatsAppChatMessage {
   caption?: string;
   imageUrl?: string;
   imageUrls?: string[];
+  photoWidth?: number;
   extraPhotosText?: string;
   stickerUrl?: string;
   time: string;
@@ -407,6 +408,8 @@ export interface WhatsAppChatData {
   differentSenderGap?: number;
   dateDividerGap?: number;
   bubbleRoundness?: number;
+  bubbleWidthPercent?: number;
+  messageFontSize?: number;
   useCustomColors?: boolean;
   activeThemePreset?: string;
   barBgColor?: string;
