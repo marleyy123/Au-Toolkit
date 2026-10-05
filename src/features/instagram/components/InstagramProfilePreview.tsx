@@ -233,7 +233,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
         </div>
 
         {/* Highlights Row (Sorotan) */}
-        <div className="px-4 pt-4 pb-2 overflow-x-auto no-scrollbar">
+        {data.showHighlights !== false && <div className="px-4 pt-4 pb-2 overflow-x-auto no-scrollbar">
           <div id="preview-highlights-container" className="flex items-center space-x-4 min-w-max">
             {highlights && highlights.length > 0 ? (
               highlights.map((hl, idx) => (
@@ -279,8 +279,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
               ))
             )}
           </div>
-        </div>
-
+        </div>}
         {/* Tab Navigation Icons (Grid / Reels / Tagged) */}
         <div className={`border-t ${theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'} mt-2 flex items-center justify-around`}>
           {/* Tab 1: Grid (9 squares) */}

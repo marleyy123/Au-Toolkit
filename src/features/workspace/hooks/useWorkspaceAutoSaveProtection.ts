@@ -6,6 +6,7 @@ import type { CloudConnectionState } from '../components/CloudSyncIndicator';
 import {
   getFormStorageKey,
   getModuleFoldersKey,
+  getPendingCloudSyncStorageKey,
   markLocalWorkspaceUpdated,
 } from '../workspaceStorage';
 
@@ -18,7 +19,7 @@ type UseWorkspaceAutoSaveProtectionArgs = {
   activeFolderIdsRef: MutableRefObject<Record<string, string>>;
   hasLocalUserEditsInSessionRef: MutableRefObject<boolean>;
   lastManualCloudRefreshAtRef: MutableRefObject<number>;
-  triggerCloudWorkspaceSyncRef: MutableRefObject<() => void>;
+  forceCloudWorkspaceSyncNowRef: MutableRefObject<() => void | Promise<void>>;
   applyCloudWorkspaceDataRef: MutableRefObject<(cloudData: any, forceHydrate?: boolean) => void>;
   getCurrentTabFormData: (tab: PlatformTab) => any;
 };
@@ -32,7 +33,7 @@ export function useWorkspaceAutoSaveProtection({
   activeFolderIdsRef,
   hasLocalUserEditsInSessionRef,
   lastManualCloudRefreshAtRef,
-  triggerCloudWorkspaceSyncRef,
+  forceCloudWorkspaceSyncNowRef,
   applyCloudWorkspaceDataRef,
   getCurrentTabFormData,
 }: UseWorkspaceAutoSaveProtectionArgs) {
@@ -46,19 +47,34 @@ export function useWorkspaceAutoSaveProtection({
           const currentList = moduleFoldersRef.current[activeTab] || [];
           const activeId = activeFolderIdsRef.current[activeTab] || currentList[0]?.id || 'folder-1';
           const nextList = currentList.map((f) => (f.id === activeId ? { ...f, data: cloned } : f));
+          moduleFoldersRef.current[activeTab] = nextList;
           localStorage.setItem(getModuleFoldersKey(userAccountKey, activeTab), JSON.stringify(nextList));
-          markLocalWorkspaceUpdated(userAccountKey);
+          if (JSON.stringify(currentList) !== JSON.stringify(nextList)) {
+            markLocalWorkspaceUpdated(userAccountKey);
+          }
         }
       } catch {}
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('pagehide', handleBeforeUnload);
+    const flushWorkspace = () => {
+      handleBeforeUnload();
+      void forceCloudWorkspaceSyncNowRef.current();
+    };
+    window.addEventListener('pagehide', flushWorkspace);
+    const retryPendingSave = () => {
+      if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true') {
+        void forceCloudWorkspaceSyncNowRef.current();
+        return true;
+      }
+      return false;
+    };
+    window.addEventListener('online', retryPendingSave);
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') {
-        handleBeforeUnload();
-        triggerCloudWorkspaceSyncRef.current?.();
+        flushWorkspace();
       } else if (document.visibilityState === 'visible') {
+        if (retryPendingSave()) return;
         const shouldFallbackRefresh =
           authUserUid &&
           !hasLocalUserEditsInSessionRef.current &&
@@ -85,7 +101,8 @@ export function useWorkspaceAutoSaveProtection({
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('pagehide', flushWorkspace);
+      window.removeEventListener('online', retryPendingSave);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [activeTab, userAccountKey, authUserUid, cloudSyncState]);

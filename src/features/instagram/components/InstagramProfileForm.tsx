@@ -509,6 +509,15 @@ export const InstagramProfileForm: React.FC<Props> = ({
         </div>
 
         {/* Highlights Item List */}
+        <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={data.showHighlights !== false}
+            onChange={(event) => updateField('showHighlights', event.target.checked)}
+            className="h-4 w-4 accent-purple-600"
+          />
+          {isId ? 'Tampilkan sorotan' : 'Show highlights'}
+        </label>
         <div className="space-y-3 pt-1">
           {data.highlights && data.highlights.length > 0 ? (
             data.highlights.map((hl, idx) => (

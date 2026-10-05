@@ -772,10 +772,10 @@ export default function App() {
     authUserUid: authUser?.uid,
     cloudSyncState,
     moduleFoldersRef,
+    forceCloudWorkspaceSyncNowRef,
     activeFolderIdsRef,
     hasLocalUserEditsInSessionRef,
     lastManualCloudRefreshAtRef,
-    triggerCloudWorkspaceSyncRef,
     applyCloudWorkspaceDataRef,
     getCurrentTabFormData,
   });

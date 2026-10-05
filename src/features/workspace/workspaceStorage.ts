@@ -137,7 +137,8 @@ export const getPendingCloudSyncStorageKey = (userKey: string): string =>
 
 export const markLocalWorkspaceUpdated = (userKey: string): void => {
   try {
-    localStorage.setItem(getLocalUpdateStorageKey(userKey), String(Date.now()));
+    const previous = Number(localStorage.getItem(getLocalUpdateStorageKey(userKey))) || 0;
+    localStorage.setItem(getLocalUpdateStorageKey(userKey), String(Math.max(Date.now(), previous + 1)));
     localStorage.setItem(getPendingCloudSyncStorageKey(userKey), 'true');
   } catch {}
 };

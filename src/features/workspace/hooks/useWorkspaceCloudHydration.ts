@@ -10,7 +10,6 @@ import {
   ALL_PLATFORM_TABS,
   getFormStorageKey,
   getInitialTabData,
-  getLocalUpdateStorageKey,
   getModuleFoldersKey,
   getPendingCloudSyncStorageKey,
   loadAllStoredActiveFolderIds,
@@ -109,18 +108,16 @@ export function useWorkspaceCloudHydration({
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
         if (cloudWorkspace && cloudWorkspace.hasLoadedData && cloudWorkspace.status === 'loaded') {
-          const localUpdatedAt = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);
           const hasPendingLocalSync = localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true';
-          const cloudUpdatedAt = cloudWorkspace.updatedAt ? new Date(cloudWorkspace.updatedAt).getTime() : 0;
-          if (hasPendingLocalSync && localUpdatedAt > 0 && (!cloudUpdatedAt || localUpdatedAt > cloudUpdatedAt)) {
+          if (hasPendingLocalSync) {
             setIsHydrated(true);
             isHydratedRef.current = true;
             forceCloudWorkspaceSyncNowRef.current();
           } else {
             applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
+            setCloudSyncState('synced');
+            setLastSyncedTime(new Date());
           }
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
         } else if (cloudWorkspace && (cloudWorkspace.isNewUser || cloudWorkspace.status === 'new_user')) {
           const localFolders = loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS);
           const hasExistingLocalData = ALL_PLATFORM_TABS.some((tab) => {
@@ -146,8 +143,6 @@ export function useWorkspaceCloudHydration({
             setIsHydrated(true);
             isHydratedRef.current = true;
             forceCloudWorkspaceSyncNowRef.current();
-            setCloudSyncState('synced');
-            setLastSyncedTime(new Date());
             setAuthLifecycleStage('READY');
             return;
           }
@@ -166,8 +161,6 @@ export function useWorkspaceCloudHydration({
           setIsHydrated(true);
           isHydratedRef.current = true;
           forceCloudWorkspaceSyncNowRef.current();
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
           setAuthLifecycleStage('READY');
           return;
         } else {
@@ -192,11 +185,10 @@ export function useWorkspaceCloudHydration({
       (cloudData) => {
         if (!cloudData || !isCurrentAccount()) return;
         if (cloudData.updatedBy === clientSessionId) {
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
           return;
         }
         applyCloudWorkspaceDataRef.current(cloudData, false);
+        if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true') return;
         setCloudSyncState('synced');
         setLastSyncedTime(new Date());
       },

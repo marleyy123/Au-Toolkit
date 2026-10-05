@@ -54,35 +54,27 @@ export function useWorkspaceFolders({
       moduleFoldersRef.current[tab]?.[0]?.id ||
       'folder-1';
     const clonedUpdated = JSON.parse(JSON.stringify(updated));
+    const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
+    const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
+    const updatedAt = new Date().toISOString();
+    const nextList = currentList.map((folder) =>
+      folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
+    );
+    moduleFoldersRef.current[tab] = nextList;
 
     try {
       localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(clonedUpdated));
-      const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      moduleFoldersRef.current[tab] = nextList;
       localStorage.setItem(getModuleFoldersKey(userAccountKey, tab), JSON.stringify(nextList));
       const targetFolder = nextList.find((f) => f.id === targetId);
       if (targetFolder) {
         localStorage.setItem(getModuleFolderItemKey(userAccountKey, tab, targetId), JSON.stringify(targetFolder));
       }
-      markLocalWorkspaceUpdated(userAccountKey);
     } catch (e) {
       console.warn('[Auto-Save] Synchronous localStorage write warning:', e);
     }
 
-    setModuleFolders((prev) => {
-      const currentList = prev[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0].id;
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      return { ...prev, [tab]: nextList };
-    });
+    markLocalWorkspaceUpdated(userAccountKey);
+    setModuleFolders((prev) => ({ ...prev, [tab]: nextList }));
     triggerCloudWorkspaceSync();
   };
 
@@ -130,21 +122,16 @@ export function useWorkspaceFolders({
     activeFolderIdsRef.current[currentTab] = newFolderId;
     moduleFoldersRef.current[currentTab] = nextList;
 
-    setModuleFolders((prev) => {
-      try {
-        localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(nextList));
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, newFolderId), JSON.stringify(newFolder));
-      } catch {}
-      return { ...prev, [currentTab]: nextList };
-    });
-
-    setActiveFolderIds((prev) => {
-      try {
-        localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), newFolderId);
-        localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(cleanFreshData));
-      } catch {}
-      return { ...prev, [currentTab]: newFolderId };
-    });
+    try {
+      localStorage.setItem(getModuleFoldersKey(userAccountKey, currentTab), JSON.stringify(nextList));
+      nextList.forEach((folder) => {
+        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, folder.id), JSON.stringify(folder));
+      });
+      localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), newFolderId);
+      localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(cleanFreshData));
+    } catch {}
+    setModuleFolders((prev) => ({ ...prev, [currentTab]: nextList }));
+    setActiveFolderIds((prev) => ({ ...prev, [currentTab]: newFolderId }));
 
     loadTabFormData(currentTab, cleanFreshData);
     try {
@@ -171,9 +158,9 @@ export function useWorkspaceFolders({
 
     const currentFormData = getCurrentTabFormData(currentTab);
     const clonedCurrentData = currentFormData ? JSON.parse(JSON.stringify(currentFormData)) : null;
-    const currentList = moduleFolders[currentTab] || [];
+    const currentList = moduleFoldersRef.current[currentTab] || moduleFolders[currentTab] || [];
     const updatedList = clonedCurrentData
-      ? currentList.map((f) => (f.id === currentActiveId ? { ...f, data: clonedCurrentData } : f))
+      ? currentList.map((f) => (f.id === currentActiveId ? { ...f, data: clonedCurrentData, updatedAt: new Date().toISOString() } : f))
       : currentList;
 
     const targetFolder = updatedList.find((f) => f.id === targetId);
@@ -187,7 +174,10 @@ export function useWorkspaceFolders({
       localStorage.setItem(getModuleActiveFolderKey(userAccountKey, currentTab), targetId);
       localStorage.setItem(getFormStorageKey(userAccountKey, currentTab), JSON.stringify(targetFolder.data));
       if (clonedCurrentData) {
-        localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, currentActiveId), JSON.stringify({ id: currentActiveId, name: targetFolder.name || 'Folder', data: clonedCurrentData }));
+        const previousFolder = updatedList.find((folder) => folder.id === currentActiveId);
+        if (previousFolder) {
+          localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, currentActiveId), JSON.stringify(previousFolder));
+        }
       }
       localStorage.setItem(getModuleFolderItemKey(userAccountKey, currentTab, targetId), JSON.stringify(targetFolder));
       markLocalWorkspaceUpdated(userAccountKey);
