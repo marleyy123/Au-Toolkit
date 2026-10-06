@@ -28,6 +28,10 @@ const bundle = await build({
         const compact = new URLSearchParams(location.search).has('compact');
         data.bubbleWidthPercent = compact ? 50 : 94;
         data.messageFontSize = compact ? 11 : 15;
+        if (new URLSearchParams(location.search).has('wide-gap')) {
+          data.sameSenderGap = 18;
+          data.differentSenderGap = 40;
+        }
         data.messages = [
           {id: 'photo', sender: 'incoming', type: 'image', imageUrl: avatar, photoWidth: new URLSearchParams(location.search).has('photo-small') ? 140 : undefined, caption: 'Photo caption with enough words to wrap across several lines', senderName: 'Karun', time: '12:30'},
           {id: 'text', sender: 'incoming', type: 'text', text: 'Same person after the photo', time: '12:30'},
@@ -110,7 +114,7 @@ try {
     }
   }
   for (const width of [1440, 390]) {
-    for (const mode of ['normal', 'compact', 'photo-small', 'sender-always', 'sender-hidden']) {
+    for (const mode of ['normal', 'compact', 'photo-small', 'sender-always', 'sender-hidden', 'wide-gap']) {
     const compact = mode === 'compact';
     const page = await browser.newPage({viewport: {width, height: 900}});
     await page.goto(`http://127.0.0.1:${server.address().port}/?chat=whatsapp&group=true&${mode}=true`);
@@ -119,6 +123,8 @@ try {
       const root = document.getElementById('preview-target');
       const labels = Array.from(root.querySelectorAll('div, span')).filter(node => node.children.length === 0);
       const text = labels.find(node => node.textContent === 'Same person after the photo');
+      const rows = Array.from(root.querySelector('[data-chat-scroll]').firstElementChild.children);
+      const gaps = rows.slice(1).map((row, index) => row.getBoundingClientRect().top - rows[index].getBoundingClientRect().bottom);
       const caption = labels.find(node => node.textContent.includes('Photo caption with enough'));
       const timestamp = caption.parentElement.parentElement.querySelector('span.tracking-tight');
       const captionBoxes = Array.from(caption.getClientRects());
@@ -139,7 +145,7 @@ try {
       }
       return {karun: labels.filter(node => node.textContent === 'Karun').length,
         maya: labels.filter(node => node.textContent === 'Maya').length, image: shot.dataUrl,
-        fontSize: getComputedStyle(text).fontSize, overlapsTimestamp,
+        fontSize: getComputedStyle(text).fontSize, textAlign: getComputedStyle(text).textAlign, gaps, overlapsTimestamp,
         avatarLoaded: root.querySelector('img').naturalWidth > 0,
         photoWidth: photo.getBoundingClientRect().width, exportedPhotoWidth,
         textWidth: text.getBoundingClientRect().width};
@@ -148,6 +154,8 @@ try {
     assert.equal(result.maya, 1, 'A new participant should show their name');
     assert.equal(result.fontSize, compact ? '11px' : '15px');
     assert.equal(result.overlapsTimestamp, false, 'Caption must not overlap timestamp');
+    assert.equal(result.textAlign, 'left', 'WhatsApp message text must stay left aligned');
+    assert.deepEqual(result.gaps, mode === 'wide-gap' ? [6, 6, 12] : [2, 2, 6], 'Bubble gaps must remain compact in preview and export layout');
     assert.equal(result.avatarLoaded, true, 'Profile avatar must load for a named contact');
     if (compact) assert(result.textWidth < 190, 'Compact bubble must constrain text width');
     if (mode === 'photo-small') {

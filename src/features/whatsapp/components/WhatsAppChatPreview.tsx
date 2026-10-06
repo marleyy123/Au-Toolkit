@@ -148,8 +148,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
     unreadDividerStyle = 'banner',
     aspectRatio = '4:5',
     theme = 'light',
-    sameSenderGap = 3,
-    differentSenderGap = 12,
+    sameSenderGap = 0,
+    differentSenderGap = 6,
     dateDividerGap = 12,
     unreadDividerGap = 8,
     unreadDividerPadding = 3.5,
@@ -971,11 +971,10 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
             const photoWidth = Math.min(260, Math.max(120, msg.photoWidth ?? 260));
             const showTail = isLastInGroup && msgType !== 'sticker';
 
-            // Spacing: dynamic gap calculated in pixels (calibrated: slider 0 = 2px visual margin)
-            // When previous item was a divider, that divider already provided its own bottom margin,
-            // so setting marginTopVal to 0 guarantees exact symmetrical vertical positioning!
-            const effectiveSameSenderGap = (sameSenderGap ?? 0) + 2;
-            const marginTopVal = (index === 0 || isPrevDivider) ? 0 : isPrevSameSender ? effectiveSameSenderGap : differentSenderGap;
+            // Keep legacy saved gaps within the compact range; dividers provide their own spacing.
+            const effectiveSameSenderGap = Math.max(2, Math.min(sameSenderGap + 2, 6));
+            const effectiveDifferentSenderGap = Math.max(0, Math.min(differentSenderGap, 12));
+            const marginTopVal = (index === 0 || isPrevDivider) ? 0 : isPrevSameSender ? effectiveSameSenderGap : effectiveDifferentSenderGap;
 
             // Custom border radius & background styles for bubble
             const bubbleStyles = getBubbleStyle(isOutgoing, showTail);
@@ -1151,7 +1150,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                     {/* BUBBLE UTAMA */}
                     <div
-                      style={{ ...bubbleStyles, ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
+                      style={{ ...bubbleStyles, textAlign: 'left', ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
                       className={`relative z-10 w-fit max-w-full shadow-2xs ${
                         msgType === 'image'
                           ? 'p-1'

@@ -601,15 +601,15 @@ export const WhatsAppChatForm: React.FC<Props> = ({
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-slate-700">Same Sender Gap</span>
                 <span className="font-mono text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded font-bold text-[11px]">
-                  {data.sameSenderGap ?? 3}px
+                  {Math.min(data.sameSenderGap ?? 0, 4)}px
                 </span>
               </div>
               <input
                 type="range"
                 min={0}
-                max={24}
+                max={4}
                 step={1}
-                value={data.sameSenderGap ?? 3}
+                value={Math.min(data.sameSenderGap ?? 0, 4)}
                 onChange={(e) => updateField('sameSenderGap', parseInt(e.target.value, 10))}
                 className="w-full accent-purple-600 cursor-pointer"
               />
@@ -621,15 +621,15 @@ export const WhatsAppChatForm: React.FC<Props> = ({
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-slate-700">Different Sender Gap</span>
                 <span className="font-mono text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded font-bold text-[11px]">
-                  {data.differentSenderGap ?? 12}px
+                  {Math.min(data.differentSenderGap ?? 6, 12)}px
                 </span>
               </div>
               <input
                 type="range"
                 min={0}
-                max={48}
+                max={12}
                 step={1}
-                value={data.differentSenderGap ?? 12}
+                value={Math.min(data.differentSenderGap ?? 6, 12)}
                 onChange={(e) => updateField('differentSenderGap', parseInt(e.target.value, 10))}
                 className="w-full accent-purple-600 cursor-pointer"
               />
