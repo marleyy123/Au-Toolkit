@@ -60,6 +60,9 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
 
   const wrapperBgClass = isDark ? 'bg-black text-white' : 'bg-white text-black';
   const wrapperBgHex = isDark ? '#000000' : '#ffffff';
+  const hasBio = typeof bio === 'string' && bio.trim() !== '';
+  const visibleHighlights = Array.isArray(highlights) ? highlights : [];
+  const shouldShowHighlights = data.showHighlights !== false && visibleHighlights.length > 0;
 
   return (
     <div
@@ -141,9 +144,11 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
         {/* Bio Section */}
         <div className="px-4 pt-3 space-y-1 text-[13px]">
           {/* Bio Text */}
-          <div id="preview-bio" className="whitespace-pre-line leading-relaxed">
-            {renderFormattedTextWithAppleEmojis(bio || 'Bio description...')}
-          </div>
+          {hasBio && (
+            <div id="preview-bio" className="whitespace-pre-line leading-relaxed">
+              {renderFormattedTextWithAppleEmojis(bio)}
+            </div>
+          )}
 
           {/* Website Link (Inline SVG & flex items-center gap-1.5 font-medium) */}
           {website && (
@@ -233,10 +238,9 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
         </div>
 
         {/* Highlights Row (Sorotan) */}
-        {data.showHighlights !== false && <div className="px-4 pt-4 pb-2 overflow-x-auto no-scrollbar">
+        {shouldShowHighlights && <div className="px-4 pt-4 pb-2 overflow-x-auto no-scrollbar">
           <div id="preview-highlights-container" className="flex items-center space-x-4 min-w-max">
-            {highlights && highlights.length > 0 ? (
-              highlights.map((hl, idx) => (
+            {visibleHighlights.map((hl, idx) => (
                 <div key={hl.id || idx} className="flex flex-col items-center space-y-1.5">
                   <div className={`w-16 h-16 rounded-full p-[2px] ${theme === 'dark' ? 'bg-neutral-800 border-neutral-700/80' : 'bg-neutral-200 border-neutral-300'} border flex items-center justify-center overflow-hidden`}>
                     {hl.image && hl.image.trim() !== '' ? (
@@ -264,20 +268,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
                     {renderFormattedTextWithAppleEmojis((hl.title && hl.title.trim() !== '') ? hl.title : `Highlight ${idx + 1}`)}
                   </span>
                 </div>
-              ))
-            ) : (
-              // Default 4 Gray Placeholder Highlights if empty
-              [0, 1, 2, 3].map((idx) => (
-                <div key={idx} className="flex flex-col items-center space-y-1.5">
-                  <div className={`w-16 h-16 rounded-full ${theme === 'dark' ? 'bg-neutral-800 border-neutral-700' : 'bg-neutral-200 border-neutral-300'} border flex items-center justify-center overflow-hidden`}>
-                    <div id={`preview-highlight-placeholder-${idx}`} className={`w-full h-full ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
-                  </div>
-                  <span id={`preview-highlight-text-${idx}`} className={`text-[11px] font-medium ${subtextClass}`}>
-                    Highlight {idx + 1}
-                  </span>
-                </div>
-              ))
-            )}
+              ))}
           </div>
         </div>}
         {/* Tab Navigation Icons (Grid / Reels / Tagged) */}

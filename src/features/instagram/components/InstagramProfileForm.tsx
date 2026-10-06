@@ -69,7 +69,11 @@ export const InstagramProfileForm: React.FC<Props> = ({
       title: '',
       image: '',
     };
-    updateField('highlights', [...(data.highlights || []), newHighlight]);
+    latest.current.onChange({
+      ...latest.current.data,
+      highlights: [...(latest.current.data.highlights || []), newHighlight],
+      showHighlights: true,
+    });
   };
 
   // Handle updating single Highlight

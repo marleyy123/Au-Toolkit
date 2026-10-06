@@ -134,7 +134,7 @@ export const INITIAL_INSTAGRAM_PROFILE_DATA: InstagramProfileData = {
   messageButtonText: 'Message',
   isFollowing: false,
   highlights: [],
-  showHighlights: true,
+  showHighlights: false,
   gridPosts: [],
   showReelsTab: true,
   theme: 'light',

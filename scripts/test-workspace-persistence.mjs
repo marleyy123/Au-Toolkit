@@ -219,6 +219,20 @@ test('Instagram highlights can be hidden and restored without losing their conte
   assert.match(render(), /My highlight/);
 });
 
+test('Instagram profile preview omits optional bio and empty highlights', async () => {
+  const result = await build({
+    entryPoints: ['src/features/instagram/components/InstagramProfilePreview.tsx'],
+    bundle: true, write: false, platform: 'node', format: 'cjs', external: ['react'],
+  });
+  const module = { exports: {} };
+  new Function('module', 'exports', 'require', result.outputFiles[0].text)(module, module.exports, createRequire(import.meta.url));
+  const data = { username: 'buyer', bio: '', highlights: [], gridPosts: [], showHighlights: true };
+  const markup = renderToStaticMarkup(React.createElement(module.exports.InstagramProfilePreview, { data }));
+  assert.doesNotMatch(markup, /Bio description/);
+  assert.doesNotMatch(markup, /preview-highlights-container/);
+  assert.doesNotMatch(markup, /Highlight 1/);
+});
+
 test('reopening Instagram restores all saved folders from Firestore', async () => {
   const tabs = ['instagram-story', 'instagram-feed', 'instagram-profile'];
   context.getDocs = async ref => {

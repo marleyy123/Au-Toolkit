@@ -26,12 +26,16 @@ function withExportTimeout<T>(promise: Promise<T>, message: string): Promise<T> 
 
 async function waitForFontsReady(): Promise<void> {
   if (typeof document === 'undefined' || !document.fonts) return;
-  await withExportTimeout(
-    document.fonts.ready.then(() => undefined),
-    'Font belum selesai dimuat. Tunggu hingga font siap lalu coba export lagi.'
-  );
+  try {
+    await withExportTimeout(
+      document.fonts.ready.then(() => undefined),
+      'Font belum selesai dimuat. Export dilanjutkan dengan font yang tersedia.'
+    );
+  } catch (error) {
+    console.warn('Font readiness timed out; continuing export with available fonts.', error);
+  }
   if (document.fonts.status !== 'loaded') {
-    throw new Error('Font belum siap untuk export.');
+    console.warn('Document fonts are not fully loaded; continuing export with available fonts.');
   }
 }
 
@@ -46,12 +50,19 @@ async function waitForElementFonts(element: HTMLElement): Promise<void> {
     const descriptor = `${style.fontStyle || 'normal'} ${style.fontWeight || '400'} ${style.fontSize || '16px'} ${style.fontFamily}`;
     if (!descriptors.has(descriptor)) descriptors.set(descriptor, text.slice(0, 64));
   });
-  await withExportTimeout(
-    Promise.all(Array.from(descriptors, ([descriptor, text]) => document.fonts.load(descriptor, text))).then(() => undefined),
-    'Font yang digunakan Live Preview belum siap untuk export.'
-  );
+  try {
+    await withExportTimeout(
+      Promise.all(Array.from(descriptors, ([descriptor, text]) => document.fonts.load(descriptor, text))).then(() => undefined),
+      'Font yang digunakan Live Preview belum siap untuk export.'
+    );
+  } catch (error) {
+    console.warn('Element font loading timed out; continuing export with available fonts.', error);
+    return;
+  }
   const unavailable = Array.from(descriptors).find(([descriptor, text]) => !document.fonts.check(descriptor, text));
-  if (unavailable) throw new Error(`Font Live Preview belum tersedia untuk export: ${unavailable[0]}`);
+  if (unavailable) {
+    console.warn(`Font Live Preview belum tersedia untuk export: ${unavailable[0]}`);
+  }
 }
 
 type ExportDiagnosticRecord = Record<string, unknown>;
