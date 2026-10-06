@@ -121,7 +121,12 @@ try {
       const text = labels.find(node => node.textContent === 'Same person after the photo');
       const caption = labels.find(node => node.textContent.includes('Photo caption with enough'));
       const timestamp = caption.parentElement.parentElement.querySelector('span.tracking-tight');
-      const overlapsTimestamp = caption.getBoundingClientRect().bottom > timestamp.getBoundingClientRect().top;
+      const captionBoxes = Array.from(caption.getClientRects());
+      const timestampBox = timestamp.getBoundingClientRect();
+      const overlapsTimestamp = captionBoxes.some(captionBox => captionBox.left < timestampBox.right &&
+        captionBox.right > timestampBox.left &&
+        captionBox.top < timestampBox.bottom &&
+        captionBox.bottom > timestampBox.top);
       const shot = await window.capture({scale: 1, format: 'png'});
       const photo = root.querySelector('img[alt="attachment"]');
       const image = new Image(); image.src = shot.dataUrl; await image.decode();
