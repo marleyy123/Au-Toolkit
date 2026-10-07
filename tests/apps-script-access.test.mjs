@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const row = Array(32).fill('');
-row[14] = new Date('2026-09-12T00:00:00Z');
-row[15] = 'SUCCESS';
-row[16] = 'buyer@example.com';
-row[26] = new Date('2099-01-01T00:00:00Z');
-row[27] = 'Inactive';
+const row = Array(13).fill('');
+row[3] = new Date('2026-09-12T00:00:00Z');
+row[12] = 'SUCCESS';
+row[0] = 'buyer@example.com';
+row[4] = new Date('2099-01-01T00:00:00Z');
+row[5] = 'Inactive';
 const writes = [];
 const sheet = {
   getLastRow: () => 2,
@@ -27,7 +27,7 @@ vm.runInContext(`
   validateAndRegisterDevice = () => { throw new Error('Denied users must not register a device'); };
 `, context);
 for (const status of ['Inactive', ' INACTIVE ']) {
-  row[27] = status;
+  row[5] = status;
   writes.length = 0;
   for (const [method, payload] of [
     ['checkBuyerEmail', {email: 'buyer@example.com'}],
@@ -41,9 +41,9 @@ for (const status of ['Inactive', ' INACTIVE ']) {
   }
   assert.equal(writes.length, 0, 'Manual deactivation must not be overwritten');
 }
-row[27] = 'Active';
+row[5] = 'Active';
 assert.equal(context.checkBuyerEmail({email: 'buyer@example.com'}).accessGranted, true);
-row[27] = 'Expired';
+row[5] = 'Expired';
 assert.equal(context.validateAccess({email: 'buyer@example.com', deviceType: 'desktop', deviceId: 'dev_desktop_test_12345678'}).reason, 'ACCOUNT_EXPIRED');
 console.log('PASS Apps Script preserves Inactive and denies access before device registration');
 console.log('PASS active email and expired access');

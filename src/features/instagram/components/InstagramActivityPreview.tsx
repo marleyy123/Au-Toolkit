@@ -89,10 +89,10 @@ export const InstagramActivityPreview: React.FC<Props> = ({ data, previewRef }) 
         }}
         className={`w-full overflow-y-auto border ${
           isDark ? 'bg-black text-white border-zinc-900' : 'bg-white text-black border-slate-200'
-        } font-sans select-none relative shadow-2xl ${getAspectRatioClasses()} flex flex-col justify-between`}
+        } font-sans select-none relative shadow-2xl ${getAspectRatioClasses()} flex flex-col overflow-hidden`}
       >
         {/* TOP CONTENT AREA */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col">
           {/* 1. TOP HEADER */}
           <div className={`relative flex items-center justify-center px-4 py-3.5 border-b sticky top-0 z-10 ${
             isDark ? 'border-neutral-900 bg-black' : 'border-slate-100 bg-white'
@@ -106,7 +106,7 @@ export const InstagramActivityPreview: React.FC<Props> = ({ data, previewRef }) 
           </div>
 
           {/* MAIN SCROLLABLE LIST AREA */}
-          <div className="flex-1 py-1">
+          <div className="flex-1 min-h-0 overflow-y-auto py-1 no-scrollbar">
             {/* 2. FOLLOW REQUESTS SECTION (TOP ROW) */}
             {showFollowRequests && (
               <div className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors ${
@@ -334,7 +334,7 @@ export const InstagramActivityPreview: React.FC<Props> = ({ data, previewRef }) 
         </div>
 
         {/* 5. BOTTOM NAVIGATION BAR */}
-        <div className={`sticky bottom-0 z-20 flex items-center justify-around py-3 px-2 border-t ${
+        <div className={`shrink-0 z-20 flex items-center justify-around py-3 px-2 border-t ${
           isDark ? 'bg-black border-neutral-900' : 'bg-white border-slate-200'
         }`}>
           {/* Home Tab */}

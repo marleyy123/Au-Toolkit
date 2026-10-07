@@ -2,40 +2,36 @@
  * AU TOOLKIT PRO
  * BUYER ACCESS + SUBSCRIPTION + DEVICE LOCK BACKEND
  *
- * Spreadsheet ID:
- * 1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88
+ * AU Access spreadsheet: 1B0lN8Cfn7-Tev81vSRsGS7OWeAtaWpoGrcmG7A6-FoQ
+ * A = login email, B = transaction Ref, C = buyer name, D = purchase date
+ * E = expiration, F = account status, G/H = device labels, I/J = device IDs
+ * K = source spreadsheet ID, L = purchase route
  *
- * Sheet: AU Toolkit PRO
- *
- * FINAL SCHEMA:
- * O = Purchase Date / Tanggal
- * P = Status transaksi Lynk.id (READ ONLY)
- * Q = Buyer Email
- * R = Buyer Name (optional)
- * AA = AU Expiration Date
- * AB = AU Status Account
- * AC = AU Device Handphone (DISPLAY LABEL)
- * AD = AU Device Laptop (DISPLAY LABEL)
- * AE = Mobile Device ID
- * AF = Laptop/Desktop Device ID
+ * Lynk spreadsheet: 1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88
+ * Sheet AU Toolkit PRO supplies Ref, Status and Tanggal (read only).
+ * Email corrections and device state stay in AU Access, linked by Ref.
  *****************************************************/
 
 const CONFIG = {
-  VERSION: '3.3-fast-buyer-lookup',
-  SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
-  SHEET_NAME: 'AU Toolkit PRO',
+  VERSION: '3.4-ref-linked-access',
+  SPREADSHEET_ID: '1B0lN8Cfn7-Tev81vSRsGS7OWeAtaWpoGrcmG7A6-FoQ',
+  SHEET_NAME: 'AU Access',
+  ORDER_SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
+  ORDER_SHEET_NAME: 'AU Toolkit PRO',
 
-  PURCHASE_DATE_COLUMN: 15,        // O = Tanggal
-  ORDER_STATUS_COLUMN: 16,         // P = Status transaksi Lynk.id (READ ONLY)
-  BUYER_EMAIL_COLUMN: 17,          // Q = Buyer Email
-  BUYER_NAME_COLUMN: 18,           // R = Buyer Name
+  PURCHASE_DATE_COLUMN: 4,         // D = Purchase Date
+  ORDER_STATUS_COLUMN: 13,         // Virtual column: read from Lynk by Ref, never written
+  BUYER_EMAIL_COLUMN: 1,           // A = Login email, maintained in AU Access
+  BUYER_NAME_COLUMN: 3,            // C = Buyer Name
+  ORDER_REF_COLUMN: 2,             // B = Ref
+  TRANSACTION_SOURCE_COLUMN: 11,   // K = Transaction Source
 
-  EXPIRATION_DATE_COLUMN: 27,      // AA = AU Expiration Date
-  STATUS_ACCOUNT_COLUMN: 28,       // AB = AU Status Account
-  DEVICE_MOBILE_LABEL_COLUMN: 29,  // AC = AU Device Handphone
-  DEVICE_DESKTOP_LABEL_COLUMN: 30, // AD = AU Device Laptop
-  DEVICE_MOBILE_ID_COLUMN: 31,     // AE = Mobile Device ID
-  DEVICE_DESKTOP_ID_COLUMN: 32,    // AF = Laptop/Desktop Device ID
+  EXPIRATION_DATE_COLUMN: 5,
+  STATUS_ACCOUNT_COLUMN: 6,
+  DEVICE_MOBILE_LABEL_COLUMN: 7,
+  DEVICE_DESKTOP_LABEL_COLUMN: 8,
+  DEVICE_MOBILE_ID_COLUMN: 9,
+  DEVICE_DESKTOP_ID_COLUMN: 10,
 
   SUBSCRIPTION_DAYS: 30,
   ACTIVE_STATUS: 'Active',
@@ -378,7 +374,7 @@ function validateAccess(payload) {
     };
   }
 
-  // IMPORTANT: NEVER WRITE TO COLUMN T.
+  // Payment data is read-only; only AU Access receives account/device writes.
   return {
     success: true,
     accessGranted: true,
@@ -399,10 +395,10 @@ function validateAccess(payload) {
  * FIND BUYER
  *
  * Rules:
- * - Search ALL rows matching U (Buyer Email)
- * - Only T = SUCCESS is eligible
+ * - Search ALL AU Access rows matching A (login email)
+ * - Only the linked Lynk transaction with Status = SUCCESS is eligible
  * - If multiple SUCCESS rows exist, choose the newest
- *   valid Purchase Date from O
+ *   valid purchase date from Lynk
  *****************************************************/
 function findLatestSuccessfulBuyer(sheet, targetEmail) {
   let emailFound = false;
@@ -414,13 +410,7 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
   }
 
   const rowCount = lastRow - 1;
-  const lastColumn = Math.max(
-    sheet.getLastColumn(),
-    CONFIG.STATUS_ACCOUNT_COLUMN
-  );
-  const rows = sheet
-    .getRange(2, 1, rowCount, lastColumn)
-    .getValues();
+  const rows = getAccessRows(sheet);
 
   for (let i = 0; i < rowCount; i++) {
     const row = rows[i];
@@ -483,18 +473,15 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
 /*****************************************************
  * SUBSCRIPTION — AUTOMATIC + MANUAL
  *
- * O = original purchase date
- * P = canonical expiration date
- * Q = canonical account status
+ * D = purchase date supplied by the linked transaction
+ * E = expiration date, F = account status in AU Access
  *
  * Rules:
- * 1. If P is blank -> P = O + 30 days
- * 2. If P already has a valid date -> preserve it
- * 3. If P exists but is invalid -> INVALID_PURCHASE_DATA
- * 4. If Q is manually Expired -> keep Expired, deny access
- * 5. If today >= P -> set Q = Expired
- * 6. If today < P and Q blank -> set Q = Active
- * 7. Manual renewal = set P to future + Q to Active
+ * 1. If E is blank -> E = purchase date + 30 days
+ * 2. Preserve valid manual expiration dates; reject invalid dates
+ * 3. Preserve manual Inactive and Expired
+ * 4. Expire automatically when the expiration date is reached
+ * 5. Manual renewal = future E + Active F
  *****************************************************/
 function ensureSubscriptionData(sheet, rowNumber, row) {
   const purchaseRaw = row[CONFIG.PURCHASE_DATE_COLUMN - 1];
@@ -615,16 +602,16 @@ function invalidSubscription() {
  * DEVICE LOCK
  *
  * Mobile:
- * R = label
- * V = ID
+ * G = label
+ * I = ID
  *
  * Desktop:
- * S = label
- * W = ID
+ * H = label
+ * J = ID
  *
  * Admin reset:
- * - clear V to allow a new phone
- * - clear W to allow a new laptop
+ * - clear I to allow a new phone
+ * - clear J to allow a new laptop
  *****************************************************/
 function validateAndRegisterDevice(
   sheet,
@@ -726,14 +713,7 @@ function updateAllSubscriptions() {
     return;
   }
 
-  const lastColumn = Math.max(
-    sheet.getLastColumn(),
-    CONFIG.DEVICE_DESKTOP_ID_COLUMN
-  );
-
-  const rows = sheet
-    .getRange(2, 1, lastRow - 1, lastColumn)
-    .getValues();
+  const rows = getAccessRows(sheet);
 
   rows.forEach(function(row, index) {
     const rowNumber = index + 2;
@@ -878,40 +858,54 @@ function getMainSheet() {
     return configuredSheet;
   }
 
-  const sheets = spreadsheet.getSheets();
-  for (let i = 0; i < sheets.length; i++) {
-    const sheet = sheets[i];
-    const lastColumn = Math.max(sheet.getLastColumn(), CONFIG.DEVICE_DESKTOP_ID_COLUMN);
-    if (sheet.getLastRow() < 1 || lastColumn < CONFIG.BUYER_EMAIL_COLUMN) {
-      continue;
+  throw new Error('Sheet AU Access tidak ditemukan.');
+}
+
+// Login identity and device state belong to AU Access; Lynk owns payment data.
+// Join by transaction Ref so an email correction survives source refreshes.
+function getAccessRows(sheet) {
+  const header = sheet.getRange(1, 1, 1, 12).getValues()[0];
+  const expected = ['Buyer Email', 'Ref', 'Buyer Name', 'Purchase Date',
+    'AU Expiration Date', 'AU Status Account', 'AU Device Handphone',
+    'AU Device Laptop', 'Mobile Device ID', 'Laptop Device ID', 'Transaction Source'];
+  expected.forEach(function(name, index) {
+    if (cleanString(header[index]).toLowerCase() !== name.toLowerCase()) {
+      throw new Error('Kolom AU Access tidak sesuai: ' + name);
     }
-
-    const headers = sheet
-      .getRange(1, 1, 1, lastColumn)
-      .getDisplayValues()[0]
-      .map(function(value) {
-        return cleanString(value).toLowerCase();
-      });
-
-    const hasLynkHeaders =
-      headers[CONFIG.PURCHASE_DATE_COLUMN - 1] === 'tanggal' &&
-      headers[CONFIG.ORDER_STATUS_COLUMN - 1] === 'status' &&
-      headers[CONFIG.BUYER_EMAIL_COLUMN - 1] === 'buyer email';
-
-    if (hasLynkHeaders) {
-      return sheet;
-    }
+  });
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues();
+  const orderSheet = SpreadsheetApp.openById(CONFIG.ORDER_SPREADSHEET_ID)
+    .getSheetByName(CONFIG.ORDER_SHEET_NAME);
+  if (!orderSheet) throw new Error('Sheet pembelian Lynk tidak ditemukan.');
+  const orders = orderSheet.getDataRange().getValues();
+  const orderHeaders = orders[0].map(function(value) {
+    return cleanString(value).toLowerCase();
+  });
+  const refIndex = orderHeaders.indexOf('ref');
+  const statusIndex = orderHeaders.indexOf('status');
+  const dateIndex = orderHeaders.indexOf('tanggal');
+  if (refIndex < 0 || statusIndex < 0 || dateIndex < 0) {
+    throw new Error('Kolom Ref, Status, atau Tanggal Lynk tidak ditemukan.');
   }
-
-  if (sheets.length > 0) {
-    return sheets[0];
-  }
-
-  throw new Error('Tidak ada sheet yang tersedia di spreadsheet.');
+  const byRef = new Map();
+  orders.slice(1).forEach(function(order) {
+    const ref = cleanString(order[refIndex]);
+    if (!ref) return;
+    if (byRef.has(ref)) throw new Error('Ref transaksi Lynk duplikat.');
+    byRef.set(ref, order);
+  });
+  return rows.map(function(row) {
+    const ref = cleanString(row[CONFIG.ORDER_REF_COLUMN - 1]);
+    const source = cleanString(row[CONFIG.TRANSACTION_SOURCE_COLUMN - 1]);
+    const order = source === CONFIG.ORDER_SPREADSHEET_ID ? byRef.get(ref) : null;
+    row[CONFIG.ORDER_STATUS_COLUMN - 1] = order ? order[statusIndex] : '';
+    row[CONFIG.PURCHASE_DATE_COLUMN - 1] = order ? order[dateIndex] : '';
+    return row;
+  });
 }
 
 /*****************************************************
- * BUYER NAME — COLUMN X
+ * BUYER NAME — AU ACCESS COLUMN C
  *****************************************************/
 function getBuyerName(row) {
   return cleanString(

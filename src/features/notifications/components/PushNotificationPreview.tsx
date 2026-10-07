@@ -155,9 +155,11 @@ export const PushNotificationPreview: React.FC<Props> = ({ data, previewRef }) =
 
   // Background styling
   const getBackgroundStyle = () => {
-    if (customWallpaperUrl) {
+    const wallpaperUrl = typeof customWallpaperUrl === 'string' ? customWallpaperUrl.trim() : '';
+    if (wallpaperUrl) {
+      const safeWallpaperUrl = wallpaperUrl.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       return {
-        backgroundImage: `url(${customWallpaperUrl})`,
+        backgroundImage: `url("${safeWallpaperUrl}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       };
