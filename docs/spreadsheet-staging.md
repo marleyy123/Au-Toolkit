@@ -79,6 +79,10 @@ endpoint is not ported to Vercel by this change. No real Lynk webhook, customer 
 trigger, production spreadsheet, or production deployment is configured here.
 Daily subscription triggers are optional and should be added only later.
 
+For the new staging-only Lynk webhook integration and its separate deployment
+steps, see `lynk-webhook-staging.md`. It is disabled for activation by default
+and must not be configured against production.
+
 ## Verification Status
 
 The local staging regression suite tests the actual script with mocked Apps

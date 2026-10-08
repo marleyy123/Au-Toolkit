@@ -147,6 +147,9 @@ function doPost(e) {
       case 'healthCheck':
         return doGet();
 
+      case 'ingestLynkPurchase':
+        return jsonResponse(ingestStagingLynkPurchase_(payload));
+
       default:
         return jsonResponse({
           success: false,
@@ -1633,6 +1636,66 @@ function checkStagingHeaders_(sheet, expected) {
   if (actual.some(function(value, index) { return cleanString(value) !== expected[index]; })) {
     throw new Error('Header berbeda di ' + sheet.getName() + '. Setup tidak akan menimpa data.');
   }
+}
+
+// Only the secret-authenticated Vercel staging webhook can call this action.
+function ingestStagingLynkPurchase_(payload) {
+  return withAccessLock(function() {
+    assertStagingConfig_();
+    const expectedProduct = cleanString(PropertiesService.getScriptProperties().getProperty('LYNK_TEST_PRODUCT_UUID'));
+    const transaction = payload.transaction || {};
+    if (!expectedProduct || transaction.productId !== expectedProduct) {
+      return { success: false, reason: 'WEBHOOK_PRODUCT_NOT_ALLOWED' };
+    }
+    const email = normalizeEmail(transaction.email);
+    const ref = cleanString(transaction.ref);
+    const timestamp = transaction.purchasedAt;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 ||
+        !/^[a-zA-Z0-9_-]{1,200}$/.test(ref) || typeof timestamp !== 'string' ||
+        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(timestamp)) {
+      return { success: false, reason: 'INVALID_WEBHOOK_PURCHASE' };
+    }
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime()) || date.toISOString() !== timestamp || date.getTime() > Date.now() + 300000) {
+      return { success: false, reason: 'INVALID_WEBHOOK_DATE' };
+    }
+    const sheet = getTransactionSheet(STAGING_IDS.regular);
+    if (sheet.getLastRow() < 1) return { success: false, reason: 'STAGING_SETUP_REQUIRED' };
+    checkStagingHeaders_(sheet, stagingTransactionHeaders_());
+    const count = Math.max(0, sheet.getLastRow() - 1);
+    const rows = count ? sheet.getRange(2, 1, count, 26).getValues() : [];
+    const matches = [];
+    rows.forEach(function(row, index) {
+      if (cleanString(row[25]) === ref) matches.push({ row: row, rowNumber: index + 2 });
+    });
+    if (matches.length > 1) return { success: false, reason: 'DUPLICATE_TRANSACTION_REF' };
+    let buyer = matches[0];
+    if (buyer && (normalizeEmail(buyer.row[16]) !== email ||
+        normalizeOrderStatus(buyer.row[15]) !== CONFIG.SUCCESS_ORDER_STATUS ||
+        !(buyer.row[14] instanceof Date) || buyer.row[14].getTime() !== date.getTime())) {
+      return { success: false, reason: 'TRANSACTION_CONFLICT' };
+    }
+    const duplicate = Boolean(buyer);
+    if (!buyer) {
+      const row = Array(26).fill('');
+      row[14] = date;
+      row[15] = CONFIG.SUCCESS_ORDER_STATUS;
+      row[16] = email;
+      // Plain text protects names from becoming spreadsheet formulas.
+      const name = cleanString(transaction.name).slice(0, 200);
+      row[17] = /^[=+@-]/.test(name) ? "'" + name : name;
+      row[25] = ref;
+      const rowNumber = sheet.getLastRow() + 1;
+      sheet.getRange(rowNumber, 1, 1, 26).setValues([row]);
+      buyer = { row: row, rowNumber: rowNumber };
+    }
+    // Retried notifications heal an interrupted AU Access write without another transaction.
+    buyer.sourceId = STAGING_IDS.regular;
+    const access = getAccessRecord(buyer, true);
+    const subscription = ensureSubscriptionData(access.sheet, access.rowNumber, access.row);
+    if (!subscription.valid) return { success: false, reason: 'SUBSCRIPTION_SYNC_FAILED' };
+    return { success: true, status: 'PURCHASE_SYNCED', duplicate: duplicate };
+  });
 }
 
 function setupStagingSpreadsheets() {

@@ -2,7 +2,8 @@
   "buildCommand": "npx vite build",
   "outputDirectory": "dist",
   "functions": {
-    "api/verify-buyer.js": { "maxDuration": 60 }
+    "api/verify-buyer.js": { "maxDuration": 60 },
+    "api/lynk-webhook.js": { "maxDuration": 60 }
   },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
