@@ -41,8 +41,8 @@ export function detectDeviceSlot(): DeviceSlot {
 }
 
 /**
- * Generates a stable physical hardware signature that remains identical across
- * different browsers (Chrome, Edge, Safari, Firefox) on the same physical machine.
+ * Generates an initial device fingerprint. Browser/environment changes can alter it;
+ * existing persisted IDs must not be replaced by a newly computed fingerprint.
  * Combines screen resolution, color depth, OS platform, CPU concurrency, timezone, touch, and DPR.
  */
 export function getPhysicalHardwareHash(slot: DeviceSlot): string {
@@ -189,9 +189,8 @@ export function extractHardwareHash(rawId: string | null | undefined): string {
 
 /**
  * Get or generate persistent unique device ID.
- * Returns a stable hardware signature (e.g., 'dev_desktop_hw_a5d42bc6' for desktop or
- * 'dev_mobile_hw_xxxx' for mobile) that remains identical across different browsers
- * (Chrome, Edge, Firefox, Safari) and private/incognito windows on the same physical machine.
+ * Reuses the saved identity for this browser and device slot. Different browsers
+ * and private windows may have separate storage and require an admin device reset.
  *
  * Does NOT generate or append random browser/installation suffixes.
  * Automatically migrates any legacy device IDs found in localStorage.
@@ -202,29 +201,29 @@ export function getOrCreateDeviceId(targetSlot?: DeviceSlot): string {
   }
 
   const slot = targetSlot || detectDeviceSlot();
-  const hwHash = getPhysicalHardwareHash(slot);
-  const stableId = `dev_${slot}_hw_${hwHash}`;
+  const normalizeSavedId = (value: string | null | undefined): string => {
+    const id = extractStableDeviceSignature(value);
+    return id.startsWith(`dev_${slot}_`) && id.length >= 12 ? id : '';
+  };
 
   // 1. Check in-memory variable (prevents any regeneration within same window lifecycle)
-  if (inMemoryDeviceId && extractStableDeviceSignature(inMemoryDeviceId) === stableId) {
-    return inMemoryDeviceId;
-  }
+  let stableId = normalizeSavedId(inMemoryDeviceId);
 
   // 2. Check window global cache
-  const globalId = (window as any).__au_persistent_device_id;
-  if (globalId && extractStableDeviceSignature(globalId) === stableId) {
-    inMemoryDeviceId = globalId;
-    return globalId as string;
-  }
+  stableId ||= normalizeSavedId((window as any).__au_persistent_device_id);
 
   // 3. Read and normalize persistent localStorage
   try {
     if (window.localStorage) {
-      const stored = localStorage.getItem('au_device_id');
-      if (!stored || extractStableDeviceSignature(stored) !== stableId || stored !== stableId) {
-        localStorage.setItem('au_device_id', stableId);
-      }
+      stableId ||= normalizeSavedId(localStorage.getItem(`au_device_id_${slot}`));
+      stableId ||= normalizeSavedId(localStorage.getItem('au_device_id'));
     }
+  } catch {}
+
+  stableId ||= `dev_${slot}_hw_${getPhysicalHardwareHash(slot)}`;
+  try {
+    localStorage.setItem(`au_device_id_${slot}`, stableId);
+    localStorage.setItem('au_device_id', stableId);
   } catch {}
 
   inMemoryDeviceId = stableId;

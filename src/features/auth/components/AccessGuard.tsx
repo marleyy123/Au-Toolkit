@@ -20,7 +20,7 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
   purchaseDate,
   accessExpiresAt,
   expirationDate,
-  statusAccount = 'Expired',
+  statusAccount,
   daysRemaining,
   status = 'EXPIRED',
   customMessage,
@@ -32,6 +32,11 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
   const isOrderNotSuccess = status === 'ORDER_NOT_SUCCESS';
   const isInactive = statusAccount === 'Inactive';
   const isExpired = status === 'EXPIRED' || statusAccount === 'Expired';
+  const displayStatus = statusAccount || (status === 'EXPIRED'
+    ? 'Expired'
+    : status === 'INACTIVE'
+    ? 'Inactive'
+    : (language === 'id' ? 'Belum terverifikasi' : 'Not verified'));
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '-';
@@ -67,7 +72,9 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
                 ? (language === 'id' ? 'Status Pesanan Lynk.id Belum Sukses' : 'Lynk.id Order Not Successful')
                 : isInactive
                 ? (language === 'id' ? 'Status Akun Tidak Aktif' : 'Account Status Inactive')
-                : (language === 'id' ? 'Masa berlangganan AU Toolkit Anda telah habis.' : 'Your AU Toolkit subscription has expired.')}
+                : isExpired
+                ? (language === 'id' ? 'Masa berlangganan AU Toolkit Anda telah habis.' : 'Your AU Toolkit subscription has expired.')
+                : (language === 'id' ? 'Akses akun belum dapat diverifikasi.' : 'Account access could not be verified.')}
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               {customMessage || (
@@ -83,9 +90,11 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
                   ? (language === 'id'
                       ? 'Status akun Anda saat ini Inactive. Silakan hubungi administrator.'
                       : 'Your account status is currently Inactive. Please contact administrator.')
-                  : (language === 'id'
+                  : isExpired
+                  ? (language === 'id'
                       ? 'Masa berlangganan AU Toolkit Anda telah habis. Silakan perpanjang akses untuk melanjutkan.'
                       : 'Your AU Toolkit subscription period has expired.')
+                  : (language === 'id' ? 'Data akses akun belum dapat diverifikasi. Silakan hubungi administrator.' : 'Account access could not be verified. Please contact the administrator.')
               )}
             </p>
           </div>
@@ -126,7 +135,7 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
                 ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
                 : 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300'
             }`}>
-              {statusAccount}
+              {displayStatus}
             </span>
           </div>
 
@@ -163,7 +172,7 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
 
         {/* Action Buttons */}
         <div className="space-y-2.5 pt-1">
-          {!isDeviceMismatch && (
+          {!isDeviceMismatch && isExpired && (
             <a
               href="https://wa.me"
               target="_blank"

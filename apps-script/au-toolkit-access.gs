@@ -13,11 +13,15 @@
  *****************************************************/
 
 const CONFIG = {
-  VERSION: '3.4-ref-linked-access',
+  VERSION: '3.6-append-only-buyer-sync',
   SPREADSHEET_ID: '1B0lN8Cfn7-Tev81vSRsGS7OWeAtaWpoGrcmG7A6-FoQ',
   SHEET_NAME: 'AU Access',
   ORDER_SPREADSHEET_ID: '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88',
   ORDER_SHEET_NAME: 'AU Toolkit PRO',
+  ORDER_SOURCES: {
+    '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88': 'AU Toolkit PRO',
+    '1OinUvkN6ih9vKoues14q3Akt1Gdqnc45J_-cPXn2DEQ': 'Fast Track'
+  },
 
   PURCHASE_DATE_COLUMN: 4,         // D = Purchase Date
   ORDER_STATUS_COLUMN: 13,         // Virtual column: read from Lynk by Ref, never written
@@ -410,7 +414,7 @@ function findLatestSuccessfulBuyer(sheet, targetEmail) {
   }
 
   const rowCount = lastRow - 1;
-  const rows = getAccessRows(sheet);
+  const rows = getAccessRows(sheet, targetEmail);
 
   for (let i = 0; i < rowCount; i++) {
     const row = rows[i];
@@ -670,8 +674,8 @@ function validateAndRegisterDevice(
       };
     }
 
-    // Same registered technical device.
-    if (registeredId === deviceId) {
+    // Accept an old browser suffix only when the full slot and hardware hash match.
+    if (normalizeDeviceSignature(registeredId) === normalizeDeviceSignature(deviceId)) {
       if (!registeredLabel && deviceLabel) {
         registeredLabel = deviceLabel;
         labelCell.setValue(registeredLabel);
@@ -863,7 +867,28 @@ function getMainSheet() {
 
 // Login identity and device state belong to AU Access; Lynk owns payment data.
 // Join by transaction Ref so an email correction survives source refreshes.
-function getAccessRows(sheet) {
+function getAccessRows(sheet, targetEmail) {
+  validateAccessHeaders(sheet);
+  const rows = sheet.getLastRow() < 2 ? [] : sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues();
+  const ordersBySource = new Map();
+  return rows.map(function(row) {
+    const ref = cleanString(row[CONFIG.ORDER_REF_COLUMN - 1]);
+    const source = cleanString(row[CONFIG.TRANSACTION_SOURCE_COLUMN - 1]);
+    const relevant = !targetEmail || normalizeEmail(row[CONFIG.BUYER_EMAIL_COLUMN - 1]) === targetEmail;
+    let order = null;
+    if (relevant && Object.prototype.hasOwnProperty.call(CONFIG.ORDER_SOURCES, source)) {
+      if (!ordersBySource.has(source)) {
+        ordersBySource.set(source, getOrdersByRef(source, CONFIG.ORDER_SOURCES[source]));
+      }
+      order = ordersBySource.get(source).get(ref);
+    }
+    row[CONFIG.ORDER_STATUS_COLUMN - 1] = order ? order.status : '';
+    row[CONFIG.PURCHASE_DATE_COLUMN - 1] = order ? order.purchaseDate : '';
+    return row;
+  });
+}
+
+function validateAccessHeaders(sheet) {
   const header = sheet.getRange(1, 1, 1, 12).getValues()[0];
   const expected = ['Buyer Email', 'Ref', 'Buyer Name', 'Purchase Date',
     'AU Expiration Date', 'AU Status Account', 'AU Device Handphone',
@@ -873,9 +898,14 @@ function getAccessRows(sheet) {
       throw new Error('Kolom AU Access tidak sesuai: ' + name);
     }
   });
-  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues();
-  const orderSheet = SpreadsheetApp.openById(CONFIG.ORDER_SPREADSHEET_ID)
-    .getSheetByName(CONFIG.ORDER_SHEET_NAME);
+}
+
+function getOrdersByRef(sourceId, sheetName) {
+  const spreadsheet = SpreadsheetApp.openById(sourceId);
+  // Lynk's Fast Track tab currently has a trailing space in its name.
+  const orderSheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.getSheets().find(function(sheet) {
+    return cleanString(sheet.getName()) === sheetName;
+  });
   if (!orderSheet) throw new Error('Sheet pembelian Lynk tidak ditemukan.');
   const orders = orderSheet.getDataRange().getValues();
   const orderHeaders = orders[0].map(function(value) {
@@ -884,6 +914,8 @@ function getAccessRows(sheet) {
   const refIndex = orderHeaders.indexOf('ref');
   const statusIndex = orderHeaders.indexOf('status');
   const dateIndex = orderHeaders.indexOf('tanggal');
+  const emailIndex = orderHeaders.indexOf('buyer email');
+  const nameIndex = orderHeaders.indexOf('buyer name (opsional)');
   if (refIndex < 0 || statusIndex < 0 || dateIndex < 0) {
     throw new Error('Kolom Ref, Status, atau Tanggal Lynk tidak ditemukan.');
   }
@@ -892,16 +924,91 @@ function getAccessRows(sheet) {
     const ref = cleanString(order[refIndex]);
     if (!ref) return;
     if (byRef.has(ref)) throw new Error('Ref transaksi Lynk duplikat.');
-    byRef.set(ref, order);
+    byRef.set(ref, {
+      status: order[statusIndex], purchaseDate: order[dateIndex],
+      email: emailIndex < 0 ? '' : normalizeEmail(order[emailIndex]),
+      buyerName: nameIndex < 0 ? '' : cleanString(order[nameIndex])
+    });
   });
-  return rows.map(function(row) {
-    const ref = cleanString(row[CONFIG.ORDER_REF_COLUMN - 1]);
-    const source = cleanString(row[CONFIG.TRANSACTION_SOURCE_COLUMN - 1]);
-    const order = source === CONFIG.ORDER_SPREADSHEET_ID ? byRef.get(ref) : null;
-    row[CONFIG.ORDER_STATUS_COLUMN - 1] = order ? order[statusIndex] : '';
-    row[CONFIG.PURCHASE_DATE_COLUMN - 1] = order ? order[dateIndex] : '';
-    return row;
-  });
+  return byRef;
+}
+
+// Existing rows are never rewritten: admin email corrections and device locks survive.
+function syncBuyerAccess() {
+  return syncBuyerAccessInternal(false);
+}
+
+function previewBuyerAccessSync() {
+  return syncBuyerAccessInternal(true);
+}
+
+function syncBuyerAccessInternal(dryRun) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const sheet = getMainSheet();
+    validateAccessHeaders(sheet);
+    const lastRow = sheet.getLastRow();
+    const existing = lastRow < 2 ? [] : sheet.getRange(2, 1, lastRow - 1, 12).getValues();
+    const known = new Set(existing.map(function(row) {
+      return cleanString(row[10]) + '|' + cleanString(row[1]);
+    }));
+    const pending = [];
+    const result = { dryRun: dryRun, added: 0, alreadyPresent: 0, skipped: 0 };
+    const today = toDateOnly(getTodayInTimezone());
+    Object.keys(CONFIG.ORDER_SOURCES).forEach(function(sourceId) {
+      const orders = getOrdersByRef(sourceId, CONFIG.ORDER_SOURCES[sourceId]);
+      orders.forEach(function(order, ref) {
+        const key = sourceId + '|' + ref;
+        if (known.has(key)) {
+          result.alreadyPresent++;
+          return;
+        }
+        const date = normalizeDate(order.purchaseDate);
+        if (normalizeOrderStatus(order.status) !== CONFIG.SUCCESS_ORDER_STATUS ||
+            !date || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.email)) {
+          result.skipped++;
+          return;
+        }
+        const expiration = addCalendarDays(date, CONFIG.SUBSCRIPTION_DAYS);
+        const status = toDateOnly(expiration).getTime() <= today.getTime()
+          ? CONFIG.EXPIRED_STATUS : CONFIG.ACTIVE_STATUS;
+        const safeText = function(value) { return value.charAt(0) === '=' ? "'" + value : value; };
+        pending.push([safeText(order.email), ref, safeText(order.buyerName), date,
+          expiration, status, '', '', '', '', sourceId,
+          sourceId === CONFIG.ORDER_SPREADSHEET_ID ? 'Reguler' : 'Fast Track']);
+        known.add(key);
+      });
+    });
+    if (!dryRun && pending.length) {
+      const requiredRows = lastRow + pending.length;
+      if (requiredRows > sheet.getMaxRows()) {
+        sheet.insertRowsAfter(sheet.getMaxRows(), requiredRows - sheet.getMaxRows());
+      }
+      sheet.getRange(lastRow + 1, 1, pending.length, 12).setValues(pending);
+      sheet.getRange(lastRow + 1, 4, pending.length, 1).setNumberFormat('dd-MM-yyyy HH:mm');
+      sheet.getRange(lastRow + 1, 5, pending.length, 1).setNumberFormat('dd-MM-yyyy');
+      SpreadsheetApp.flush();
+    }
+    result.added = pending.length;
+    console.log('AU Access sync: ' + JSON.stringify(result));
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function createBuyerAccessSyncTrigger() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const exists = ScriptApp.getProjectTriggers().some(function(trigger) {
+      return trigger.getHandlerFunction() === 'syncBuyerAccess';
+    });
+    if (!exists) ScriptApp.newTrigger('syncBuyerAccess').timeBased().everyMinutes(5).create();
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /*****************************************************
@@ -982,6 +1089,12 @@ function normalizeAccountStatus(value) {
 
 function normalizeEmail(value) {
   return cleanString(value).toLowerCase();
+}
+
+function normalizeDeviceSignature(value) {
+  const id = cleanString(value).split('||')[0].trim();
+  const match = id.match(/^dev_(mobile|desktop)_hw_([a-f0-9]{6,16})(?:_[a-z0-9-]+)?$/i);
+  return match ? 'dev_' + match[1].toLowerCase() + '_hw_' + match[2].toLowerCase() : id;
 }
 
 function normalizeDeviceType(value) {

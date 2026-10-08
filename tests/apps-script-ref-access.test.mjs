@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const sourceId = '1nNzq6PVrbJQmLbcDMTTgXChaZO44tVjafSWDYwbTc88';
 const accessId = '1B0lN8Cfn7-Tev81vSRsGS7OWeAtaWpoGrcmG7A6-FoQ';
+const fastSourceId = '1OinUvkN6ih9vKoues14q3Akt1Gdqnc45J_-cPXn2DEQ';
 const headers = ['Buyer Email', 'Ref', 'Buyer Name', 'Purchase Date',
   'AU Expiration Date', 'AU Status Account', 'AU Device Handphone',
   'AU Device Laptop', 'Mobile Device ID', 'Laptop Device ID',
@@ -13,6 +14,8 @@ const access = [headers, [' Login@Gmail.com ', 'order-icha', '', '',
   'dev_mobile_test_12345678', '', sourceId, 'Reguler']];
 const orders = [['Ref', 'Buyer Email', 'Status', 'Tanggal'],
   ['order-icha', 'purchase@icloud.com', 'SUCCESS', new Date('2026-10-06')]];
+const fastOrders = [['Ref', 'Buyer Email', 'Status', 'Tanggal'],
+  ['order-icha', 'fast@example.com', 'REFUNDED', new Date('2026-10-04')]];
 const writes = [];
 const sheet = {
   getName: () => 'AU Access',
@@ -34,6 +37,10 @@ const sheet = {
 const context = vm.createContext({ Date, console,
   SpreadsheetApp: { openById(id) {
     if (id === accessId) return { getSheetByName: name => name === 'AU Access' ? sheet : null };
+    if (id === fastSourceId) return {
+      getSheetByName: () => null,
+      getSheets: () => [{ getName: () => 'Fast Track ', getDataRange: () => ({ getValues: () => fastOrders }) }],
+    };
     assert.equal(id, sourceId);
     return { getSheetByName: () => ({ getDataRange: () => ({ getValues: () => orders }) }) };
   } },
@@ -82,4 +89,18 @@ assert.deepEqual(writes.map(write => write.column), [5, 6]);
 assert.equal(orders[2][1], 'purchase@icloud.com');
 context.updateAllSubscriptions();
 assert.equal(access[1][0], ' Login@Gmail.com ');
+access[1][10] = fastSourceId;
+assert.equal(context.validateAccess(payload).reason, 'ORDER_NOT_SUCCESS', 'Ref must resolve within its own source');
+fastOrders[1][2] = 'SUCCESS';
+assert.equal(context.checkBuyerEmail(payload).accessGranted, true, 'Fast Track buyer precheck');
+assert.equal(context.validateAccess(payload).accessGranted, true, 'Fast Track device validation');
+assert.equal(context.refreshSingleSubscription(payload).accessGranted, true, 'Fast Track refresh');
+context.updateAllSubscriptions();
+assert.equal(access[1][5], 'Active');
+access[1][8] = 'dev_mobile_hw_1234abcd_legacy123';
+assert.equal(context.validateAccess({ ...payload, deviceId: 'dev_mobile_hw_1234abcd' }).accessGranted, true);
+assert.equal(context.validateAccess({ ...payload, deviceId: 'dev_mobile_hw_4321abcd' }).reason, 'DEVICE_MISMATCH');
+assert.equal(context.validateAccess({ ...payload, deviceId: 'dev_desktop_hw_1234abcd' }).reason, 'DEVICE_MISMATCH');
 console.log('PASS Ref-linked login survives source refresh; payment, expiry, manual status and device locks enforced');
+console.log('PASS Fast Track source, trailing sheet space and cross-source Ref isolation');
+console.log('PASS legacy hardware suffix accepted only for the same slot and hash');
