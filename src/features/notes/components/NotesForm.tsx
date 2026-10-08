@@ -120,13 +120,18 @@ export const NotesForm: React.FC<Props> = ({
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [cropperSession, setCropperSession] = useState<{ id: string; src: string } | null>(null);
   const activeCropSessionRef = useRef<{ id: string; targetImageId: string } | null>(null);
+  const latestNotes = useRef({ data, onChange });
+  latestNotes.current = { data, onChange };
 
   const updateField = <K extends keyof NotesData>(key: K, value: NotesData[K]) => {
-    onChange({ ...data, [key]: value });
+    const updated = { ...latestNotes.current.data, [key]: value };
+    latestNotes.current = { ...latestNotes.current, data: updated };
+    latestNotes.current.onChange(updated);
   };
 
   // Normalize images from either data.images or data.imageUrl with layout support
   const getNormalizedImages = (): NotesImageItem[] => {
+    const data = latestNotes.current.data;
     if (data.images && data.images.length > 0) {
       return data.images.map((img) => ({
         ...img,
@@ -160,7 +165,8 @@ export const NotesForm: React.FC<Props> = ({
 
   const commitImagesUpdate = (newImages: NotesImageItem[]) => {
     const primary = newImages[0];
-    onChange({
+    const data = latestNotes.current.data;
+    const updated = {
       ...data,
       images: newImages,
       imageUrl: primary?.url || '',
@@ -174,7 +180,9 @@ export const NotesForm: React.FC<Props> = ({
       imageBorderRadius: primary?.borderRadius,
       imageRotation: primary?.rotation,
       imageLayout: primary?.layout ?? data.imageLayout,
-    });
+    };
+    latestNotes.current = { ...latestNotes.current, data: updated };
+    latestNotes.current.onChange(updated);
   };
 
   const processAndAddImage = (file: File) => {
@@ -206,7 +214,7 @@ export const NotesForm: React.FC<Props> = ({
         .then((dataUrl) => {
           if (dataUrl) {
             const fresh = getNormalizedImages().map((img) =>
-              img.id === newImage.id ? { ...img, url: dataUrl } : img
+              img.id === newImage.id && img.url === instantUrl ? { ...img, url: dataUrl } : img
             );
             commitImagesUpdate(fresh);
             revokeSafeObjectURL(instantUrl);
@@ -230,6 +238,7 @@ export const NotesForm: React.FC<Props> = ({
     if (!file || !activeImage) return;
     try {
       const instantUrl = createSafeObjectURL(file);
+      const targetId = activeImage.id;
       const oldUrl = activeImage.url;
       if (isBlobUrl(oldUrl)) {
         revokeSafeObjectURL(oldUrl);
@@ -240,7 +249,9 @@ export const NotesForm: React.FC<Props> = ({
       compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 })
         .then((dataUrl) => {
           if (dataUrl) {
-            updateActiveImage({ url: dataUrl });
+            commitImagesUpdate(getNormalizedImages().map((img) =>
+              img.id === targetId && img.url === instantUrl ? { ...img, url: dataUrl } : img
+            ));
             revokeSafeObjectURL(instantUrl);
           }
         })

@@ -3,7 +3,7 @@ import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import { Crop, X, Check, RotateCw, RotateCcw, Circle, Square, ZoomIn, Loader2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { canvasToDataUrlAsync, createCircularCropDataUrl } from '../utils/imageManager';
+import { canvasToDataUrlAsync, createCircularCropDataUrl, resolveLocalImageReference } from '../utils/imageManager';
 
 interface ImageCropperModalProps {
   isOpen: boolean;
@@ -40,6 +40,9 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   const [shape, setShape] = useState<'round' | 'rect'>(initialCropShape);
   const [isCropperReady, setIsCropperReady] = useState<boolean>(false);
   const [isApplying, setIsApplying] = useState<boolean>(false);
+  const [resolvedImage, setResolvedImage] = useState({ input: '', src: '' });
+  const [imageError, setImageError] = useState('');
+  const resolvedSrc = resolvedImage.input === imageSrc ? resolvedImage.src : '';
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
     forceAspect !== undefined ? forceAspect : initialCropShape === 'round' ? 1 : undefined
   );
@@ -48,7 +51,28 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   const isZoomingRaf = useRef<boolean>(false);
   const initCropperRef = useRef<() => void>(() => {});
 
-  const isLocal = !imageSrc || imageSrc.startsWith('blob:') || imageSrc.startsWith('data:');
+  const isLocal = !resolvedSrc || resolvedSrc.startsWith('blob:') || resolvedSrc.startsWith('data:');
+
+  useEffect(() => {
+    let cancelled = false;
+    setImageError('');
+    setIsCropperReady(false);
+    setResolvedImage({ input: imageSrc, src: '' });
+    if (isOpen && imageSrc) {
+      void (async () => {
+        try {
+          const src = imageSrc.startsWith('au-local-media://')
+            ? await resolveLocalImageReference(imageSrc)
+            : imageSrc;
+          if (!src) throw new Error('Local image unavailable');
+          if (!cancelled) setResolvedImage({ input: imageSrc, src });
+        } catch {
+          if (!cancelled) setImageError('load');
+        }
+      })();
+    }
+    return () => { cancelled = true; };
+  }, [isOpen, imageSrc, sessionId]);
 
   // Track component mounted status
   useEffect(() => {
@@ -67,7 +91,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   // Define Cropper initialization logic
   const initCropper = () => {
-    if (!imageRef.current || !isMountedRef.current) return;
+    if (!imageRef.current || !isMountedRef.current || imageRef.current.naturalWidth <= 0) return;
 
     if (cropperRef.current) {
       cropperRef.current.destroy();
@@ -132,7 +156,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   // Initialize and update CropperJS instance when modal opens or image changes
   useEffect(() => {
-    if (!isOpen || !imageSrc) {
+    if (!isOpen || !resolvedSrc) {
       setIsCropperReady(false);
       return;
     }
@@ -152,7 +176,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       }
       setIsCropperReady(false);
     };
-  }, [isOpen, imageSrc]);
+  }, [isOpen, resolvedSrc, sessionId]);
 
   // Handle aspect ratio change
   const handleSetAspect = (newAspect: number | undefined) => {
@@ -205,7 +229,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   // Handle apply / complete crop asynchronously without blocking UI thread
   const handleApply = async () => {
-    if (!cropperRef.current || isApplying) return;
+    if (!cropperRef.current || !isCropperReady || imageError || isApplying) return;
+    setImageError('');
     setIsApplying(true);
 
     try {
@@ -217,9 +242,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         imageSmoothingQuality: 'high',
       });
 
-      if (!croppedCanvas) {
-        setIsApplying(false);
-        return;
+      if (!croppedCanvas || croppedCanvas.width <= 0 || croppedCanvas.height <= 0) {
+        throw new Error('Empty crop canvas');
       }
 
       let finalDataUrl = '';
@@ -232,11 +256,13 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/jpeg', outQuality);
       }
 
-      if (finalDataUrl && isMountedRef.current) {
+      if (!finalDataUrl || finalDataUrl === 'data:,') throw new Error('Empty cropped image');
+      if (isMountedRef.current) {
         onCropComplete(finalDataUrl, sessionId);
       }
     } catch (e) {
       console.error('Error cropping image with CropperJS:', e);
+      if (isMountedRef.current) setImageError('crop');
     } finally {
       if (isMountedRef.current) {
         setIsApplying(false);
@@ -385,16 +411,17 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           }}
         >
           {/* Instant pre-mount working preview so there is never a blank screen */}
-          {!isCropperReady && (
+          {!isCropperReady && resolvedSrc && !imageError && (
             <img
-              src={imageSrc}
+              src={resolvedSrc}
               alt="Instant preview"
               className="max-w-full max-h-full object-contain absolute inset-0 m-auto pointer-events-none"
             />
           )}
-          <img
+          {resolvedSrc && !imageError && <img
+            key={resolvedSrc}
             ref={imageRef}
-            src={imageSrc}
+            src={resolvedSrc}
             alt="Source for cropping"
             className="max-w-full max-h-full block opacity-0"
             crossOrigin={isLocal ? undefined : 'anonymous'}
@@ -403,13 +430,17 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                 initCropperRef.current?.();
               }
             }}
-            onError={() => {
-              if (imageRef.current && imageRef.current.crossOrigin) {
-                imageRef.current.removeAttribute('crossorigin');
-                imageRef.current.src = imageSrc;
-              }
-            }}
-          />
+            onError={() => { setImageError('load'); setIsCropperReady(false); }}
+          />}
+          {imageError ? (
+            <p role="alert" className="relative px-5 text-center text-sm text-rose-300">
+              {isId
+                ? 'Gambar tidak dapat dibuka atau dipotong. Tutup lalu unggah ulang file JPG, PNG, atau WebP. Gambar sebelumnya tidak diubah.'
+                : 'This image could not be loaded or cropped. Close and upload a JPG, PNG, or WebP file again. The previous image was not changed.'}
+            </p>
+          ) : !isCropperReady && (
+            <Loader2 className="relative w-6 h-6 animate-spin text-purple-300" aria-label={isId ? 'Memuat gambar' : 'Loading image'} />
+          )}
         </div>
 
         {/* Modal Controls / Zoom & Shape Toolbar */}
@@ -568,7 +599,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
           <button
             type="button"
-            disabled={isApplying}
+            disabled={isApplying || !isCropperReady || !!imageError}
             onClick={handleApply}
             className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 disabled:opacity-75 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all flex items-center space-x-1.5 cursor-pointer"
           >
