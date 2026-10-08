@@ -49,8 +49,5 @@ function trustedExternalUrl(value: string | undefined, hostname: string): string
 
 export const landingLinks = {
   editor: '/editor',
-  checkout: trustedExternalUrl(import.meta.env.VITE_LANDING_LYNK_URL, 'lynk.id') || 'https://lynk.id/sempiternal/l755mjy6y4v5/checkout',
   support: trustedExternalUrl(import.meta.env.VITE_LANDING_WHATSAPP_URL, 'wa.me') || 'https://wa.me/6285179615352',
 };
-
-export const monthlyPrice = import.meta.env.VITE_LANDING_MONTHLY_PRICE || 'Rp15.000';

@@ -128,6 +128,11 @@ html.au-landing-document { scroll-padding-top: 90px; }
 .landing-plan-label { color: var(--accent); font-size: 10px; font-weight: 650; display: flex; align-items: center; gap: 6px; }
 .landing-plan h3 { font-size: 21px; font-weight: 650; margin-top: 16px; }
 .landing-plan > p { color: var(--muted); font-size: 12px; margin-top: 6px; }
+.landing-region-label { margin-top: 20px; display: flex; align-items: center; gap: 8px; min-height: 34px; font-size: 12px; color: var(--muted); }
+.landing-region-label .landing-icon-button { margin-left: auto; }
+.landing-plan-price { min-height: 100px; }
+.landing-price-pending { font-size: 21px; }
+.landing-checkout-status { min-height: 29px; }
 .landing-plan-price { display: flex; flex-direction: column; gap: 4px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; line-height: 1.2; font-weight: 700; padding: 22px 0; }
 .landing-plan-price span { font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 400; color: var(--muted); }
 .landing-plan ul { margin: 0 0 24px; padding: 19px 0 0; border-top: 1px solid var(--line); display: grid; gap: 11px; list-style: none; }

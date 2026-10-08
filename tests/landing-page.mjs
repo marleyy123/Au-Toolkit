@@ -11,6 +11,10 @@ for (const engine of ['chrome', 'webkit']) {
       const page = await browser.newPage({ viewport: { width, height } });
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
+      await page.route('**/api/regional-pricing', route => route.fulfill({ json: {
+        success: true, country: 'ID', region: 'indonesia', amount: 15000, currency: 'IDR',
+        checkout: 'https://lynk.id/sempiternal/l755mjy6y4v5/checkout',
+      } }));
       await page.goto(url);
       await page.locator('.landing-studio #preview-target').waitFor();
       await page.evaluate(() => document.fonts.ready);
@@ -22,6 +26,10 @@ for (const engine of ['chrome', 'webkit']) {
       assert.equal(await checkout.getAttribute('href'), 'https://lynk.id/sempiternal/l755mjy6y4v5/checkout');
       assert.equal(await checkout.getAttribute('target'), '_blank');
       assert(await page.locator('body').textContent().then(text => text.includes('Rp15.000')));
+      const activePlan = page.locator('.landing-plan-active');
+      assert.equal(await activePlan.getByRole('radio').count(), 0);
+      assert((await activePlan.locator('.landing-plan-price').textContent()).includes('Rp15.000'));
+      assert.equal(await checkout.getAttribute('href'), 'https://lynk.id/sempiternal/l755mjy6y4v5/checkout');
       const support = page.getByRole('link', { name: 'Bantuan WhatsApp' });
       assert.equal(await support.getAttribute('href'), 'https://wa.me/6285179615352');
       assert.equal(await support.getAttribute('target'), '_blank');

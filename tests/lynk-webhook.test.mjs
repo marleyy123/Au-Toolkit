@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createHandler, purchaseDate } from '../api/lynk-webhook.js';
+import { createHandler, purchaseDate, signatureDiagnostic } from '../api/lynk-webhook.js';
 
 const env = {
   VITE_FIREBASE_PROJECT_ID: 'au-toolkit-staging-20261005', LYNK_MERCHANT_KEY: 'test-merchant-key',
@@ -51,6 +51,13 @@ const wrongScript = createHandler({ env: { ...env, GOOGLE_SHEETS_SCRIPT_URL: 'ht
 assert.equal((await call(fixture, { target: wrongScript })).status, 503);
 const inspect = createHandler({ env: { ...env, LYNK_WEBHOOK_MODE: 'inspect' }, log: (...args) => logs.push(args), fetchImpl: () => { throw new Error('Inspect must not write'); } });
 assert.equal((await call(fixture, { target: inspect })).reason, 'INSPECTED_NO_ACCESS_GRANTED');
+assert.equal((await call(fixture, { target: inspect, signature: '' })).diagnostic, 'MISSING_SIGNATURE');
+assert.equal((await call(fixture, { target: inspect, signature: 'not-a-hash' })).diagnostic, 'INVALID_SIGNATURE_FORMAT');
+assert.equal((await call(fixture, { target: inspect, signature: '0'.repeat(64) })).diagnostic, 'SIGNATURE_MISMATCH');
+assert.equal((await call(fixture, { signature: '0'.repeat(64) })).diagnostic, undefined);
+assert.equal(signatureDiagnostic({data:{message_data:{}}},'0'.repeat(64),env.LYNK_MERCHANT_KEY),'MISSING_SIGNED_FIELDS');
+const stringAmount=structuredClone(fixture);stringAmount.data.message_data.totals.grandTotal='14550';
+assert.equal(signatureDiagnostic(stringAmount,'0'.repeat(64),env.LYNK_MERCHANT_KEY),'INVALID_SIGNED_AMOUNT');
 assert(!JSON.stringify(logs).includes('Buyer@Test.Example'));
 assert(!JSON.stringify(logs).includes(env.LYNK_MERCHANT_KEY));
 assert(JSON.stringify(logs).includes(env.LYNK_TEST_PRODUCT_UUID));

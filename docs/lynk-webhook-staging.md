@@ -39,6 +39,25 @@ Test URL success proves the real payment flow.
 
 ## Phase 2: connect the testing spreadsheets
 
+### Troubleshooting HTTP 401
+
+GET health with `signatureConfigured: true` means a key is set, not that it
+matches Lynk. In inspect mode, the POST response and the Vercel log entry
+`lynk-staging-rejected` provide a safe classification:
+
+- `MISSING_SIGNATURE`: no `X-Lynk-Signature` was supplied.
+- `INVALID_SIGNATURE_FORMAT`: the header is not a 64-character hexadecimal hash.
+- `MISSING_SIGNED_FIELDS`: missing documented `refId` or `message_id` fields.
+- `INVALID_SIGNED_AMOUNT`: `totals.grandTotal` is not the documented nonnegative integer.
+- `SIGNATURE_MISMATCH`: compare the merchant key from the CURRENT Lynk webhook
+  settings with the server-only Vercel variable and redeploy. A regenerated key
+  must also be updated in Vercel. Correctly shaped payloads with a mismatched
+  signature stay rejected; never disable validation to pass the test button.
+
+Share only the diagnostic, not the key, signature or full customer payload.
+If Lynk's test button is unsigned or uses a different shape, its request needs
+inspection against the official contract before any compatibility change.
+
 1. Open the existing AU Access Test bound Apps Script project, NOT production.
    Replace its source with the updated complete
    `apps-script/au-toolkit-access-staging.gs` file; save.

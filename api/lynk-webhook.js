@@ -11,15 +11,22 @@ function reply(res, status, reason, extra = {}) {
 }
 
 // Lynk signs grandTotal + refId + message_id + merchantKey (SHA-256, not HMAC).
-export function validSignature(payload, signature, key) {
+export function signatureDiagnostic(payload, signature, key) {
   const data = payload?.data;
   const transaction = data?.message_data;
   const amount = transaction?.totals?.grandTotal;
   const ref = text(transaction?.refId);
   const messageId = text(data?.message_id);
-  if (!ref || !messageId || !Number.isSafeInteger(amount) || amount < 0 || !/^[a-f0-9]{64}$/i.test(signature)) return false;
+  if (!signature) return 'MISSING_SIGNATURE';
+  if (!/^[a-f0-9]{64}$/i.test(signature)) return 'INVALID_SIGNATURE_FORMAT';
+  if (!ref || !messageId) return 'MISSING_SIGNED_FIELDS';
+  if (!Number.isSafeInteger(amount) || amount < 0) return 'INVALID_SIGNED_AMOUNT';
   const expected = createHash('sha256').update(String(amount) + ref + messageId + key).digest();
-  return timingSafeEqual(expected, Buffer.from(signature, 'hex'));
+  return timingSafeEqual(expected, Buffer.from(signature, 'hex')) ? 'VALID' : 'SIGNATURE_MISMATCH';
+}
+
+export function validSignature(payload, signature, key) {
+  return signatureDiagnostic(payload, signature, key) === 'VALID';
 }
 
 export function purchaseDate(value) {
@@ -56,7 +63,12 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
       if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error();
     } catch { return reply(res, 400, 'INVALID_JSON'); }
     const signature = text(req.headers['x-lynk-signature'], 64);
-    if (!validSignature(payload, signature, key)) return reply(res, 401, 'INVALID_SIGNATURE');
+    const diagnostic = signatureDiagnostic(payload, signature, key);
+    if (diagnostic !== 'VALID') {
+      // Record only a classification, never signature, secret, or payload values.
+      log('lynk-staging-rejected', { diagnostic });
+      return reply(res, 401, 'INVALID_SIGNATURE', mode === 'inspect' ? { diagnostic } : {});
+    }
     const data = payload.data;
     if (payload.event !== 'payment.received' || data.message_action !== 'SUCCESS' || String(data.message_code) !== '0') return reply(res, 200, 'IGNORED_EVENT');
     const transaction = data.message_data;
