@@ -9,7 +9,10 @@ import {
   createSafeObjectURL,
   revokeSafeObjectURL,
   isBlobUrl,
+  registerTransientImageUrl,
 } from '../../../utils/imageManager';
+import { auth } from '../../../firebase';
+import { uploadMediaAsset } from '../../../utils/storageService';
 import {
   FileText,
   Type,
@@ -119,6 +122,7 @@ export const NotesForm: React.FC<Props> = ({
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [cropperSession, setCropperSession] = useState<{ id: string; src: string } | null>(null);
+  const [imageUploadStatus, setImageUploadStatus] = useState<string | null>(null);
   const activeCropSessionRef = useRef<{ id: string; targetImageId: string } | null>(null);
   const latestNotes = useRef({ data, onChange });
   latestNotes.current = { data, onChange };
@@ -185,10 +189,44 @@ export const NotesForm: React.FC<Props> = ({
     latestNotes.current.onChange(updated);
   };
 
+  const replaceImageUrlWhenCurrent = (imageId: string, expectedUrl: string, nextUrl: string) => {
+    const fresh = getNormalizedImages().map((img) =>
+      img.id === imageId && img.url === expectedUrl ? { ...img, url: nextUrl } : img
+    );
+    commitImagesUpdate(fresh);
+  };
+
+  const revokeImagePreviewUrlIfUnused = (url: string) => {
+    if (!isBlobUrl(url)) return;
+    if (getNormalizedImages().some((img) => img.url === url)) return;
+    revokeSafeObjectURL(url);
+  };
+
+  const persistImageFile = async (file: File, imageId: string, instantUrl: string) => {
+    const firebaseUser = auth.currentUser;
+    if (firebaseUser?.uid) {
+      setImageUploadStatus(language === 'id' ? 'Mengunggah foto...' : 'Uploading photo...');
+      const uploaded = await uploadMediaAsset(file, firebaseUser.uid, 'notes');
+      if (!uploaded.downloadURL.startsWith('https://')) {
+        throw new Error('Firebase Storage did not return a stable image URL.');
+      }
+      replaceImageUrlWhenCurrent(imageId, instantUrl, uploaded.downloadURL);
+      setImageUploadStatus(language === 'id' ? 'Foto tersimpan.' : 'Photo saved.');
+      setTimeout(() => setImageUploadStatus(null), 1800);
+      return;
+    }
+
+    const dataUrl = await compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 });
+    if (dataUrl) {
+      replaceImageUrlWhenCurrent(imageId, instantUrl, dataUrl);
+    }
+  };
+
   const processAndAddImage = (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
     try {
       const instantUrl = createSafeObjectURL(file);
+      registerTransientImageUrl(instantUrl);
       const currentList = getNormalizedImages();
       const newImage: NotesImageItem = {
         id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -209,20 +247,20 @@ export const NotesForm: React.FC<Props> = ({
       commitImagesUpdate(updated);
       setSelectedImageId(newImage.id);
 
-      // In background, compress and persist durable Data URL
-      compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 })
-        .then((dataUrl) => {
-          if (dataUrl) {
-            const fresh = getNormalizedImages().map((img) =>
-              img.id === newImage.id && img.url === instantUrl ? { ...img, url: dataUrl } : img
-            );
-            commitImagesUpdate(fresh);
-            revokeSafeObjectURL(instantUrl);
-          }
+      // Blob URLs are preview-only. Replace them with stable Firebase URLs for autosave.
+      persistImageFile(file, newImage.id, instantUrl)
+        .catch((e) => {
+          console.warn('Notes image upload failed, falling back to local Data URL:', e);
+          setImageUploadStatus(language === 'id' ? 'Upload gagal. Foto disimpan lokal sementara.' : 'Upload failed. Photo kept locally for now.');
+          return compressAndReadAsDataURL(file, { maxSizeMB: 0.2, maxWidthOrHeight: 900 })
+            .then((dataUrl) => {
+              if (dataUrl) replaceImageUrlWhenCurrent(newImage.id, instantUrl, dataUrl);
+            });
         })
-        .catch((e) => console.warn('Background compression fallback:', e));
+        .finally(() => revokeImagePreviewUrlIfUnused(instantUrl));
     } catch (err) {
       console.error('Failed to add image:', err);
+      setImageUploadStatus(language === 'id' ? 'Gagal menambahkan foto.' : 'Failed to add photo.');
     }
   };
 
@@ -240,24 +278,26 @@ export const NotesForm: React.FC<Props> = ({
       const instantUrl = createSafeObjectURL(file);
       const targetId = activeImage.id;
       const oldUrl = activeImage.url;
+      registerTransientImageUrl(instantUrl, oldUrl);
       if (isBlobUrl(oldUrl)) {
         revokeSafeObjectURL(oldUrl);
       }
       updateActiveImage({ url: instantUrl });
 
-      // In background, compress and update durable Data URL
-      compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 })
-        .then((dataUrl) => {
-          if (dataUrl) {
-            commitImagesUpdate(getNormalizedImages().map((img) =>
-              img.id === targetId && img.url === instantUrl ? { ...img, url: dataUrl } : img
-            ));
-            revokeSafeObjectURL(instantUrl);
-          }
+      // In background, persist the replacement URL so autosave never stores blob URLs.
+      persistImageFile(file, targetId, instantUrl)
+        .catch((e) => {
+          console.warn('Notes replacement upload failed, falling back to local Data URL:', e);
+          setImageUploadStatus(language === 'id' ? 'Upload gagal. Foto pengganti disimpan lokal sementara.' : 'Upload failed. Replacement kept locally for now.');
+          return compressAndReadAsDataURL(file, { maxSizeMB: 0.2, maxWidthOrHeight: 900 })
+            .then((dataUrl) => {
+              if (dataUrl) replaceImageUrlWhenCurrent(targetId, instantUrl, dataUrl);
+            });
         })
-        .catch((e) => console.warn('Background compression error:', e));
+        .finally(() => revokeImagePreviewUrlIfUnused(instantUrl));
     } catch (err) {
       console.error('Failed to replace image:', err);
+      setImageUploadStatus(language === 'id' ? 'Gagal mengganti foto.' : 'Failed to replace photo.');
     }
     e.target.value = '';
   };
@@ -383,6 +423,12 @@ export const NotesForm: React.FC<Props> = ({
             </span>
           )}
         </div>
+
+        {imageUploadStatus && (
+          <div className="rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-[11px] font-semibold text-purple-800">
+            {imageUploadStatus}
+          </div>
+        )}
 
         {/* Hidden File Inputs */}
         <input
