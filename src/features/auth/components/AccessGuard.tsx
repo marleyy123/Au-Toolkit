@@ -165,7 +165,7 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
         <div className="space-y-2.5 pt-1">
           {!isDeviceMismatch && (
             <a
-              href="https://wa.me"
+              href="/#pilihan-paket"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white shadow-lg shadow-purple-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
