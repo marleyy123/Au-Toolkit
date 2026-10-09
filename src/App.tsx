@@ -594,6 +594,9 @@ export default function App() {
     setCloudToast,
   });
   useWorkspaceCloudHydration({
+    enabled: isAuthenticated && buyerEntitlement?.isValid === true &&
+      buyerEntitlement.status === 'ACTIVE' &&
+      ['LOAD_USER_DATA', 'HYDRATE_DATA', 'READY'].includes(authLifecycleStage),
     authUser,
     userAccountKey,
     clientSessionId,
@@ -825,7 +828,8 @@ export default function App() {
   // 1. Check if 30-day access has expired or account is locked/mismatched -> render AccessGuard
   // Backend errors and invalid API responses must NEVER render the expiration screen!
   if (
-    authLifecycleStage === 'ACCESS_EXPIRED' &&
+    (authLifecycleStage === 'ACCESS_EXPIRED' ||
+      (buyerEntitlement && ['EXPIRED', 'INACTIVE', 'DEVICE_MISMATCH', 'ORDER_NOT_SUCCESS', 'INVALID_PURCHASE_DATA'].includes(buyerEntitlement.status))) &&
     buyerEntitlement?.status !== 'INVALID_API_RESPONSE' &&
     buyerEntitlement?.status !== 'BACKEND_ERROR'
   ) {

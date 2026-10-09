@@ -20,6 +20,7 @@ import type { CloudConnectionState } from '../components/CloudSyncIndicator';
 import { persistUserAssets, readPersistentUserAssets } from '../../../utils/userAssets';
 
 type UseWorkspaceCloudHydrationArgs = {
+  enabled: boolean;
   authUser: any;
   userAccountKey: string;
   clientSessionId: string;
@@ -42,6 +43,7 @@ type UseWorkspaceCloudHydrationArgs = {
 };
 
 export function useWorkspaceCloudHydration({
+  enabled,
   authUser,
   userAccountKey,
   clientSessionId,
@@ -73,6 +75,8 @@ export function useWorkspaceCloudHydration({
       setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
       return;
     }
+
+    if (!enabled) return;
 
     const expectedUid = userEmailOrId;
     const generation = ++accountSyncGenerationRef.current;
@@ -148,7 +152,7 @@ export function useWorkspaceCloudHydration({
             forceCloudWorkspaceSyncNowRef.current();
             setCloudSyncState('synced');
             setLastSyncedTime(new Date());
-            setAuthLifecycleStage('READY');
+            setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
             return;
           }
 
@@ -168,14 +172,14 @@ export function useWorkspaceCloudHydration({
           forceCloudWorkspaceSyncNowRef.current();
           setCloudSyncState('synced');
           setLastSyncedTime(new Date());
-          setAuthLifecycleStage('READY');
+          setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
           return;
         } else {
           setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
         }
         setIsHydrated(true);
         isHydratedRef.current = true;
-        setAuthLifecycleStage('READY');
+        setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
       })
       .catch(() => {
         if (!isCurrentAccount()) return;
@@ -184,7 +188,7 @@ export function useWorkspaceCloudHydration({
         setIsHydrated(true);
         isHydratedRef.current = true;
         setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-        setAuthLifecycleStage('READY');
+        setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
       });
 
     const unsubscribe = subscribeUserWorkspaceFromFirestore(
@@ -211,5 +215,5 @@ export function useWorkspaceCloudHydration({
       clearTimeout(hydrationSafetyTimer);
       unsubscribe();
     };
-  }, [authUser?.uid, userAccountKey]);
+  }, [enabled, authUser?.uid, userAccountKey]);
 }

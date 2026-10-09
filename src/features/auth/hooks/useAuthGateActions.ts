@@ -67,7 +67,7 @@ export function useAuthGateActions({
             if (cloudWorkspace?.hasLoadedData) {
               applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
             }
-            setAuthLifecycleStage('READY');
+            setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
           })
           .catch((err) => {
             console.error('[Retry] Firestore load error:', err);
@@ -103,6 +103,7 @@ export function useAuthGateActions({
   };
 
   const handleAccessExpired = (_email: string, entitlement: EntitlementCheckResult) => {
+    setIsAuthenticated(false);
     setBuyerEntitlement(entitlement);
     setAuthLifecycleStage('ACCESS_EXPIRED');
   };

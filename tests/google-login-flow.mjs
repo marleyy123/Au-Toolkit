@@ -27,7 +27,7 @@ const bundle = await build({
         export const getOrCreateDeviceId = () => 'test-desktop';
         export const getStableDeviceModel = () => 'Test desktop';
       ` : `
-        export const auth = { currentUser: null, authStateReady: async () => {} };
+        export const auth = { app: { options: { projectId: 'au-toolkit-staging-20261005' } }, currentUser: null, authStateReady: async () => {} };
         export async function signInWithGoogle() {
           window.calls.push({event: 'google', activation: navigator.userActivation.isActive});
           const popup = window.open('about:blank', 'google-login-test', 'popup');

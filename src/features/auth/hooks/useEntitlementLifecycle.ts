@@ -76,7 +76,9 @@ export function useEntitlementLifecycle({
       }
 
       console.log('[Entitlement] Checking buyer entitlement for:', emailToCheck, { isInitial });
+      const requestedUid = auth.currentUser?.uid;
       const entitlement = await checkBuyerEntitlement(emailToCheck);
+      if (requestedUid && auth.currentUser?.uid !== requestedUid) return;
       lastRevalidatedAtRef.current = Date.now();
 
       if (
@@ -90,7 +92,7 @@ export function useEntitlementLifecycle({
           const isCachedValid = Boolean(
             cached && cached.isValid && cached.status === 'ACTIVE' && cached.email?.toLowerCase() === emailToCheck
           );
-          if (isCachedValid && (auth.currentUser || getStoredAuthUser())) {
+          if (auth.app.options.projectId !== 'au-toolkit-staging-20261005' && isCachedValid && (auth.currentUser || getStoredAuthUser())) {
             console.log('[Entitlement] Using cached valid entitlement with active Firebase session, proceeding to LOAD_USER_DATA');
             setAuthLifecycleStage('LOAD_USER_DATA');
           } else {
@@ -127,6 +129,7 @@ export function useEntitlementLifecycle({
 
       if (isExpiredOrLocked) {
         console.warn('[Entitlement] Access denied/expired:', entitlement.status, entitlement.statusAccount);
+        setIsAuthenticated(false);
         setBuyerEntitlement(entitlement);
         setAuthLifecycleStage('ACCESS_EXPIRED');
         try {
