@@ -25,6 +25,18 @@ service cloud.firestore {
       }
     }
 
+    // Only the server Admin SDK can grant access, register billing device slots,
+    // or process spreadsheet administrator commands.
+    match /billingAccounts/{accountId} {
+      allow read, write: if false;
+    }
+    match /billingPurchases/{ref} {
+      allow read, write: if false;
+    }
+    match /billingAdminAudit/{commandId} {
+      allow read, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

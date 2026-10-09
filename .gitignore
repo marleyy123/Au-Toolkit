@@ -8,6 +8,7 @@ coverage/
 buyer-sheet.csv
 firebase-auth-*.json
 firebase-auth-delete-uids.txt
+*-firebase-adminsdk-*.json
 
 # Local Netlify folder
 .netlify

@@ -1,5 +1,9 @@
 # Spreadsheet Staging Setup
 
+For Firestore as the source of access data and spreadsheet admin commands,
+see `firestore-access-staging.md`. That opt-in backend uses Regular and Access
+only; the legacy setup below still uses three test spreadsheets.
+
 Use a NEW Apps Script project bound to AU Access Test. Never paste the staging
 script into the production Apps Script project or update the production web app.
 

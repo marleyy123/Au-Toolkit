@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
+import { createAccessStore, getStagingDb } from '../lib/staging-access-store.js';
 
 const PROJECT_ID = 'au-toolkit-staging-20261005';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec';
@@ -41,7 +42,7 @@ export function purchaseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
-export function createHandler({ env = process.env, fetchImpl = fetch, log = console.info, now = () => Date.now() } = {}) {
+export function createHandler({ env = process.env, fetchImpl = fetch, log = console.info, now = () => Date.now(), getStore = () => createAccessStore(getStagingDb(env), now) } = {}) {
   return async (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
@@ -52,8 +53,10 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
     if (env.VITE_FIREBASE_PROJECT_ID !== PROJECT_ID) return reply(res, 503, 'STAGING_CONFIG_REQUIRED');
     const mode = env.LYNK_WEBHOOK_MODE || 'inspect';
     if (!['inspect', 'activate'].includes(mode)) return reply(res, 503, 'INVALID_WEBHOOK_MODE');
+    const backend = env.ACCESS_BACKEND || 'sheets';
+    if (!['sheets', 'firestore'].includes(backend)) return reply(res, 503, 'INVALID_ACCESS_BACKEND');
     const key = text(env.LYNK_MERCHANT_KEY, 1024);
-    if (req.method === 'GET') return reply(res, 200, 'WEBHOOK_HEALTH', { environment: 'staging', mode, signatureConfigured: Boolean(key) });
+    if (req.method === 'GET') return reply(res, 200, 'WEBHOOK_HEALTH', { environment: 'staging', mode, backend, signatureConfigured: Boolean(key) });
     if (!key) return reply(res, 503, 'MERCHANT_KEY_REQUIRED');
     let payload;
     try {
@@ -89,7 +92,28 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
     const purchasedAt = purchaseDate(transaction.createdAt);
     if (!/^[a-zA-Z0-9_-]{1,200}$/.test(transaction.refId) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
         !purchasedAt || new Date(purchasedAt).getTime() > now() + 300000) return reply(res, 422, 'INVALID_PURCHASE');
+    let accessStored = false;
     try {
+      if (backend === 'firestore') {
+        const store = getStore();
+        const result = await store.ingest({ ref: transaction.refId, email, name: text(transaction.customer?.name),
+          purchasedAt, productId, productTitle: text(items[0].title), quantity: 1,
+          amount: transaction.totals.grandTotal, currency: 'IDR', source: 'lynk' });
+        accessStored = true;
+        // A failed report does not undo paid access. Lynk retries are deduplicated
+        // in Firestore and repair the spreadsheet mirror on the next delivery.
+        const response = await fetchImpl(SCRIPT_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, redirect: 'follow', signal: AbortSignal.timeout(25000),
+          body: JSON.stringify({ action: 'mirrorFirestorePurchase', serverSecret: secret, purchase: result.purchase, account: result.account }),
+        });
+        const report = await response.json();
+        if (!response.ok || report.success !== true) {
+          log('lynk-staging-report-pending', { reason: 'SHEET_REPORT_FAILED' });
+          return reply(res, 503, 'SHEET_REPORT_PENDING', { accessStored: true });
+        }
+        await store.markReported(transaction.refId);
+        return reply(res, 200, 'PURCHASE_SYNCED', { backend, duplicate: result.duplicate });
+      }
       const response = await fetchImpl(SCRIPT_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, redirect: 'follow', signal: AbortSignal.timeout(25000),
         body: JSON.stringify({ action: 'ingestLynkPurchase', serverSecret: secret, transaction: {
@@ -99,7 +123,13 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
       const result = await response.json();
       if (!response.ok || result.success !== true || result.status !== 'PURCHASE_SYNCED') return reply(res, 502, 'PURCHASE_SYNC_FAILED');
       return reply(res, 200, 'PURCHASE_SYNCED', { duplicate: result.duplicate === true });
-    } catch { return reply(res, 503, 'PURCHASE_SYNC_UNAVAILABLE'); }
+    } catch {
+      if (accessStored) {
+        log('lynk-staging-report-pending', { reason: 'SHEET_REPORT_UNAVAILABLE' });
+        return reply(res, 503, 'SHEET_REPORT_PENDING', { accessStored: true });
+      }
+      return reply(res, 503, 'PURCHASE_SYNC_UNAVAILABLE');
+    }
   };
 }
 

@@ -60,6 +60,8 @@ const STORAGE_KEY_ENTITLEMENT_CACHE = 'au_buyer_entitlement_cache_';
  * Retrieves cached entitlement from localStorage if available.
  */
 export function getCachedEntitlement(email: string): EntitlementCheckResult | null {
+  // Staging admin changes must be checked against the server on every validation.
+  if (auth.app.options.projectId === 'au-toolkit-staging-20261005') return null;
   try {
     const cleanEmail = normalizeEmail(email);
     if (!cleanEmail) return null;
@@ -432,7 +434,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   // 2. INVALID_FIREBASE_TOKEN
-  if (httpStatus === 401 && reasonCode === 'INVALID_FIREBASE_TOKEN') {
+  if (httpStatus === 401 && ['INVALID_FIREBASE_TOKEN', 'INVALID_AUTH_TOKEN'].includes(reasonCode)) {
     return {
       allowed: false,
       status: 'INVALID_FIREBASE_TOKEN',
@@ -452,6 +454,9 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   // 4. APPS_SCRIPT_UNAVAILABLE
+  if (reasonCode === 'FIRESTORE_UNAVAILABLE') {
+    return { allowed: false, status: 'BACKEND_ERROR', message: 'Server akses sedang tidak dapat dijangkau. Silakan coba lagi.', data: resData };
+  }
   if (httpStatus === 503 || reasonCode === 'APPS_SCRIPT_UNAVAILABLE') {
     return {
       allowed: false,

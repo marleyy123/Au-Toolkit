@@ -1,5 +1,9 @@
 # Lynk webhook: staging only
 
+For the opt-in Firestore authority and spreadsheet administrator workflow, see
+`firestore-access-staging.md`. The instructions below describe the legacy
+spreadsheet authority (`ACCESS_BACKEND=sheets`, the default).
+
 Source protocol: https://documenter.getpostman.com/view/3211564/2sB2cVf2Kp
 
 The endpoint is `api/lynk-webhook.js` on the Vercel testing project. It does not
