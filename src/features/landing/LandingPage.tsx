@@ -14,7 +14,27 @@ export default function LandingPage() {
     document.documentElement.classList.add('au-landing-document');
     const previousTitle = document.title;
     document.title = 'AU Toolkit | Editor Visual Cerita Alternate Universe';
-    return () => { document.documentElement.classList.remove('au-landing-document'); document.title = previousTitle; };
+    let scrollFrame = 0;
+    const scrollToHash = () => {
+      cancelAnimationFrame(scrollFrame);
+      scrollFrame = requestAnimationFrame(() => {
+        try {
+          const id = decodeURIComponent(window.location.hash.slice(1));
+          if (id) document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        } catch {
+          // Malformed URL fragments should not interrupt the landing page.
+        }
+      });
+    };
+    // Native fragment scrolling can run before this lazy-loaded page is mounted.
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => {
+      cancelAnimationFrame(scrollFrame);
+      window.removeEventListener('hashchange', scrollToHash);
+      document.documentElement.classList.remove('au-landing-document');
+      document.title = previousTitle;
+    };
   }, []);
   return <div className="au-landing"><a className="landing-skip-link" href="#landing-content">Lewati ke konten</a><LandingHeader /><main id="landing-content"><LandingHero /><FormatGallery /><FeaturesSection /><PurchaseSection /><PricingSection /><FaqSection /></main><LandingFooter /></div>;
 }
