@@ -16,13 +16,22 @@ Menu admin AU Access -> API admin Vercel dengan autentikasi -> Firestore
   pembeli, produk, jumlah barang, nominal, mata uang, waktu pembelian, sumber,
   dan status sinkronisasi laporan.
 - `billingAccounts/{sha256(normalizedEmail)}` menyimpan langganan saat ini,
-  UID Firebase setelah login pertama yang terverifikasi, dua slot perangkat,
+  UID Firebase setelah login pertama yang terverifikasi, data perangkat lama,
   dan nomor revisi data.
 - `billingAdminAudit/{commandId}` menyimpan data sebelum dan sesudah perubahan
   yang dilakukan administrator.
 - Konten editor dan salinan data perangkat dari aplikasi tetap di `users/{uid}`.
   Data profil/perangkat yang ditulis aplikasi bukan dasar pemberian akses
   berlangganan.
+
+Akses staging ditentukan oleh email pembelian yang cocok dengan email akun
+Firebase Auth terverifikasi, status akun, dan tanggal kedaluwarsa. Tidak ada
+batas satu HP atau satu laptop: akun yang sama boleh digunakan dari beberapa
+perangkat sekaligus tanpa mengeluarkan sesi perangkat lain. Fingerprint, jenis,
+dan ID perangkat tidak wajib dikirim untuk verifikasi akses Firestore. Data
+perangkat lama pada laporan tetap dipertahankan sebagai riwayat, bukan pengunci
+akses; metadata perangkat di `users/{uid}` hanya informasi login. Kebijakan
+perangkat backend Sheets/Netlify produksi lama tidak diubah dalam tahap staging.
 
 Rules staging menolak seluruh akses langsung dari browser ke koleksi tersebut.
 Admin SDK di server memakai service account khusus project
@@ -116,10 +125,11 @@ kepada pelanggan biasa.
 2. Ubah kolom F (`Active` atau `Inactive`) dan/atau kolom E (tanggal kedaluwarsa),
    lalu jalankan **Apply status and expiry (selected row)**. Status `Expired`
    dihitung otomatis dari tanggal kedaluwarsa.
-3. Untuk reset perangkat, pilih baris pembeli lalu jalankan menu reset
+3. Menu reset perangkat tetap tersedia untuk membersihkan data perangkat lama,
+   bukan untuk membuka slot akses. Pilih baris pembeli lalu jalankan menu reset
    handphone, laptop, atau kedua perangkat. Tindakan ini juga menerapkan status
    dan kedaluwarsa pada baris yang dipilih. Mengosongkan sel perangkat saja
-   tidak melakukan reset di Firebase.
+   tidak melakukan reset di Firebase. Login dari perangkat lain tidak perlu reset.
 4. Jika muncul `STALE_ADMIN_REVISION`, perbarui laporan lalu terapkan ulang
    perubahan yang diinginkan. Login, pembelian baru, atau administrator lain
    mungkin sudah memperbarui akun tersebut.
@@ -130,7 +140,7 @@ sebelum memperbarui laporan. Email, Ref, tanggal pembelian, dan nomor revisi
 merupakan data identitas/laporan, bukan pengaturan yang boleh diubah melalui
 perintah admin.
 Tindakan yang berhasil memperbarui baris spreadsheet dan menambahkan catatan
-audit di server. Blokir, perubahan kedaluwarsa, dan reset berlaku pada pemeriksaan
+audit di server. Blokir dan perubahan kedaluwarsa berlaku pada pemeriksaan
 akses server berikutnya. Fitur ini belum mengeluarkan pengguna secara langsung
 dari sesi editor yang sedang terbuka. Jika server bermasalah, verifikasi akses
 staging tidak memakai status akses lama dari cache sebagai pengganti.
@@ -164,6 +174,7 @@ Jalankan pemeriksaan lokal berikut:
 
 ```text
 node tests/firestore-access.test.mjs
+node tests/email-device-policy.mjs
 node tests/firestore-sheet-admin.test.mjs
 node tests/lynk-webhook.test.mjs
 node tests/vercel-buyer.test.mjs
@@ -177,6 +188,7 @@ ulang transaksi Firestore secara langsung, otorisasi Google, atau alur lengkap
 pada deployment.
 Setelah setup, lakukan checkout Rp0 baru dan periksa datanya di Firestore serta
 kedua spreadsheet laporan. Kemudian uji login, blokir/aktifkan akun, perubahan
-kedaluwarsa, reset satu perangkat, dan pengiriman ulang webhook jika Lynk
-menyediakan fitur tersebut. Pastikan laptop lain ditolak sebelum reset, dan
-reset laptop tetap mempertahankan slot handphone.
+kedaluwarsa, dan pengiriman ulang webhook jika Lynk menyediakan fitur tersebut.
+Pastikan akun aktif bisa login dari beberapa laptop/HP sekaligus tanpa reset
+dan tanpa mengeluarkan perangkat sebelumnya. Akun nonaktif, kedaluwarsa, email
+yang tidak cocok, dan token tidak valid harus tetap ditolak dari semua perangkat.

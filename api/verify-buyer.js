@@ -1,6 +1,6 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { handler as verifyBuyer } from '../netlify/functions/verify-buyer.mjs';
-import { accessView, createAccessStore, getStagingDb, normalizeEmail, stableDeviceId } from '../lib/staging-access-store.js';
+import { accessView, createAccessStore, getStagingDb, normalizeEmail } from '../lib/staging-access-store.js';
 
 const PROJECT_ID = 'au-toolkit-staging-20261005';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec';
@@ -86,13 +86,7 @@ export function createHandler({ verifyToken = (token) => jwtVerify(token, keys, 
             result = { success: true, reason: view.reason, status: view.status, isRegisteredBuyer: view.isRegisteredBuyer,
               isValid: view.isValid, statusAccount: view.statusAccount || null };
           } else {
-            const rawId = body.deviceId || body.device_id;
-            const id = stableDeviceId(rawId);
-            const type = body.deviceType || body.device_type || 'desktop';
-            if (typeof rawId !== 'string' || rawId.length > 512 || id.length < 12 || ['mobile_device', 'desktop_device', 'temp_device_node'].includes(id)) return fail(res, 400, 'DEVICE_ID_REQUIRED');
-            if (!['mobile', 'desktop'].includes(type)) return fail(res, 400, 'INVALID_DEVICE_TYPE');
-            const label = String(body.deviceLabel || body.deviceModel || (type === 'mobile' ? 'Mobile Device' : 'Desktop Device')).trim().slice(0, 100);
-            result = await store.validate(email, identity, { id, type, label });
+            result = await store.validate(email, identity);
           }
         }
         res.statusCode = 200;

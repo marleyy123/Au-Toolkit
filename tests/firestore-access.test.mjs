@@ -53,10 +53,16 @@ const mobile = { id: 'dev_mobile_hw_aabbccdd', type: 'mobile', label: 'Android' 
 const loginRace = await Promise.all([store.validate(purchase.email, identity, desktop),
   store.validate(purchase.email, identity, { ...desktop, id: 'dev_desktop_hw_11223344' })]);
 assert.equal(loginRace[0].reason, 'ACCESS_GRANTED');
-assert.equal(loginRace[1].reason, 'DEVICE_MISMATCH');
+assert.equal(loginRace[1].reason, 'ACCESS_GRANTED', 'Multiple laptops can access the same verified buyer account');
 assert.equal((await store.validate(purchase.email, identity, mobile)).reason, 'ACCESS_GRANTED');
+assert.equal((await store.validate(purchase.email, identity)).reason, 'ACCESS_GRANTED', 'Device metadata is not required');
 await assert.rejects(store.validate(purchase.email, { uid: 'another-uid' }, desktop), /ACCOUNT_IDENTITY_MISMATCH/);
 let account = await store.getAccount(purchase.email);
+assert.equal(account.revision, 2, 'Only initial identity binding changes the billing revision');
+assert.equal(account.devices.desktop, null, 'Login does not allocate a billing device slot');
+// Old imported slot data remains compatible but cannot block new devices.
+db.rows.set(`billingAccounts/${accountId(purchase.email)}`, { ...account, devices: { desktop, mobile } });
+assert.equal((await store.validate(purchase.email, identity, { ...desktop, id: 'dev_desktop_hw_99887766' })).reason, 'ACCESS_GRANTED');
 const command = { email: purchase.email, expectedRevision: account.revision, commandId: 'admin-1',
   statusAccount: 'Inactive', expirationDate: account.expirationDate, resetDevice: null };
 account = await store.administer(command);
@@ -125,6 +131,8 @@ const precheck = await invoke(verify, { action: 'checkBuyerEmail', email: 'new-b
 assert.equal(precheck.isValid, true);
 assert.equal(precheck.laptopDeviceId, undefined, 'Public precheck must not disclose device IDs');
 assert.equal((await invoke(verify, { deviceId: desktop.id, deviceType: 'desktop' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED');
+assert.equal((await invoke(verify, {}, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED', 'Verified email works without a fingerprint');
+assert.equal((await invoke(verify, { deviceId: 'different', deviceType: 'tablet' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED', 'Device fields do not determine access');
 assert.equal((await invoke(verify, { action: 'healthCheck' })).backend, 'firestore');
 const unverified = verifyBuyer({ getStore: () => store, verifyToken: async () => ({ payload: { sub: 'new-uid', email: 'new-buyer@example.com', email_verified: false } }) });
 assert.equal((await invoke(unverified, { deviceId: desktop.id }, { authorization: 'Bearer token' })).reason, 'INVALID_AUTH_TOKEN');
@@ -159,4 +167,4 @@ assert.equal((await invoke(importer, history, auth)).success, true);
 assert.equal((await importStore.getAccount(imported.email)).ref, 'legacy-ref');
 assert.equal((await invoke(importer, { ...history, purchase: { ...history.purchase, purchasedAt: '2026-10-10T02:00:00.000Z' } }, auth)).reason, 'IMPORT_ACCOUNT_REQUIRED');
 assert.equal((await invoke(importer, { ...importBody, account: { ...imported, extra: 'bad' } }, auth)).reason, 'INVALID_IMPORT');
-console.log('PASS Firestore staging: purchase deduplication, concurrent device slots, renewals, Jakarta expiry, admin block/expiry/reset/audit/revision, migration, webhook report repair, authenticated login without Sheets.');
+console.log('PASS Firestore staging: purchase deduplication, email-based multi-device access, renewals, Jakarta expiry, admin block/expiry/reset/audit/revision, migration, webhook report repair, authenticated login without Sheets.');

@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db, getUserDocumentId, isFirestoreQuotaExhausted } from '../firebase';
+import { auth, db, getUserDocumentId, isFirestoreQuotaExhausted } from '../firebase';
 
 export type DeviceSlot = 'mobile' | 'desktop';
 
@@ -299,10 +299,9 @@ export interface DeviceAuthResult {
 }
 
 /**
- * Verify and register device for user.
- * The authoritative device validation (Column R for Mobile, Column S for Desktop)
- * is performed via the Google Apps Script Web App backend.
- * This function persists and synchronizes the authorized device in Firestore and localStorage.
+ * Record device metadata in Firestore and localStorage.
+ * Staging authorizes subscriptions by verified email, not this device registry.
+ * Legacy production still validates device slots in its Apps Script backend.
  */
 export async function verifyAndRegisterDevice(userOrId: string | { email?: string | null; uid?: string | null }): Promise<DeviceAuthResult> {
   const userDocId = getUserDocumentId(userOrId);
@@ -346,17 +345,19 @@ export async function verifyAndRegisterDevice(userOrId: string | { email?: strin
     deviceSlot: slot,
     deviceModel,
     deviceLabel,
-    isDeviceLocked: true,
+    isDeviceLocked: auth.app.options.projectId !== 'au-toolkit-staging-20261005',
   };
 }
 
 /**
- * Subscribe to current device slot session.
+ * Subscribe to the legacy production device slot session.
  */
 export function subscribeDeviceSlotSession(
   userOrId: string | { email?: string | null; uid?: string | null },
   onReplaced: (newDeviceLabel: string) => void
 ): () => void {
+  // Staging subscriptions are email-based; another device must not revoke a session.
+  if (auth.app.options.projectId === 'au-toolkit-staging-20261005') return () => {};
   const userDocId = getUserDocumentId(userOrId);
   const slot = detectDeviceSlot();
   const currentDeviceId = getOrCreateDeviceId();
