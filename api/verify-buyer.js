@@ -72,11 +72,14 @@ export function createHandler({ verifyToken = (token) => jwtVerify(token, keys, 
       body = { ...body, email };
     }
     try {
+      if (backend === 'firestore' && action === 'healthCheck') {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ success: true, environment: 'staging', backend, status: 'HEALTH_CHECK', databaseChecked: false }));
+      }
       if (backend === 'firestore') {
         const store = getStore();
         let result;
         if (action === 'healthCheck') {
-          await store.list('billingAccounts');
           result = { success: true, environment: 'staging', backend, status: 'HEALTH_CHECK' };
         } else {
           const email = normalizeEmail(body.email);

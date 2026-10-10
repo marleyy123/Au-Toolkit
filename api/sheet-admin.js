@@ -53,6 +53,16 @@ export function createHandler({ env = process.env, getStore = () => createAccess
           productTitle: 'Imported staging purchase', source: 'staging-import' }, account);
         return reply(200, { success: true, ...result });
       }
+      if (body.action === 'changes' && ['billingAccounts', 'billingPurchases'].includes(body.collection)) {
+        const iso = value => typeof value === 'string' && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;
+        const since = body.since || '1970-01-01T00:00:00.000Z';
+        const until = body.until || new Date().toISOString();
+        if (!iso(since) || !iso(until) || since > until || (body.cursor &&
+            (!iso(body.cursor.at) || body.cursor.at < since || body.cursor.at > until || !/^[a-zA-Z0-9_-]{1,200}$/.test(body.cursor.id)))) {
+          return reply(400, { success: false, reason: 'INVALID_CURSOR' });
+        }
+        return reply(200, { success: true, ...await store.listChanges(body.collection, since, until, body.cursor) });
+      }
       if (body.action === 'list' && ['billingAccounts', 'billingPurchases'].includes(body.collection)) {
         if (body.cursor && !/^[a-zA-Z0-9_-]{1,200}$/.test(body.cursor)) return reply(400, { success: false, reason: 'INVALID_CURSOR' });
         return reply(200, { success: true, ...await store.list(body.collection, body.cursor) });

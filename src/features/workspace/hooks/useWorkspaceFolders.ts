@@ -47,23 +47,26 @@ export function useWorkspaceFolders({
   forceCloudWorkspaceSyncNow,
 }: UseWorkspaceFoldersArgs) {
   const updateActiveFolderData = (tab: PlatformTab, updated: any) => {
-    hasLocalUserEditsInSessionRef.current = true;
     const activeFolderId =
       activeFolderIdsRef.current[tab] ||
       activeFolderIds[tab] ||
       moduleFoldersRef.current[tab]?.[0]?.id ||
       'folder-1';
     const clonedUpdated = JSON.parse(JSON.stringify(updated));
+    const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [];
+    const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
+    const currentFolder = currentList.find((folder) => folder.id === targetId);
+    if (currentFolder && JSON.stringify(currentFolder.data) === JSON.stringify(clonedUpdated)) return;
+
+    hasLocalUserEditsInSessionRef.current = true;
+    const updatedAt = new Date().toISOString();
+    const nextList = (currentList.length ? currentList : [{ id: targetId, name: 'Folder 1' }]).map((folder) =>
+      folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
+    );
+    moduleFoldersRef.current[tab] = nextList;
 
     try {
       localStorage.setItem(getFormStorageKey(userAccountKey, tab), JSON.stringify(clonedUpdated));
-      const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      moduleFoldersRef.current[tab] = nextList;
       localStorage.setItem(getModuleFoldersKey(userAccountKey, tab), JSON.stringify(nextList));
       const targetFolder = nextList.find((f) => f.id === targetId);
       if (targetFolder) {
@@ -74,15 +77,7 @@ export function useWorkspaceFolders({
       console.warn('[Auto-Save] Synchronous localStorage write warning:', e);
     }
 
-    setModuleFolders((prev) => {
-      const currentList = prev[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
-      const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0].id;
-      const updatedAt = new Date().toISOString();
-      const nextList = currentList.map((folder) =>
-        folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
-      );
-      return { ...prev, [tab]: nextList };
-    });
+    setModuleFolders((prev) => ({ ...prev, [tab]: nextList }));
     triggerCloudWorkspaceSync();
   };
 

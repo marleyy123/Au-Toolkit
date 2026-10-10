@@ -139,6 +139,29 @@ function refreshFirestoreReports() {
     });
   });
 }
+function refreshFirestoreReportsIncremental() {
+  return firestoreLock_(function() {
+    const sheets = firestoreSheets_();
+    const properties = PropertiesService.getScriptProperties();
+    ['billingPurchases', 'billingAccounts'].forEach(function(collection) {
+      const key = 'FIRESTORE_REPORT_WATERMARK_' + collection;
+      const since = properties.getProperty(key) || '1970-01-01T00:00:00.000Z';
+      let cursor = null;
+      let until = null;
+      do {
+        const result = firestoreApi_({ action: 'changes', collection: collection, since: since, until: until, cursor: cursor });
+        result.rows.forEach(function(record) {
+          if (collection === 'billingPurchases') mirrorFirestorePurchase_(sheets.regular, record);
+          else mirrorFirestoreAccount_(sheets.access, record);
+        });
+        until = result.until;
+        cursor = result.cursor;
+      } while (cursor);
+      // Advance only after every page has been successfully applied.
+      properties.setProperty(key, until);
+    });
+  });
+}
 function applyFirestoreSelected_(resetDevice) {
   return firestoreLock_(function() {
     const sheets = firestoreSheets_();
@@ -161,9 +184,9 @@ function resetSelectedFirestoreLaptop() { return applyFirestoreSelected_('deskto
 function resetSelectedFirestoreDevices() { return applyFirestoreSelected_('all'); }
 function installFirestoreReportTrigger() {
   ScriptApp.getProjectTriggers().forEach(function(trigger) {
-    if (trigger.getHandlerFunction() === 'refreshFirestoreReports') ScriptApp.deleteTrigger(trigger);
+    if (['refreshFirestoreReports', 'refreshFirestoreReportsIncremental'].includes(trigger.getHandlerFunction())) ScriptApp.deleteTrigger(trigger);
   });
-  ScriptApp.newTrigger('refreshFirestoreReports').timeBased().everyMinutes(5).create();
+  ScriptApp.newTrigger('refreshFirestoreReportsIncremental').timeBased().everyMinutes(5).create();
 }
 function importExistingStagingBuyers() {
   return firestoreLock_(function() {

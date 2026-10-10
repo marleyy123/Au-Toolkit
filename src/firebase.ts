@@ -77,25 +77,6 @@ console.log('[Firestore] Initializing Firestore instance...', {
   databaseId: firebaseConfig.firestoreDatabaseId || '(default)',
 });
 
-// Validate Connection to Firestore on startup per skill guidelines
-async function testConnection() {
-  try {
-    console.log('[Firestore] Testing connection to Firestore server...');
-    const snap = await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log('[Firestore] Connection established successfully (exists:', snap.exists(), ')');
-  } catch (error: any) {
-    const msg = error?.message || String(error);
-    if (error?.code === 'not-found' || msg.includes('not found') || msg.includes('NOT_FOUND')) {
-      console.log('[Firestore] Connection established successfully (test doc ready).');
-    } else if (msg.includes('the client is offline')) {
-      console.warn('[Firestore] Notice: Client is operating in local/offline cache mode.');
-    } else {
-      console.log('[Firestore] Connection test status:', error?.code || msg || 'ready');
-    }
-  }
-}
-testConnection();
-
 // Local Auth Mock State & Persistence helpers
 const LOCAL_AUTH_STORAGE_KEY = 'au_auth_user';
 const authListeners: Array<(user: any) => void> = [];
@@ -781,12 +762,15 @@ export function subscribeUserWorkspaceFromFirestore(
 ): () => void {
   if (!userOrKey) return () => {};
   const docId = getUserDocumentId(userOrKey);
-  const userEmail = typeof userOrKey === 'string' ? userOrKey : (userOrKey.email || userOrKey.uid || docId);
 
   let currentRootData: any = null;
   const currentTabsData: Record<string, any> = {};
   const currentFoldersData: Record<string, any> = {};
   let hasReceivedTabsSnapshot = false;
+  let hasReceivedRootSnapshot = false;
+  let rootExists = false;
+  let rootFromCache = true;
+  let tabsFromCache = true;
 
   const getUpdatedAtMs = (value: any): number => {
     const parsed = value ? new Date(value).getTime() : 0;
@@ -796,7 +780,7 @@ export function subscribeUserWorkspaceFromFirestore(
   const emitComposite = () => {
     // Folder snapshots can arrive before tabs. Wait for the authoritative tab membership
     // snapshot so redundant/stale folder docs never flash back into application state.
-    if (!currentRootData || !hasReceivedTabsSnapshot) return;
+    if (!hasReceivedRootSnapshot || !hasReceivedTabsSnapshot) return;
     const composite: any = {
       ...currentRootData,
       formStates: { ...(currentRootData.formStates || {}) },
@@ -809,10 +793,10 @@ export function subscribeUserWorkspaceFromFirestore(
       if (tData.formState) {
         composite.formStates[tabKey] = tData.formState;
       }
-      const tabFolders = (Array.isArray(tData.characters) && tData.characters.length > 0)
-        ? tData.characters
-        : (Array.isArray(tData.folders) && tData.folders.length > 0)
+      const tabFolders = Array.isArray(tData.folders)
         ? tData.folders
+        : Array.isArray(tData.characters)
+        ? tData.characters
         : null;
 
       if (tabFolders) {
@@ -889,7 +873,17 @@ export function subscribeUserWorkspaceFromFirestore(
       composite.characters[tab] = composite.moduleFolders[tab];
     });
 
-    onData(composite);
+    const hasLoadedData = rootExists || Object.keys(currentTabsData).length > 0;
+    onData({
+      ...composite,
+      status: hasLoadedData ? 'loaded' : 'new_user',
+      hasLoadedData,
+      isNewUser: !hasLoadedData,
+      fromCache: rootFromCache || tabsFromCache,
+      needsRecovery: Object.keys(currentTabsData).length === 0 || Object.values(currentTabsData).some(
+        (data) => !Array.isArray(data.folders) && !Array.isArray(data.characters)
+      ),
+    });
   };
 
   const unsubRoot = onSnapshot(
@@ -898,10 +892,25 @@ export function subscribeUserWorkspaceFromFirestore(
     (snap) => {
       // Ignore local writes that have not yet reached the server
       if (snap.metadata.hasPendingWrites) return;
+      hasReceivedRootSnapshot = true;
+      rootExists = snap.exists();
+      rootFromCache = snap.metadata.fromCache;
       if (snap.exists()) {
         currentRootData = snap.data();
-        emitComposite();
+        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+          savedRootFingerprint = computeFingerprint({
+            lastActiveTab: currentRootData.lastActiveTab || 'twitter',
+            lastActiveCategory: currentRootData.lastActiveCategory || 'social-feed',
+            preferences: currentRootData.preferences || {},
+            activeFolderIds: currentRootData.activeFolderIds || {},
+            userAssets: currentRootData.userAssets || {},
+          });
+          savedWorkspaceFingerprints.delete(docId);
+        }
+      } else {
+        currentRootData = {};
       }
+      emitComposite();
     },
     (err) => {
       handleFirestoreError(err, OperationType.READ, `users/${docId}`);
@@ -915,7 +924,8 @@ export function subscribeUserWorkspaceFromFirestore(
     (snap) => {
       // Ignore local writes that have not yet reached the server
       if (snap.metadata.hasPendingWrites) return;
-      snap.docChanges().forEach((change) => {
+      tabsFromCache = snap.metadata.fromCache;
+      snap.docChanges({ includeMetadataChanges: true }).forEach((change) => {
         if (change.doc.metadata.hasPendingWrites) return;
         const tabKey = change.doc.id;
         if (change.type === 'removed') {
@@ -923,10 +933,38 @@ export function subscribeUserWorkspaceFromFirestore(
         } else {
           currentTabsData[tabKey] = change.doc.data();
         }
+        // Only server-confirmed data can become the baseline for differential writes.
+        // A local batch acknowledgement must not replace fingerprints mid-save.
+        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+          savedWorkspaceFingerprints.delete(docId);
+          if (change.type === 'removed') {
+            savedTabFingerprints.delete(tabKey);
+            for (const key of savedFolderFingerprints.keys()) {
+              if (key.startsWith(`${tabKey}_`)) savedFolderFingerprints.delete(key);
+            }
+          } else {
+            const data = currentTabsData[tabKey];
+            savedTabFingerprints.set(tabKey, computeFingerprint({
+              tabKey,
+              characters: data.characters || [],
+              folders: data.folders || [],
+              formState: data.formState || null,
+              folderStates: data.folderStates || {},
+            }));
+            const folders = data.folders || data.characters || [];
+            folders.forEach((folder: any, index: number) => {
+              if (!folder?.id) return;
+              savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
+                id: folder.id,
+                name: folder.name || `Folder ${index + 1}`,
+                data: folder.data || null,
+                order: typeof folder.order === 'number' ? folder.order : index + 1,
+                tabKey,
+              })));
+            });
+          }
+        }
       });
-      if (!currentRootData) {
-        currentRootData = { userId: docId, userEmail };
-      }
       hasReceivedTabsSnapshot = true;
       emitComposite();
     },
@@ -1039,6 +1077,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     let hasLoadedData = rootSnap.exists();
     const authoritativeFolderTabs = new Set<string>();
+    let needsFolderRecovery = true;
 
     // Hydrate tab partitions from user subcollection
     try {
@@ -1046,6 +1085,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         ? collection(db, 'workspaces', rootRef.id, 'tabs')
         : collection(db, 'users', rootRef.id, 'tabs');
       const tabsSnap = await getDocs(tabsCol);
+      needsFolderRecovery = tabsSnap.empty;
 
       if (!tabsSnap.empty) {
         hasLoadedData = true;
@@ -1053,14 +1093,15 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
       tabsSnap.forEach((docSnap) => {
         const tabData = docSnap.data();
+        if (!Array.isArray(tabData.folders) && !Array.isArray(tabData.characters)) needsFolderRecovery = true;
         const tabKey = tabData.tabKey || docSnap.id;
 
         if (tabData.formState) {
           composite.formStates[tabKey] = tabData.formState;
         }
-        const tabFolders = (Array.isArray(tabData.folders) && tabData.folders.length > 0)
+        const tabFolders = Array.isArray(tabData.folders)
           ? tabData.folders
-          : (Array.isArray(tabData.characters) && tabData.characters.length > 0)
+          : Array.isArray(tabData.characters)
           ? tabData.characters
           : null;
 
@@ -1105,6 +1146,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         lastActiveCategory: rootData.lastActiveCategory || 'social-feed',
         preferences: rootData.preferences || {},
         activeFolderIds: rootData.activeFolderIds || {},
+        userAssets: rootData.userAssets || {},
       };
       savedRootFingerprint = computeFingerprint(rootComparable);
     } catch (tabsErr) {
@@ -1113,7 +1155,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     // Hydrate user-isolated folders from `/users/{docId}/folders`
     try {
-      const userFolders = await loadFoldersFromFirestore(docId);
+      const userFolders = needsFolderRecovery ? await loadFoldersFromFirestore(docId) : [];
       if (userFolders && userFolders.length > 0) {
         hasLoadedData = true;
         userFolders.forEach((fDoc) => {

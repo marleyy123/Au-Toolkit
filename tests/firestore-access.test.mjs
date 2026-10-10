@@ -11,12 +11,22 @@ class MemoryDb {
   rows = new Map();
   queue = Promise.resolve();
   collection(name) {
-    let pageLimit = Infinity, cursor = '';
+    let pageLimit = Infinity, cursor = '', orders = [], filters = [], positions = [];
     const query = { doc: id => ({ path: `${name}/${id}`, get: async () => this.snapshot(`${name}/${id}`),
       update: async patch => this.rows.set(`${name}/${id}`, { ...this.rows.get(`${name}/${id}`), ...patch }) }),
-      orderBy: () => query, limit: count => { pageLimit = count; return query; }, startAfter: value => { cursor = value; return query; },
+      where: (field, operator, value) => { filters.push({ field, operator, value }); return query; },
+      orderBy: field => { orders.push(typeof field === 'string' ? field : '__name__'); return query; },
+      limit: count => { pageLimit = count; return query; }, startAfter: (...values) => { if (values.length === 1) cursor = values[0]; else positions = values; return query; },
       get: async () => ({ docs: [...this.rows.keys()].filter(path => path.startsWith(name + '/') && path.slice(name.length + 1) > cursor)
-        .sort().slice(0, pageLimit).map(path => ({ id: path.slice(name.length + 1), data: () => structuredClone(this.rows.get(path)) })) }),
+        .filter(path => filters.every(({ field, operator, value }) => {
+          const actual = this.rows.get(path)[field];
+          return operator === '>=' ? actual >= value : actual <= value;
+        }))
+        .sort((a, b) => { const field = orders[0]; return field && field !== '__name__'
+          ? String(this.rows.get(a)[field]).localeCompare(String(this.rows.get(b)[field])) || a.localeCompare(b) : a.localeCompare(b); })
+        .filter(path => !positions.length || this.rows.get(path)[orders[0]] > positions[0] ||
+          (this.rows.get(path)[orders[0]] === positions[0] && path.slice(name.length + 1) > positions[1]))
+        .slice(0, pageLimit).map(path => ({ id: path.slice(name.length + 1), data: () => structuredClone(this.rows.get(path)) })) }),
     };
     return query;
   }
@@ -70,6 +80,8 @@ assert.equal(loginRace[0].reason, 'ACCESS_GRANTED');
 assert.equal(loginRace[1].reason, 'ACCESS_GRANTED', 'Multiple laptops can access the same verified buyer account');
 assert.equal((await store.validate(purchase.email, identity, mobile)).reason, 'ACCESS_GRANTED');
 assert.equal((await store.validate(purchase.email, identity)).reason, 'ACCESS_GRANTED', 'Device metadata is not required');
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').expiresAtMs, Date.parse('2026-11-08T17:00:00Z'));
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').active, true);
 await assert.rejects(store.validate(purchase.email, { uid: 'another-uid' }, desktop), /ACCOUNT_IDENTITY_MISMATCH/);
 let account = await store.getAccount(purchase.email);
 assert.equal(account.revision, 2, 'Only initial identity binding changes the billing revision');
@@ -80,6 +92,7 @@ assert.equal((await store.validate(purchase.email, identity, { ...desktop, id: '
 const command = { email: purchase.email, expectedRevision: account.revision, commandId: 'admin-1',
   statusAccount: 'Inactive', expirationDate: account.expirationDate, resetDevice: null };
 account = await store.administer(command);
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').active, false, 'Admin block revokes direct SDK access');
 assert.equal((await store.validate(purchase.email, identity, desktop)).reason, 'ACCOUNT_INACTIVE');
 assert.equal((await store.administer(command)).revision, account.revision, 'Admin retries are idempotent');
 await assert.rejects(store.administer({ ...command, expirationDate: '2026-12-01' }), /ADMIN_COMMAND_CONFLICT/);
@@ -87,6 +100,7 @@ await assert.rejects(store.administer({ ...command, commandId: 'stale-command' }
 await assert.rejects(store.administer({ ...command, expirationDate: '2026-02-30' }), /INVALID_ADMIN_COMMAND/);
 const renewed = await store.ingest({ ...purchase, ref: 'renewal', purchasedAt: '2026-10-10T02:00:00.000Z' });
 assert.equal(renewed.account.statusAccount, 'Inactive', 'Renewal cannot bypass an admin block');
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').active, false);
 assert.equal(renewed.account.devices.desktop.id, desktop.id);
 await store.ingest({ ...purchase, ref: 'old-delivery', purchasedAt: '2026-10-01T01:00:00.000Z' });
 assert.equal((await store.getAccount(purchase.email)).ref, 'renewal', 'Old delivery does not replace newest subscription');
@@ -94,6 +108,8 @@ account = await store.getAccount(purchase.email);
 account = await store.administer({ ...command, commandId: 'reset', expectedRevision: account.revision,
   statusAccount: 'Active', resetDevice: 'desktop', expirationDate: '2026-12-01' });
 assert.equal(account.devices.desktop, null);
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').active, true);
+assert.equal(db.rows.get('workspaceAccess/buyer-uid').expiresAtMs, Date.parse('2026-11-30T17:00:00Z'));
 assert.equal(account.devices.mobile.id, mobile.id);
 assert.equal((await store.validate(purchase.email, identity, { ...desktop, id: 'dev_desktop_hw_11223344' })).reason, 'ACCESS_GRANTED');
 clock = Date.parse('2026-11-30T17:00:00Z');
@@ -166,6 +182,8 @@ assert.equal((await invoke(verify, { deviceId: desktop.id, deviceType: 'desktop'
 assert.equal((await invoke(verify, {}, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED', 'Verified email works without a fingerprint');
 assert.equal((await invoke(verify, { deviceId: 'different', deviceType: 'tablet' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED', 'Device fields do not determine access');
 assert.equal((await invoke(verify, { action: 'healthCheck' })).backend, 'firestore');
+const noDatabaseHealth = verifyBuyer({ getStore: () => { throw new Error('Health must not open Firestore'); } });
+assert.equal((await invoke(noDatabaseHealth, { action: 'healthCheck' })).databaseChecked, false);
 const unverified = verifyBuyer({ getStore: () => store, verifyToken: async () => ({ payload: { sub: 'new-uid', email: 'new-buyer@example.com', email_verified: false } }) });
 assert.equal((await invoke(unverified, { deviceId: desktop.id }, { authorization: 'Bearer token' })).reason, 'INVALID_AUTH_TOKEN');
 const unavailable = verifyBuyer({ getStore: () => { throw new Error('Firestore unavailable'); } });
@@ -185,6 +203,20 @@ assert.equal(page.rows.length, 100);
 const lastPage = await invoke(pageAdmin, { action: 'list', collection: 'billingPurchases', cursor: page.cursor }, auth);
 assert.equal(lastPage.rows.length, 1);
 assert.equal(lastPage.cursor, null);
+const changeDb = new MemoryDb();
+const stamp = '2026-10-10T01:00:00.000Z';
+for (let index = 0; index < 101; index++) changeDb.rows.set(`billingAccounts/row-${String(index).padStart(3, '0')}`, { updatedAt: stamp });
+changeDb.rows.set('billingAccounts/old', { updatedAt: '2026-10-09T01:00:00.000Z' });
+changeDb.rows.set('billingAccounts/future', { updatedAt: '2026-10-11T01:00:00.000Z' });
+const changeStore = createAccessStore(changeDb, now);
+const firstChanges = await changeStore.listChanges('billingAccounts', stamp, '2026-10-10T02:00:00.000Z');
+assert.equal(firstChanges.rows.length, 100);
+const remainingChanges = await changeStore.listChanges('billingAccounts', stamp, firstChanges.until, firstChanges.cursor);
+assert.equal(remainingChanges.rows.length, 1, 'Timestamp ties must not skip rows across pages');
+assert.equal(remainingChanges.cursor, null);
+assert.equal((await changeStore.listChanges('billingAccounts', '2026-10-10T02:00:00.000Z', '2026-10-10T03:00:00.000Z')).rows.length, 0);
+const changeAdmin = sheetAdmin({ env, getStore: () => changeStore });
+assert.equal((await invoke(changeAdmin, { action: 'changes', collection: 'billingAccounts', since: 'bad-date' }, auth)).reason, 'INVALID_CURSOR');
 const importStore = createAccessStore(new MemoryDb(), now);
 const importer = sheetAdmin({ env: { ...env, FIRESTORE_IMPORT_ENABLED: 'true' }, getStore: () => importStore });
 const imported = { email: 'legacy@example.com', ref: 'legacy-ref', buyerName: 'Legacy', purchaseDate: '2026-10-10',

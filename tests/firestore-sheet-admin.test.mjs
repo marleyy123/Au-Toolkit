@@ -41,7 +41,7 @@ const context = vm.createContext({ Date,
     openById: id => { assert([accessId, regularId].includes(id), 'No production or Fast Track dependency');
       return { getSheetByName: name => [access, regular].find(sheet => sheet.id === id && sheet.name === name) }; }, flush() {} },
   LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
-  PropertiesService: { getScriptProperties: () => ({ getProperty: key => properties[key] }) },
+  PropertiesService: { getScriptProperties: () => ({ getProperty: key => properties[key], setProperty: (key, value) => { properties[key] = value; } }) },
   Utilities: { getUuid: () => `command-${++commandSequence}`, formatDate: (date, _, pattern) => {
     const shifted = new Date(date.getTime() + 7 * 3600000).toISOString();
     return pattern === 'yyyy-MM-dd' ? shifted.slice(0, 10) : shifted.slice(0, 19) + '+07:00';
@@ -51,7 +51,8 @@ const context = vm.createContext({ Date,
     assert.equal(options.headers.Authorization, 'Bearer ' + secret);
     const body = JSON.parse(options.payload); calls.push(body);
     let result;
-    if (body.action === 'list') result = { success: true, rows: [body.collection === 'billingPurchases' ? purchase : serverAccount], cursor: null };
+    if (body.action === 'changes') result = { success: true, rows: [], cursor: null, until: '2026-10-10T03:00:00.000Z' };
+    else if (body.action === 'list') result = { success: true, rows: [body.collection === 'billingPurchases' ? purchase : serverAccount], cursor: null };
     else if (body.action === 'import') result = { success: true, account: { ...body.account, revision: 1 } };
     else if (body.action === 'importHistory') result = { success: true, duplicate: true };
     else {
@@ -95,6 +96,11 @@ assert.throws(() => context.applySelectedFirestoreAccount(), /STALE_ADMIN_REVISI
 context.refreshFirestoreReports();
 assert.equal(access.rows[1][12], 5);
 assert(calls.some(body => body.action === 'list' && body.collection === 'billingAccounts'));
+context.refreshFirestoreReportsIncremental();
+assert.equal(properties.FIRESTORE_REPORT_WATERMARK_billingAccounts, '2026-10-10T03:00:00.000Z');
+const priorCalls = calls.length;
+context.refreshFirestoreReportsIncremental();
+assert(calls.slice(priorCalls).every(body => body.action === 'changes' && body.since === '2026-10-10T03:00:00.000Z'));
 context.importExistingStagingBuyers();
 const imported = calls.find(body => body.action === 'import');
 assert.equal(imported.purchase.purchasedAt, '2026-10-10T01:00:00.000Z');

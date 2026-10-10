@@ -81,6 +81,9 @@ export function useWorkspaceCloudHydration({
     const expectedUid = userEmailOrId;
     const generation = ++accountSyncGenerationRef.current;
     let disposed = false;
+    let initialSnapshotHandled = false;
+    let initialRecoveryPending = false;
+    let latestSnapshot: any = null;
     const isCurrentAccount = () =>
       !disposed &&
       accountSyncGenerationRef.current === generation &&
@@ -107,8 +110,7 @@ export function useWorkspaceCloudHydration({
       setAuthLifecycleStage((prev) => (prev === 'HYDRATE_DATA' || prev === 'LOAD_USER_DATA' ? 'READY' : prev));
     }, 6000);
 
-    loadUserWorkspaceFromFirestore(userEmailOrId)
-      .then((cloudWorkspace) => {
+    const hydrateInitialWorkspace = (cloudWorkspace: any) => {
         if (!isCurrentAccount()) return;
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
@@ -116,15 +118,15 @@ export function useWorkspaceCloudHydration({
           const localUpdatedAt = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);
           const hasPendingLocalSync = localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true';
           const cloudUpdatedAt = cloudWorkspace.updatedAt ? new Date(cloudWorkspace.updatedAt).getTime() : 0;
-          if (hasPendingLocalSync && localUpdatedAt > 0 && (!cloudUpdatedAt || localUpdatedAt > cloudUpdatedAt)) {
+          if ((hasPendingLocalSync || hasLocalUserEditsInSessionRef.current) && localUpdatedAt > 0 && (!cloudUpdatedAt || localUpdatedAt > cloudUpdatedAt)) {
             setIsHydrated(true);
             isHydratedRef.current = true;
-            forceCloudWorkspaceSyncNowRef.current();
+            void forceCloudWorkspaceSyncNowRef.current();
           } else {
             applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
+            setCloudSyncState('synced');
+            setLastSyncedTime(new Date());
           }
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
         } else if (cloudWorkspace && (cloudWorkspace.isNewUser || cloudWorkspace.status === 'new_user')) {
           const localFolders = loadAllStoredModuleFolders(userAccountKey, ALL_PLATFORM_TABS);
           const hasExistingLocalData = ALL_PLATFORM_TABS.some((tab) => {
@@ -180,8 +182,8 @@ export function useWorkspaceCloudHydration({
         setIsHydrated(true);
         isHydratedRef.current = true;
         setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
-      })
-      .catch(() => {
+      };
+    const handleInitialError = () => {
         if (!isCurrentAccount()) return;
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
@@ -189,12 +191,31 @@ export function useWorkspaceCloudHydration({
         isHydratedRef.current = true;
         setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
         setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
-      });
+      };
 
     const unsubscribe = subscribeUserWorkspaceFromFirestore(
       userEmailOrId,
       (cloudData) => {
         if (!cloudData || !isCurrentAccount()) return;
+        latestSnapshot = cloudData;
+        if (!initialSnapshotHandled) {
+          // Cached absence must never initialize a new workspace before the server replies.
+          if (cloudData.fromCache || initialRecoveryPending) return;
+          if (cloudData.needsRecovery) {
+            initialRecoveryPending = true;
+            loadUserWorkspaceFromFirestore(userEmailOrId)
+              .then((recovered) => {
+                if (!isCurrentAccount()) return;
+                initialSnapshotHandled = true;
+                hydrateInitialWorkspace(latestSnapshot && !latestSnapshot.needsRecovery ? latestSnapshot : recovered);
+              })
+              .catch(handleInitialError);
+          } else {
+            initialSnapshotHandled = true;
+            hydrateInitialWorkspace(cloudData);
+          }
+          return;
+        }
         if (cloudData.updatedBy === clientSessionId) {
           setCloudSyncState('synced');
           setLastSyncedTime(new Date());
@@ -205,8 +226,7 @@ export function useWorkspaceCloudHydration({
         setLastSyncedTime(new Date());
       },
       () => {
-        if (!isCurrentAccount()) return;
-        setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
+        handleInitialError();
       }
     );
 

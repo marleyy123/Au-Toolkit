@@ -64,7 +64,7 @@ export function useEntitlementLifecycle({
     }
 
     const now = Date.now();
-    if (!isInitial && now - lastRevalidatedAtRef.current < 15000) {
+    if (!isInitial && (document.visibilityState !== 'visible' || now - lastRevalidatedAtRef.current < 5 * 60 * 1000)) {
       return;
     }
 
@@ -263,6 +263,7 @@ export function useEntitlementLifecycle({
     if (!isAuthenticated) return;
     const intervalId = setInterval(() => {
       if (authLifecycleStageRef.current !== 'READY') return;
+      if (document.visibilityState !== 'visible') return;
       revalidateEntitlement(false);
     }, 5 * 60 * 1000);
 

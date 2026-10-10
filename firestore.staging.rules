@@ -4,6 +4,12 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
+    function hasActiveAccess(userId) {
+      let grant = get(/databases/$(database)/documents/workspaceAccess/$(userId)).data;
+      return isOwner(userId) && request.auth.token.email_verified == true &&
+        request.auth.token.email.lower() == grant.email && grant.active == true &&
+        request.time.toMillis() < grant.expiresAtMs;
+    }
 
     match /test/{docId} {
       allow get: if true;
@@ -11,20 +17,23 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get, list, create, update: if isOwner(userId);
+      allow get, list, create, update: if hasActiveAccess(userId);
       allow delete: if false;
 
       match /tabs/{tabKey} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if hasActiveAccess(userId);
       }
       match /folders/{folderId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if hasActiveAccess(userId);
       }
       match /devices/{deviceSlot} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if hasActiveAccess(userId);
       }
     }
 
+    match /workspaceAccess/{userId} {
+      allow read, write: if false;
+    }
     // Only the server Admin SDK can grant access, register billing device slots,
     // or process spreadsheet administrator commands.
     match /billingAccounts/{accountId} {
