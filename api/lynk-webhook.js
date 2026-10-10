@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { createAccessStore, getStagingDb } from '../lib/staging-access-store.js';
+import { configuredProducts } from '../lib/access-plans.js';
 
 const PROJECT_ID = 'au-toolkit-staging-20261005';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec';
@@ -82,12 +83,16 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
       log('lynk-staging-inspect', { event: payload.event, products: transaction.items.map(item => ({ uuid: text(item.uuid), title: text(item.title) })) });
       return reply(res, 200, 'INSPECTED_NO_ACCESS_GRANTED');
     }
+    let plans;
+    try { plans = configuredProducts(env); } catch { return reply(res, 503, 'INVALID_PLAN_CONFIG'); }
     const productId = text(env.LYNK_TEST_PRODUCT_UUID);
     const secret = text(env.APPS_SCRIPT_SHARED_SECRET, 1024);
     if (!productId || secret.length < 32 || env.GOOGLE_SHEETS_SCRIPT_URL?.trim() !== SCRIPT_URL) return reply(res, 503, 'ACTIVATION_CONFIG_REQUIRED');
-    const items = transaction.items.filter(item => item.uuid === productId);
+    const items = transaction.items.filter(item => plans.some(plan => plan.productId && item.uuid === plan.productId));
     if (!items.length) return reply(res, 200, 'IGNORED_PRODUCT');
     if (items.length !== 1 || items[0].qty !== 1) return reply(res, 422, 'UNSUPPORTED_QUANTITY');
+    const plan = plans.find(plan => plan.productId === items[0].uuid);
+    if (backend !== 'firestore' && plan.id !== 'monthly') return reply(res, 503, 'PLAN_REQUIRES_FIRESTORE');
     const email = text(transaction.customer?.email, 254).toLowerCase();
     const purchasedAt = purchaseDate(transaction.createdAt);
     if (!/^[a-zA-Z0-9_-]{1,200}$/.test(transaction.refId) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
@@ -97,7 +102,8 @@ export function createHandler({ env = process.env, fetchImpl = fetch, log = cons
       if (backend === 'firestore') {
         const store = getStore();
         const result = await store.ingest({ ref: transaction.refId, email, name: text(transaction.customer?.name),
-          purchasedAt, productId, productTitle: text(items[0].title), quantity: 1,
+          purchasedAt, productId: plan.productId, productTitle: text(items[0].title), quantity: 1,
+          planId: plan.id, accessDays: plan.accessDays,
           amount: transaction.totals.grandTotal, currency: 'IDR', source: 'lynk' });
         accessStored = true;
         // A failed report does not undo paid access. Lynk retries are deduplicated

@@ -40,6 +40,20 @@ const store = createAccessStore(db, now);
 const purchase = { email: 'buyer@example.com', ref: 'order-1', name: 'Buyer', productId: 'product-test',
   purchasedAt: '2026-10-10T01:00:00.000Z', amount: 0, currency: 'IDR', quantity: 1, source: 'lynk' };
 const first = await store.ingest(purchase);
+for (const [planId, accessDays, expirationDate] of [['monthly', 30, '2026-11-09'], ['quarterly', 90, '2027-01-08'], ['yearly', 365, '2027-10-10']]) {
+  const planStore = createAccessStore(new MemoryDb(), now);
+  const order = { ...purchase, planId, accessDays };
+  const saved = await planStore.ingest(order);
+  assert.equal(saved.account.expirationDate, expirationDate);
+  assert.equal(saved.purchase.accessDays, accessDays);
+  assert.equal(saved.account.planId, planId);
+  assert.equal((await planStore.ingest(order)).duplicate, true);
+  assert.equal((await planStore.getAccount(purchase.email)).revision, 1, 'Duplicate cannot extend duration or revision');
+  await assert.rejects(planStore.ingest({ ...order, planId: planId === 'monthly' ? 'yearly' : 'monthly', accessDays: planId === 'monthly' ? 365 : 30 }), /TRANSACTION_CONFLICT/);
+  await assert.rejects(planStore.ingest({ ...order, accessDays: 9999 }), /INVALID_PURCHASE/);
+}
+const leapStore = createAccessStore(new MemoryDb(), now);
+assert.equal((await leapStore.ingest({ ...purchase, planId: 'yearly', accessDays: 365, purchasedAt: '2024-02-29T01:00:00.000Z' })).account.expirationDate, '2025-02-28');
 assert.equal(first.account.expirationDate, '2026-11-09');
 assert.equal(accessView(first.account, clock).daysRemaining, 30);
 const simultaneous = await Promise.all([store.ingest(purchase), store.ingest(purchase)]);
@@ -116,6 +130,24 @@ reportSuccess = true;
 assert.equal((await invoke(hook, payload, { 'x-lynk-signature': signature })).duplicate, true);
 assert.equal(db.rows.get('billingPurchases/webhook-free-order').reportPending, false);
 assert(!JSON.stringify(logs).includes('new-buyer@example.com'));
+const multiPlanEnv = { ...env, LYNK_TEST_PRODUCT_UUID_3_MONTHS: 'quarterly-test', LYNK_TEST_PRODUCT_UUID_1_YEAR: 'yearly-test' };
+const multiPlanHook = webhook({ env: multiPlanEnv, now, getStore: () => store,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ success: true }) }) });
+for (const [uuid, planId, accessDays] of [['quarterly-test', 'quarterly', 90], ['yearly-test', 'yearly', 365]]) {
+  const order = structuredClone(payload);
+  order.data.message_data.refId = `${planId}-zero-order`;
+  order.data.message_data.customer.email = `${planId}@example.com`;
+  order.data.message_data.items = [{ uuid, qty: 1, title: 'Misleading title: 30 days', accessDays: 9999 }];
+  const signature = createHash('sha256').update('0' + order.data.message_data.refId + 'message-1' + env.LYNK_MERCHANT_KEY).digest('hex');
+  assert.equal((await invoke(multiPlanHook, order, { 'x-lynk-signature': signature })).reason, 'PURCHASE_SYNCED');
+  assert.equal((await store.getAccount(`${planId}@example.com`)).accessDays, accessDays, 'Duration comes only from trusted product UUID mapping');
+  assert.equal((await invoke(multiPlanHook, order, { 'x-lynk-signature': signature })).duplicate, true);
+}
+const ambiguous = webhook({ env: { ...multiPlanEnv, LYNK_TEST_PRODUCT_UUID_3_MONTHS: env.LYNK_TEST_PRODUCT_UUID }, now });
+assert.equal((await invoke(ambiguous, payload, { 'x-lynk-signature': signature })).reason, 'INVALID_PLAN_CONFIG');
+const mixed = structuredClone(payload);
+mixed.data.message_data.items.push({ uuid: 'quarterly-test', qty: 1 });
+assert.equal((await invoke(multiPlanHook, mixed, { 'x-lynk-signature': signature })).reason, 'UNSUPPORTED_QUANTITY');
 
 Object.assign(process.env, env);
 delete process.env.GOOGLE_SHEETS_SCRIPT_URL;

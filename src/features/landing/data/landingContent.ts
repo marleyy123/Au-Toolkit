@@ -31,7 +31,7 @@ export const purchaseSteps = [
 
 export const faqs = [
   { question: 'AU Toolkit itu aplikasi chat atau AI penulis cerita?', answer: 'AU Toolkit adalah editor visual untuk percakapan dan konten fiktif. Pesan tidak dikirim ke orang lain. Kamu menulis cerita dan dialognya sendiri.' },
-  { question: 'Kapan masa akses 30 hari mulai dihitung?', answer: 'Masa akses dihitung dari tanggal pembelian di Lynk.id, bukan dari login pertama. Tanggal berakhir bisa diperiksa setelah akses terverifikasi.' },
+  { question: 'Kapan masa akses mulai dihitung?', answer: 'Masa akses dihitung dari tanggal pembelian di Lynk.id, bukan dari login pertama: 30 hari untuk 1 bulan, 90 hari untuk 3 bulan, dan 365 hari untuk 1 tahun. Tanggal berakhir bisa diperiksa setelah akses terverifikasi.' },
   { question: 'Email apa yang harus dipakai saat checkout?', answer: 'Gunakan email akun Google yang akan dipakai untuk login. Jika email pembelian keliru atau berbeda, hubungi bantuan dan sertakan invoice untuk verifikasi.' },
   { question: 'Bisa dipakai di HP dan laptop?', answer: 'Bisa melalui browser di berbagai HP dan laptop. Masuk dengan akun yang emailnya sama dengan email pembelian dan memiliki langganan aktif. Tidak ada batas slot HP atau laptop, dan tidak perlu reset saat berganti perangkat.' },
   { question: 'Bagaimana cara memperpanjang akses?', answer: 'Beli kembali paket yang tersedia menggunakan email yang sama. Sisa hari belum diakumulasikan otomatis, jadi periksa tanggal berakhir sebelum memperpanjang.' },

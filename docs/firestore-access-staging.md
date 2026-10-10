@@ -38,7 +38,7 @@ Admin SDK di server memakai service account khusus project
 `au-toolkit-staging-20261005`. Jangan menaruh credential di variabel `VITE_`,
 sel spreadsheet, Git, atau chat.
 
-Masa akses dihitung dari tanggal pembelian + 30 hari kalender, memakai zona
+Masa akses dihitung dari tanggal pembelian + durasi paket (30, 90, atau 365 hari), memakai zona
 waktu Asia/Jakarta. Akses berakhir pada awal tanggal kedaluwarsa: pembelian
 10 Oktober dengan kedaluwarsa 9 November menampilkan sisa 30 hari pada hari
 pembelian, lalu berakhir pukul 00.00 WIB tanggal 9 November. Pembelian baru
@@ -48,6 +48,44 @@ Email Firebase yang terverifikasi harus sama dengan email checkout. Akun
 dikaitkan dengan UID pada verifikasi pertama. Jika akun Authentication dibuat
 ulang dengan UID baru, perlu migrasi oleh administrator di server; reset
 perangkat lewat spreadsheet saja tidak mengganti UID akun.
+
+## Paket Testing 3 Bulan dan 1 Tahun
+
+Paket 1 bulan tetap memakai konfigurasi yang sudah ada. Dua paket tambahan
+berharga Rp0 untuk testing, berlaku bagi semua region, dan hanya bisa checkout
+pada backend Firestore staging. Durasi 3 bulan adalah 90 hari; 1 tahun adalah
+365 hari, bukan penambahan bulan/tahun kalender. Masa akses pembelian ulang
+dihitung dari tanggal transaksi baru, tidak mengakumulasi sisa paket lama.
+
+1. Buat produk digital baru di Lynk: **AU Toolkit TEST - Akses 3 Bulan** dan
+   **AU Toolkit TEST - Akses 1 Tahun**, masing-masing Rp0. Gunakan link konten
+   `https://au-toolkit-testing.vercel.app/editor` dan webhook staging yang sama.
+2. Ambil UUID masing-masing produk dari event webhook inspeksi atau informasi
+   produk Lynk. UUID berbeda dari kode pendek pada URL checkout. Jangan gunakan
+   UUID produk 1 bulan untuk paket lain. Jika perlu memakai mode `inspect`
+   sementara, transaksi inspeksi tidak memberi akses: kembalikan ke `activate`
+   lalu lakukan checkout baru setelah konfigurasi selesai.
+3. Tambahkan variabel berikut pada Vercel **project testing**, tanpa mengubah
+   `LYNK_TEST_PRODUCT_UUID` milik paket 1 bulan:
+
+| Variabel | Isi |
+| --- | --- |
+| `LYNK_TEST_PRODUCT_UUID_3_MONTHS` | UUID produk 3 bulan |
+| `LYNK_TEST_CHECKOUT_URL_3_MONTHS` | URL HTTPS Lynk yang berakhir `/checkout` |
+| `LYNK_TEST_PRODUCT_UUID_1_YEAR` | UUID produk 1 tahun |
+| `LYNK_TEST_CHECKOUT_URL_1_YEAR` | URL HTTPS Lynk yang berakhir `/checkout` |
+
+4. Pertahankan `ACCESS_BACKEND=firestore` dan `LYNK_WEBHOOK_MODE=activate`,
+   lalu redeploy. Tombol paket baru nonaktif sampai UUID dan checkout-nya ada.
+5. Checkout Rp0 memakai email akun yang sama. Periksa `planId`, `accessDays`,
+   dan `expirationDate` pada respons verifikasi akses. `quarterly` berarti
+   90 hari, `yearly` berarti 365 hari. Firestore menyimpan paket pada transaksi
+   dan akun; spreadsheet yang sudah ada menerima tanggal kedaluwarsa yang sama
+   tanpa perlu mengganti Apps Script. Paket lama tanpa metadata dianggap 30 hari.
+
+Server menentukan durasi dari UUID yang dikonfigurasi, bukan judul produk,
+nominal pembayaran, atau parameter browser. Pembelian beberapa paket sekaligus
+dalam satu transaksi belum didukung dan ditolak; beli satu paket per checkout.
 
 ## Deployment dan Migrasi
 
@@ -174,6 +212,7 @@ Jalankan pemeriksaan lokal berikut:
 
 ```text
 node tests/firestore-access.test.mjs
+node tests/access-plans.test.mjs
 node tests/email-device-policy.mjs
 node tests/firestore-sheet-admin.test.mjs
 node tests/lynk-webhook.test.mjs

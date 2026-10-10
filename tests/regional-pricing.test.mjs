@@ -76,7 +76,7 @@ for (const engine of ['chrome', 'webkit']) {
       await page.route('**/api/regional-pricing', route => route.fulfill({ json: { ...call('PH'), checkout: null } }));
       await page.reload();
       await page.waitForFunction(() => document.querySelector('.landing-checkout-status')?.textContent === 'Checkout International belum tersedia.');
-      assert.equal(await page.getByRole('button', { name: 'Beli melalui Lynk.id' }).isDisabled(), true);
+      assert.equal(await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Beli melalui Lynk.id' }).isDisabled(), true);
       assert.equal(await page.getByRole('link', { name: 'Beli melalui Lynk.id' }).count(), 0);
       await page.close();
       console.log(`PASS ${engine} ${width}: IP region quote, missing checkout, detection error/retry and no manual selector`);

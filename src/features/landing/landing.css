@@ -120,9 +120,9 @@ html.au-landing-document { scroll-padding-top: 90px; }
 .landing-access-note p { color: #777080; font-size: 12px; flex: 1; }
 .landing-access-note p strong { font-weight: 650; color: #514356; }
 .landing-access-note a { flex-shrink: 0; }
-.landing-pricing-layout { display: grid; grid-template-columns: .8fr 1.35fr; gap: 60px; }
+.landing-pricing-layout { display: grid; grid-template-columns: 1fr; gap: 32px; }
 .landing-pricing-footnote { font-size: 12px; color: #7b7481; margin-top: 24px !important; }
-.landing-plan-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; min-width: 0; }
+.landing-plan-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; min-width: 0; }
 .landing-plan { padding: 25px 22px; border: 1px solid var(--line); border-radius: 8px; display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
 .landing-plan-active { border-color: #c78dce; box-shadow: 0 0 0 3px #fcf5fc; }
 .landing-plan-label { color: var(--accent); font-size: 10px; font-weight: 650; display: flex; align-items: center; gap: 6px; }
@@ -139,7 +139,7 @@ html.au-landing-document { scroll-padding-top: 90px; }
 .landing-plan li { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: #625669; }
 .landing-plan li svg { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
 .landing-plan small { font-size: 9px; color: #938898; text-align: center; margin-top: 10px; }
-.landing-plan-active > .landing-button { margin-top: auto; }
+.landing-plan > .landing-button { margin-top: auto; }
 .landing-plan-future { background: #f7f7f9; }
 .landing-plan-future .landing-plan-label { color: #8a8792; }
 .landing-plan-future > strong { font-size: 22px; margin-top: 28px; color: #a09ba7; font-family: 'Bricolage Grotesque', sans-serif; }
@@ -175,7 +175,7 @@ html.au-landing-document { scroll-padding-top: 90px; }
   .landing-desktop-nav { gap: 15px; font-size: 11px; }
   .landing-header-actions { gap: 14px; }
   .landing-header-cta { padding: 9px 12px; }
-  .landing-pricing-layout { gap: 35px; grid-template-columns: .7fr 1.5fr; }
+  .landing-pricing-layout { gap: 35px; grid-template-columns: 1fr; }
   .landing-faq-layout { gap: 50px; }
   .landing-studio-body { grid-template-columns: 330px 1fr; }
   .landing-format-image { padding: 20px 20px 0; height: 285px; }
@@ -192,7 +192,7 @@ html.au-landing-document { scroll-padding-top: 90px; }
   .landing-hero-actions { padding-top: 35px; }
   .landing-section { padding: 64px 0; }
   .landing-pricing-layout { grid-template-columns: 1fr; gap: 24px; }
-  .landing-plan-grid { max-width: 680px; grid-template-columns: 1fr 1fr; }
+  .landing-plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .landing-pricing-footnote { margin-top: 0 !important; }
   .landing-feature-grid { gap: 30px; }
   .landing-access-note { align-items: flex-start; flex-wrap: wrap; }

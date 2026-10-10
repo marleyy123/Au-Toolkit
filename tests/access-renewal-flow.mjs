@@ -47,7 +47,7 @@ try {
       const purchase = pricing.getByRole('link', { name: 'Beli melalui Lynk.id' });
       await purchase.waitFor();
       assert.equal(await purchase.getAttribute('href'), checkout);
-      assert.match(await pricing.locator('.landing-plan-price').innerText(), country === 'ID' ? /15\.000/ : /30\.000/);
+      assert.match(await pricing.locator('[data-plan="monthly"] .landing-plan-price').innerText(), country === 'ID' ? /15\.000/ : /30\.000/);
       const checkoutPromise = pricing.waitForEvent('popup');
       await purchase.click();
       const payment = await checkoutPromise;

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { ACCESS_PLANS } from '../../../../lib/access-plans.js';
 
-type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null };
+type PlanQuote = { id: string; accessDays: number; amount: number; checkout: string | null };
+type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null; plans: PlanQuote[] };
 type PricingState = { status: 'loading' | 'error'; quote?: never } | { status: 'ready'; quote: Quote };
 
 function readQuote(value: unknown): Quote {
@@ -13,7 +15,24 @@ function readQuote(value: unknown): Quote {
     if (typeof data.checkout !== 'string' || url.protocol !== 'https:' || url.hostname !== 'lynk.id' ||
         url.username || url.password || !url.pathname.endsWith('/checkout')) throw new Error('Invalid checkout');
   }
-  return data;
+  const plans = ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
+    amount: plan.id === 'monthly' ? data.amount : 0, checkout: plan.id === 'monthly' ? data.checkout : null }));
+  if (data.plans !== undefined) {
+    if (!Array.isArray(data.plans) || data.plans.length !== plans.length) throw new Error('Invalid plans');
+    for (const plan of plans) {
+      const matches = data.plans.filter(item => item?.id === plan.id);
+      if (matches.length !== 1 || matches[0].accessDays !== plan.accessDays || matches[0].amount !== plan.amount) throw new Error('Invalid plan');
+      const checkout = matches[0].checkout;
+      if (checkout !== null) {
+        const url = new URL(checkout);
+        if (typeof checkout !== 'string' || url.protocol !== 'https:' || url.hostname !== 'lynk.id' ||
+            url.username || url.password || !url.pathname.endsWith('/checkout')) throw new Error('Invalid checkout');
+      }
+      if (plan.id === 'monthly' && checkout !== data.checkout) throw new Error('Invalid monthly checkout');
+      plan.checkout = checkout;
+    }
+  }
+  return { ...data, plans };
 }
 
 export function useRegionalPricing() {
