@@ -7,6 +7,9 @@ import { Plus, Trash2, ArrowUp, ArrowDown, Check, CheckCheck, Sun, Moon, Smile, 
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { auth } from '../../../firebase';
+import { Mic } from 'lucide-react';
+import { voiceNoteDefaults } from '../voiceNote';
+import { WhatsAppVoiceNoteControls } from './WhatsAppVoiceNoteControls';
 import { isWhatsAppMessageDivider, resolveWhatsAppGroupSenders } from '../messageSenders';
 import {
   readPersistentUserAssets,
@@ -326,13 +329,14 @@ export const WhatsAppChatForm: React.FC<Props> = ({
   };
 
   // Add Message
-  const handleAddMessage = (sender: 'incoming' | 'outgoing', type: 'text' | 'image' | 'sticker' = 'text') => {
+  const handleAddMessage = (sender: 'incoming' | 'outgoing', type: 'text' | 'image' | 'sticker' | 'voice_note' = 'text') => {
     const lastMessage = data.isGroupChat ? resolveWhatsAppGroupSenders(data.messages || []).at(-1) : undefined;
     const previous = lastMessage && !isWhatsAppMessageDivider(lastMessage) ? lastMessage : undefined;
     const newMessage: WhatsAppChatMessage = {
       id: 'wa-msg-' + Date.now(),
       sender,
       type,
+      ...(type === 'voice_note' ? voiceNoteDefaults() : {}),
       text: type === 'text' ? '' : '',
       imageUrl: '',
       imageUrls: type === 'image' ? [''] : [],
@@ -1049,6 +1053,13 @@ export const WhatsAppChatForm: React.FC<Props> = ({
               <ImageIcon className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isId ? 'Foto (Kanan)' : 'Photo (Right)'}</span>
             </button>
+            {(['incoming', 'outgoing'] as const).map(sender => (
+              <button key={`vn-${sender}`} type="button" onClick={() => handleAddMessage(sender, 'voice_note')}
+                className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 active:bg-purple-600 active:text-white text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center space-x-1 border border-slate-200 shadow-2xs cursor-pointer">
+                <Mic className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{isId ? `VN (${sender === 'incoming' ? 'Kiri' : 'Kanan'})` : `Voice Note (${sender === 'incoming' ? 'Left' : 'Right'})`}</span>
+              </button>
+            ))}
             <button
               type="button"
               onClick={() => {
@@ -1604,7 +1615,7 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                         </button>
                       </div>
 
-                      {/* Type Toggle Selector: Text | Image | Sticker | Missed Voice | Missed Video */}
+                      {/* Message type selector */}
                       <div className="flex flex-wrap border border-slate-200 dark:border-slate-700 rounded-md overflow-hidden bg-white dark:bg-slate-800 text-[10px] font-bold">
                         <button
                           type="button"
@@ -1635,6 +1646,16 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                         >
                           <Smile className="w-3 h-3" />
                           <span>{isId ? 'Stiker' : 'Sticker'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateMessage(index, { ...voiceNoteDefaults(), ...msg, type: 'voice_note', isRecalled: false, status: isOutgoing ? 'read' : undefined })}
+                          className={`px-2 py-1 flex items-center space-x-1 cursor-pointer transition-colors ${
+                            msgType === 'voice_note' ? 'bg-purple-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          <Mic className="w-3 h-3" />
+                          <span>VN</span>
                         </button>
                         <button
                           type="button"
@@ -1686,7 +1707,8 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                           handleUpdateMessage(index, {
                             isRecalled: isNowRecalled,
                             status: isNowRecalled ? 'recalled' : (isOutgoing ? 'read' : undefined),
-                            type: isNowRecalled ? 'recalled' : (msg.imageUrl ? 'image' : 'text'),
+                            type: msg.type === 'voice_note' ? 'voice_note' : isNowRecalled ? 'recalled' : (msg.imageUrl ? 'image' : 'text'),
+                            isVoicePlaying: false,
                           });
                         }}
                         className={`p-1.5 cursor-pointer rounded transition-colors ${
@@ -1838,6 +1860,7 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                     )}
 
                     {/* TEXT TYPE */}
+                    {msgType === 'voice_note' && <WhatsAppVoiceNoteControls message={msg} onChange={patch => handleUpdateMessage(index, patch)} />}
                     {msgType === 'text' && (
                       <div>
                         <div className="flex items-center justify-between mb-0.5">
@@ -2108,7 +2131,7 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleUpdateMessage(index, { status: 'recalled', isRecalled: true, type: 'recalled' })}
+                              onClick={() => handleUpdateMessage(index, { status: 'recalled', isRecalled: true, type: msg.type === 'voice_note' ? 'voice_note' : 'recalled', isVoicePlaying: false })}
                               className={`flex-1 py-1 px-1.5 flex items-center justify-center space-x-1 cursor-pointer transition-colors border-l ${
                                 isDarkTheme ? 'border-slate-700' : 'border-slate-200'
                               } ${
@@ -2138,7 +2161,8 @@ export const WhatsAppChatForm: React.FC<Props> = ({
                               handleUpdateMessage(index, {
                                 isRecalled: isNowRecalled,
                                 status: isNowRecalled ? 'recalled' : undefined,
-                                type: isNowRecalled ? 'recalled' : (msg.imageUrl ? 'image' : 'text'),
+                                type: msg.type === 'voice_note' ? 'voice_note' : isNowRecalled ? 'recalled' : (msg.imageUrl ? 'image' : 'text'),
+                                isVoicePlaying: false,
                               });
                             }}
                             className={`w-full py-1 px-2 text-[11px] font-semibold rounded-lg border flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${

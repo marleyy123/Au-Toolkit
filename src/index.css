@@ -626,15 +626,15 @@ button.btn-locked-amber svg {
   background: var(--au-editor-tint);
 }
 
-.au-editor h1,
-.au-editor h2,
-.au-editor h3,
-.au-editor h4 {
+.au-editor h1:not([data-preview-canvas] *),
+.au-editor h2:not([data-preview-canvas] *),
+.au-editor h3:not([data-preview-canvas] *),
+.au-editor h4:not([data-preview-canvas] *) {
   font-family: 'Bricolage Grotesque', 'Hanken Grotesk', sans-serif;
   letter-spacing: 0;
 }
 
-.au-editor header {
+.au-editor header:not([data-preview-canvas] *) {
   background: color-mix(in srgb, var(--au-editor-panel) 94%, transparent) !important;
   border-color: var(--au-editor-line) !important;
   box-shadow: none !important;
@@ -681,57 +681,57 @@ button.btn-locked-amber svg {
   margin-top: 2px;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-2xl,
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-xl,
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-lg {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-2xl:not([data-preview-canvas] *),
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-xl:not([data-preview-canvas] *),
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-lg:not([data-preview-canvas] *) {
   border-radius: 8px !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xs, .shadow-inner) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xs, .shadow-inner):not([data-preview-canvas] *) {
   box-shadow: none !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .bg-white {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .bg-white:not([data-preview-canvas] *) {
   background-color: var(--au-editor-panel) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50):not([data-preview-canvas] *) {
   background-color: var(--au-editor-soft) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is([class*="border-slate-"], [class*="border-gray-"], [class*="border-zinc-"]) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is([class*="border-slate-"], [class*="border-gray-"], [class*="border-zinc-"]):not([data-preview-canvas] *) {
   border-color: var(--au-editor-line) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-zinc-900) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-zinc-900):not([data-preview-canvas] *) {
   color: var(--au-editor-ink) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-zinc-600) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-zinc-600):not([data-preview-canvas] *) {
   color: var(--au-editor-muted) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-600, .bg-purple-700) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-600, .bg-purple-700):not([data-preview-canvas] *) {
   background-color: var(--au-editor-accent) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) button:is(:hover, :focus-visible):not(:disabled) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) button:is(:hover, :focus-visible):not(:disabled):not([data-preview-canvas] *) {
   border-color: #d7c8dc;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select):not([data-preview-canvas] *) {
   background-color: color-mix(in srgb, var(--au-editor-panel) 72%, var(--au-editor-soft)) !important;
   border-color: var(--au-editor-line) !important;
   color: var(--au-editor-ink) !important;
   border-radius: 6px !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
   border-color: #c78dce !important;
   box-shadow: 0 0 0 3px #fcf5fc !important;
 }
 
-.au-editor.dark :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus {
+.au-editor.dark :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
   box-shadow: 0 0 0 3px rgba(167, 33, 182, .22) !important;
 }
 

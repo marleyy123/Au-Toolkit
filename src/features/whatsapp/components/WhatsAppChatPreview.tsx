@@ -4,6 +4,7 @@ import { DEFAULT_AVATAR, INITIAL_WHATSAPP_CHAT_DATA } from '../../../data/defaul
 import { renderFormattedTextWithAppleEmojis } from '../../../utils/emojiUtils';
 import { useLanguage } from '../../../context/LanguageContext';
 import { isSameWhatsAppSender, resolveWhatsAppGroupSenders } from '../messageSenders';
+import { WhatsAppVoiceNote } from './WhatsAppVoiceNote';
 
 interface Props {
   data: WhatsAppChatData;
@@ -1136,7 +1137,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                     {/* BUBBLE UTAMA */}
                     <div
-                      style={{ ...bubbleStyles, ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
+                      style={{ ...bubbleStyles, ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}), ...(msgType === 'voice_note' ? { width: 268 } : {}) }}
                       className={`relative z-10 w-fit max-w-full shadow-2xs ${
                         msgType === 'image'
                           ? 'p-1'
@@ -1199,6 +1200,14 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                       })()}
 
                       {/* Image Attachment inside Bubble (Single or Multi-Photo Album Grid) */}
+                      {msgType === 'voice_note' && !msg.isRecalled && msg.status !== 'recalled' && !msg.deletedForMe && (
+                        <WhatsAppVoiceNote
+                          message={msg} outgoing={isOutgoing} dark={isOutgoing ? isSenderBubbleDark : isReceiverBubbleDark}
+                          avatar={(!isOutgoing && data.contactAvatar) || DEFAULT_AVATAR} time={formatWhatsAppTime(msg.time)}
+                          metadataColor={getMessageTimestampColor(isOutgoing)} ticks={renderTicks(msg, isDark, false, isSenderBubbleDark)}
+                          onChange={onChange ? patch => onChange({ ...data, messages: (data.messages || []).map(item => item.id === msg.id ? { ...item, ...patch } : item) }) : undefined}
+                        />
+                      )}
                       {msgType === 'image' && (() => {
                         const rawPhotos = (msg.imageUrls && msg.imageUrls.length > 0)
                           ? msg.imageUrls.filter(u => Boolean(u && u.trim() !== ''))
