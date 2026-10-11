@@ -105,7 +105,7 @@ export const AccountPasswordModal: React.FC<Props> = ({
   }`;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="account-password-title">
+    <div className={`au-auth-dialog ${isDark ? 'au-auth-dark' : ''} fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm`} role="dialog" aria-modal="true" aria-labelledby="account-password-title">
       <div className={`relative w-full max-w-md rounded-3xl border p-5 shadow-2xl sm:p-7 ${
         isDark ? 'border-slate-700 bg-slate-900 text-slate-100' : 'border-slate-200 bg-white text-slate-900'
       }`}>

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { LanguageMenu } from './LanguageMenu';
+import { AuBrand } from '../../../components/AuBrand';
 import { landingLinks } from '../data/landingContent';
 import { useLandingContent } from '../hooks/useLandingContent';
 import { useLandingLanguage } from '../hooks/useLandingLanguage';
 
 export function Brand() {
   const { copy } = useLandingLanguage();
-  return <a className="landing-brand" href="/#beranda" aria-label={copy('AU Toolkit beranda', 'AU Toolkit home')}><span className="landing-brand-mark">au<span>.</span></span><span>AU Toolkit</span></a>;
+  return <a className="landing-brand" href="/#beranda" aria-label={copy('AU Toolkit beranda', 'AU Toolkit home')}><AuBrand className="landing-brand-mark" /><span>AU Toolkit</span></a>;
 }
 
 export function LandingHeader() {

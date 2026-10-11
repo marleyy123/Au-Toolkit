@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AuBrand } from '../../../components/AuBrand';
 import {
   Mail,
   ShieldCheck,
@@ -352,13 +353,11 @@ export const Login: React.FC<LoginProps> = ({
   };
 
   return (
-    <div className="min-h-[100dvh] w-full overflow-x-hidden overflow-y-auto bg-slate-100/95 text-slate-800 flex items-start sm:items-center justify-center px-3 py-5 sm:p-6 select-none">
-      <div className="my-auto w-full max-w-md min-w-0 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-8 shadow-xl shadow-slate-200/60 space-y-5 sm:space-y-6">
+    <div className="au-auth-screen au-login-screen">
+      <div className="au-auth-content au-login-content space-y-5 sm:space-y-6">
         {/* Header Icon & Title */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 shadow-xs">
-            <LockKeyhole className="w-8 h-8 text-purple-600" />
-          </div>
+          <AuBrand className="au-auth-brand" />
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
               AU Toolkit

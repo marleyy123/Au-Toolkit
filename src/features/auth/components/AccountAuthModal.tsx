@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Loader2, AlertCircle, Sparkles, X, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Loader2, AlertCircle, X, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { AuBrand } from '../../../components/AuBrand';
 import { signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser } from '../../../firebase';
 import { detectDeviceSlot, getDeviceFriendlyLabel } from '../../../utils/deviceAuthService';
 import { validateLoginAccess } from '../../../services/buyerEntitlementService';
@@ -118,7 +119,7 @@ export const AccountAuthModal: React.FC<Props> = ({
   const isDark = uiTheme === 'dark';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className={`au-auth-dialog ${isDark ? 'au-auth-dark' : ''} fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150`}>
       <div
         className={`w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border transition-all relative ${
           isDark
@@ -138,9 +139,7 @@ export const AccountAuthModal: React.FC<Props> = ({
 
         {/* Modal Header */}
         <div className="text-center space-y-2 mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/40 shadow-xs">
-            <Sparkles className="w-6 h-6" />
-          </div>
+          <AuBrand />
           <div>
             <h3 className="text-xl font-black tracking-tight">
               {mode === 'signin' ? 'Sign in to AU Toolkit' : 'Create an Account'}

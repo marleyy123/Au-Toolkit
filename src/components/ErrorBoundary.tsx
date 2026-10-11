@@ -1,5 +1,6 @@
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AuBrand } from './AuBrand';
 
 interface Props {
   children: ReactNode;
@@ -44,7 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       if (this.props.compact) {
         return (
-          <div className="w-full max-w-sm mx-auto my-12 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-3xl p-6 shadow-xl text-center space-y-4">
+          <div className="au-auth-inline w-full max-w-sm mx-auto my-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 text-center space-y-4">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 border border-rose-100 dark:border-rose-900/40">
               <AlertTriangle className="w-6 h-6" />
             </div>
@@ -78,11 +79,9 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-4">
-          <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100">
-              <AlertTriangle className="w-7 h-7" />
-            </div>
+        <div className="au-auth-screen">
+          <div className="au-auth-content au-login-content text-center space-y-4">
+            <AuBrand className="au-auth-brand" />
             <h2 className="text-xl font-bold text-slate-900">Something went wrong</h2>
             <p className="text-xs text-slate-500 leading-relaxed">
               An unexpected error occurred while rendering the interface.

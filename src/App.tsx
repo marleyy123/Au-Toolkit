@@ -835,6 +835,7 @@ export default function App() {
   ) {
     return (
       <AccessGuard
+        uiTheme={uiTheme}
         email={buyerEntitlement?.email || authUser?.email || localStorage.getItem('au_user_email') || ''}
         purchaseDate={buyerEntitlement?.purchaseDate}
         accessExpiresAt={buyerEntitlement?.accessExpiresAt}
@@ -859,6 +860,7 @@ export default function App() {
   ) {
     return (
       <AppLoadingScreen
+        uiTheme={uiTheme}
         stage={authLifecycleStage}
         language={language}
         errorMessage={loadingErrorMessage}

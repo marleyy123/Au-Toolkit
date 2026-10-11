@@ -72,7 +72,7 @@ export const PinAuthModal: React.FC<PinAuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4 animate-in fade-in duration-150 select-none"
+      className={`au-auth-dialog ${isDark ? 'au-auth-dark' : ''} fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4 animate-in fade-in duration-150 select-none`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

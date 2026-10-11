@@ -1,5 +1,6 @@
 import React from 'react';
 import { RotateCcw } from 'lucide-react';
+import { AuBrand } from '../../../components/AuBrand';
 import type { AppLanguage } from '../../../context/LanguageContext';
 import type { UiTheme } from '../../../context/ThemeContext';
 import type { PlatformGroup, PlatformTab } from '../../../types';
@@ -55,9 +56,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     <div className="w-full flex flex-col gap-1.5">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex min-w-0 items-center space-x-3 pt-0.5">
-          <div className="au-editor-brand-mark shrink-0" aria-hidden="true">
-            au<span>.</span>
-          </div>
+          <AuBrand className="au-editor-brand-mark shrink-0" />
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
               <h1 className={`font-extrabold text-base lg:text-lg tracking-tight leading-tight ${

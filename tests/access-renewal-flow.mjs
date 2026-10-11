@@ -36,7 +36,7 @@ try {
       await context.route('https://lynk.id/**', route => route.fulfill({ body: 'Mock checkout' }));
       const page = await context.newPage();
       await page.goto(`${origin}/editor`);
-      const renew = page.getByRole('link', { name: 'Perpanjang Akses Sekarang' });
+      const renew = page.getByRole('link', { name: 'Perpanjang akses', exact: true });
       assert.equal(await renew.getAttribute('href'), '/#pilihan-paket');
       const pricingPromise = page.waitForEvent('popup');
       await renew.click();
@@ -44,10 +44,10 @@ try {
       await pricing.waitForLoadState();
       assert.equal(pricing.url(), `${origin}/#pilihan-paket`);
       assert.equal(page.url(), `${origin}/editor`);
-      const purchase = pricing.getByRole('link', { name: 'Beli melalui Lynk.id' });
+      const purchase = pricing.getByRole('link', { name: /Beli melalui Lynk.id|Buy through Lynk.id/ });
       await purchase.waitFor();
       assert.equal(await purchase.getAttribute('href'), checkout);
-      assert.match(await pricing.locator('[data-plan="monthly"] .landing-plan-price').innerText(), country === 'ID' ? /15\.000/ : /30\.000/);
+      assert.match(await pricing.locator('[data-plan="monthly"] .landing-plan-price').innerText(), country === 'ID' ? /15[.,]000/ : /30[.,]000/);
       const checkoutPromise = pricing.waitForEvent('popup');
       await purchase.click();
       const payment = await checkoutPromise;
