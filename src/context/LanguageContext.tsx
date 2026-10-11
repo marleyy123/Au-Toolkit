@@ -238,14 +238,16 @@ export const TRANSLATIONS: Translations = {
 
 interface LanguageContextType {
   language: AppLanguage;
+  preferredLanguage: AppLanguage | null;
   isId: boolean;
-  setLanguage: (lang: AppLanguage) => void;
+  setLanguage: (lang: AppLanguage, options?: { persist?: boolean }) => void;
   toggleLanguage: () => void;
   t: (key: string, fallback?: string) => string;
 }
 
 export const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
+  preferredLanguage: null,
   isId: false,
   setLanguage: () => {},
   toggleLanguage: () => {},
@@ -253,16 +255,19 @@ export const LanguageContext = createContext<LanguageContextType>({
 });
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<AppLanguage>(() => {
+  const [preferredLanguage, setPreferredLanguage] = useState<AppLanguage | null>(() => {
     try {
       const saved = localStorage.getItem('au_app_language');
       if (saved === 'en' || saved === 'id') return saved;
     } catch (e) {}
-    return 'en';
+    return null;
   });
+  const [language, setLanguageState] = useState<AppLanguage>(preferredLanguage || 'en');
 
-  const setLanguage = (lang: AppLanguage) => {
+  const setLanguage = (lang: AppLanguage, options?: { persist?: boolean }) => {
     setLanguageState(lang);
+    if (options?.persist === false) return;
+    setPreferredLanguage(lang);
     try {
       localStorage.setItem('au_app_language', lang);
     } catch (e) {}
@@ -282,7 +287,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ language, isId, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, preferredLanguage, isId, setLanguage, toggleLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

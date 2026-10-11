@@ -100,7 +100,7 @@ export const SubFeatureNavigation: React.FC<SubFeatureNavigationProps> = ({
   setActiveTab,
   setMobileView,
 }) => (
-  <div className={`mt-2.5 border-t pt-2 max-w-7xl mx-auto flex items-center gap-1.5 overflow-x-auto ${
+  <div className={`mt-2.5 border-t pt-2 w-full flex items-center gap-1.5 overflow-x-auto ${
     uiTheme === 'dark' ? 'border-slate-800/80' : 'border-slate-200/80'
   }`}>
     <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 shrink-0 mr-1.5">

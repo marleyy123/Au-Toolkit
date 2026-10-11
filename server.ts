@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config({ override: true });
+const isLocalStaging = process.argv.includes('--staging');
+const envResult = dotenv.config({ path: isLocalStaging ? '.env.staging.vercel' : '.env', override: true });
+if (isLocalStaging && (envResult.error || process.env.VITE_FIREBASE_PROJECT_ID !== 'au-toolkit-staging-20261005')) {
+  throw new Error('Local staging requires .env.staging.vercel configured for au-toolkit-staging-20261005.');
+}
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -649,11 +653,11 @@ async function startServer() {
     String(process.env.GOOGLE_SHEETS_SCRIPT_URL || '').trim()
   );
 
-  // In local development without the server-only Apps Script configuration,
-  // leave this route to Vite's development proxy. The proxy targets the
-  // deployed Netlify Function, so verification remains enforced and no
-  // server secret is exposed to the client bundle.
-  if (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig) {
+  // Staging uses its deployed verifier; legacy development uses the proxy
+  // only when local Apps Script configuration is absent.
+  const useStagingVerificationProxy = process.env.NODE_ENV !== 'production' &&
+    process.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005';
+  if (!useStagingVerificationProxy && (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig)) {
     app.post('/api/verify-buyer', jsonParser, optionalFirebaseToken, handleBuyerVerification);
   }
   app.post('/api/verify-code', jsonParser, optionalFirebaseToken, handleBuyerVerification);

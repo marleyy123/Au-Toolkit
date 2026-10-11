@@ -39,6 +39,12 @@ no third-party geo service or browser location permission is used.
 VPNs, geolocation mistakes, and direct access to a known cheaper Lynk product
 remain limitations: IP pricing is not billing-country enforcement.
 No exchange rate is implied.
+
+Landing language shares the pricing endpoint's IP-derived country: first-time
+visitors from ID see Indonesian, and other countries see English. The ID/EN
+menu saves an explicit choice shared with the editor, which takes precedence
+over country detection. Automatic language selection is not saved as a manual
+preference. If region detection fails, the current language stays unchanged.
 The current webhook accepts only one configured TEST product UUID; activating
 both real products needs backend product mapping and verified payment tests.
 

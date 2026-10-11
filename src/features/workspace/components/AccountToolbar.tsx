@@ -73,14 +73,10 @@ export const AccountToolbar: React.FC<AccountToolbarProps> = ({
       <button
         type="button"
         onClick={() => setIsResetConfirmOpen(true)}
-        className={`lg:hidden px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer shrink-0 shadow-2xs ${
-          uiTheme === 'dark'
-            ? 'bg-rose-950/50 text-rose-300 border-rose-900/80 hover:bg-rose-900/70 hover:text-white'
-            : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-        }`}
+        className="lg:hidden px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border-0 cursor-pointer shrink-0 bg-red-600 text-white hover:bg-red-700 shadow-sm"
         title={language === 'id' ? 'Reset Total (Bersihkan seluruh data & cache)' : 'Hard Reset (Clear all data & cache)'}
       >
-        <RotateCcw className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+        <RotateCcw className="w-3.5 h-3.5 shrink-0" />
         <span>{language === 'id' ? 'Reset Total' : 'Hard Reset'}</span>
       </button>
     </div>
@@ -129,21 +125,17 @@ export const AccountToolbar: React.FC<AccountToolbarProps> = ({
             e.stopPropagation();
             handleLogout();
           }}
-          className={`ml-1 px-2.5 py-1 rounded-lg font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer select-none active:scale-95 shadow-2xs ${
-            uiTheme === 'dark'
-              ? 'bg-rose-950/60 text-rose-300 border-rose-800/80 hover:bg-rose-900 hover:text-white'
-              : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 hover:text-rose-900'
-          }`}
+          className="ml-1 px-2.5 py-1 rounded-lg font-bold text-xs flex items-center space-x-1.5 transition-all border-0 cursor-pointer select-none active:scale-95 bg-red-600 text-white hover:bg-red-700 shadow-sm disabled:opacity-60 disabled:cursor-wait"
           title={language === 'id' ? 'Keluar dari akun Anda' : 'Log out from your account'}
         >
           {isLoggingOut ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-500 shrink-0" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
               <span>{language === 'id' ? 'Keluar...' : 'Logging out...'}</span>
             </>
           ) : (
             <>
-              <LogOut className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
               <span>Log Out</span>
             </>
           )}

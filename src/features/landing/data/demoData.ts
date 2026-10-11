@@ -12,6 +12,15 @@ export const whatsappDemo: WhatsAppChatData = {
   ],
 };
 
+export const whatsappDemoEnglish: WhatsAppChatData = {
+  ...whatsappDemo, dateDivider: 'TODAY',
+  messages: whatsappDemo.messages.map((message, index) => ({ ...message, text: [
+    'Raka, are you really heading back to Bandung this afternoon without saying goodbye?',
+    'It is not that I do not want to, Nay. Sometimes saying goodbye just makes it harder to leave.',
+    'But I still have your umbrella. I am waiting in front of platform 3.',
+  ][index] })),
+};
+
 export const lineDemo: LineChatData = {
   ...INITIAL_LINE_CHAT_DATA, contactName: 'Kayla', aspectRatio: '4:5',
   messages: [

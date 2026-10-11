@@ -52,6 +52,12 @@ and Development environments. Its Production Branch should be `development`.
 The filename is not automatically loaded by Vite and the production `.env`
 has not been changed.
 
+For local staging, run `npm run dev:staging` and open `http://localhost:3000`.
+This loads `.env.staging.vercel` for the frontend and proxies buyer verification
+to `https://au-toolkit-testing.vercel.app`, including its Firebase token checks.
+Local staging does not require server credentials for Firestore. Restart the
+server and sign in again when switching between production and staging.
+
 Testing spreadsheets and an Apps Script web app are now provisioned; see
 `spreadsheet-staging.md` for their configuration. Backend ENV values must be set
 in Vercel and redeployed. The ignored local ENV integration fields remain blank.

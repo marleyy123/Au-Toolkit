@@ -881,8 +881,8 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={{ uiTheme, isDark: uiTheme === 'dark', setUiTheme: handleSetUiTheme, toggleTheme: handleToggleTheme }}>
-      <div className={`w-full min-h-screen lg:h-screen lg:overflow-hidden font-sans flex flex-col antialiased selection:bg-purple-600 selection:text-white transition-colors duration-200 ${
-        uiTheme === 'dark' ? 'theme-dark dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      <div className={`au-editor w-full min-h-screen lg:h-screen lg:overflow-hidden font-sans flex flex-col antialiased selection:bg-purple-700 selection:text-white transition-colors duration-200 ${
+        uiTheme === 'dark' ? 'theme-dark dark bg-slate-950 text-slate-100' : 'bg-[#f8f7fb] text-[#202028]'
       }`}>
       {/* Top Application Header */}
       <AppHeader

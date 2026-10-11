@@ -22,7 +22,7 @@ export const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
   isMobileFloatingPreviewOpen,
   setMobileFloatingPreviewOpen,
 }) => (
-  <div className={`lg:hidden shrink-0 max-w-7xl mx-auto w-full flex items-center gap-2 pt-2 mt-2 border-t ${
+  <div className={`lg:hidden shrink-0 w-full flex items-center gap-2 pt-2 mt-2 border-t ${
     uiTheme === 'dark' ? 'border-slate-800/80' : 'border-slate-200/80'
   }`}>
     <button

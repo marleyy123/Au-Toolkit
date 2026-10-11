@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import type { AppLanguage } from '../../../context/LanguageContext';
 import type { UiTheme } from '../../../context/ThemeContext';
 import type { PlatformGroup, PlatformTab } from '../../../types';
@@ -49,18 +49,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   setIsPasswordModalOpen,
   setIsResetConfirmOpen,
 }) => (
-  <header className={`shrink-0 sticky top-0 z-40 backdrop-blur-md border-b px-3 sm:px-4 lg:px-8 py-2.5 sm:py-3 transition-colors ${
+  <header className={`au-editor-header shrink-0 sticky top-0 z-40 backdrop-blur-md border-b py-2.5 sm:py-3 transition-colors ${
     uiTheme === 'dark' ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200 shadow-xs'
   }`}>
-    <div className="max-w-7xl mx-auto flex flex-col gap-1.5">
+    <div className="w-full flex flex-col gap-1.5">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex min-w-0 items-center space-x-3 pt-0.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-rose-500 to-amber-500 p-[2px] flex items-center justify-center shadow-lg shadow-purple-500/10 shrink-0">
-            <div className={`w-full h-full rounded-[10px] flex items-center justify-center ${
-              uiTheme === 'dark' ? 'bg-slate-900' : 'bg-white'
-            }`}>
-              <Sparkles className="w-4 h-4 text-amber-500" />
-            </div>
+          <div className="au-editor-brand-mark shrink-0" aria-hidden="true">
+            au<span>.</span>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
@@ -93,14 +89,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsResetConfirmOpen(true)}
-                className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer shrink-0 shadow-2xs ${
-                  uiTheme === 'dark'
-                    ? 'bg-rose-950/50 text-rose-300 border-rose-900/80 hover:bg-rose-900/70 hover:text-white'
-                    : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                }`}
+                className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border-0 cursor-pointer shrink-0 bg-red-600 text-white hover:bg-red-700 shadow-sm"
                 title={language === 'id' ? 'Reset Total (Bersihkan seluruh data & cache)' : 'Hard Reset (Clear all data & cache)'}
               >
-                <RotateCcw className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                <RotateCcw className="w-3.5 h-3.5 shrink-0" />
                 <span>{language === 'id' ? 'Reset Total' : 'Hard Reset'}</span>
               </button>
             </div>

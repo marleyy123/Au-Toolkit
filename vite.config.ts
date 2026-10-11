@@ -61,6 +61,9 @@ const landingPricingPreview = () => ({
 });
 
 export default defineConfig(() => {
+  const verificationOrigin = process.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005'
+    ? 'https://au-toolkit-testing.vercel.app'
+    : 'https://autoolkit.netlify.app';
   return {
     plugins: [react(), tailwindcss(), appleEmojiAssets(), landingPricingPreview()],
     resolve: {
@@ -72,17 +75,14 @@ export default defineConfig(() => {
       cors: true,
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
-      // The Netlify rewrite/function does not exist in a bare Vite preview.
-      // Proxy only during local development so Google Sign-In can complete the
-      // same production buyer-verification contract without weakening CORS in
-      // the deployed Function.
+      // Match the verifier to the frontend Firebase project during local development.
       proxy: {
         '/api/verify-buyer': {
-          target: 'https://autoolkit.netlify.app',
+          target: verificationOrigin,
           changeOrigin: true,
           secure: true,
           headers: {
-            Origin: 'https://autoolkit.netlify.app',
+            Origin: verificationOrigin,
           },
         },
       },

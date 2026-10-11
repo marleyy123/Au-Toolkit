@@ -8,12 +8,19 @@ import { PricingSection } from './components/PricingSection';
 import { FaqSection } from './components/FaqSection';
 import { LandingFooter } from './components/LandingFooter';
 import './landing.css';
+import { useLandingLanguage } from './hooks/useLandingLanguage';
 
 export default function LandingPage() {
+  const { language, copy } = useLandingLanguage();
+  useEffect(() => {
+    const previousLang = document.documentElement.lang;
+    const previousTitle = document.title;
+    document.documentElement.lang = language;
+    document.title = copy('AU Toolkit | Editor Visual Cerita Alternate Universe', 'AU Toolkit | Visual Editor for Alternate Universe Stories');
+    return () => { document.documentElement.lang = previousLang; document.title = previousTitle; };
+  }, [language]);
   useEffect(() => {
     document.documentElement.classList.add('au-landing-document');
-    const previousTitle = document.title;
-    document.title = 'AU Toolkit | Editor Visual Cerita Alternate Universe';
     let scrollFrame = 0;
     const scrollToHash = () => {
       cancelAnimationFrame(scrollFrame);
@@ -33,8 +40,7 @@ export default function LandingPage() {
       cancelAnimationFrame(scrollFrame);
       window.removeEventListener('hashchange', scrollToHash);
       document.documentElement.classList.remove('au-landing-document');
-      document.title = previousTitle;
     };
   }, []);
-  return <div className="au-landing"><a className="landing-skip-link" href="#landing-content">Lewati ke konten</a><LandingHeader /><main id="landing-content"><LandingHero /><FormatGallery /><FeaturesSection /><PurchaseSection /><PricingSection /><FaqSection /></main><LandingFooter /></div>;
+  return <div className="au-landing"><a className="landing-skip-link" href="#landing-content">{copy('Lewati ke konten', 'Skip to content')}</a><LandingHeader /><main id="landing-content"><LandingHero /><FormatGallery /><FeaturesSection /><PurchaseSection /><PricingSection /><FaqSection /></main><LandingFooter /></div>;
 }

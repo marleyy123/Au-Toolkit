@@ -1,4 +1,5 @@
 @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 html,
@@ -590,6 +591,197 @@ button.btn-locked-amber svg {
       #d6249f 60%,
       #285AEB 90%
     );
+}
+
+/* ==========================================================================
+   AU TOOLKIT: LANDING-ALIGNED EDITOR CHROME
+   The editor shell borrows the landing page's restrained studio language:
+   smaller radii, fine borders, off-white canvas, calmer purple, and less
+   generated-looking gradients. Preview mockups remain isolated below.
+   ========================================================================== */
+.au-editor {
+  --au-editor-page-padding: 50px;
+  --au-editor-ink: #202028;
+  --au-editor-muted: #676975;
+  --au-editor-accent: #a721b6;
+  --au-editor-accent-dark: #841391;
+  --au-editor-line: #e8e7ed;
+  --au-editor-tint: #f8f7fb;
+  --au-editor-panel: #ffffff;
+  --au-editor-soft: #f5f4f8;
+  --au-editor-green: #16836a;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--au-editor-tint);
+  color: var(--au-editor-ink);
+  letter-spacing: 0;
+}
+
+.au-editor.dark {
+  --au-editor-ink: #f8fafc;
+  --au-editor-muted: #b9b7c3;
+  --au-editor-line: #292536;
+  --au-editor-tint: #11101a;
+  --au-editor-panel: #171522;
+  --au-editor-soft: #211e2d;
+  background: var(--au-editor-tint);
+}
+
+.au-editor h1,
+.au-editor h2,
+.au-editor h3,
+.au-editor h4 {
+  font-family: 'Bricolage Grotesque', 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0;
+}
+
+.au-editor header {
+  background: color-mix(in srgb, var(--au-editor-panel) 94%, transparent) !important;
+  border-color: var(--au-editor-line) !important;
+  box-shadow: none !important;
+}
+
+.au-editor-brand-mark {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--au-editor-ink);
+}
+
+.au-editor-brand-mark span {
+  color: var(--au-editor-accent);
+}
+
+.au-editor .au-editor-header,
+.au-editor main {
+  padding-left: var(--au-editor-page-padding);
+  padding-right: var(--au-editor-page-padding);
+}
+
+.au-editor main {
+  max-width: none;
+  gap: clamp(20px, 2.5vw, 34px);
+}
+
+.au-editor #customization-panel > div:first-child {
+  border-color: var(--au-editor-line) !important;
+  padding-bottom: 14px;
+}
+
+.au-editor #customization-panel > div:first-child h2 {
+  color: var(--au-editor-accent) !important;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.au-editor #customization-panel > div:first-child p {
+  color: var(--au-editor-muted) !important;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-2xl,
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-xl,
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-lg {
+  border-radius: 8px !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xs, .shadow-inner) {
+  box-shadow: none !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .bg-white {
+  background-color: var(--au-editor-panel) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50) {
+  background-color: var(--au-editor-soft) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is([class*="border-slate-"], [class*="border-gray-"], [class*="border-zinc-"]) {
+  border-color: var(--au-editor-line) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-zinc-900) {
+  color: var(--au-editor-ink) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-zinc-600) {
+  color: var(--au-editor-muted) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-600, .bg-purple-700) {
+  background-color: var(--au-editor-accent) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) button:is(:hover, :focus-visible):not(:disabled) {
+  border-color: #d7c8dc;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background-color: color-mix(in srgb, var(--au-editor-panel) 72%, var(--au-editor-soft)) !important;
+  border-color: var(--au-editor-line) !important;
+  color: var(--au-editor-ink) !important;
+  border-radius: 6px !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus {
+  border-color: #c78dce !important;
+  box-shadow: 0 0 0 3px #fcf5fc !important;
+}
+
+.au-editor.dark :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus {
+  box-shadow: 0 0 0 3px rgba(167, 33, 182, .22) !important;
+}
+
+.au-editor #preview-viewport-container {
+  background-color: var(--au-editor-soft) !important;
+  border-color: var(--au-editor-line) !important;
+}
+
+.au-editor #preview-viewport-container > .absolute.inset-0 {
+  background-image: radial-gradient(#d8d5df 1px, transparent 1px) !important;
+  opacity: .8 !important;
+}
+
+.au-editor.dark #preview-viewport-container > .absolute.inset-0 {
+  background-image: radial-gradient(#343046 1px, transparent 1px) !important;
+}
+
+.au-editor #preview-panel > div:first-child::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--au-editor-green);
+  margin-right: 2px;
+}
+
+.au-editor .btn-locked-amber {
+  border-radius: 6px !important;
+}
+
+@media (max-width: 1050px) {
+  .au-editor {
+    --au-editor-page-padding: 40px;
+  }
+}
+
+@media (max-width: 900px) {
+  .au-editor {
+    --au-editor-page-padding: 20px;
+  }
+}
+
+@media (max-width: 650px) {
+  .au-editor main {
+    gap: 18px;
+  }
+
+  .au-editor-brand-mark {
+    font-size: 26px;
+  }
 }
 
 
