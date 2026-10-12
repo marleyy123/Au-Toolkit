@@ -9,8 +9,8 @@ import {
   signOutUser,
 } from '../../../firebase';
 import { AUFolder, PlatformTab } from '../../../types';
-import { AuthLifecycleStage } from '../components/AppLoadingScreen';
-import { CloudConnectionState } from '../../workspace/components/CloudSyncIndicator';
+import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
+import { CloudConnectionState } from '../../workspace/components/header/CloudSyncIndicator';
 import { ALL_PLATFORM_TABS, getInitialTabData } from '../../workspace/workspaceStorage';
 
 interface UseAuthLogoutActionsArgs {

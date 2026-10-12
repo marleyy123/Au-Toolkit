@@ -8,9 +8,9 @@ const bundle = await build({
   stdin: {
     contents: `import React, {useRef, useLayoutEffect} from 'react';
       import {createRoot} from 'react-dom/client';
-      import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
-      import {LineChatPreview} from './src/features/line/components/LineChatPreview';
-      import {InstagramDMPreview} from './src/features/instagram/components/InstagramDMPreview';
+      import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
+      import {LineChatPreview} from './src/features/line/components/chat/LineChatPreview';
+      import {InstagramDMPreview} from './src/features/instagram/components/dm/InstagramDMPreview';
       import {INITIAL_WHATSAPP_CHAT_DATA, INITIAL_LINE_CHAT_DATA, INITIAL_INSTAGRAM_DM_DATA} from './src/data/defaultTemplates';
       import {registerExportContext} from './src/export/exportContext';
       import {exportPreviewToImage} from './src/utils/exportUtils';

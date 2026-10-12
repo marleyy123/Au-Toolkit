@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { LandingHeader } from './components/LandingHeader';
-import { LandingHero } from './components/LandingHero';
-import { FormatGallery } from './components/FormatGallery';
-import { FeaturesSection } from './components/FeaturesSection';
-import { PurchaseSection } from './components/PurchaseSection';
-import { PricingSection } from './components/PricingSection';
-import { FaqSection } from './components/FaqSection';
-import { LandingFooter } from './components/LandingFooter';
+import { LandingHeader } from './components/header/LandingHeader';
+import { LandingHero } from './components/hero/LandingHero';
+import { FormatGallery } from './components/sections/FormatGallery';
+import { FeaturesSection } from './components/sections/FeaturesSection';
+import { PurchaseSection } from './components/sections/PurchaseSection';
+import { PricingSection } from './components/sections/PricingSection';
+import { FaqSection } from './components/sections/FaqSection';
+import { LandingFooter } from './components/footer/LandingFooter';
 import './landing.css';
 import { useLandingLanguage } from './hooks/useLandingLanguage';
 

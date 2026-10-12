@@ -8,9 +8,9 @@ const bundle = await build({
     import React from 'react';
     import {createRoot} from 'react-dom/client';
     import {LanguageProvider} from './src/context/LanguageContext';
-    import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
-    import {LineChatPreview} from './src/features/line/components/LineChatPreview';
-    import {InstagramDMPreview} from './src/features/instagram/components/InstagramDMPreview';
+    import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
+    import {LineChatPreview} from './src/features/line/components/chat/LineChatPreview';
+    import {InstagramDMPreview} from './src/features/instagram/components/dm/InstagramDMPreview';
     import {whatsappDemo,lineDemo,instagramDemo} from './src/features/landing/data/demoData';
     const format=new URLSearchParams(location.search).get('format');
     const preview=format==='line'?<LineChatPreview data={lineDemo}/>:format==='instagram'?<InstagramDMPreview data={instagramDemo}/>:<WhatsAppChatPreview data={whatsappDemo}/>;

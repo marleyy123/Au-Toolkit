@@ -2,7 +2,7 @@ import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { auth, getStoredAuthUser, loadUserWorkspaceFromFirestore, setStoredAuthUser } from '../../../firebase';
 import { verifyAndRegisterDevice } from '../../../utils/deviceAuthService';
 import { EntitlementCheckResult } from '../../../services/buyerEntitlementService';
-import { AuthLifecycleStage } from '../components/AppLoadingScreen';
+import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
 
 interface UseAuthGateActionsArgs {
   authUser: any;

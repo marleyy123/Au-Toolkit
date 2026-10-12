@@ -17,18 +17,27 @@ try {
       import React, {useState} from 'react';
       import {createRoot} from 'react-dom/client';
       import {toPng} from 'html-to-image';
-      import {WhatsAppChatForm} from './src/features/whatsapp/components/WhatsAppChatForm';
-      import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
+      import {exportPreviewToImage} from './src/utils/exportUtils';
+      import {registerExportContext} from './src/export/exportContext';
+      import {WhatsAppChatForm} from './src/features/whatsapp/components/whatsappChat/whatsappChatForm/WhatsAppChatForm';
+      import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
       import {INITIAL_WHATSAPP_CHAT_DATA} from './src/data/defaultTemplates';
       import {LanguageContext} from './src/context/LanguageContext';
       import {normalizeVoiceDuration, normalizeVoiceProgress, normalizeVoiceWaveform} from './src/features/whatsapp/voiceNote';
       window.normalized = [normalizeVoiceDuration('003:09'), normalizeVoiceDuration('3:99'), normalizeVoiceProgress(Infinity), normalizeVoiceProgress(150), normalizeVoiceWaveform([NaN]).length];
       function App() {
+        const [language, setLanguage] = useState('en');
+        window.setTestLanguage = setLanguage;
         const [data, setData] = useState(() => JSON.parse(localStorage.getItem('vn-test') || 'null') || {...INITIAL_WHATSAPP_CHAT_DATA, messages:[], contactName:'Naya', theme:'light'});
         const update = next => {localStorage.setItem('vn-test', JSON.stringify(next)); setData(next);};
         window.data = data; window.update = patch => update({...data, ...patch});
         window.exportPng = () => toPng(document.querySelector('[data-preview-canvas]'), {skipFonts:true, pixelRatio:1});
-        return <LanguageContext.Provider value={{language:'en',isId:false,t:key=>key,setLanguage:()=>{}}}>
+        window.exportContact = format => {
+          const element = document.querySelector('[data-preview-canvas] #preview-target');
+          registerExportContext(element, {previewKey:'whatsapp-chat',data,fontCss:'Arial'});
+          return exportPreviewToImage({element,format,scale:1});
+        };
+        return <LanguageContext.Provider value={{language,isId:language==='id',t:key=>key,setLanguage}}>
           <div className="au-editor dark" style={{display:'flex',flexWrap:'wrap',gap:24,padding:16,alignItems:'flex-start'}}>
             <div id="customization-panel" style={{width:420,maxWidth:'100%'}}><WhatsAppChatForm data={data} onChange={update} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}} /></div>
             <div id="preview-panel"><div data-preview-canvas="true" style={{width:380}}><WhatsAppChatPreview data={data} onChange={update}/><div id="css-probe" className="bg-white text-gray-900 rounded-xl shadow-sm">preview</div></div></div>
@@ -93,9 +102,97 @@ try {
     assert.equal(await note.evaluate(el => el.scrollWidth <= el.clientWidth + 1),true,'VN content must fit');
   }
   await page.locator('[data-preview-canvas]').screenshot({path:join(tmpdir(),'au-vn-mobile.png')});
+  await page.getByRole('button', {name:'Date Divider',exact:true}).click();
+  await page.getByRole('button', {name:'Unread Divider',exact:true}).click();
+  await page.getByRole('button', {name:'System Notice',exact:true}).click();
+  assert.deepEqual(await page.evaluate(() => window.data.messages.slice(-3).map(message => message.type)), ['date_divider','unread_divider','system']);
+  await page.locator('.wa-date-divider-card input[type="text"]').fill('Yesterday');
+  await page.locator('.wa-unread-divider-card').getByTitle('Move Up', {exact:true}).click();
+  assert.equal(await page.evaluate(() => window.data.messages[3].text), 'Yesterday');
+  await page.locator('.wa-unread-divider-card').getByTitle('Delete Divider', {exact:true}).click();
+  assert.equal(await page.locator('.wa-unread-divider-card').count(), 0);
+  await page.getByLabel('Reply Quote Box', {exact:true}).first().check();
+  const quote = page.locator('[data-sync-theme]').first().getByRole('combobox').last();
+  await quote.click();
+  await page.getByRole('option').filter({hasText:/^#2 /}).click();
+  assert.equal(await page.evaluate(() => window.data.messages[0].replyToMessageId), await page.evaluate(() => window.data.messages[1].id));
+  await page.getByRole('button', {name:'Clear Quote',exact:true}).click();
+  assert.equal(await page.evaluate(() => window.data.messages[0].replyToMessageId), '');
+  const themeToggle = page.getByRole('switch', {name:'Enable Theme Customization'});
+  if (await themeToggle.getAttribute('aria-checked') !== 'true') await themeToggle.click();
+  await page.getByPlaceholder('Nama preset kustom (misal: Sunset)').fill('Refactor QA');
+  await page.getByRole('button', {name:'Save Preset',exact:true}).click();
+  const savedThemeId = await page.evaluate(() => window.data.activeThemePreset);
+  assert(savedThemeId.startsWith('custom-'));
+  await page.reload();
+  await page.getByTitle('Refactor QA', {exact:true}).waitFor();
+  await page.getByTitle('Refactor QA', {exact:true}).click();
+  assert.equal(await page.evaluate(() => window.data.activeThemePreset), savedThemeId);
+  await page.getByTitle('Refactor QA', {exact:true}).getByTitle('Hapus preset kustom', {exact:true}).click();
+  assert.equal(await page.getByTitle('Refactor QA', {exact:true}).count(), 0);
+  await page.evaluate(() => window.update({messages:[],theme:'light',useCustomColors:false}));
+  await page.getByRole('button', {name:'Contact (Left)',exact:true}).click();
+  await page.getByRole('button', {name:'Contact (Right)',exact:true}).click();
+  const incomingContact = page.locator('[data-sync-theme]').first();
+  const outgoingContact = page.locator('[data-sync-theme]').nth(1);
+  const contactName = 'Naya ' + 'LongContactName'.repeat(5);
+  await incomingContact.getByLabel('Shared contact name', {exact:true}).fill(contactName);
+  await incomingContact.getByLabel('Shared contact phone', {exact:true}).fill('+62 812-3456-7890');
+  await outgoingContact.getByLabel('Shared contact name', {exact:true}).fill('Maya');
+  await outgoingContact.getByRole('combobox', {name:'Contact type',exact:true}).click();
+  await page.getByRole('option', {name:'Not registered on WhatsApp',exact:true}).click();
+  await page.evaluate(() => {
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=32;
+    canvas.getContext('2d').fillRect(0,0,32,32);
+    window.update({messages:window.data.messages.map((message,index)=>index===0?{...message,sharedContactAvatar:canvas.toDataURL()}:message)});
+  });
+  assert.equal(await page.locator('[data-contact-card]').count(),2);
+  assert((await page.locator('[data-contact-card]').first().textContent()).includes('+62 812-3456-7890'));
+  assert.equal(await page.locator('[data-contact-actions]').first().getByText('Save Contact', {exact:true}).count(),1);
+  assert.equal(await page.locator('[data-contact-actions]').last().getByText('Invite to WhatsApp', {exact:true}).count(),1);
+  await incomingContact.getByLabel('Show contact avatar', {exact:true}).uncheck();
+  assert.equal(await page.locator('[data-contact-card]').first().locator('[data-contact-avatar]').count(),0);
+  await incomingContact.getByLabel('Show contact avatar', {exact:true}).check();
+  await incomingContact.getByTitle('Recall / Delete Message', {exact:true}).click();
+  assert.equal(await page.locator('[data-contact-card]').count(),1);
+  await incomingContact.getByTitle('Restore Message', {exact:true}).click();
+  assert.equal(await page.locator('[data-contact-card]').count(),2);
+  await outgoingContact.getByTitle('Recalled / Deleted', {exact:true}).click();
+  assert.equal(await page.locator('[data-contact-card]').count(),1);
+  await outgoingContact.getByTitle('Read (Double blue check)', {exact:true}).click();
+  assert.equal(await page.locator('[data-contact-card]').count(),2);
+  await page.reload();
+  await page.locator('[data-contact-card]').first().waitFor();
+  assert.equal(await incomingContact.getByLabel('Shared contact name', {exact:true}).inputValue(),contactName);
+  assert((await outgoingContact.getByRole('combobox', {name:'Contact type',exact:true}).textContent()).includes('Not registered on WhatsApp'));
+  assert((await page.evaluate(() => window.data.messages[0].sharedContactAvatar)).startsWith('data:image/png'));
+  await page.getByRole('button', {name:'Me (Right)',exact:true}).click();
+  const replyEditor = page.locator('[data-sync-theme]').last();
+  await replyEditor.getByLabel('Reply Quote Box', {exact:true}).check();
+  await replyEditor.getByRole('combobox').last().click();
+  await page.getByRole('option').filter({hasText:/^#1 /}).click();
+  assert.equal(await page.evaluate(() => window.data.messages.at(-1).replyToText),contactName);
+  for (const theme of ['light','dark']) {
+    await page.evaluate(theme => window.update({theme}),theme);
+    for (const width of [1000,390]) {
+      await page.setViewportSize({width,height:900});
+      for (const card of await page.locator('[data-contact-card]').all()) {
+        assert.equal(await card.evaluate(element=>element.scrollWidth<=element.clientWidth+1),true,'Contact content must fit');
+      }
+      await page.locator('[data-preview-canvas]').screenshot({path:join(tmpdir(),'au-contact-'+theme+'-'+width+'.png')});
+    }
+  }
+  await page.evaluate(() => window.setTestLanguage('id'));
+  await page.locator('[data-contact-actions]').first().getByText('Simpan Kontak', {exact:true}).waitFor();
+  assert.equal(await page.locator('[data-contact-actions]').last().getByText('Undang ke WhatsApp', {exact:true}).count(),1);
+  for (const format of ['png','jpeg']) {
+    const contactExport = await page.evaluate(format => window.exportContact(format),format);
+    assert(contactExport.success && contactExport.dataUrl.startsWith('data:image/'+format), 'Contact '+format+' export must succeed');
+  }
   assert.deepEqual(errors,[]);
-  console.log('PASS VN: add left/right, controls, seek, play/pause/speed, persistence, recall/restore, CSS isolation, light/dark/mobile, PNG export');
+  console.log('PASS WhatsApp form: VN controls/persistence/export, light/dark/mobile, divider add/reorder/delete, system notice, reply selection/clear, custom theme save/reload/delete');
   console.log(`Screenshots: ${join(tmpdir(),'au-vn-light.png')}, ${join(tmpdir(),'au-vn-dark.png')}, ${join(tmpdir(),'au-vn-mobile.png')}`);
+  console.log('PASS contact cards: incoming/outgoing, name/phone/avatar, registered/invite, recall/restore, reload, quote, ID/EN, light/dark/mobile, PNG/JPEG export');
 } finally {
   await browser?.close();
   if (server) await new Promise(resolve => server.close(resolve));

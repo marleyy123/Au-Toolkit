@@ -349,7 +349,12 @@ export interface InstagramStoryReplyData {
 export interface WhatsAppChatMessage {
   id: string;
   sender: 'incoming' | 'outgoing' | 'me' | 'other' | 'system';
-  type?: 'text' | 'image' | 'sticker' | 'voice_note' | 'missed_voice_call' | 'missed_video_call' | 'date_divider' | 'divider' | 'unread_divider' | 'system' | 'recalled';
+  type?: 'text' | 'image' | 'sticker' | 'voice_note' | 'contact' | 'missed_voice_call' | 'missed_video_call' | 'date_divider' | 'divider' | 'unread_divider' | 'system' | 'recalled';
+  sharedContactName?: string;
+  sharedContactPhone?: string;
+  sharedContactAvatar?: string;
+  sharedContactType?: 'registered' | 'unregistered';
+  showSharedContactAvatar?: boolean;
   voiceDuration?: string;
   voiceProgress?: number;
   voiceWaveformBars?: number[];

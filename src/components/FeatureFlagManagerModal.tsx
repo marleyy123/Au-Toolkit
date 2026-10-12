@@ -1,3 +1,4 @@
+import { Select } from './ui/Select';
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -211,9 +212,9 @@ export const FeatureFlagManagerModal: React.FC<FeatureFlagManagerModalProps> = (
             </div>
 
             {/* Category Filter */}
-            <select
+            <Select
               value={selectedCategoryFilter}
-              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+              onValueChange={(value) => setSelectedCategoryFilter(value)}
               className={`w-full px-3 py-1.5 rounded-lg border font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                 isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
               }`}
@@ -225,12 +226,12 @@ export const FeatureFlagManagerModal: React.FC<FeatureFlagManagerModalProps> = (
               <option value="tiktok">TikTok</option>
               <option value="ios">iOS Lockscreen</option>
               <option value="line">LINE</option>
-            </select>
+            </Select>
 
             {/* Status Filter */}
-            <select
+            <Select
               value={selectedStatusFilter}
-              onChange={(e) => setSelectedStatusFilter(e.target.value as any)}
+              onValueChange={(value) => setSelectedStatusFilter(value as any)}
               className={`w-full px-3 py-1.5 rounded-lg border font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                 isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
               }`}
@@ -238,7 +239,7 @@ export const FeatureFlagManagerModal: React.FC<FeatureFlagManagerModalProps> = (
               <option value="all">Semua Status (LIVE + HIDDEN)</option>
               <option value="LIVE">Hanya Status LIVE</option>
               <option value="HIDDEN">Hanya Status HIDDEN</option>
-            </select>
+            </Select>
           </div>
         </div>
 

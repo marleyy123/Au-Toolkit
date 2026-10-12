@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useRef } from 'react'
 import { auth, getStoredAuthUser, setStoredAuthUser, signOutUser } from '../../../firebase';
 import { checkBuyerEntitlement, EntitlementCheckResult } from '../../../services/buyerEntitlementService';
 import { verifyAndRegisterDevice } from '../../../utils/deviceAuthService';
-import { AuthLifecycleStage } from '../components/AppLoadingScreen';
+import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
 
 interface UseEntitlementLifecycleArgs {
   authUser: any;

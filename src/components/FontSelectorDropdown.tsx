@@ -1,3 +1,4 @@
+import { Select } from './ui/Select';
 import React, { useRef } from 'react';
 import { Type, Upload, Trash2, Sliders } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -138,8 +139,7 @@ export const FontSelectorDropdown: React.FC<FontSelectorProps> = ({
   const { language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleSelectChange = (value: string) => {
     if (value === '__upload_custom__') {
       fileInputRef.current?.click();
       return;
@@ -212,9 +212,9 @@ export const FontSelectorDropdown: React.FC<FontSelectorProps> = ({
             </span>
           </label>
 
-          <select
+          <Select
             value={selectValue}
-            onChange={handleSelectChange}
+            onValueChange={handleSelectChange}
             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white cursor-pointer shadow-2xs"
           >
             {customFontName && customFontUrl && (
@@ -238,7 +238,7 @@ export const FontSelectorDropdown: React.FC<FontSelectorProps> = ({
                 📁 {language === 'id' ? '+ Unggah Font Kustom (.ttf, .otf, .woff)...' : '+ Upload Custom Font (.ttf, .otf, .woff)...'}
               </option>
             </optgroup>
-          </select>
+          </Select>
         </div>
 
         {/* Font Weight Dropdown */}
@@ -248,9 +248,9 @@ export const FontSelectorDropdown: React.FC<FontSelectorProps> = ({
             <span>{language === 'id' ? 'Ketebalan Font' : 'Font Weight'}</span>
           </label>
 
-          <select
+          <Select
             value={fontWeight || 'semibold'}
-            onChange={(e) => onFontChange({ fontWeight: e.target.value })}
+            onValueChange={(value) => onFontChange({ fontWeight: value })}
             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white cursor-pointer shadow-2xs"
           >
             {FONT_WEIGHTS.map((fw) => (
@@ -258,7 +258,7 @@ export const FontSelectorDropdown: React.FC<FontSelectorProps> = ({
                 {fw.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 

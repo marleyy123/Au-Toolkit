@@ -6,7 +6,7 @@ await build({
     contents: `import assert from 'node:assert/strict';
       import React from 'react';
       import {renderToStaticMarkup} from 'react-dom/server';
-      import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
+      import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
       import {INITIAL_WHATSAPP_CHAT_DATA} from './src/data/defaultTemplates';
       import {LanguageContext} from './src/context/LanguageContext';
       import {isSameWhatsAppSender, resolveWhatsAppGroupSenders} from './src/features/whatsapp/messageSenders';

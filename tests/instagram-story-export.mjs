@@ -8,7 +8,7 @@ const bundle = await build({
   stdin: {
     contents: `import React, {useRef, useLayoutEffect} from 'react';
       import {createRoot} from 'react-dom/client';
-      import {InstagramStoryPreview} from './src/features/instagram/components/InstagramStoryPreview';
+      import {InstagramStoryPreview} from './src/features/instagram/components/story/InstagramStoryPreview';
       import {INITIAL_INSTAGRAM_STORY_DATA} from './src/data/defaultTemplates';
       import {registerExportContext} from './src/export/exportContext';
       import {exportPreviewToImage} from './src/utils/exportUtils';

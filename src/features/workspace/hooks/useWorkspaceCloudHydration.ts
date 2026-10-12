@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import type { AuthLifecycleStage } from '../../auth/components/AppLoadingScreen';
+import type { AuthLifecycleStage } from '../../auth/components/access/AppLoadingScreen';
 import type { AUFolder, PlatformTab } from '../../../types';
 import {
   loadUserWorkspaceFromFirestore,
@@ -16,7 +16,7 @@ import {
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
 } from '../workspaceStorage';
-import type { CloudConnectionState } from '../components/CloudSyncIndicator';
+import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 import { persistUserAssets, readPersistentUserAssets } from '../../../utils/userAssets';
 
 type UseWorkspaceCloudHydrationArgs = {

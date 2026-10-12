@@ -7,8 +7,8 @@ const bundle = await build({
   stdin: { loader: 'tsx', resolveDir: process.cwd(), contents: `
     import React from 'react';
     import { createRoot } from 'react-dom/client';
-    import { AccessGuard } from './src/features/auth/components/AccessGuard';
-    import { PricingSection } from './src/features/landing/components/PricingSection';
+    import { AccessGuard } from './src/features/auth/components/access/AccessGuard';
+    import { PricingSection } from './src/features/landing/components/sections/PricingSection';
     createRoot(document.getElementById('root')).render(window.location.pathname === '/editor'
       ? <AccessGuard email="buyer@example.com" status="EXPIRED" statusAccount="Expired" onLogout={() => {}} />
       : <PricingSection />);

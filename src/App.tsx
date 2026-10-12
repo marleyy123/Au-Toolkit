@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AUFolder } from './types';
 import { DEFAULT_AVATAR } from './data/defaultTemplates';
 import { MobileFloatingPreview } from './components/MobileFloatingPreview';
-import { Login } from './features/auth/components/Login';
-import { AccountPasswordModal } from './features/auth/components/AccountPasswordModal';
+import { Login } from './features/auth/components/access/Login';
+import { AccountPasswordModal } from './features/auth/components/account/AccountPasswordModal';
 import {
   signInWithGoogle,
   getStoredAuthUser,
@@ -15,8 +15,8 @@ import {
   getDeviceFriendlyLabel,
   subscribeDeviceSlotSession,
 } from './utils/deviceAuthService';
-import { AccessGuard } from './features/auth/components/AccessGuard';
-import { AppLoadingScreen } from './features/auth/components/AppLoadingScreen';
+import { AccessGuard } from './features/auth/components/access/AccessGuard';
+import { AppLoadingScreen } from './features/auth/components/access/AppLoadingScreen';
 import { ThemeContext, UiTheme } from './context/ThemeContext';
 import { useLanguage } from './context/LanguageContext';
 import {
@@ -26,18 +26,18 @@ import {
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
 } from './features/workspace/workspaceStorage';
-import { WorkspaceFeedback } from './features/workspace/components/WorkspaceFeedback';
-import { AppHeader } from './features/workspace/components/AppHeader';
-import { PreviewExportPanel } from './features/workspace/components/PreviewExportPanel';
-import { EditorFormPanel } from './features/editor/components/EditorFormPanel';
-import { DeveloperAccessControls } from './features/admin/components/DeveloperAccessControls';
+import { WorkspaceFeedback } from './features/workspace/components/feedback/WorkspaceFeedback';
+import { AppHeader } from './features/workspace/components/header/AppHeader';
+import { PreviewExportPanel } from './features/workspace/components/preview/PreviewExportPanel';
+import { EditorFormPanel } from './features/editor/components/form/EditorFormPanel';
+import { DeveloperAccessControls } from './features/admin/components/access/DeveloperAccessControls';
 import { useTikTokFormHandlers } from './features/tiktok/hooks/useTikTokFormHandlers';
 import { useWhatsAppFormHandlers } from './features/whatsapp/hooks/useWhatsAppFormHandlers';
 import { useLineFormHandlers } from './features/line/hooks/useLineFormHandlers';
 import { useInstagramFormHandlers } from './features/instagram/hooks/useInstagramFormHandlers';
 import { useTwitterFormHandlers } from './features/twitter/hooks/useTwitterFormHandlers';
 import { usePreviewExport } from './features/editor/hooks/usePreviewExport';
-import { PreparedImageDialog } from './features/editor/components/PreparedImageDialog';
+import { PreparedImageDialog } from './features/editor/components/export/PreparedImageDialog';
 import { usePreviewViewport } from './features/editor/hooks/usePreviewViewport';
 import { useWorkspaceFolders } from './features/workspace/hooks/useWorkspaceFolders';
 import { useWorkspaceAutoSaveProtection } from './features/workspace/hooks/useWorkspaceAutoSaveProtection';

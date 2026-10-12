@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { MutableRefObject } from 'react';
 import type { AUFolder, PlatformTab } from '../../../types';
 import { auth, loadUserWorkspaceFromFirestore } from '../../../firebase';
-import type { CloudConnectionState } from '../components/CloudSyncIndicator';
+import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 import {
   getFormStorageKey,
   getModuleFoldersKey,

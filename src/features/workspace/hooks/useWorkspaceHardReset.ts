@@ -7,7 +7,7 @@ import {
   clearWorkspaceFingerprintCache,
   saveUserWorkspaceToFirestore,
 } from '../../../firebase';
-import type { CloudConnectionState } from '../components/CloudSyncIndicator';
+import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 import {
   ALL_PLATFORM_TABS,
   STORAGE_RESET_KEY,

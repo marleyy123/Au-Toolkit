@@ -6,8 +6,8 @@ import { chromium } from 'playwright-core';
 const bundle = await build({ stdin: { loader: 'tsx', resolveDir: process.cwd(), contents: `
   import React from 'react';
   import {createRoot} from 'react-dom/client';
-  import {AppLoadingScreen} from './src/features/auth/components/AppLoadingScreen';
-  import {AccessGuard} from './src/features/auth/components/AccessGuard';
+  import {AppLoadingScreen} from './src/features/auth/components/access/AppLoadingScreen';
+  import {AccessGuard} from './src/features/auth/components/access/AccessGuard';
   import {ErrorBoundary} from './src/components/ErrorBoundary';
   const params = new URLSearchParams(location.search);
   const view = params.get('view'), language = params.get('language') || 'en', uiTheme = params.get('theme') || 'light';

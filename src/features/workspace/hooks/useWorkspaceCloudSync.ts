@@ -5,7 +5,7 @@ import {
   isFirestoreQuotaExhausted,
   saveUserWorkspaceToFirestore,
 } from '../../../firebase';
-import type { CloudConnectionState } from '../components/CloudSyncIndicator';
+import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 import { clearPendingCloudSync } from '../workspaceStorage';
 
 type UseWorkspaceCloudSyncArgs = {

@@ -14,7 +14,7 @@ const bundle = await build({
     import { createRoot } from 'react-dom/client';
     import { useWorkspaceCloudHydration } from './src/features/workspace/hooks/useWorkspaceCloudHydration';
     import { useAuthGateActions } from './src/features/auth/hooks/useAuthGateActions';
-    import { AccessGuard } from './src/features/auth/components/AccessGuard';
+    import { AccessGuard } from './src/features/auth/components/access/AccessGuard';
     const user = { uid: 'test-user', email: 'buyer@example.com' };
     const noop = () => {};
     function Harness() {

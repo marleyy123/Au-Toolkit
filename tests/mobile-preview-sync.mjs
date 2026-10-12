@@ -7,9 +7,9 @@ import {chromium,webkit} from 'playwright-core';
 const bundle=await build({stdin:{contents:`
   import React,{useState,useRef,useLayoutEffect} from 'react';
   import {createRoot} from 'react-dom/client';
-  import {WhatsAppChatForm} from './src/features/whatsapp/components/WhatsAppChatForm';
-  import {InstagramProfileForm} from './src/features/instagram/components/InstagramProfileForm';
-  import {InstagramStoryReplyForm} from './src/features/instagram/components/InstagramStoryReplyForm';
+  import {WhatsAppChatForm} from './src/features/whatsapp/components/whatsappChat/whatsappChatForm/WhatsAppChatForm';
+  import {InstagramProfileForm} from './src/features/instagram/components/profile/InstagramProfileForm';
+  import {InstagramStoryReplyForm} from './src/features/instagram/components/storyReply/InstagramStoryReplyForm';
   import {PreviewRegistry} from './src/export/PreviewRegistry';
   import {MobileFloatingPreview} from './src/components/MobileFloatingPreview';
   import {INITIAL_WHATSAPP_CHAT_DATA,INITIAL_INSTAGRAM_PROFILE_DATA,INITIAL_INSTAGRAM_STORY_REPLY_DATA} from './src/data/defaultTemplates';

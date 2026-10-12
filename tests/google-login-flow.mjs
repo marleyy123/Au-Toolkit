@@ -9,7 +9,7 @@ const bundle = await build({
   stdin: {
     contents: `import React from 'react';
       import { createRoot } from 'react-dom/client';
-      import { Login } from './src/features/auth/components/Login';
+      import { Login } from './src/features/auth/components/access/Login';
       window.calls = [];
       createRoot(document.getElementById('root')).render(<Login
         onLoginSuccess={(email) => window.calls.push({event: 'allowed', email})}

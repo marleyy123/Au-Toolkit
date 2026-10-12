@@ -7,7 +7,7 @@ import {chromium} from 'playwright-core';
 const bundle = await build({stdin: {contents: `
   import React from 'react';
   import {createRoot} from 'react-dom/client';
-  import {AppHeader} from './src/features/workspace/components/AppHeader';
+  import {AppHeader} from './src/features/workspace/components/header/AppHeader';
   const noop=()=>{};
   const params=new URLSearchParams(location.search);
   createRoot(document.getElementById('root')).render(<AppHeader

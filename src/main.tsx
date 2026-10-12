@@ -1,7 +1,7 @@
 import {StrictMode, lazy, Suspense} from 'react';
 import {createRoot} from 'react-dom/client';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { AppLoadingScreen } from './features/auth/components/AppLoadingScreen';
+import { AppLoadingScreen } from './features/auth/components/access/AppLoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LegalPage } from './components/LegalPage';
 import { ExportRenderPage } from './export/ExportRenderPage';
