@@ -12,6 +12,7 @@ import type { ChatMessageEditorProps } from './whatsAppChatFormTypes';
 import { WhatsAppChatReplyQuoteEditor } from './WhatsAppChatReplyQuoteEditor';
 import { SAMPLE_STICKERS } from './whatsAppChatFormConstants';
 import { WhatsAppContactControls } from './WhatsAppContactControls';
+import { hasWhatsAppReplyQuote, clearedWhatsAppReplyQuote } from '../../../replyQuote';
 
 interface Props extends ChatMessageEditorProps {
   openSenderNameIds: Record<string, boolean>;
@@ -41,7 +42,7 @@ export const WhatsAppChatMessageEditor: React.FC<Props> = ({ data, onChange, msg
   const labelColorClass = isEditorDark ? 'text-slate-300' : 'text-slate-700';
   const hasSenderName = Boolean(msg.senderName?.trim());
   const isSenderNameChecked = openSenderNameIds[msg.id] ?? hasSenderName;
-  const hasReplyQuote = Boolean(msg.showReplyQuote || msg.replyToSender?.trim() || msg.replyToText?.trim());
+  const hasReplyQuote = hasWhatsAppReplyQuote(msg);
   const isReplyQuoteChecked = openReplyBoxIds[msg.id] ?? hasReplyQuote;
 
   return (
@@ -226,7 +227,7 @@ export const WhatsAppChatMessageEditor: React.FC<Props> = ({ data, onChange, msg
                 setOpenReplyBoxIds((prev) => ({ ...prev, [msg.id]: checked }));
                 handleUpdateMessage(index, checked
                   ? { showReplyQuote: true }
-                  : { showReplyQuote: false, replyToMessageId: '', replyToSender: '', replyToText: '' });
+                  : { ...clearedWhatsAppReplyQuote(), showReplyQuote: false });
               }}
               className="rounded text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer w-3.5 h-3.5"
             />

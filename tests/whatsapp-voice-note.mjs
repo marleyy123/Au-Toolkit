@@ -189,10 +189,71 @@ try {
     const contactExport = await page.evaluate(format => window.exportContact(format),format);
     assert(contactExport.success && contactExport.dataUrl.startsWith('data:image/'+format), 'Contact '+format+' export must succeed');
   }
+  await page.evaluate(() => window.setTestLanguage('en'));
+  await replyEditor.getByRole('group',{name:'Reply type',exact:true}).getByRole('button',{name:'Status',exact:true}).click();
+  await replyEditor.getByLabel('Status owner name',{exact:true}).fill('You');
+  await replyEditor.getByLabel('Status caption',{exact:true}).fill('contoh');
+  await replyEditor.getByLabel('Show photo icon',{exact:true}).check();
+  await page.evaluate(() => {
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=64;
+    const context=canvas.getContext('2d');context.fillStyle='#de329b';context.fillRect(0,0,64,64);
+    context.fillStyle='#fff';context.fillRect(10,10,44,12);
+    window.update({messages:window.data.messages.map((message,index)=>index===2?{...message,statusReplyImage:canvas.toDataURL()}:message)});
+  });
+  const statusQuote=page.locator('[data-status-reply]');
+  assert.equal(await statusQuote.count(),1);
+  assert((await statusQuote.textContent()).includes('You'));
+  assert((await statusQuote.textContent()).includes('contoh'));
+  assert.equal(await statusQuote.locator('[data-status-thumbnail]').count(),1);
+  assert.equal(await statusQuote.locator('[data-status-media-icon]').count(),1);
+  await replyEditor.getByRole('group',{name:'Reply type',exact:true}).getByRole('button',{name:'Message',exact:true}).click();
+  assert.equal(await statusQuote.count(),0);
+  assert.equal(await page.evaluate(()=>window.data.messages.at(-1).replyToText),contactName);
+  await replyEditor.getByRole('group',{name:'Reply type',exact:true}).getByRole('button',{name:'Status',exact:true}).click();
+  await page.reload();await statusQuote.waitFor();
+  assert.equal(await replyEditor.getByLabel('Status caption',{exact:true}).inputValue(),'contoh');
+  const savedStatus=await page.evaluate(()=>window.data.messages.at(-1));
+  await replyEditor.getByRole('button',{name:'Clear Quote',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>{
+    const message=window.data.messages.at(-1);
+    return [message.replyType,message.statusReplyName,message.statusReplyCaption,message.statusReplyImage,message.replyToMessageId,message.showMediaIndicator];
+  }),['message','','','','',false]);
+  assert.equal(await statusQuote.count(),0);
+  await page.evaluate(savedStatus=>window.update({messages:window.data.messages.map((message,index)=>index===2?savedStatus:message)}),savedStatus);
+  await replyEditor.getByLabel('Reply Quote Box',{exact:true}).uncheck();
+  assert.equal(await statusQuote.count(),0);
+  assert.equal(await page.evaluate(()=>window.data.messages.at(-1).statusReplyImage),'');
+  await page.evaluate(savedStatus=>window.update({messages:[
+    {...savedStatus,id:'status-incoming',sender:'incoming',text:'Received message',replyToText:'',replyToSender:''},
+    {...savedStatus,id:'status-outgoing',sender:'outgoing',text:'Reply to status',replyToText:'',replyToSender:'',statusReplyName:'Long status owner '.repeat(8),statusReplyCaption:'Long caption '.repeat(20)},
+  ]}),savedStatus);
+  for(const theme of ['light','dark']){
+    await page.evaluate(theme=>window.update({theme}),theme);
+    for(const width of [1000,390,320]){
+      await page.setViewportSize({width,height:900});
+      assert.equal(await statusQuote.count(),2);
+      for(const element of await statusQuote.all()){
+        assert.equal(await element.evaluate(element=>element.scrollWidth<=element.clientWidth+1),true,'Status quote must fit its bubble');
+        const thumbnail=await element.locator('[data-status-thumbnail]').boundingBox();
+        assert.equal(thumbnail.width,48);assert.equal(thumbnail.height,48);
+      }
+      await page.locator('[data-preview-canvas]').screenshot({path:join(tmpdir(),'au-status-reply-'+theme+'-'+width+'.png')});
+    }
+  }
+  await page.evaluate(()=>window.update({messages:window.data.messages.map(message=>({...message,statusReplyImage:'',showMediaIndicator:false}))}));
+  assert.equal(await statusQuote.locator('[data-status-thumbnail]').count(),0);
+  assert.equal(await statusQuote.locator('[data-status-media-icon]').count(),0);
+  await page.evaluate(()=>window.setTestLanguage('id'));
+  assert.equal(await page.getByLabel('Nama pemilik status',{exact:true}).count(),2);
+  for(const format of ['png','jpeg']){
+    const exported=await page.evaluate(format=>window.exportContact(format),format);
+    assert(exported.success&&exported.dataUrl.startsWith('data:image/'+format),'Status reply '+format+' export must succeed');
+  }
   assert.deepEqual(errors,[]);
   console.log('PASS WhatsApp form: VN controls/persistence/export, light/dark/mobile, divider add/reorder/delete, system notice, reply selection/clear, custom theme save/reload/delete');
   console.log(`Screenshots: ${join(tmpdir(),'au-vn-light.png')}, ${join(tmpdir(),'au-vn-dark.png')}, ${join(tmpdir(),'au-vn-mobile.png')}`);
   console.log('PASS contact cards: incoming/outgoing, name/phone/avatar, registered/invite, recall/restore, reload, quote, ID/EN, light/dark/mobile, PNG/JPEG export');
+  console.log('PASS status replies: message/status switching, owner/caption/thumbnail/icon, drafts/reload, clear/disable, incoming/outgoing, long text, light/dark/320px, ID/EN, PNG/JPEG export');
 } finally {
   await browser?.close();
   if (server) await new Promise(resolve => server.close(resolve));

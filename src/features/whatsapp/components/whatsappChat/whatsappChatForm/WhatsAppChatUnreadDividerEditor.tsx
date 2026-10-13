@@ -109,10 +109,10 @@ export const WhatsAppChatUnreadDividerEditor: React.FC<ChatMessageEditorProps> =
         {/* Unread Divider Gap Slider inside Card Container */}
         <div className="pt-2.5 mt-2.5 border-t border-purple-200 dark:border-purple-800/70 space-y-1.5">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-black dark:text-black text-xs">
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
               {isId ? 'Unread Divider Gap (Spasi Atas/Bawah)' : 'Unread Divider Gap (Top/Bottom Spacing)'}
             </span>
-            <span className="font-mono text-black dark:text-black bg-slate-100 dark:bg-slate-200 px-2 py-0.5 rounded font-bold text-xs border border-slate-300 dark:border-slate-400 shadow-none">
+            <span className="font-mono text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-200 px-2 py-0.5 rounded font-bold text-xs border border-slate-300 dark:border-slate-400 shadow-none">
               {msg.unreadDividerGap ?? data.unreadDividerGap ?? 14}px
             </span>
           </div>
@@ -134,7 +134,7 @@ export const WhatsAppChatUnreadDividerEditor: React.FC<ChatMessageEditorProps> =
             }}
             className="w-full accent-purple-600 cursor-pointer"
           />
-          <p className="text-[11px] font-medium text-black dark:text-black">
+          <p className="text-[11px] font-medium text-slate-900 dark:text-slate-100">
             {isId ? 'Jarak spasi vertikal atas & bawah simetris di sekitar divider' : 'Symmetrical vertical spacing above and below this divider'}
           </p>
         </div>

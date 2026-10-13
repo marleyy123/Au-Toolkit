@@ -3,6 +3,9 @@ import React from 'react';
 import { toHexForPicker } from '../../../../../utils/colorUtils';
 import { useLanguage } from '../../../../../context/LanguageContext';
 import type { ChatMessageEditorProps } from './whatsAppChatFormTypes';
+import { WhatsAppStatusReplyControls } from './WhatsAppStatusReplyControls';
+import { clearedWhatsAppReplyQuote, hasWhatsAppReplyQuote } from '../../../replyQuote';
+import { MessageSquare, Image as ImageIcon } from 'lucide-react';
 interface Props extends ChatMessageEditorProps {
   isDarkTheme: boolean;
   innerBoxClass: string;
@@ -16,16 +19,36 @@ export const WhatsAppChatReplyQuoteEditor: React.FC<Props> = ({ data, msg, index
         <span className={`text-[11px] font-bold block ${isDarkTheme ? 'text-slate-200' : 'text-slate-700'}`}>
           Reply Quote Box
         </span>
-        {(msg.showReplyQuote || msg.replyToSender || msg.replyToText) && (
+        {hasWhatsAppReplyQuote(msg) && (
           <button
             type="button"
-            onClick={() => handleUpdateMessage(index, { replyToMessageId: '', replyToSender: '', replyToText: '' })}
+            onClick={() => handleUpdateMessage(index, clearedWhatsAppReplyQuote())}
             className="text-[10px] text-rose-500 hover:text-rose-400 font-semibold cursor-pointer"
           >
             Clear Quote
           </button>
         )}
       </div>
+
+      <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <span className="text-[11px] font-semibold">{isId ? 'Tipe balasan' : 'Reply type'}</span>
+        <div className="flex rounded-md border border-slate-200 dark:border-slate-700 p-0.5 gap-0.5" role="group" aria-label={isId ? 'Tipe balasan' : 'Reply type'}>
+          {(['message', 'status'] as const).map(type => (
+            <button key={type} type="button" aria-pressed={(msg.replyType || 'message') === type}
+              onClick={() => handleUpdateMessage(index, { replyType: type, showReplyQuote: true })}
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] rounded cursor-pointer ${(msg.replyType || 'message') === type ? 'bg-purple-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+              {type === 'message' ? <MessageSquare size={12} /> : <ImageIcon size={12} />}
+              {type === 'status' ? 'Status' : isId ? 'Pesan' : 'Message'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {msg.replyType === 'status' ? (
+        <WhatsAppStatusReplyControls message={msg} inputClass={singleLineInputClass}
+          onChange={patch => handleUpdateMessage(index, { ...patch, replyType: 'status', showReplyQuote: true })} />
+      ) : (
+      <>
 
       {/* Dropdown to Pick from Existing Messages in Chat */}
       <div>
@@ -53,6 +76,7 @@ export const WhatsAppChatReplyQuoteEditor: React.FC<Props> = ({ data, msg, index
                 : (targetMsg.imageUrl ? (isId ? '📷 Foto' : '📷 Photo') : targetMsg.stickerUrl ? (isId ? '🌟 Stiker' : '🌟 Sticker') : '');
               handleUpdateMessage(index, {
                 showReplyQuote: true,
+                replyType: 'message',
                 replyToMessageId: targetMsg.id,
                 replyToSender: senderLabel,
                 replyToText: textPreview,
@@ -178,6 +202,8 @@ export const WhatsAppChatReplyQuoteEditor: React.FC<Props> = ({ data, msg, index
           ))}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

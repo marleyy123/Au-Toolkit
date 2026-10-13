@@ -1,6 +1,7 @@
 @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *):not([data-preview-canvas], [data-preview-canvas] *));
 
 .au-select-trigger {
   display: inline-flex;
@@ -207,100 +208,100 @@ body.dark,
    are crisp pure white or clean light slate, with ZERO residual dark tones
    and ZERO unwanted shadow effects.
    ========================================================================== */
-html:not(.dark) #customization-panel,
-html:not(.dark) .customization-editor-panel {
+html:not(.dark) #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: transparent !important;
 }
 
 /* Remove all shadows in editor in light mode */
-html:not(.dark) #customization-panel *,
-html:not(.dark) .customization-editor-panel * {
+html:not(.dark) #customization-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   box-shadow: none !important;
 }
 
 /* Primary cards in light mode */
-html:not(.dark) #customization-panel .bg-white,
-html:not(.dark) .customization-editor-panel .bg-white,
-html:not(.dark) #customization-panel [class*="bg-white"],
-html:not(.dark) .customization-editor-panel [class*="bg-white"],
-html:not(.dark) #customization-panel .theme-panel-card,
-html:not(.dark) .customization-editor-panel .theme-panel-card {
+html:not(.dark) #customization-panel .bg-white:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .bg-white:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
 /* Sub-panels, inner boxes, quote cards, and secondary wrappers in light mode */
-html:not(.dark) #customization-panel [class*="bg-slate-50"],
-html:not(.dark) #customization-panel [class*="bg-slate-100"],
-html:not(.dark) #customization-panel [class*="bg-gray-50"],
-html:not(.dark) #customization-panel [class*="bg-gray-100"],
-html:not(.dark) #customization-panel [class*="bg-zinc-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-slate-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-slate-100"],
-html:not(.dark) .customization-editor-panel [class*="bg-gray-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-gray-100"],
-html:not(.dark) .customization-editor-panel [class*="bg-zinc-50"] {
+html:not(.dark) #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #f8fafc !important; /* clean light slate-50 */
   border-color: #e2e8f0 !important;
   color: #1e293b !important;
 }
 
 /* Override any accidental dark background classes in editor when in Light mode */
-html:not(.dark) #customization-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-slate-950"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-zinc-900"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-zinc-800"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-950"]:not(button):not([role="button"]) {
+html:not(.dark) #customization-panel [class*="bg-slate-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-950"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-950"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
-html:not(.dark) #customization-panel [class*="bg-purple-950"],
-html:not(.dark) .customization-editor-panel [class*="bg-purple-950"] {
+html:not(.dark) #customization-panel [class*="bg-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #faf5ff !important;
   border-color: #e9d5ff !important;
   color: #581c87 !important;
 }
 
 /* Text colors in light mode */
-html:not(.dark) #customization-panel label,
-html:not(.dark) #customization-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
-html:not(.dark) #customization-panel h4,
-html:not(.dark) .customization-editor-panel label,
-html:not(.dark) .customization-editor-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
-html:not(.dark) .customization-editor-panel h4 {
+html:not(.dark) #customization-panel label:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel h4:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel label:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel h4:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #0f172a !important;
 }
 
-html:not(.dark) #customization-panel .text-slate-800,
-html:not(.dark) #customization-panel .text-slate-900,
-html:not(.dark) .customization-editor-panel .text-slate-800,
-html:not(.dark) .customization-editor-panel .text-slate-900 {
+html:not(.dark) #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #0f172a !important;
 }
 
 /* Form inputs, textareas, selects in light mode */
-html:not(.dark) #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html:not(.dark) .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html:not(.dark) #customization-panel textarea,
-html:not(.dark) .customization-editor-panel textarea,
-html:not(.dark) #customization-panel select,
-html:not(.dark) .customization-editor-panel select {
+html:not(.dark) #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: none !important;
 }
 
-html:not(.dark) #customization-panel input::placeholder,
-html:not(.dark) .customization-editor-panel input::placeholder,
-html:not(.dark) #customization-panel textarea::placeholder,
-html:not(.dark) .customization-editor-panel textarea::placeholder {
+html:not(.dark) #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder {
   color: #94a3b8 !important;
 }
 
@@ -309,257 +310,257 @@ html:not(.dark) .customization-editor-panel textarea::placeholder {
    When master global theme is Dark, all container cards, input panels,
    wrapper boxes, and theme controls switch seamlessly to dark tones.
    ========================================================================== */
-html.dark .customization-editor-panel,
-.dark .customization-editor-panel,
-html.dark #customization-panel,
-.dark #customization-panel {
+html.dark .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #0b1120 !important;
 }
 
 /* Remove shadows in dark mode */
-html.dark #customization-panel *,
-html.dark .customization-editor-panel * {
+html.dark #customization-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   box-shadow: none !important;
 }
 
-html.dark #customization-panel [class*="bg-white"],
-.dark #customization-panel [class*="bg-white"],
-html.dark .customization-editor-panel [class*="bg-white"],
-.dark .customization-editor-panel [class*="bg-white"],
-html.dark [role="dialog"] [class*="bg-white"],
-.dark [role="dialog"] [class*="bg-white"],
-html.dark .editor-modal [class*="bg-white"],
-.dark .editor-modal [class*="bg-white"],
-html.dark .theme-panel-card,
-.dark .theme-panel-card {
+html.dark #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .editor-modal [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .editor-modal [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #0f172a !important; /* slate-900 */
   border-color: #1e293b !important; /* slate-800 */
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel [class*="bg-slate-50"],
-html.dark #customization-panel [class*="bg-gray-50"],
-html.dark #customization-panel [class*="bg-zinc-50"],
-.dark #customization-panel [class*="bg-slate-50"],
-.dark #customization-panel [class*="bg-gray-50"],
-.dark #customization-panel [class*="bg-zinc-50"],
-html.dark .customization-editor-panel [class*="bg-slate-50"],
-html.dark .customization-editor-panel [class*="bg-gray-50"],
-html.dark .customization-editor-panel [class*="bg-zinc-50"],
-.dark .customization-editor-panel [class*="bg-slate-50"],
-.dark .customization-editor-panel [class*="bg-gray-50"],
-.dark .customization-editor-panel [class*="bg-zinc-50"],
-html.dark #customization-panel [class*="bg-slate-100"],
-html.dark #customization-panel [class*="bg-gray-100"],
-html.dark #customization-panel [class*="bg-zinc-100"],
-.dark #customization-panel [class*="bg-slate-100"],
-.dark #customization-panel [class*="bg-gray-100"],
-.dark #customization-panel [class*="bg-zinc-100"],
-html.dark .customization-editor-panel [class*="bg-slate-100"],
-html.dark .customization-editor-panel [class*="bg-gray-100"],
-html.dark .customization-editor-panel [class*="bg-zinc-100"],
-.dark .customization-editor-panel [class*="bg-slate-100"],
-.dark .customization-editor-panel [class*="bg-gray-100"],
-.dark .customization-editor-panel [class*="bg-zinc-100"] {
+html.dark #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important; /* slate-800 */
   border-color: #334155 !important; /* slate-700 */
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel .text-slate-900,
-html.dark #customization-panel .text-slate-800,
-html.dark #customization-panel .text-slate-700,
-html.dark #customization-panel .text-gray-900,
-html.dark #customization-panel .text-gray-800,
-html.dark #customization-panel .text-gray-700,
-html.dark #customization-panel .text-zinc-900,
-html.dark #customization-panel .text-zinc-800,
-.dark #customization-panel .text-slate-900,
-.dark #customization-panel .text-slate-800,
-.dark #customization-panel .text-slate-700,
-.dark #customization-panel .text-gray-900,
-.dark #customization-panel .text-gray-800,
-html.dark .customization-editor-panel .text-slate-900,
-html.dark .customization-editor-panel .text-slate-800,
-html.dark .customization-editor-panel .text-slate-700,
-html.dark .customization-editor-panel .text-gray-900,
-html.dark .customization-editor-panel .text-gray-800,
-html.dark .customization-editor-panel .text-gray-700,
-html.dark .customization-editor-panel .text-zinc-900,
-html.dark .customization-editor-panel .text-zinc-800,
-.dark .customization-editor-panel .text-slate-900,
-.dark .customization-editor-panel .text-slate-800,
-.dark .customization-editor-panel .text-slate-700,
-.dark .customization-editor-panel .text-gray-900,
-.dark .customization-editor-panel .text-gray-800,
-html.dark [role="dialog"] .text-slate-900,
-html.dark [role="dialog"] .text-slate-800,
-.dark [role="dialog"] .text-slate-900,
-.dark [role="dialog"] .text-slate-800 {
+html.dark #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-zinc-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-zinc-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-zinc-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-zinc-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #f8fafc !important; /* high contrast white */
 }
 
-html.dark #customization-panel .text-slate-600,
-html.dark #customization-panel .text-slate-500,
-html.dark #customization-panel .text-gray-600,
-html.dark #customization-panel .text-gray-500,
-.dark #customization-panel .text-slate-600,
-.dark #customization-panel .text-slate-500,
-html.dark .customization-editor-panel .text-slate-600,
-html.dark .customization-editor-panel .text-slate-500,
-html.dark .customization-editor-panel .text-gray-600,
-html.dark .customization-editor-panel .text-gray-500,
-.dark .customization-editor-panel .text-slate-600,
-.dark .customization-editor-panel .text-slate-500 {
+html.dark #customization-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #cbd5e1 !important; /* slate-300 */
 }
 
-html.dark #customization-panel .text-slate-400,
-html.dark #customization-panel .text-gray-400,
-.dark #customization-panel .text-slate-400,
-html.dark .customization-editor-panel .text-slate-400,
-html.dark .customization-editor-panel .text-gray-400,
-.dark .customization-editor-panel .text-slate-400 {
+html.dark #customization-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #94a3b8 !important; /* slate-400 */
 }
 
-html.dark #customization-panel [class*="border-slate-200"],
-html.dark #customization-panel [class*="border-slate-300"],
-html.dark #customization-panel [class*="border-gray-200"],
-html.dark #customization-panel [class*="border-slate-100"],
-html.dark #customization-panel [class*="border-gray-100"],
-.dark #customization-panel [class*="border-slate-200"],
-.dark #customization-panel [class*="border-slate-300"],
-.dark #customization-panel [class*="border-gray-200"],
-.dark #customization-panel [class*="border-slate-100"],
-html.dark .customization-editor-panel [class*="border-slate-200"],
-html.dark .customization-editor-panel [class*="border-slate-300"],
-html.dark .customization-editor-panel [class*="border-gray-200"],
-html.dark .customization-editor-panel [class*="border-slate-100"],
-html.dark .customization-editor-panel [class*="border-gray-100"],
-.dark .customization-editor-panel [class*="border-slate-200"],
-.dark .customization-editor-panel [class*="border-slate-300"],
-.dark .customization-editor-panel [class*="border-gray-200"],
-.dark .customization-editor-panel [class*="border-slate-100"] {
+html.dark #customization-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   border-color: #334155 !important; /* slate-700 */
 }
 
 /* Form Inputs, Textareas, Selects in Dark Mode (Strictly inside editor panel & dialogs) */
-html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark #customization-panel select,
-.dark #customization-panel select,
-html.dark .customization-editor-panel select,
-.dark .customization-editor-panel select,
-html.dark [role="dialog"] select,
-.dark [role="dialog"] select,
-html.dark #customization-panel textarea,
-.dark #customization-panel textarea,
-html.dark .customization-editor-panel textarea,
-.dark .customization-editor-panel textarea,
-html.dark [role="dialog"] textarea,
-.dark [role="dialog"] textarea {
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-html.dark #customization-panel select:focus,
-.dark #customization-panel select:focus,
-html.dark .customization-editor-panel select:focus,
-.dark .customization-editor-panel select:focus,
-html.dark #customization-panel textarea:focus,
-.dark #customization-panel textarea:focus,
-html.dark .customization-editor-panel textarea:focus,
-.dark .customization-editor-panel textarea:focus,
-html.dark #customization-panel [class*="focus:bg-white"]:focus,
-.dark #customization-panel [class*="focus:bg-white"]:focus,
-html.dark .customization-editor-panel [class*="focus:bg-white"]:focus,
-.dark .customization-editor-panel [class*="focus:bg-white"]:focus {
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #a855f7 !important;
   box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4) !important;
 }
 
-html.dark #customization-panel select option,
-.dark #customization-panel select option,
-html.dark .customization-editor-panel select option,
-.dark .customization-editor-panel select option {
+html.dark #customization-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel input::placeholder,
-.dark #customization-panel input::placeholder,
-html.dark .customization-editor-panel input::placeholder,
-.dark .customization-editor-panel input::placeholder,
-html.dark #customization-panel textarea::placeholder,
-.dark #customization-panel textarea::placeholder,
-html.dark .customization-editor-panel textarea::placeholder,
-.dark .customization-editor-panel textarea::placeholder {
+html.dark #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder {
   color: #64748b !important;
 }
 
-html.dark #customization-panel input[type="checkbox"],
-.dark #customization-panel input[type="checkbox"],
-html.dark .customization-editor-panel input[type="checkbox"],
-.dark .customization-editor-panel input[type="checkbox"],
-html.dark #customization-panel input[type="radio"],
-.dark #customization-panel input[type="radio"],
-html.dark .customization-editor-panel input[type="radio"],
-.dark .customization-editor-panel input[type="radio"] {
+html.dark #customization-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #475569 !important;
   accent-color: #9333ea !important;
 }
 
-html.dark #customization-panel [class*="bg-purple-50"],
-.dark #customization-panel [class*="bg-purple-50"],
-html.dark .customization-editor-panel [class*="bg-purple-50"],
-.dark .customization-editor-panel [class*="bg-purple-50"],
-html.dark #customization-panel [class*="bg-purple-100"],
-.dark #customization-panel [class*="bg-purple-100"],
-html.dark .customization-editor-panel [class*="bg-purple-100"],
-.dark .customization-editor-panel [class*="bg-purple-100"] {
+html.dark #customization-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: rgba(147, 51, 234, 0.15) !important;
   border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
-html.dark #customization-panel [class*="border-purple-200"],
-.dark #customization-panel [class*="border-purple-200"],
-html.dark .customization-editor-panel [class*="border-purple-200"],
-.dark .customization-editor-panel [class*="border-purple-200"],
-html.dark #customization-panel [class*="border-purple-300"],
-.dark #customization-panel [class*="border-purple-300"],
-html.dark .customization-editor-panel [class*="border-purple-300"],
-.dark .customization-editor-panel [class*="border-purple-300"] {
+html.dark #customization-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
-html.dark #customization-panel [class*="text-purple-950"],
-.dark #customization-panel [class*="text-purple-950"],
-html.dark .customization-editor-panel [class*="text-purple-950"],
-.dark .customization-editor-panel [class*="text-purple-950"],
-html.dark #customization-panel [class*="text-purple-900"],
-.dark #customization-panel [class*="text-purple-900"],
-html.dark .customization-editor-panel [class*="text-purple-900"],
-.dark .customization-editor-panel [class*="text-purple-900"],
-html.dark #customization-panel [class*="text-purple-800"],
-.dark #customization-panel [class*="text-purple-800"],
-html.dark .customization-editor-panel [class*="text-purple-800"],
-.dark .customization-editor-panel [class*="text-purple-800"],
-html.dark #customization-panel [class*="text-purple-700"],
-.dark #customization-panel [class*="text-purple-700"],
-html.dark .customization-editor-panel [class*="text-purple-700"],
-.dark .customization-editor-panel [class*="text-purple-700"] {
+html.dark #customization-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #e9d5ff !important;
 }
 
@@ -747,8 +748,12 @@ button.btn-locked-amber svg {
   background-color: var(--au-editor-panel) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50):not([data-preview-canvas] *) {
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50, .bg-slate-50\/50, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-50\/90):not([data-preview-canvas] *) {
   background-color: var(--au-editor-soft) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-50, .bg-purple-100):not([data-preview-canvas] *) {
+  background-color: color-mix(in srgb, var(--au-editor-accent) 8%, var(--au-editor-panel)) !important;
 }
 
 .au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is([class*="border-slate-"], [class*="border-gray-"], [class*="border-zinc-"]):not([data-preview-canvas] *) {

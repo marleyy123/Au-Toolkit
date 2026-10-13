@@ -383,6 +383,11 @@ export interface WhatsAppChatMessage {
   replyToSender?: string;
   replyBarColor?: string;
   replySenderColor?: string;
+  replyType?: 'message' | 'status';
+  statusReplyName?: string;
+  statusReplyCaption?: string;
+  statusReplyImage?: string;
+  showMediaIndicator?: boolean;
   unreadDividerStyle?: 'pill' | 'banner';
   unreadDividerBgColor?: string;
   unreadDividerTextColor?: string;

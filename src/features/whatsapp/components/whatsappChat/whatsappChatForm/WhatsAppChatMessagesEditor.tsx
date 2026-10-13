@@ -127,7 +127,7 @@ export const WhatsAppChatMessagesEditor: React.FC<ChatSectionProps> = ({ data, o
               };
               updateField('messages', [...(data.messages || []), newMessage]);
             }}
-            className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-purple-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center space-x-1 shadow-xs cursor-pointer"
+            className="px-2.5 py-1.5 bg-amber-700 hover:bg-amber-800 active:bg-purple-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center space-x-1 shadow-xs cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>{isId ? 'Pesan Sistem (Blocked)' : 'System Notice'}</span>
