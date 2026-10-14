@@ -376,6 +376,26 @@ function computeFingerprint(data: any): string {
   }
 }
 
+function getRootWorkspaceComparable(workspaceData: any): any {
+  return {
+    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
+    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
+    preferences: workspaceData?.preferences || {},
+    activeFolderIds: workspaceData?.activeFolderIds || {},
+    userAssets: workspaceData?.userAssets || {},
+  };
+}
+
+function getFolderComparable(folder: any, tabKey: string, fallbackOrder: number): any {
+  return removeUndefinedDeep({
+    id: folder?.id || '',
+    name: folder?.name || `Folder ${fallbackOrder}`,
+    data: folder?.data || folder?.profileData || null,
+    order: typeof folder?.order === 'number' ? folder.order : fallbackOrder,
+    tabKey,
+  });
+}
+
 // Cache of saved document fingerprints to enable differential writes (reduces writes by >90%)
 const savedTabFingerprints = new Map<string, string>();
 const savedFolderFingerprints = new Map<string, string>();
@@ -542,13 +562,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     const operations: BatchOp[] = [];
 
     // 1. Root Workspace Document check (Strictly partitioned metadata only, no bulk tab data)
-    const rootComparable = {
-      lastActiveTab: workspaceData.lastActiveTab || 'twitter',
-      lastActiveCategory: workspaceData.lastActiveCategory || 'social-feed',
-      preferences: workspaceData.preferences || {},
-      activeFolderIds: workspaceData.activeFolderIds || {},
-      userAssets: workspaceData.userAssets || {},
-    };
+    const rootComparable = getRootWorkspaceComparable(workspaceData);
     const rootFingerprint = computeFingerprint(rootComparable);
 
     if (rootFingerprint !== savedRootFingerprint) {
@@ -628,13 +642,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         const folder = tabFoldersList[idx];
         if (!folder || !folder.id) continue;
         const cleanFolderId = folder.id;
-        const folderComparable = removeUndefinedDeep({
-          id: cleanFolderId,
-          name: folder.name || `Folder ${idx + 1}`,
-          data: folder.data || null,
-          order: typeof folder.order === 'number' ? folder.order : idx + 1,
-          tabKey,
-        });
+        const folderComparable = getFolderComparable({ ...folder, id: cleanFolderId }, tabKey, idx + 1);
         const folderFingerprint = computeFingerprint(folderComparable);
         const folderFingerprintKey = `${tabKey}_${cleanFolderId}`;
         if (savedFolderFingerprints.get(folderFingerprintKey) === folderFingerprint) {
@@ -712,11 +720,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
 
 function getWorkspaceSaveFingerprint(workspaceData: any): string {
   const comparable = {
-    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
-    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
-    preferences: workspaceData?.preferences || {},
-    activeFolderIds: workspaceData?.activeFolderIds || {},
-    userAssets: workspaceData?.userAssets || {},
+    ...getRootWorkspaceComparable(workspaceData),
     formStates: workspaceData?.formStates || {},
     moduleFolders: workspaceData?.moduleFolders || {},
   };
@@ -1056,13 +1060,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
           composite.moduleFolders[tabKey] = tabFolders;
           tabFolders.forEach((folder: any, idx: number) => {
             if (!folder?.id) return;
-            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
-              id: folder.id,
-              name: folder.name || `Folder ${idx + 1}`,
-              data: folder.data || null,
-              order: typeof folder.order === 'number' ? folder.order : idx + 1,
-              tabKey,
-            })));
+            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(getFolderComparable(folder, tabKey, idx + 1)));
           });
         }
         if (tabData.folderStates && typeof tabData.folderStates === 'object') {
@@ -1086,12 +1084,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
       });
 
       // Pre-populate root fingerprint cache
-      const rootComparable = {
-        lastActiveTab: rootData.lastActiveTab || 'twitter',
-        lastActiveCategory: rootData.lastActiveCategory || 'social-feed',
-        preferences: rootData.preferences || {},
-        activeFolderIds: rootData.activeFolderIds || {},
-      };
+      const rootComparable = getRootWorkspaceComparable(rootData);
       savedRootFingerprint = computeFingerprint(rootComparable);
     } catch (tabsErr) {
       console.warn('Could not load workspace tabs:', tabsErr);
@@ -1106,6 +1099,8 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         userFolders.forEach((fDoc) => {
           const tab = fDoc.tabKey || fDoc.platform || fDoc.subFeature;
           if (tab) {
+            const fallbackOrder = typeof fDoc.order === 'number' ? fDoc.order : 1;
+            savedFolderFingerprints.set(`${tab}_${fDoc.id}`, computeFingerprint(getFolderComparable(fDoc, tab, fallbackOrder)));
             if (!composite.moduleFolders[tab]) {
               composite.moduleFolders[tab] = [];
             }
@@ -1238,13 +1233,11 @@ export async function syncFolderToFirestore(
         throw firstErr;
       }
     }
-    savedFolderFingerprints.set(compositeDocId, computeFingerprint(removeUndefinedDeep({
-      id: cleanFolderId,
-      name: folderData.name || 'Folder',
-      data: folderData.data || null,
-      order: typeof folderData.order === 'number' ? folderData.order : null,
-      tabKey: tabKey || '',
-    })));
+    savedFolderFingerprints.set(compositeDocId, computeFingerprint(getFolderComparable(
+      { ...folderData, id: cleanFolderId, name: folderData.name || 'Folder' },
+      tabKey || '',
+      typeof folderData.order === 'number' ? folderData.order : 1
+    )));
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `users/${cleanUser}/folders/${folderId}`);
   }

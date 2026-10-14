@@ -6,7 +6,7 @@ import {
   onQuotaStatusChange,
 } from '../../../firebase';
 import { USER_ASSETS_SYNC_EVENT } from '../../../utils/userAssets';
-import { markLocalWorkspaceUpdated } from '../workspaceStorage';
+import { getPendingCloudSyncStorageKey, markLocalWorkspaceUpdated } from '../workspaceStorage';
 import { CloudConnectionState } from '../components/CloudSyncIndicator';
 
 interface UseWorkspaceCloudStatusArgs {
@@ -67,6 +67,14 @@ export function useWorkspaceCloudStatus({
     const handleOnline = () => {
       const userEmailOrId = authUser?.uid;
       if (userEmailOrId) {
+        if (isFirestoreQuotaExhausted()) {
+          setCloudSyncState('offline');
+          return;
+        }
+        if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) !== 'true') {
+          setCloudSyncState('synced');
+          return;
+        }
         setCloudSyncState('syncing');
         forceCloudWorkspaceSyncNowRef.current();
       } else {
@@ -82,7 +90,7 @@ export function useWorkspaceCloudStatus({
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [authUser?.uid, forceCloudWorkspaceSyncNowRef]);
+  }, [authUser?.uid, forceCloudWorkspaceSyncNowRef, userAccountKey]);
 
   return {
     cloudSyncState,

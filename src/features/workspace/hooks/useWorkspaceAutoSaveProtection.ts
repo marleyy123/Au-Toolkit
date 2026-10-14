@@ -59,6 +59,7 @@ export function useWorkspaceAutoSaveProtection({
     window.addEventListener('beforeunload', handleBeforeUnload);
     const flushWorkspace = () => {
       handleBeforeUnload();
+      if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) !== 'true') return;
       void forceCloudWorkspaceSyncNowRef.current();
     };
     window.addEventListener('pagehide', flushWorkspace);
