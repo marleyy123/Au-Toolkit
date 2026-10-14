@@ -8,6 +8,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
+import { verifyFirebaseAuthorization } from './netlify/lib/firebase-token.mjs';
 
 interface AuthenticatedRequest extends express.Request {
   user?: {
@@ -18,7 +19,7 @@ interface AuthenticatedRequest extends express.Request {
 }
 
 // Optional auth middleware (attaches user claims if a valid token is provided)
-function optionalFirebaseToken(
+async function optionalFirebaseToken(
   req: AuthenticatedRequest,
   res: express.Response,
   next: express.NextFunction
@@ -28,17 +29,7 @@ function optionalFirebaseToken(
     const idToken = authHeader.split('Bearer ')[1].trim();
     if (idToken) {
       try {
-        const parts = idToken.split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          if (payload && (payload.user_id || payload.sub)) {
-            req.user = {
-              uid: payload.user_id || payload.sub,
-              email: (payload.email || '').trim().toLowerCase(),
-              emailVerified: Boolean(payload.email_verified),
-            };
-          }
-        }
+        req.user = await verifyFirebaseAuthorization(authHeader);
       } catch (tokenErr: any) {
         console.warn('[OptionalAuth] Token parse notice:', tokenErr?.message || tokenErr);
       }
@@ -261,6 +252,9 @@ async function startServer() {
 
     try {
       const queryOrBody = req.method === 'POST' ? { ...req.query, ...req.body } : req.query;
+      if (!req.user) {
+        return res.status(401).json({ success: false, accessGranted: false, reason: 'AUTH_REQUIRED', status: 'AUTH_REQUIRED' });
+      }
       const requestedEmail = String(
         queryOrBody.email ||
         queryOrBody.buyer_email ||
@@ -289,7 +283,10 @@ async function startServer() {
         });
       }
 
-      const verifiedEmail = requestedEmail;
+      if (requestedEmail !== req.user.email) {
+        return res.status(403).json({ success: false, accessGranted: false, reason: 'EMAIL_MISMATCH', status: 'EMAIL_MISMATCH' });
+      }
+      const verifiedEmail = req.user.email;
 
       const rawDeviceId = String(queryOrBody.device_id || queryOrBody.deviceId || '').trim();
       const rawDeviceLabel = String(

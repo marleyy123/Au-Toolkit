@@ -197,7 +197,7 @@ export const Login: React.FC<LoginProps> = ({
         setIsLoading(false);
         const code = String(authError?.code || '').trim();
         setErrorMessage(
-          code
+          code === 'auth/email-not-verified' ? authError.message : code
             ? `Login Email/Password gagal (${code}). Periksa email dan password Anda.`
             : 'Login Email/Password gagal. Periksa email dan password Anda.'
         );

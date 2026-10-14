@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { InstagramDMNoteReplyPreview } from './noteReply/InstagramDMNoteReplyPreview';
 import { InstagramDMData, InstagramDMMessage } from '../../../../types';
 import { IOSEmojiText } from '../../../../utils/iosEmoji';
 import { splitEmojiGraphemes } from '../../../../utils/emojiUtils';
@@ -546,6 +547,8 @@ const MessageBubble: React.FC<{
           </div>
         </div>
       )}
+
+      <InstagramDMNoteReplyPreview message={msg} data={data} />
 
       {/* Text Message or Single Image Bubble */}
       {(msg.text !== undefined || (msg.imageUrl && (!msg.photoCount || msg.photoCount <= 1)) || (!msg.storyReplyImageUrl && (!msg.photoStack || msg.photoStack.length === 0))) && (

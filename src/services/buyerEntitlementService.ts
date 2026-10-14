@@ -60,19 +60,7 @@ const STORAGE_KEY_ENTITLEMENT_CACHE = 'au_buyer_entitlement_cache_';
  * Retrieves cached entitlement from localStorage if available.
  */
 export function getCachedEntitlement(email: string): EntitlementCheckResult | null {
-  // Staging admin changes must be checked against the server on every validation.
-  if (auth.app.options.projectId === 'au-toolkit-staging-20261005') return null;
-  try {
-    const cleanEmail = normalizeEmail(email);
-    if (!cleanEmail) return null;
-    const raw = localStorage.getItem(`${STORAGE_KEY_ENTITLEMENT_CACHE}${cleanEmail}`);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        return parsed as EntitlementCheckResult;
-      }
-    }
-  } catch {}
+  // Browser-owned cache is never proof of a current server-side entitlement.
   return null;
 }
 

@@ -21,6 +21,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updatePassword,
   updateProfile,
   deleteUser,
@@ -156,10 +157,27 @@ export async function deleteSignedInAuthUser(): Promise<void> {
 }
 
 // Email/Password Sign-in helper
+async function requireVerifiedEmail(user: User): Promise<void> {
+  if (user.emailVerified) return;
+  let sent = false;
+  try {
+    await sendEmailVerification(user);
+    sent = true;
+  } catch (error) {
+    console.warn('Email verification delivery failed:', (error as { code?: string }).code || 'unknown');
+  } finally {
+    await signOutUser();
+  }
+  throw Object.assign(new Error(sent
+    ? 'Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali.'
+    : 'Email belum terverifikasi. Coba masuk kembali nanti untuk mengirim tautan verifikasi.'), { code: 'auth/email-not-verified' });
+}
+
 export async function signInWithEmail(email: string, pass: string): Promise<User> {
   const cleanEmail = email.trim();
   const res = await signInWithEmailAndPassword(auth, cleanEmail, pass);
   if (res?.user) {
+    await requireVerifiedEmail(res.user);
     const userPayload = {
       uid: res.user.uid,
       email: res.user.email,
@@ -203,6 +221,7 @@ export async function signUpWithEmail(email: string, pass: string, displayName?:
     if (cleanName) {
       await updateProfile(res.user, { displayName: cleanName }).catch(() => {});
     }
+    await requireVerifiedEmail(res.user);
     const userPayload = {
       uid: res.user.uid,
       email: res.user.email,
@@ -1043,8 +1062,10 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         if (rootSnap.exists()) break;
         try {
           const candUsersRef = doc(db, 'users', candId);
-          const candUsersSnap = await getDoc(candUsersRef);
-          if (candUsersSnap.exists()) {
+          // A missing legacy users document may be denied; still check its
+          // independently owner-protected workspaces counterpart.
+          const candUsersSnap = await getDoc(candUsersRef).catch(() => null);
+          if (candUsersSnap?.exists()) {
             rootRef = candUsersRef;
             rootSnap = candUsersSnap;
             break;

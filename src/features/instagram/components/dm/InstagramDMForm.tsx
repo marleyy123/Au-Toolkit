@@ -1,4 +1,5 @@
 import { Select } from '../../../../components/ui/Select';
+import { InstagramDMNoteReplyEditor } from './noteReply/InstagramDMNoteReplyEditor';
 import React, { useEffect, useState } from 'react';
 import {
   InstagramDMData,
@@ -1606,6 +1607,8 @@ export const InstagramDMForm: React.FC<Props> = ({
                     />
                   )}
                 </div>
+
+                <InstagramDMNoteReplyEditor message={msg} onChange={(patch) => handleUpdateMessage(msg.id, patch)} />
 
                 {/* Optional Image Attachment */}
                 <div className="space-y-2">

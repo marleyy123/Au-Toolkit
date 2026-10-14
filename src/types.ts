@@ -706,6 +706,12 @@ export interface InstagramDMMessage {
   replySenderColor?: string;
   isStoryReply?: boolean;
   storyReplyImageUrl?: string;
+  isNoteReply?: boolean;
+  noteText?: string;
+  noteSongTitle?: string;
+  noteArtistName?: string;
+  noteOwnerName?: string;
+  noteOwnerAvatar?: string;
   isSystemMessage?: boolean;
   isThemeChange?: boolean;
   themeName?: string;

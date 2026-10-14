@@ -7,14 +7,23 @@ service cloud.firestore {
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isAuthenticated() && request.auth.token.email_verified == true && request.auth.uid == userId;
     }
 
     function isLegacyOwner(userId) {
       return isAuthenticated() &&
+        request.auth.token.email_verified == true &&
         request.auth.token.email != null &&
         exists(/databases/$(database)/documents/users/$(userId)) &&
         get(/databases/$(database)/documents/users/$(userId)).data.userEmail == request.auth.token.email;
+    }
+
+    function isLegacyWorkspaceOwner(userId) {
+      return isOwner(userId) || (isAuthenticated() &&
+        request.auth.token.email_verified == true &&
+        request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/workspaces/$(userId)) &&
+        get(/databases/$(database)/documents/workspaces/$(userId)).data.userEmail == request.auth.token.email);
     }
 
     // Startup connection health check (read-only for single test document)
@@ -51,11 +60,11 @@ service cloud.firestore {
 
     // Legacy migration compatibility: /workspaces/{userId} (read-only for migration)
     match /workspaces/{userId} {
-      allow get, list: if isAuthenticated();
+      allow get, list: if isLegacyWorkspaceOwner(userId);
       allow write: if false;
 
       match /{allSubpaths=**} {
-        allow get, list: if isAuthenticated();
+        allow get, list: if isLegacyWorkspaceOwner(userId);
         allow write: if false;
       }
     }

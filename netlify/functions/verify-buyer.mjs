@@ -1,3 +1,5 @@
+import { verifyFirebaseAuthorization } from '../lib/firebase-token.mjs';
+
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -25,23 +27,6 @@ function corsHeaders(origin) {
     'Access-Control-Allow-Credentials': 'true',
     Vary: 'Origin',
   };
-}
-
-function decodeFirebaseUser(authorization) {
-  if (!authorization?.startsWith('Bearer ')) return null;
-  try {
-    const token = authorization.slice('Bearer '.length).trim();
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-    if (!payload?.user_id && !payload?.sub) return null;
-    return {
-      uid: payload.user_id || payload.sub,
-      email: String(payload.email || '').trim().toLowerCase(),
-    };
-  } catch {
-    return null;
-  }
 }
 
 function resolveAppsScriptUrl() {
@@ -139,7 +124,8 @@ function commonAccessData(upstream, email, deviceType, deviceLabel, expirationDa
   };
 }
 
-export async function handler(event) {
+export function createHandler({ verifyAuthorization = verifyFirebaseAuthorization } = {}) {
+ return async function handler(event) {
   const origin = String(event.headers?.origin || event.headers?.Origin || '').replace(/\/$/, '');
   const allowedOrigins = getAllowedOrigins();
   const cors = corsHeaders(origin);
@@ -180,6 +166,7 @@ export async function handler(event) {
   let body;
   try {
     body = JSON.parse(event.body || '{}');
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Invalid request body');
   } catch {
     return json(400, {
       success: false,
@@ -191,6 +178,9 @@ export async function handler(event) {
   }
 
   const requestedAction = String(body.action || '').trim();
+  if (!['', 'validateAccess', 'registerDevice', 'checkBuyerEmail', 'healthCheck'].includes(requestedAction)) {
+    return json(400, { success: false, accessGranted: false, reason: 'INVALID_ACTION', status: 'INVALID_ACTION' }, cors);
+  }
   const scriptUrl = resolveAppsScriptUrl();
   const sharedSecret = resolveAppsScriptSecret();
 
@@ -354,8 +344,21 @@ export async function handler(event) {
     }, cors);
   }
 
-  const firebaseUser = decodeFirebaseUser(event.headers?.authorization || event.headers?.Authorization);
-  const email = String(body.email || body.buyer_email || body.user_email || firebaseUser?.email || '').trim().toLowerCase();
+  let firebaseUser;
+  try {
+    firebaseUser = await verifyAuthorization(event.headers?.authorization || event.headers?.Authorization);
+  } catch (error) {
+    const reason = error.reason || 'INVALID_FIREBASE_TOKEN';
+    return json(reason === 'AUTH_CONFIG_ERROR' ? 500 : reason === 'EMAIL_NOT_VERIFIED' ? 403 : 401, {
+      success: false, accessGranted: false, reason, status: reason,
+      message: reason === 'EMAIL_NOT_VERIFIED' ? 'Verifikasi email akun terlebih dahulu.' : 'Sesi login tidak valid. Silakan masuk kembali.',
+    }, cors);
+  }
+  const requestedEmails = [body.email, body.buyer_email, body.user_email].filter(value => value !== undefined);
+  if (requestedEmails.some(value => String(value).trim().toLowerCase() !== firebaseUser.email)) {
+    return json(403, { success: false, accessGranted: false, reason: 'EMAIL_MISMATCH', status: 'EMAIL_MISMATCH', message: 'Email akun tidak cocok dengan email pembelian.' }, cors);
+  }
+  const email = firebaseUser.email;
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json(400, {
       success: false,
@@ -541,4 +544,7 @@ export async function handler(event) {
     email,
     message: 'Koneksi ke server sedang bermasalah. Silakan coba lagi.',
   }, cors);
+ };
 }
+
+export const handler = createHandler();

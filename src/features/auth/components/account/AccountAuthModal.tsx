@@ -40,14 +40,6 @@ export const AccountAuthModal: React.FC<Props> = ({
     setIsLoading(true);
     setErrorMsg(null);
 
-    // Validate access with Google Apps Script API endpoint
-    const access = await validateLoginAccess(cleanEmail);
-    if (!access.allowed) {
-      setErrorMsg(access.message);
-      setIsLoading(false);
-      return;
-    }
-
     const slot = detectDeviceSlot();
     const deviceLabel = getDeviceFriendlyLabel(slot);
 
@@ -56,6 +48,12 @@ export const AccountAuthModal: React.FC<Props> = ({
         await signInWithEmail(cleanEmail, password);
       } else {
         await signUpWithEmail(cleanEmail, password, fullName.trim() || undefined);
+      }
+      const access = await validateLoginAccess(cleanEmail);
+      if (!access.allowed) {
+        await signOutUser();
+        setErrorMsg(access.message);
+        return;
       }
       try {
         localStorage.setItem('au_user_email', cleanEmail);
