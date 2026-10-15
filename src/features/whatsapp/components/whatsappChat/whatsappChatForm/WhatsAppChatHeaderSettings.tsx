@@ -204,7 +204,7 @@ export const WhatsAppChatHeaderSettings: React.FC<ChatSectionProps> = ({ data, o
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
             <label htmlFor="wa-bubble-width" className="flex justify-between items-center text-xs font-semibold text-slate-700">
               <span>{isId ? 'Lebar Bubble' : 'Bubble Width'}</span>
-              <span className="font-mono text-purple-700">{data.bubbleWidthPercent ?? 94}%</span>
+              <span className="font-mono text-purple-700 dark:text-purple-300">{data.bubbleWidthPercent ?? 94}%</span>
             </label>
             <input id="wa-bubble-width" type="range" min={50} max={94} step={1}
               value={data.bubbleWidthPercent ?? 94}
@@ -214,7 +214,7 @@ export const WhatsAppChatHeaderSettings: React.FC<ChatSectionProps> = ({ data, o
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
             <label htmlFor="wa-message-font-size" className="flex justify-between items-center text-xs font-semibold text-slate-700">
               <span>{isId ? 'Ukuran Teks Pesan' : 'Message Text Size'}</span>
-              <span className="font-mono text-purple-700">{data.messageFontSize ?? 15}px</span>
+              <span className="font-mono text-purple-700 dark:text-purple-300">{data.messageFontSize ?? 15}px</span>
             </label>
             <input id="wa-message-font-size" type="range" min={11} max={18} step={1}
               value={data.messageFontSize ?? 15}

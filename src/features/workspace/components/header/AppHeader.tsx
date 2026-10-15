@@ -88,10 +88,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsResetConfirmOpen(true)}
-                className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border-0 cursor-pointer shrink-0 bg-red-600 text-white hover:bg-red-700 shadow-sm"
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer shrink-0 shadow-2xs ${
+                  uiTheme === 'dark'
+                    ? 'bg-rose-950/50 text-rose-300 border-rose-900/80 hover:bg-rose-900/70 hover:text-white'
+                    : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                }`}
                 title={language === 'id' ? 'Reset Total (Bersihkan seluruh data & cache)' : 'Hard Reset (Clear all data & cache)'}
               >
-                <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                <RotateCcw className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                 <span>{language === 'id' ? 'Reset Total' : 'Hard Reset'}</span>
               </button>
             </div>

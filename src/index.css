@@ -11,26 +11,26 @@
   width: 100%;
   min-width: 0;
   min-height: 32px;
-  border: 1px solid var(--au-editor-line, #dddde5) !important;
+  border: 1px solid var(--au-editor-field-line, #cbd5e1) !important;
   border-radius: 6px !important;
-  background: var(--au-editor-panel, #fff) !important;
-  color: var(--au-editor-ink, #202028) !important;
+  background: var(--au-editor-field, #fff) !important;
+  color: var(--au-editor-ink, #0f172a) !important;
   box-shadow: 0 1px 2px rgba(32, 32, 40, .04);
   cursor: pointer;
   text-align: left;
 }
-.au-select-trigger:hover, .au-select-trigger[data-state="open"] { border-color: #c8c3d0 !important; }
-.au-select-trigger:focus-visible { outline: 2px solid #b271bd !important; outline-offset: 2px; }
+.au-select-trigger:hover, .au-select-trigger[data-state="open"] { border-color: #94a3b8 !important; }
+.au-select-trigger:focus-visible { outline: 2px solid var(--color-purple-500) !important; outline-offset: 2px; }
 .au-select-trigger:disabled { opacity: .5; cursor: not-allowed; }
-.au-select-trigger[data-theme="dark"] { background: var(--au-editor-panel, #242329) !important; color: var(--au-editor-ink, #f2eff5) !important; border-color: var(--au-editor-line, #45414c) !important; }
+.au-select-trigger[data-theme="dark"] { background: var(--au-editor-field, #1e293b) !important; color: var(--au-editor-ink, #f1f5f9) !important; border-color: var(--au-editor-field-line, #334155) !important; }
 .au-select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .au-select-trigger > svg { flex-shrink: 0; opacity: .65; }
 .au-select-content {
   --select-bg: #fff;
-  --select-ink: #202028;
-  --select-line: #dddde5;
-  --select-hover: #f5f1f7;
-  --select-muted: #787481;
+  --select-ink: #0f172a;
+  --select-line: #cbd5e1;
+  --select-hover: #f1f5f9;
+  --select-muted: #64748b;
   z-index: 10000;
   width: var(--radix-select-trigger-width);
   max-width: calc(100vw - 16px);
@@ -46,12 +46,12 @@
   font-size: 12px;
   line-height: 18px;
 }
-.au-select-content[data-theme="dark"] { --select-bg: #242329; --select-ink: #f2eff5; --select-line: #45414c; --select-hover: #38313e; --select-muted: #b0a8b8; }
+.au-select-content[data-theme="dark"] { --select-bg: #1e293b; --select-ink: #f1f5f9; --select-line: #334155; --select-hover: #334155; --select-muted: #94a3b8; }
 .au-select-viewport { max-height: 280px; }
 .au-select-item { position: relative; display: flex; align-items: center; min-height: 34px; padding: 7px 8px 7px 28px; border-radius: 4px; cursor: pointer; overflow-wrap: anywhere; }
 .au-select-item[data-highlighted] { outline: none; background: var(--select-hover); }
 .au-select-item[data-disabled] { opacity: .45; pointer-events: none; }
-.au-select-check { position: absolute; left: 8px; display: flex; color: #a05daf; }
+.au-select-check { position: absolute; left: 8px; display: flex; color: var(--color-purple-500); }
 .au-select-group-label { padding: 7px 8px 3px; color: var(--select-muted); font-size: 10px; font-weight: 600; }
 .au-select-scroll { display: flex; justify-content: center; height: 20px; color: var(--select-muted); }
 
@@ -647,22 +647,23 @@ button.btn-locked-amber svg {
 }
 
 /* ==========================================================================
-   AU TOOLKIT: LANDING-ALIGNED EDITOR CHROME
-   The editor shell borrows the landing page's restrained studio language:
-   smaller radii, fine borders, off-white canvas, calmer purple, and less
-   generated-looking gradients. Preview mockups remain isolated below.
+   AU TOOLKIT: EDITOR CHROME
+   Editor layout with the live application's purple/slate palette.
+   Keep theme corrections and preview isolation while retaining the newer layout.
    ========================================================================== */
 .au-editor {
   --au-editor-page-padding: 50px;
-  --au-editor-ink: #202028;
-  --au-editor-muted: #676975;
-  --au-editor-accent: #a721b6;
-  --au-editor-accent-dark: #841391;
-  --au-editor-line: #e8e7ed;
-  --au-editor-tint: #f8f7fb;
+  --au-editor-ink: #0f172a;
+  --au-editor-muted: #64748b;
+  --au-editor-accent: var(--color-purple-600);
+  --au-editor-accent-dark: var(--color-purple-700);
+  --au-editor-line: #e2e8f0;
+  --au-editor-tint: #f8fafc;
   --au-editor-panel: #ffffff;
-  --au-editor-soft: #f5f4f8;
-  --au-editor-green: #16836a;
+  --au-editor-field: #ffffff;
+  --au-editor-field-line: #cbd5e1;
+  --au-editor-soft: #f1f5f9;
+  --au-editor-green: #059669;
   font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   background: var(--au-editor-tint);
   color: var(--au-editor-ink);
@@ -670,12 +671,14 @@ button.btn-locked-amber svg {
 }
 
 .au-editor.dark {
-  --au-editor-ink: #f8fafc;
-  --au-editor-muted: #b9b7c3;
-  --au-editor-line: #292536;
-  --au-editor-tint: #11101a;
-  --au-editor-panel: #171522;
-  --au-editor-soft: #211e2d;
+  --au-editor-ink: #f1f5f9;
+  --au-editor-muted: #94a3b8;
+  --au-editor-line: #1e293b;
+  --au-editor-tint: #020617;
+  --au-editor-panel: #0f172a;
+  --au-editor-field: #1e293b;
+  --au-editor-field-line: #334155;
+  --au-editor-soft: #1e293b;
   background: var(--au-editor-tint);
 }
 
@@ -688,8 +691,6 @@ button.btn-locked-amber svg {
 }
 
 .au-editor header:not([data-preview-canvas] *) {
-  background: color-mix(in srgb, var(--au-editor-panel) 94%, transparent) !important;
-  border-color: var(--au-editor-line) !important;
   box-shadow: none !important;
 }
 
@@ -768,28 +769,26 @@ button.btn-locked-amber svg {
   color: var(--au-editor-muted) !important;
 }
 
-.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-600, .bg-purple-700):not([data-preview-canvas] *) {
-  background-color: var(--au-editor-accent) !important;
-}
+
 
 .au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) button:is(:hover, :focus-visible):not(:disabled):not([data-preview-canvas] *) {
-  border-color: #d7c8dc;
+  border-color: #cbd5e1;
 }
 
 .au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select):not([data-preview-canvas] *) {
-  background-color: color-mix(in srgb, var(--au-editor-panel) 72%, var(--au-editor-soft)) !important;
-  border-color: var(--au-editor-line) !important;
+  background-color: var(--au-editor-field) !important;
+  border-color: var(--au-editor-field-line) !important;
   color: var(--au-editor-ink) !important;
   border-radius: 6px !important;
 }
 
 .au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
-  border-color: #c78dce !important;
-  box-shadow: 0 0 0 3px #fcf5fc !important;
+  border-color: var(--color-purple-500) !important;
+  box-shadow: 0 0 0 3px #f3e8ff !important;
 }
 
 .au-editor.dark :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
-  box-shadow: 0 0 0 3px rgba(167, 33, 182, .22) !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, .22) !important;
 }
 
 .au-editor #preview-viewport-container {
@@ -798,12 +797,12 @@ button.btn-locked-amber svg {
 }
 
 .au-editor #preview-viewport-container > .absolute.inset-0 {
-  background-image: radial-gradient(#d8d5df 1px, transparent 1px) !important;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px) !important;
   opacity: .8 !important;
 }
 
 .au-editor.dark #preview-viewport-container > .absolute.inset-0 {
-  background-image: radial-gradient(#343046 1px, transparent 1px) !important;
+  background-image: radial-gradient(#334155 1px, transparent 1px) !important;
 }
 
 .au-editor #preview-panel > div:first-child::before {
@@ -821,25 +820,26 @@ button.btn-locked-amber svg {
 
 .au-brand { display: inline-block; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; letter-spacing: 0; }
 .au-brand > span { color: #a721b6; }
+.au-editor .au-brand > span, .au-auth-screen .au-brand > span, .au-auth-dialog .au-brand > span, .au-auth-inline .au-brand > span { color: var(--color-purple-600); }
 .au-auth-screen, .au-auth-dialog, .au-auth-inline {
-  --auth-ink: #202028;
-  --auth-muted: #676975;
-  --auth-line: #e8e7ed;
+  --auth-ink: #0f172a;
+  --auth-muted: #64748b;
+  --auth-line: #e2e8f0;
   --auth-surface: #fff;
-  --auth-soft: #f5f4f8;
-  --auth-accent: #a721b6;
+  --auth-soft: #f1f5f9;
+  --auth-accent: var(--color-purple-600);
   font-family: 'Hanken Grotesk', sans-serif;
   letter-spacing: 0;
 }
 .au-auth-dark {
-  --auth-ink: #f3f2f5;
-  --auth-muted: #b9b7c3;
-  --auth-line: #33313b;
-  --auth-surface: #17161c;
-  --auth-soft: #24222b;
+  --auth-ink: #f1f5f9;
+  --auth-muted: #94a3b8;
+  --auth-line: #334155;
+  --auth-surface: #0f172a;
+  --auth-soft: #1e293b;
 }
-.au-auth-screen { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; overflow: auto; padding: 48px 24px; background: #f8f7fb; color: var(--auth-ink); }
-.au-auth-screen.au-auth-dark { background: #111015; }
+.au-auth-screen { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; overflow: auto; padding: 48px 24px; background: #f1f5f9; color: var(--auth-ink); }
+.au-auth-screen.au-auth-dark { background: #020617; }
 .au-auth-content { width: 100%; max-width: 440px; flex-shrink: 0; margin: auto 0; }
 .au-loading-content, .au-access-content { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; }
 .au-auth-brand { font-size: 64px; }
@@ -867,7 +867,7 @@ button.btn-locked-amber svg {
 .au-auth-button:hover { background: var(--auth-soft); }
 .au-auth-button:focus-visible { outline: 2px solid var(--auth-accent); outline-offset: 3px; }
 .au-auth-button-primary { background: var(--auth-accent); color: #fff; border-color: transparent; }
-.au-auth-button-primary:hover { background: #841391; }
+.au-auth-button-primary:hover { background: var(--color-purple-700); }
 .au-auth-notice { display: flex; gap: 10px; width: 100%; text-align: left; padding: 14px 0; font-size: 12px; line-height: 1.6; border-top: 1px solid var(--auth-line); color: var(--auth-muted); }
 .au-auth-notice svg { flex-shrink: 0; margin-top: 2px; }
 .au-auth-notice strong { display: block; color: var(--auth-ink); font-weight: 600; margin-bottom: 3px; }
@@ -885,7 +885,7 @@ button.btn-locked-amber svg {
 .au-login-content :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-dialog :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-inline :is(.rounded-2xl, .rounded-xl) { border-radius: 6px; }
 .au-login-content :is(.shadow-xl, .shadow-lg), .au-auth-dialog .shadow-lg { box-shadow: none; }
 .au-login-content .bg-purple-600, .au-auth-dialog .bg-purple-600, .au-auth-inline .bg-purple-600 { background: var(--auth-accent); }
-.au-login-content .bg-purple-600:hover, .au-auth-dialog .bg-purple-600:hover, .au-auth-inline .bg-purple-600:hover { background: #841391; }
+.au-login-content .bg-purple-600:hover, .au-auth-dialog .bg-purple-600:hover, .au-auth-inline .bg-purple-600:hover { background: var(--color-purple-700); }
 .au-login-content .bg-white { background: var(--auth-surface); }
 .au-login-content :is(.text-slate-900, .text-slate-800) { color: var(--auth-ink); }
 .au-login-content :is(.text-slate-500, .text-slate-400) { color: var(--auth-muted); }
