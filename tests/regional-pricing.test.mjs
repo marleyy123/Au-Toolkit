@@ -47,20 +47,22 @@ for (const engine of ['chrome', 'webkit']) {
         await page.goto(baseUrl);
         const plan = page.locator('.landing-plan-active');
         if (unknown) {
-          await plan.getByRole('button', { name: 'Coba lagi deteksi region' }).waitFor();
-          assert.equal(await plan.getByRole('link', { name: 'Beli melalui Lynk.id' }).count(), 0);
-          assert.equal(await plan.getByRole('button', { name: 'Beli melalui Lynk.id' }).isDisabled(), true);
+          await plan.getByRole('button', { name: /Coba lagi deteksi region|Retry region detection/ }).waitFor();
+          assert.equal(await plan.getByRole('link', { name: /Beli melalui Lynk.id|Buy through Lynk.id/ }).count(), 0);
+          assert.equal(await plan.getByRole('button', { name: /Beli melalui Lynk.id|Buy through Lynk.id/ }).isDisabled(), true);
           await plan.screenshot({ path: `dist/landing-qa/geo-${engine}-${width}-error.png` });
           unknown = false;
-          await plan.getByRole('button', { name: 'Coba lagi deteksi region' }).click();
+          await plan.getByRole('button', { name: /Coba lagi deteksi region|Retry region detection/ }).click();
           await plan.getByRole('link', { name: 'Beli melalui Lynk.id' }).waitFor();
         } else {
-          await page.waitForFunction(() => /Rp(?:15|30)\.000/.test(document.querySelector('.landing-plan-price')?.textContent || ''));
+          await page.waitForFunction(() => /(?:Rp(?:15|30)\.000|IDR (?:15|30),000)/.test(document.querySelector('.landing-plan-price')?.textContent || ''));
         }
         assert.equal(await plan.getByRole('radio').count(), 0);
-        const expectedPrice = country === 'PH' || country === 'MY' ? 'Rp30.000' : 'Rp15.000';
+        const isInternational = country === 'PH' || country === 'MY';
+        const checkoutLabel = isInternational ? 'Buy through Lynk.id' : 'Beli melalui Lynk.id';
+        const expectedPrice = isInternational ? 'IDR 30,000' : 'Rp15.000';
         assert((await plan.locator('.landing-plan-price').textContent()).includes(expectedPrice));
-        assert.equal(await plan.getByRole('link', { name: 'Beli melalui Lynk.id' }).getAttribute('href'), country === 'PH' || country === 'MY' ? international : domestic);
+        assert.equal(await plan.getByRole('link', { name: checkoutLabel }).getAttribute('href'), isInternational ? international : domestic);
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         await page.evaluate(() => document.fonts.ready);
         await plan.screenshot({ path: `dist/landing-qa/geo-${engine}-${width}-${country}.png` });
@@ -70,14 +72,18 @@ for (const engine of ['chrome', 'webkit']) {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       await page.route('**/api/regional-pricing', route => route.fulfill({ json: call('PH', { VERCEL: '1', LYNK_INTERNATIONAL_CHECKOUT_URL: international }) }));
       await page.goto(baseUrl);
-      const link = page.getByRole('link', { name: 'Beli melalui Lynk.id' });
+      const link = page.getByRole('link', { name: 'Buy through Lynk.id' });
       await link.waitFor();
       assert.equal(await link.getAttribute('href'), international);
-      await page.route('**/api/regional-pricing', route => route.fulfill({ json: { ...call('PH'), checkout: null } }));
+      await page.route('**/api/regional-pricing', route => {
+        const quote = call('PH');
+        return route.fulfill({ json: { ...quote, checkout: null,
+          plans: quote.plans.map(plan => plan.id === 'monthly' ? { ...plan, checkout: null } : plan) } });
+      });
       await page.reload();
-      await page.waitForFunction(() => document.querySelector('.landing-checkout-status')?.textContent === 'Checkout International belum tersedia.');
-      assert.equal(await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Beli melalui Lynk.id' }).isDisabled(), true);
-      assert.equal(await page.getByRole('link', { name: 'Beli melalui Lynk.id' }).count(), 0);
+      await page.waitForFunction(() => document.querySelector('.landing-checkout-status')?.textContent === 'International checkout is not available yet.');
+      assert.equal(await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Buy through Lynk.id' }).isDisabled(), true);
+      assert.equal(await page.getByRole('link', { name: 'Buy through Lynk.id' }).count(), 0);
       await page.close();
       console.log(`PASS ${engine} ${width}: IP region quote, missing checkout, detection error/retry and no manual selector`);
     }

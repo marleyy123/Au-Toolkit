@@ -19,7 +19,6 @@ export function InstagramDMNoteReplyEditor({ message, onChange }: Props) {
     ['noteText', isId ? 'Teks Catatan' : 'Note Text'],
     ['noteSongTitle', isId ? 'Judul Lagu' : 'Song Title'],
     ['noteArtistName', isId ? 'Nama Artis' : 'Artist Name'],
-    ['noteOwnerName', isId ? 'Nama Pemilik Catatan' : 'Note Owner Name'],
   ] as const;
 
   return (

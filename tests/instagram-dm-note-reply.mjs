@@ -62,7 +62,7 @@ try {
         await editor.getByLabel('Song Title', { exact: true }).fill('A very long song title to verify truncation');
         await editor.getByLabel('Artist Name', { exact: true }).fill('Artist');
         await editor.getByLabel('Note Text', { exact: true }).fill('LongUnbrokenNote'.repeat(8) + '\nSecond line');
-        await editor.getByLabel('Note Owner Name', { exact: true }).fill('Owner');
+        assert.equal(await editor.getByLabel('Note Owner Name', { exact: true }).count(), 0);
         await page.reload({ waitUntil: 'domcontentloaded' });
         await page.locator('[data-note-reply-preview]').waitFor();
         assert.equal(await editor.getByLabel('Artist Name', { exact: true }).inputValue(), 'Artist');

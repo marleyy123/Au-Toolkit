@@ -1,15 +1,20 @@
 import { Select } from '../../../../components/ui/Select';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NotesData, CharacterPreset, NotesImageItem } from '../../../../types';
 import { toHexForPicker } from '../../../../utils/colorUtils';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { CharacterSelector } from '../../../../components/FormControls';
-import { compressAndReadAsDataURL } from '../../../../utils/imageCompressor';
+import { compressImageFile } from '../../../../utils/imageCompressor';
 import { ImageCropperModal } from '../../../../components/ImageCropperModal';
 import {
   createSafeObjectURL,
   revokeSafeObjectURL,
   isBlobUrl,
+  persistLocalImageBlob,
+  getLocalMediaOwnerUid,
+  bindPersistentImageObjectUrl,
+  registerTransientImageUrl,
+  resolveLocalImageReference,
 } from '../../../../utils/imageManager';
 import {
   FileText,
@@ -117,6 +122,15 @@ export const NotesForm: React.FC<Props> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
 
+  const latest = useRef({ data, onChange });
+  latest.current = { data, onChange };
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  const [imageError, setImageError] = useState('');
+
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [cropperSession, setCropperSession] = useState<{ id: string; src: string } | null>(null);
@@ -128,6 +142,7 @@ export const NotesForm: React.FC<Props> = ({
 
   // Normalize images from either data.images or data.imageUrl with layout support
   const getNormalizedImages = (): NotesImageItem[] => {
+    const { data } = latest.current;
     if (data.images && data.images.length > 0) {
       return data.images.map((img) => ({
         ...img,
@@ -161,7 +176,8 @@ export const NotesForm: React.FC<Props> = ({
 
   const commitImagesUpdate = (newImages: NotesImageItem[]) => {
     const primary = newImages[0];
-    onChange({
+    const { data, onChange } = latest.current;
+    const next = {
       ...data,
       images: newImages,
       imageUrl: primary?.url || '',
@@ -175,11 +191,38 @@ export const NotesForm: React.FC<Props> = ({
       imageBorderRadius: primary?.borderRadius,
       imageRotation: primary?.rotation,
       imageLayout: primary?.layout ?? data.imageLayout,
-    });
+    };
+    latest.current = { data: next, onChange };
+    onChange(next);
+  };
+
+  const persistImage = async (id: string, sourceUrl: string, blob: Blob) => {
+    const uid = getLocalMediaOwnerUid();
+    const tab = localStorage.getItem('au_last_active_tab') || 'notes';
+    const folder = localStorage.getItem(`au_active_folder_${uid}_${tab}`) || 'folder-1';
+    try {
+      const file = blob instanceof File ? blob : new File([blob], 'note.png', { type: blob.type });
+      const compressed = await compressImageFile(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 });
+      const ref = await persistLocalImageBlob(uid, compressed, `${tab}:${folder}:notes`);
+      if (!mounted.current || getLocalMediaOwnerUid() !== uid
+        || (localStorage.getItem('au_last_active_tab') || 'notes') !== tab
+        || (localStorage.getItem(`au_active_folder_${uid}_${tab}`) || 'folder-1') !== folder) return;
+      const current = getNormalizedImages();
+      if (!current.some(img => img.id === id && img.url === sourceUrl)) return;
+      bindPersistentImageObjectUrl(ref, sourceUrl);
+      registerTransientImageUrl(sourceUrl, ref);
+      commitImagesUpdate(current.map(img => img.id === id ? { ...img, url: ref } : img));
+    } catch (error) {
+      console.error('Notes image persistence failed:', error);
+      if (mounted.current) setImageError(language === 'id'
+        ? 'Foto belum tersimpan. Coba unggah ulang sebelum menutup halaman.'
+        : 'The photo could not be saved. Upload it again before closing this page.');
+    }
   };
 
   const processAndAddImage = (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
+    setImageError('');
     try {
       const instantUrl = createSafeObjectURL(file);
       const currentList = getNormalizedImages();
@@ -196,24 +239,11 @@ export const NotesForm: React.FC<Props> = ({
         borderRadius: 8,
         rotation: 0,
         shadow: false,
-        layout: data.imageLayout || 'wrap-right',
+        layout: latest.current.data.imageLayout || 'wrap-right',
       };
-      const updated = [...currentList, newImage];
-      commitImagesUpdate(updated);
+      commitImagesUpdate([...currentList, newImage]);
       setSelectedImageId(newImage.id);
-
-      // In background, compress and persist durable Data URL
-      compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 })
-        .then((dataUrl) => {
-          if (dataUrl) {
-            const fresh = getNormalizedImages().map((img) =>
-              img.id === newImage.id ? { ...img, url: dataUrl } : img
-            );
-            commitImagesUpdate(fresh);
-            revokeSafeObjectURL(instantUrl);
-          }
-        })
-        .catch((e) => console.warn('Background compression fallback:', e));
+      void persistImage(newImage.id, instantUrl, file);
     } catch (err) {
       console.error('Failed to add image:', err);
     }
@@ -237,15 +267,8 @@ export const NotesForm: React.FC<Props> = ({
       }
       updateActiveImage({ url: instantUrl });
 
-      // In background, compress and update durable Data URL
-      compressAndReadAsDataURL(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 })
-        .then((dataUrl) => {
-          if (dataUrl) {
-            updateActiveImage({ url: dataUrl });
-            revokeSafeObjectURL(instantUrl);
-          }
-        })
-        .catch((e) => console.warn('Background compression error:', e));
+      setImageError('');
+      void persistImage(activeImage.id, instantUrl, file);
     } catch (err) {
       console.error('Failed to replace image:', err);
     }
@@ -254,7 +277,7 @@ export const NotesForm: React.FC<Props> = ({
 
   const updateActiveImage = (patch: Partial<NotesImageItem>) => {
     if (!activeImage) return;
-    const updated = images.map((img) => (img.id === activeImage.id ? { ...img, ...patch } : img));
+    const updated = getNormalizedImages().map((img) => (img.id === activeImage.id ? { ...img, ...patch } : img));
     commitImagesUpdate(updated);
   };
 
@@ -396,6 +419,8 @@ export const NotesForm: React.FC<Props> = ({
           onChange={handleReplaceImageSelect}
         />
 
+        {imageError && <p role="alert" className="text-xs text-red-600">{imageError}</p>}
+
         {/* Image Upload Dropzone */}
         {images.length === 0 ? (
           <div
@@ -477,11 +502,14 @@ export const NotesForm: React.FC<Props> = ({
                     {/* Crop Button */}
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (!activeImage) return;
                         const newSessionId = 'notes_crop_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
                         activeCropSessionRef.current = { id: newSessionId, targetImageId: activeImage.id };
-                        setCropperSession({ id: newSessionId, src: activeImage.url });
+                        const src = await resolveLocalImageReference(activeImage.url) || activeImage.url;
+                        if (activeCropSessionRef.current?.id === newSessionId && mounted.current) {
+                          setCropperSession({ id: newSessionId, src });
+                        }
                       }}
                       className="px-2 py-1 rounded-md text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs flex items-center space-x-1 transition-all cursor-pointer"
                       title={language === 'id' ? 'Pangkas / Sesuaikan Foto' : 'Crop Image'}
@@ -1145,23 +1173,36 @@ export const NotesForm: React.FC<Props> = ({
             activeCropSessionRef.current = null;
             setCropperSession(null);
           }}
-          onCropComplete={(croppedDataUrl, sessionId) => {
+          onCropComplete={async (croppedDataUrl, sessionId) => {
             const session = activeCropSessionRef.current;
             if (!session || (sessionId && session.id !== sessionId)) return;
             const targetId = session.targetImageId;
             activeCropSessionRef.current = null;
             setCropperSession(null);
 
-            const updated = images.map((img) => {
-              if (img.id === targetId) {
-                if (isBlobUrl(img.url)) {
-                  revokeSafeObjectURL(img.url);
+            const originalUrl = getNormalizedImages().find(img => img.id === targetId)?.url;
+            try {
+              const response = await fetch(croppedDataUrl);
+              if (!response.ok) throw new Error('The cropped image could not be prepared.');
+              const blob = await response.blob();
+              if (!mounted.current || !getNormalizedImages().some(img => img.id === targetId && img.url === originalUrl)) return;
+              const instantUrl = createSafeObjectURL(blob);
+              const updated = getNormalizedImages().map((img) => {
+                if (img.id === targetId) {
+                  if (isBlobUrl(img.url)) {
+                    revokeSafeObjectURL(img.url);
+                  }
+                  return { ...img, url: instantUrl };
                 }
-                return { ...img, url: croppedDataUrl };
-              }
-              return img;
-            });
-            commitImagesUpdate(updated);
+                return img;
+              });
+              commitImagesUpdate(updated);
+              setImageError('');
+              void persistImage(targetId, instantUrl, blob);
+            } catch (error) {
+              console.error('Notes crop failed:', error);
+              if (mounted.current) setImageError(language === 'id' ? 'Foto gagal dipangkas. Coba lagi.' : 'The photo could not be cropped. Try again.');
+            }
           }}
           cropShape="rect"
           allow916={true}

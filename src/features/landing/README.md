@@ -9,6 +9,24 @@ styles in `landing.css`. The hero demo reuses the real WhatsApp preview. Gallery
 assets are rendered from the real WhatsApp, LINE and Instagram DM components.
 Run `npm run build`, then `node scripts/render-landing-previews.mjs` to regenerate those PNGs.
 
+## Editing text and example photos
+
+This is a React/Vite page hosted with the application on Vercel, with no CMS or
+client-facing upload/edit panel. Changes currently require editing the project
+and redeploying the staging site.
+
+- Indonesian gallery descriptions, features, purchase steps and FAQs:
+  `data/landingContent.ts`.
+- English versions of those sections: `hooks/useLandingContent.ts`.
+- Other section text (including the hero): the corresponding file in `components/`.
+- Gallery example photos: `public/landing/whatsapp.png`, `line.png` and
+  `instagram.png` (paths are relative to the repository root). Replace these
+  files, or change each `formats[].image` path in `data/landingContent.ts`.
+
+The preview generation script overwrites generated gallery PNGs. Do not run it
+after replacing those images with client-provided examples unless intentionally
+restoring the generated previews. A CMS/editor would be a separate feature.
+
 Checkout defaults to the user's two Lynk products:
 
 - Indonesia, Rp15.000: `https://lynk.id/sempiternal/l755mjy6y4v5/checkout`.
