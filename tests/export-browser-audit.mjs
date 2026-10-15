@@ -12,7 +12,7 @@ const cases = {
   'instagram-activity': 'INSTAGRAM_ACTIVITY', 'instagram-dm': 'INSTAGRAM_DM', 'instagram-dm-inbox': 'INSTAGRAM_DM_INBOX',
   'instagram-feed-comments': 'INSTAGRAM_FEED_COMMENTS', 'instagram-story-viewers': 'INSTAGRAM_STORY_VIEWERS',
   'whatsapp-chat': 'WHATSAPP_CHAT', 'whatsapp-call': 'WHATSAPP_CALL', 'whatsapp-status': 'WHATSAPP_STATUS',
-  'whatsapp-viewers': 'WHATSAPP_VIEWERS', 'tiktok-profile': 'TIKTOK_PROFILE', 'tiktok-feed-live': 'TIKTOK_FEED_LIVE',
+  'whatsapp-viewers': 'WHATSAPP_VIEWERS', 'tiktok-profile': 'TIKTOK_PROFILE', 'tiktok-feed-live': 'TIKTOK_FEED_LIVE', 'tiktok-live': 'TIKTOK_LIVE',
   'tiktok-fyp': 'TIKTOK_FYP', 'ios-lockscreen': 'IOS_LOCKSCREEN', 'line-chat': 'LINE_CHAT', notes: 'NOTES',
   'push-notification': 'PUSH_NOTIFICATION', 'spotify-card': 'SPOTIFY',
 };

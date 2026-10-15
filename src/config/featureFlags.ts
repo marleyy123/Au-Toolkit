@@ -275,6 +275,14 @@ export const DEFAULT_FEATURE_FLAGS: Record<string, FeatureFlagDefinition> = {
     status: 'LIVE',
     type: 'tab',
   },
+  'tab_tiktok-live': {
+    key: 'tab_tiktok-live',
+    name: 'LIVE',
+    description: 'TikTok LIVE broadcast and shopping editor',
+    category: 'tiktok',
+    status: 'LIVE',
+    type: 'tab',
+  },
   'tab_tiktok-fyp': {
     key: 'tab_tiktok-fyp',
     name: 'Home Page',
@@ -389,7 +397,7 @@ export const CATEGORY_TABS_MAP: Record<PlatformGroup, PlatformTab[]> = {
     'instagram-dm-inbox',
   ],
   whatsapp: ['whatsapp-chat', 'whatsapp-status', 'whatsapp-viewers', 'whatsapp-call'],
-  tiktok: ['tiktok-profile', 'tiktok-feed-live', 'tiktok-fyp'],
+  tiktok: ['tiktok-profile', 'tiktok-feed-live', 'tiktok-live', 'tiktok-fyp'],
   ios: ['ios-lockscreen'],
   line: ['line-chat'],
   notes: ['notes'],

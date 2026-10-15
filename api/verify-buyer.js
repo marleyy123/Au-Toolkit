@@ -89,7 +89,7 @@ export function createHandler({ verifyToken = (token) => jwtVerify(token, keys, 
             result = { success: true, reason: view.reason, status: view.status, isRegisteredBuyer: view.isRegisteredBuyer,
               isValid: view.isValid, statusAccount: view.statusAccount || null };
           } else {
-            result = await store.validate(email, identity);
+            result = await store.validate(email, identity, { id: body.deviceId, type: body.deviceType, label: body.deviceLabel });
           }
         }
         res.statusCode = 200;

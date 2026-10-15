@@ -139,7 +139,8 @@ export const Login: React.FC<LoginProps> = ({
       try {
         await signOutUser();
       } catch {}
-      setErrorMessage('Perangkat ini tidak terdaftar.');
+      if (onAccessExpired) onAccessExpired(targetEmail, entitlement);
+      else setErrorMessage(entitlement.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah 1 laptop dan 1 HP. Hubungi admin untuk reset perangkat.');
       return false;
     }
 

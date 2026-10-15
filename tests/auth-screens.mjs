@@ -23,7 +23,7 @@ const bundle = await build({ stdin: { loader: 'tsx', resolveDir: process.cwd(), 
     : <AppLoadingScreen stage={params.get('stage') || 'CHECK_ACCESS'} language={language} uiTheme={uiTheme}
         errorMessage={params.get('failure') ? 'Access verification is temporarily unavailable.' : null}
         onRetry={call('retry')} onBackToLogin={call('login')} />);
-` }, bundle: true, write: false, format: 'iife' });
+` }, bundle: true, write: false, format: 'iife', define: { 'import.meta.env': '{}' } });
 const css = await (await fetch('http://localhost:3000/src/index.css?direct')).text();
 const logo = await readFile('public/favicon.svg', 'utf8');
 const server = createServer((req, res) => {
@@ -54,8 +54,12 @@ try {
       assert.equal(await content.evaluate(node => node.scrollWidth > node.clientWidth), false, 'Content fits');
       if (params.includes('view=guard')) {
         const renew = page.getByRole('link');
-        assert.equal(await renew.count(), params.includes('DEVICE_MISMATCH') ? 0 : 1);
-        if (await renew.count()) assert.equal(await renew.getAttribute('href'), '/#pilihan-paket');
+        assert.equal(await renew.count(), 1);
+        if (params.includes('DEVICE_MISMATCH')) {
+          assert.match(await renew.getAttribute('href'), /^https:\/\/wa\.me\//);
+          await page.getByText('1 laptop + 1 phone', { exact: true }).waitFor();
+          await page.getByRole('heading', { name: 'Account registered on another device' }).waitFor();
+        } else assert.equal(await renew.getAttribute('href'), '/#pilihan-paket');
         await page.getByRole('button').click();
         assert.deepEqual(await page.evaluate(() => window.calls), ['logout']);
       }

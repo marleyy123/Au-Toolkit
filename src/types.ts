@@ -17,6 +17,7 @@ export type PlatformTab =
   | 'whatsapp-call'
   | 'tiktok-profile'
   | 'tiktok-feed-live'
+  | 'tiktok-live'
   | 'tiktok-fyp'
   | 'ios-lockscreen'
   | 'ios-notification'
@@ -1040,4 +1041,59 @@ export interface ViewportTransform {
   x: number;
   y: number;
   scale: number;
+}
+
+
+export interface TikTokLiveComment {
+  id: string;
+  type: 'comment' | 'join' | 'like';
+  username: string;
+  content: string;
+  avatar?: string;
+  levelBadge?: string;
+  levelColor?: 'blue' | 'orange' | 'purple';
+  subBadge?: string;
+}
+export interface TikTokLiveProduct {
+  id: string;
+  image: string;
+  title: string;
+  price: string;
+  originalPrice: string;
+  discount: string;
+  subtitle: string;
+  hotBadge: string;
+  buttonText: string;
+}
+export interface TikTokLiveData {
+  showVoucherModal?: boolean;
+  voucherClaimed?: boolean;
+  liveMediaUrl: string;
+  liveMediaType: 'image' | 'video';
+  avatarUrl: string;
+  username: string;
+  likeCount: string;
+  joinButtonText: string;
+  showJoinButton: boolean;
+  viewerCount: string;
+  viewers: Array<{id: string; avatar: string; badge: string}>;
+  showDailyRanking: boolean;
+  dailyRankingText: string;
+  rankingBadgeIcon: 'bag' | 'fire' | 'heart' | 'star';
+  showNewRound: boolean;
+  newRoundText: string;
+  comments: TikTokLiveComment[];
+  showFloatingHearts: boolean;
+  floatingHeartsCount: number;
+  commentPlaceholder: string;
+  showGuestButton: boolean;
+  showRoseButton: boolean;
+  showGiftButton: boolean;
+  showShareButton: boolean;
+  showYellowCart: boolean;
+  cartItemCount: string;
+  showCartBadge: boolean;
+  showProductCard: boolean;
+  activeProductId: string;
+  products: TikTokLiveProduct[];
 }

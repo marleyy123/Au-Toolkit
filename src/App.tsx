@@ -243,6 +243,7 @@ export default function App() {
     whatsAppViewersData,
     tikTokProfileData,
     tikTokFeedLiveData,
+    tikTokLiveData,
     tikTokFypData,
     iosLockscreenData,
     lineChatData,
@@ -267,6 +268,7 @@ export default function App() {
     setWhatsAppViewersData,
     setTikTokProfileData,
     setTikTokFeedLiveData,
+    setTikTokLiveData,
     setTikTokFypData,
     setIosLockscreenData,
     setLineChatData,
@@ -351,6 +353,7 @@ export default function App() {
     whatsAppViewersData,
     tikTokProfileData,
     tikTokFeedLiveData,
+    tikTokLiveData,
     tikTokFypData,
     iosLockscreenData,
     lineChatData,
@@ -375,6 +378,7 @@ export default function App() {
     setWhatsAppViewersData,
     setTikTokProfileData,
     setTikTokFeedLiveData,
+    setTikTokLiveData,
     setTikTokFypData,
     setIosLockscreenData,
     setLineChatData,
@@ -413,6 +417,7 @@ export default function App() {
     setWhatsAppViewersData,
     setTikTokProfileData,
     setTikTokFeedLiveData,
+    setTikTokLiveData,
     setTikTokFypData,
     setIosLockscreenData,
     setLineChatData,
@@ -461,6 +466,7 @@ export default function App() {
     whatsAppViewersData,
     tikTokProfileData,
     tikTokFeedLiveData,
+    tikTokLiveData,
     tikTokFypData,
     iosLockscreenData,
     lineChatData,
@@ -693,6 +699,7 @@ export default function App() {
   const {
     handleTikTokProfileDataChange,
     handleTikTokFeedLiveDataChange,
+    handleTikTokLiveDataChange,
     handleTikTokFypDataChange,
     handleToggleTikTokFypLike,
     handleToggleTikTokFypBookmark,
@@ -700,6 +707,7 @@ export default function App() {
   } = useTikTokFormHandlers({
     setTikTokProfileData,
     setTikTokFeedLiveData,
+    setTikTokLiveData,
     setTikTokFypData,
     updateActiveFolderData,
   });
@@ -936,6 +944,7 @@ export default function App() {
               case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(updated);
               case 'tiktok-profile': return handleTikTokProfileDataChange(updated);
               case 'tiktok-feed-live': return handleTikTokFeedLiveDataChange(updated);
+              case 'tiktok-live': return handleTikTokLiveDataChange(updated);
               case 'tiktok-fyp': return handleTikTokFypDataChange(updated);
               case 'ios-lockscreen': return handleIosLockscreenDataChange(updated);
               case 'line-chat': return handleLineChatDataChange(updated);

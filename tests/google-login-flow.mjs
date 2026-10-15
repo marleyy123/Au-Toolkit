@@ -13,7 +13,7 @@ const bundle = await build({
       window.calls = [];
       createRoot(document.getElementById('root')).render(<Login
         onLoginSuccess={(email) => window.calls.push({event: 'allowed', email})}
-        onAccessExpired={() => window.calls.push({event: 'expired'})} />);`,
+        onAccessExpired={(email, entitlement) => window.calls.push({event: 'expired', message: entitlement.message})} />);`,
     resolveDir: process.cwd(), loader: 'tsx',
   },
   bundle: true, write: false, format: 'iife',
@@ -66,7 +66,7 @@ try {
     {name: 'unknown email', body: {reason: 'BUYER_NOT_FOUND', accessGranted: false}},
     {name: 'expired buyer', body: {reason: 'ACCOUNT_EXPIRED', statusAccount: 'Expired', accessGranted: false}, expired: true},
     {name: 'inactive buyer', body: {reason: 'ACCOUNT_INACTIVE', statusAccount: 'Inactive', accessGranted: false}},
-    {name: 'device mismatch', body: {reason: 'DEVICE_MISMATCH', accessGranted: false}},
+    {name: 'device mismatch', body: {reason: 'DEVICE_MISMATCH', accessGranted: false, message: 'Slot laptop sudah dipakai. Batas 1 laptop dan 1 HP. Hubungi admin untuk reset.'}, expired: true},
     {name: 'server unavailable despite valid cache', http: 503, body: {reason: 'APPS_SCRIPT_UNAVAILABLE', accessGranted: false}},
     {name: 'production fails closed despite valid cache', production: true, http: 503, body: {reason: 'APPS_SCRIPT_UNAVAILABLE', accessGranted: false}},
     {name: 'popup cancelled', cancel: true},
@@ -91,6 +91,7 @@ try {
     assert.equal(calls[0].activation, true, 'Popup must be invoked during user activation');
     assert.equal(calls.some((call) => call.event === 'allowed'), !!scenario.allowed, scenario.name);
     assert.equal(calls.some((call) => call.event === 'expired'), !!scenario.expired);
+    if (scenario.name === 'device mismatch') assert.equal(calls.find(call => call.event === 'expired').message, scenario.body.message);
     if (!scenario.cancel) {
       assert.equal(requests.length, 1);
       assert.equal(requests[0].action, 'validateAccess');

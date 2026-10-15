@@ -55,7 +55,7 @@ try {
     response = quote();
     response.plans[1].accessDays = 9999;
     await page.reload();
-    await page.locator('[data-plan="monthly"]').getByText('Harga belum tersedia').waitFor();
+    await page.locator('[data-plan="monthly"]').getByText(/Harga belum tersedia|Price unavailable/).waitFor();
     assert.equal(await page.getByRole('link', { name: 'Beli melalui Lynk.id' }).count(), 0);
     assert.deepEqual(errors, []);
     await page.close();

@@ -282,3 +282,12 @@ html.au-landing-document { scroll-padding-top: 90px; }
   html.au-landing-document { scroll-behavior: auto; }
   .au-landing *, .au-landing *::before, .au-landing *::after { transition: none !important; animation: none !important; }
 }
+.landing-payment-dialog { width: min(460px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow: auto; margin: auto; padding: 28px; border: 1px solid #e8e6ed; border-radius: 18px; background: #fff; color: #25212d; box-shadow: 0 24px 80px #21133033; }
+.landing-payment-dialog::backdrop { background: #160f2699; }
+.landing-payment-dialog h2 { font-size: 22px; font-weight: 700; }
+.landing-payment-dialog p { margin: 14px 0; line-height: 1.6; }
+.landing-payment-dialog form { display: grid; gap: 12px; }
+.landing-payment-dialog label { display: grid; gap: 8px; font-size: 14px; }
+.landing-payment-dialog input { min-width: 0; width: 100%; border: 1px solid #76707e; border-radius: 8px; padding: 12px; background: #fff; color: #25212d; }
+.landing-payment-dialog .landing-button { width: 100%; white-space: normal; }
+.landing-payment-order { overflow-wrap: anywhere; font-size: 13px; }

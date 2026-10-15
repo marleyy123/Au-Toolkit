@@ -133,6 +133,20 @@ async function startServer() {
   const PORT = Number(process.env.PORT || 3000);
 
   const jsonParser = express.json();
+  if (isLocalStaging) {
+    // These server handlers read private environment variables; Vite only receives VITE_*.
+    process.env.MIDTRANS_LOCAL_TEST = 'true';
+    process.env.ALLOWED_ORIGINS = [...new Set([...(process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean), `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`])].join(',');
+    const { createMidtransHandler } = await import('./lib/midtrans.js');
+    const { createHandler: pricingHandler } = await import('./api/regional-pricing.js');
+    app.all('/api/midtrans', express.json({ limit: '16kb' }), createMidtransHandler());
+    app.all('/api/midtrans-webhook', express.json({ limit: '16kb' }), createMidtransHandler({ webhook: true }));
+    app.all('/api/regional-pricing', pricingHandler());
+    if (process.env.ACCESS_BACKEND === 'firestore') {
+      const { createHandler: verifyHandler } = await import('./api/verify-buyer.js');
+      app.all('/api/verify-buyer', express.json({ limit: '16kb' }), verifyHandler());
+    }
+  }
 
   // CORS configuration
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')

@@ -19,6 +19,7 @@ import { WhatsAppStatusForm } from '../features/whatsapp/components/whatsappStat
 import { WhatsAppViewersForm } from '../features/whatsapp/components/whatsappViewers/WhatsAppViewersForm';
 import { TikTokProfileForm } from '../features/tiktok/components/profile/TikTokProfileForm';
 import { TikTokFeedLiveForm } from '../features/tiktok/components/feedLive/TikTokFeedLiveForm';
+import { TikTokLiveForm } from '../features/tiktok/components/live/TikTokLiveForm';
 import { TikTokFypForm } from '../features/tiktok/components/fyp/TikTokFypForm';
 import { IOSLockscreenForm } from '../features/ios/components/lockscreen/IOSLockscreenForm';
 import { LineChatForm } from '../features/line/components/chat/LineChatForm';
@@ -61,6 +62,7 @@ export const FormRegistry: React.FC<Props> = ({ activeTab, ...rest }) => {
     case 'whatsapp-viewers': return <WhatsAppViewersForm key={compKey} {...rest} />;
     case 'tiktok-profile': return <TikTokProfileForm key={compKey} {...rest} />;
     case 'tiktok-feed-live': return <TikTokFeedLiveForm key={compKey} {...rest} />;
+    case 'tiktok-live': return <TikTokLiveForm key={compKey} {...rest} />;
     case 'tiktok-fyp': return <TikTokFypForm key={compKey} {...rest} />;
     case 'ios-lockscreen': return <IOSLockscreenForm key={compKey} {...rest} />;
     case 'line-chat': return <LineChatForm key={compKey} {...rest} />;

@@ -25,13 +25,20 @@ Menu admin AU Access -> API admin Vercel dengan autentikasi -> Firestore
   berlangganan.
 
 Akses staging ditentukan oleh email pembelian yang cocok dengan email akun
-Firebase Auth terverifikasi, status akun, dan tanggal kedaluwarsa. Tidak ada
-batas satu HP atau satu laptop: akun yang sama boleh digunakan dari beberapa
-perangkat sekaligus tanpa mengeluarkan sesi perangkat lain. Fingerprint, jenis,
-dan ID perangkat tidak wajib dikirim untuk verifikasi akses Firestore. Data
-perangkat lama pada laporan tetap dipertahankan sebagai riwayat, bukan pengunci
-akses; metadata perangkat di `users/{uid}` hanya informasi login. Kebijakan
-perangkat backend Sheets/Netlify produksi lama tidak diubah dalam tahap staging.
+Firebase Auth terverifikasi, status akun, tanggal kedaluwarsa, dan perangkat
+terdaftar. Setiap akun memiliki satu slot `desktop` (laptop/komputer) dan satu
+slot `mobile` (HP/tablet). Login pertama mendaftarkan ID dan label ke slot kosong
+secara atomik. Login dari ID lain pada kategori yang sudah terisi ditolak dengan
+`DEVICE_MISMATCH`, tanpa menimpa slot atau mengubah masa akses. Dua perangkat
+pertama yang berlomba mengisi slot yang sama tidak dapat sama-sama diterima.
+Login berulang dari perangkat terdaftar tidak menulis ulang billing account.
+
+ID, kategori, dan label dikirim browser, dinormalisasi di server, dan dibandingkan
+dengan `billingAccounts.devices`; dokumen perangkat client di `users/{uid}` bukan
+sumber otorisasi. ID memakai pengenal perangkat browser yang sudah ada, bukan
+attestation hardware. Perubahan fingerprint atau penyimpanan browser dapat
+memerlukan reset admin. Penolakan perangkat tidak berarti langganan kedaluwarsa.
+Kebijakan backend Sheets/Netlify produksi lama tidak diubah dalam tahap staging.
 
 Rules staging menolak seluruh akses langsung dari browser ke koleksi tersebut.
 Admin SDK di server memakai service account khusus project
@@ -163,11 +170,11 @@ kepada pelanggan biasa.
 2. Ubah kolom F (`Active` atau `Inactive`) dan/atau kolom E (tanggal kedaluwarsa),
    lalu jalankan **Apply status and expiry (selected row)**. Status `Expired`
    dihitung otomatis dari tanggal kedaluwarsa.
-3. Menu reset perangkat tetap tersedia untuk membersihkan data perangkat lama,
-   bukan untuk membuka slot akses. Pilih baris pembeli lalu jalankan menu reset
+3. Menu reset perangkat membuka slot agar perangkat pengganti dapat didaftarkan. Pilih baris pembeli lalu jalankan menu reset
    handphone, laptop, atau kedua perangkat. Tindakan ini juga menerapkan status
    dan kedaluwarsa pada baris yang dipilih. Mengosongkan sel perangkat saja
-   tidak melakukan reset di Firebase. Login dari perangkat lain tidak perlu reset.
+   tidak melakukan reset di Firebase. Setelah reset, login pertama mengisi slot
+   tersebut kembali; slot kategori lainnya tetap terdaftar.
 4. Jika muncul `STALE_ADMIN_REVISION`, perbarui laporan lalu terapkan ulang
    perubahan yang diinginkan. Login, pembelian baru, atau administrator lain
    mungkin sudah memperbarui akun tersebut.
@@ -228,6 +235,11 @@ pada deployment.
 Setelah setup, lakukan checkout Rp0 baru dan periksa datanya di Firestore serta
 kedua spreadsheet laporan. Kemudian uji login, blokir/aktifkan akun, perubahan
 kedaluwarsa, dan pengiriman ulang webhook jika Lynk menyediakan fitur tersebut.
-Pastikan akun aktif bisa login dari beberapa laptop/HP sekaligus tanpa reset
-dan tanpa mengeluarkan perangkat sebelumnya. Akun nonaktif, kedaluwarsa, email
+Pastikan satu laptop dan satu HP dapat masuk, sedangkan laptop/HP kedua ditolak
+dengan pesan slot terpakai. Reset satu slot lewat admin, lalu pastikan perangkat
+pengganti dapat masuk tanpa menghapus slot lainnya. Akun nonaktif, kedaluwarsa, email
 yang tidak cocok, dan token tidak valid harus tetap ditolak dari semua perangkat.
+
+Saat `npm run dev:staging` memakai `ACCESS_BACKEND=firestore`, endpoint
+verifikasi lokal memakai kode API lokal dan kredensial Admin staging. Ini
+memungkinkan pengujian kebijakan perangkat sebelum deploy Vercel.

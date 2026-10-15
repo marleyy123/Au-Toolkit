@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ACCESS_PLANS } from '../../../../lib/access-plans.js';
 
-type PlanQuote = { id: string; accessDays: number; amount: number; checkout: string | null };
-type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null; plans: PlanQuote[] };
+type PlanQuote = { id: string; accessDays: number; amount: number; checkout: string | null; available?: boolean };
+export type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null; plans: PlanQuote[]; provider?: 'midtrans'; sandbox?: boolean; ready?: boolean; reason?: string | null };
 type PricingState = { status: 'loading' | 'error'; quote?: never } | { status: 'ready'; quote: Quote };
 
 function readQuote(value: unknown): Quote {
@@ -15,7 +15,9 @@ function readQuote(value: unknown): Quote {
     if (typeof data.checkout !== 'string' || url.protocol !== 'https:' || url.hostname !== 'lynk.id' ||
         url.username || url.password || !url.pathname.endsWith('/checkout')) throw new Error('Invalid checkout');
   }
-  const plans = ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
+  if (data.provider !== undefined && data.provider !== 'midtrans') throw new Error('Invalid provider');
+  if (data.provider === 'midtrans' && (data.sandbox !== true || typeof data.ready !== 'boolean' || data.checkout !== null)) throw new Error('Invalid sandbox');
+  const plans: PlanQuote[] = ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
     amount: plan.id === 'monthly' ? data.amount : 0, checkout: plan.id === 'monthly' ? data.checkout : null }));
   if (data.plans !== undefined) {
     if (!Array.isArray(data.plans) || data.plans.length !== plans.length) throw new Error('Invalid plans');
@@ -30,6 +32,10 @@ function readQuote(value: unknown): Quote {
       }
       if (plan.id === 'monthly' && checkout !== data.checkout) throw new Error('Invalid monthly checkout');
       plan.checkout = checkout;
+      if (data.provider === 'midtrans') {
+        if (checkout !== null || matches[0].available !== (plan.id === 'monthly')) throw new Error('Invalid payment plan');
+        plan.available = matches[0].available;
+      }
     }
   }
   return { ...data, plans };

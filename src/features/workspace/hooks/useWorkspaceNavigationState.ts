@@ -20,7 +20,7 @@ function getInitialCategory(activeTab: PlatformTab): PlatformGroup {
   } catch {}
   if (activeTab === 'twitter') return 'x';
   if (activeTab === 'whatsapp-chat' || activeTab === 'whatsapp-call' || activeTab === 'whatsapp-status' || activeTab === 'whatsapp-viewers') return 'whatsapp';
-  if (activeTab === 'tiktok-profile' || activeTab === 'tiktok-feed-live' || activeTab === 'tiktok-fyp') return 'tiktok';
+  if (activeTab === 'tiktok-profile' || activeTab === 'tiktok-feed-live' || activeTab === 'tiktok-live' || activeTab === 'tiktok-fyp') return 'tiktok';
   if (activeTab === 'ios-lockscreen') return 'ios';
   if (activeTab === 'line-chat') return 'line';
   if (activeTab === 'notes') return 'notes';

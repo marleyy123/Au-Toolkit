@@ -1,4 +1,5 @@
-import type { PlatformTab } from '../types';
+import type { PlatformTab, TikTokLiveData } from '../types';
+import { prepareTikTokLiveExportData } from '../features/tiktok/liveExport';
 import { getOriginalImage } from '../utils/imageRegistry';
 import {
   getLocalMediaOwnerUid,
@@ -136,7 +137,9 @@ export async function prepareNativeExportRequest(args: {
   backgroundColor: string;
 }): Promise<PreparedNativeExportRequest> {
   const files: Array<{ id: string; blob: Blob }> = [];
-  const data = await replaceLocalMediaDeep(args.data, files, new WeakMap());
+  const exportData = args.previewKey === 'tiktok-live'
+    ? await prepareTikTokLiveExportData(args.data as TikTokLiveData) : args.data;
+  const data = await replaceLocalMediaDeep(exportData, files, new WeakMap());
   const scale = Math.min(3, Math.max(1, Math.round(args.scale))) as 1 | 2 | 3;
   const slot = detectDeviceSlot();
   const payload: NativeExportPayload = {

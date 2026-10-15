@@ -1,4 +1,5 @@
 import { configuredProducts } from '../lib/access-plans.js';
+import { usesMidtrans, midtransConfig, midtransPlans, paymentCountry } from '../lib/midtrans.js';
 
 const DOMESTIC_CHECKOUT = 'https://lynk.id/sempiternal/l755mjy6y4v5/checkout';
 const INTERNATIONAL_CHECKOUT = 'https://lynk.id/sempiternal/6qnn7x36v3xq/checkout';
@@ -24,6 +25,15 @@ export function createHandler({ env = process.env } = {}) {
       return reply(405, { success: false, reason: 'METHOD_NOT_ALLOWED' });
     }
     // Only use Vercel's IP-derived header. Ignore query, cookies, language and client body.
+    if (usesMidtrans(env)) {
+      let country;
+      try { country = paymentCountry(req, env); } catch { return reply(503, { success: false, reason: 'REGION_UNAVAILABLE' }); }
+      let reason = null;
+      try { midtransConfig(env); } catch (e) { reason = e.message; }
+      return reply(200, { success: true, country, region: country === 'ID' ? 'indonesia' : 'international',
+        amount: country === 'ID' ? 15000 : 30000, currency: 'IDR', checkout: null,
+        provider: 'midtrans', sandbox: true, ready: !reason, reason, plans: midtransPlans(country) });
+    }
     const header = req.headers['x-vercel-ip-country'];
     const country = typeof header === 'string' ? header.trim().toUpperCase() : '';
     if (env.VERCEL !== '1' || !/^[A-Z]{2}$/.test(country) || ['XX', 'ZZ'].includes(country)) {

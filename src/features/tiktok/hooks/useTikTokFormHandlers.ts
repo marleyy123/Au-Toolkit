@@ -1,16 +1,18 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
-import { TikTokFeedLiveData, TikTokFypData, TikTokProfileData } from '../../../types';
+import { TikTokFeedLiveData, TikTokLiveData, TikTokFypData, TikTokProfileData } from '../../../types';
 
 interface UseTikTokFormHandlersArgs {
   setTikTokProfileData: Dispatch<SetStateAction<TikTokProfileData>>;
   setTikTokFeedLiveData: Dispatch<SetStateAction<TikTokFeedLiveData>>;
+  setTikTokLiveData: Dispatch<SetStateAction<TikTokLiveData>>;
   setTikTokFypData: Dispatch<SetStateAction<TikTokFypData>>;
-  updateActiveFolderData: (tab: 'tiktok-profile' | 'tiktok-feed-live' | 'tiktok-fyp', updated: any) => void;
+  updateActiveFolderData: (tab: 'tiktok-profile' | 'tiktok-feed-live' | 'tiktok-live' | 'tiktok-fyp', updated: any) => void;
 }
 
 export const useTikTokFormHandlers = ({
   setTikTokProfileData,
   setTikTokFeedLiveData,
+  setTikTokLiveData,
   setTikTokFypData,
   updateActiveFolderData,
 }: UseTikTokFormHandlersArgs) => {
@@ -23,6 +25,11 @@ export const useTikTokFormHandlers = ({
     setTikTokFeedLiveData(updated);
     updateActiveFolderData('tiktok-feed-live', updated);
   }, [setTikTokFeedLiveData, updateActiveFolderData]);
+
+  const handleTikTokLiveDataChange = useCallback((updated: TikTokLiveData) => {
+    setTikTokLiveData(updated);
+    updateActiveFolderData('tiktok-live', updated);
+  }, [setTikTokLiveData, updateActiveFolderData]);
 
   const handleTikTokFypDataChange = useCallback((updated: TikTokFypData) => {
     setTikTokFypData(updated);
@@ -44,6 +51,7 @@ export const useTikTokFormHandlers = ({
   return {
     handleTikTokProfileDataChange,
     handleTikTokFeedLiveDataChange,
+    handleTikTokLiveDataChange,
     handleTikTokFypDataChange,
     handleToggleTikTokFypLike,
     handleToggleTikTokFypBookmark,

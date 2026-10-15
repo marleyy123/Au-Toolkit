@@ -18,6 +18,7 @@ import { WhatsAppStatusPreview } from '../features/whatsapp/components/whatsappS
 import { WhatsAppViewersPreview } from '../features/whatsapp/components/whatsappViewers/WhatsAppViewersPreview';
 import { TikTokProfilePreview } from '../features/tiktok/components/profile/TikTokProfilePreview';
 import { TikTokFeedLivePreview } from '../features/tiktok/components/feedLive/TikTokFeedLivePreview';
+import { TikTokLivePreview } from '../features/tiktok/components/live/TikTokLivePreview';
 import { TikTokFypPreview } from '../features/tiktok/components/fyp/TikTokFypPreview';
 import { IOSLockscreenPreview } from '../features/ios/components/lockscreen/IOSLockscreenPreview';
 import { LineChatPreview } from '../features/line/components/chat/LineChatPreview';
@@ -93,6 +94,8 @@ export function PreviewRegistry({
       return <TikTokProfilePreview {...shared} onChange={handlers.onChange} />;
     case 'tiktok-feed-live':
       return <TikTokFeedLivePreview {...shared} />;
+    case 'tiktok-live':
+      return <TikTokLivePreview {...shared} onChange={handlers.onChange} />;
     case 'tiktok-fyp':
       return <TikTokFypPreview {...shared} onToggleLike={handlers.onToggleLike} onToggleBookmark={handlers.onToggleBookmark} onToggleFollow={handlers.onToggleFollow} />;
     case 'ios-lockscreen':

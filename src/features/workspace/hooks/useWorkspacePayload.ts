@@ -22,6 +22,7 @@ import type {
   PushNotificationData,
   SpotifyData,
   TikTokFeedLiveData,
+  TikTokLiveData,
   TikTokFypData,
   TikTokProfileData,
   TwitterPostData,
@@ -65,6 +66,7 @@ type UseWorkspacePayloadArgs = {
   whatsAppViewersData: WhatsAppViewersData;
   tikTokProfileData: TikTokProfileData;
   tikTokFeedLiveData: TikTokFeedLiveData;
+  tikTokLiveData: TikTokLiveData;
   tikTokFypData: TikTokFypData;
   iosLockscreenData: IOSLockscreenData;
   lineChatData: LineChatData;
@@ -106,6 +108,7 @@ export function useWorkspacePayload({
   whatsAppViewersData,
   tikTokProfileData,
   tikTokFeedLiveData,
+  tikTokLiveData,
   tikTokFypData,
   iosLockscreenData,
   lineChatData,
@@ -134,6 +137,7 @@ export function useWorkspacePayload({
       'whatsapp-viewers': whatsAppViewersData,
       'tiktok-profile': tikTokProfileData,
       'tiktok-feed-live': tikTokFeedLiveData,
+      'tiktok-live': tikTokLiveData,
       'tiktok-fyp': tikTokFypData,
       'ios-lockscreen': iosLockscreenData,
       'line-chat': lineChatData,
@@ -204,6 +208,7 @@ export function useWorkspacePayload({
     whatsAppViewersData,
     tikTokProfileData,
     tikTokFeedLiveData,
+    tikTokLiveData,
     tikTokFypData,
     iosLockscreenData,
     lineChatData,

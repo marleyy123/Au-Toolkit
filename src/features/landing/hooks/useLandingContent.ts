@@ -15,13 +15,13 @@ const englishFeatures = [
   ['Ready to share as an image', 'Export your conversations as PNG or JPG images for your stories.'],
 ];
 const englishSteps = [
-  ['Choose your access', 'Select an available plan, then complete payment through Lynk.id.'],
+  ['Choose your access', 'Select an available plan, then complete payment using your preferred method.'],
   ['Use your Google account email', 'Enter the same email as the Google account you will use to sign in.'],
   ['Sign in and start your story', 'Once payment is complete and access has synced, sign in to the editor with that account.'],
 ];
 const englishFaqs = [
   ['Is AU Toolkit a chat app or an AI story writer?', 'AU Toolkit is a visual editor for fictional conversations and content. No messages are sent to other people. You write the story and dialogue yourself.'],
-  ['When does my access period begin?', 'Access starts on your Lynk.id purchase date, rather than your first login: 30 days for one month, 90 days for three months, and 365 days for one year. You can check the expiry date after your access is verified.'],
+  ['When does my access period begin?', 'Access starts on your verified payment date, rather than your first login: 30 days for one month, 90 days for three months, and 365 days for one year. You can check the expiry date after your access is verified.'],
   ['Which email should I use at checkout?', 'Use the Google account email you will use to sign in. If your purchase email is incorrect or different, contact support with your invoice for verification.'],
   ['Can I use it on my phone and laptop?', 'Yes, in a browser on multiple phones and laptops. Sign in with the account matching your purchase email and an active subscription. There are no phone or laptop slot limits, and switching devices does not require a reset.'],
   ['How do I renew my access?', 'Purchase an available plan again using the same email. Remaining days are not automatically added to the new period, so check your expiry date before renewing.'],

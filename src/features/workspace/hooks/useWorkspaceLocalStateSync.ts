@@ -19,6 +19,7 @@ import {
   PushNotificationData,
   SpotifyData,
   TikTokFeedLiveData,
+  TikTokLiveData,
   TikTokFypData,
   TikTokProfileData,
   TwitterPostData,
@@ -45,6 +46,7 @@ import {
   INITIAL_PUSH_NOTIFICATION_DATA,
   INITIAL_SPOTIFY_DATA,
   INITIAL_TIKTOK_FEED_LIVE_DATA,
+  INITIAL_TIKTOK_LIVE_DATA,
   INITIAL_TIKTOK_FYP_DATA,
   INITIAL_TIKTOK_PROFILE_DATA,
   INITIAL_TWITTER_DATA,
@@ -95,6 +97,7 @@ interface UseWorkspaceLocalStateSyncArgs {
   setWhatsAppViewersData: Setter<WhatsAppViewersData>;
   setTikTokProfileData: Setter<TikTokProfileData>;
   setTikTokFeedLiveData: Setter<TikTokFeedLiveData>;
+  setTikTokLiveData: Setter<TikTokLiveData>;
   setTikTokFypData: Setter<TikTokFypData>;
   setIosLockscreenData: Setter<IOSLockscreenData>;
   setLineChatData: Setter<LineChatData>;
@@ -133,6 +136,7 @@ export function useWorkspaceLocalStateSync({
   setWhatsAppViewersData,
   setTikTokProfileData,
   setTikTokFeedLiveData,
+  setTikTokLiveData,
   setTikTokFypData,
   setIosLockscreenData,
   setLineChatData,
@@ -177,6 +181,7 @@ export function useWorkspaceLocalStateSync({
     setWhatsAppViewersData(loadForm('whatsapp-viewers', INITIAL_WHATSAPP_VIEWERS_DATA));
     setTikTokProfileData(loadForm('tiktok-profile', INITIAL_TIKTOK_PROFILE_DATA));
     setTikTokFeedLiveData(loadForm('tiktok-feed-live', INITIAL_TIKTOK_FEED_LIVE_DATA));
+    setTikTokLiveData(loadForm('tiktok-live', INITIAL_TIKTOK_LIVE_DATA));
     setTikTokFypData(loadForm('tiktok-fyp', INITIAL_TIKTOK_FYP_DATA));
     setIosLockscreenData(loadForm('ios-lockscreen', INITIAL_IOS_LOCKSCREEN_DATA));
     setLineChatData(loadForm('line-chat', INITIAL_LINE_CHAT_DATA));

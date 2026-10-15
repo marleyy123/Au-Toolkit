@@ -529,7 +529,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'DEVICE_MISMATCH',
-      message: 'Perangkat ini tidak terdaftar.',
+      message: resData.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah 1 laptop dan 1 HP. Gunakan perangkat terdaftar atau hubungi admin untuk reset perangkat.',
       data: resData,
     };
   }
@@ -769,7 +769,7 @@ export async function checkBuyerEntitlement(
       laptopDeviceId: remoteData?.laptopDeviceId || null,
       deviceModel: detectedDeviceLabel,
       deviceSlot: slot,
-      message: 'Perangkat ini tidak terdaftar.',
+      message: access.message,
     };
   }
 

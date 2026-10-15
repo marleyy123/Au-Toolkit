@@ -1,6 +1,7 @@
 import { ArrowUpRight, CheckCircle2, LogOut } from 'lucide-react';
 import type { EntitlementCheckResult } from '../../../../services/buyerEntitlementService';
 import { AuBrand } from '../../../../components/AuBrand';
+import { landingLinks } from '../../../landing/data/landingContent';
 
 interface AccessGuardProps {
   email: string;
@@ -24,12 +25,12 @@ export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDa
   const isInactive = status === 'INACTIVE' || statusAccount === 'Inactive';
   const isInvalidPurchase = status === 'INVALID_PURCHASE_DATA';
   const expiry = expirationDate || accessExpiresAt;
-  const title = isDeviceMismatch ? copy('Perangkat belum terdaftar', 'Device not registered')
+  const title = isDeviceMismatch ? copy('Akun sudah terdaftar di perangkat lain', 'Account registered on another device')
     : isOrderNotSuccess ? copy('Pembayaran belum terverifikasi', 'Payment not verified')
     : isInactive ? copy('Akun sedang nonaktif', 'Your account is inactive')
     : isInvalidPurchase ? copy('Data pembelian perlu diperiksa', 'Purchase details need checking')
     : copy('Waktunya melanjutkan cerita', 'Time for your next chapter');
-  const description = customMessage || (isDeviceMismatch ? copy('Perangkat ini belum terdaftar untuk akunmu. Hubungi bantuan untuk memeriksa akses.', 'This device is not registered for your account. Contact support to check your access.')
+  const description = customMessage || (isDeviceMismatch ? copy('Setiap akun dapat digunakan pada 1 laptop dan 1 HP. Slot perangkat ini sudah dipakai. Masuk dari perangkat yang terdaftar atau hubungi admin untuk reset slot perangkat. Masa aksesmu tetap aktif sesuai tanggal berakhir.', 'Each account supports 1 laptop and 1 phone. This device slot is already in use. Sign in from your registered device or contact the administrator to reset the slot. Your subscription keeps its existing expiry date.')
     : isOrderNotSuccess ? copy('Akses akan tersedia setelah pembayaran Lynk.id terverifikasi sukses.', 'Access becomes available once your Lynk.id payment is verified as successful.')
     : isInactive ? copy('Hubungi administrator untuk memeriksa status akunmu.', 'Contact the administrator to check your account status.')
     : isInvalidPurchase ? copy('Tanggal pembelian belum valid. Hubungi bantuan dengan invoice pembelianmu.', 'The purchase date is invalid. Contact support with your purchase invoice.')
@@ -48,6 +49,7 @@ export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDa
       <div className="au-auth-heading"><h1 id="au-access-title">{title}</h1><p>{description}</p></div>
       <dl className="au-access-details">
         <div><dt>{copy('Email akun', 'Account email')}</dt><dd>{email}</dd></div>
+        {isDeviceMismatch && <div><dt>{copy('Batas perangkat', 'Device limit')}</dt><dd>{copy('1 laptop + 1 HP', '1 laptop + 1 phone')}</dd></div>}
         <div><dt>{copy('Status akun', 'Account status')}</dt><dd>{statusAccount === 'Active' ? copy('Aktif', 'Active') : statusAccount === 'Inactive' ? copy('Nonaktif', 'Inactive') : copy('Berakhir', 'Expired')}</dd></div>
         {purchaseDate && <div><dt>{copy('Tanggal pembelian', 'Purchase date')}</dt><dd>{formatDate(purchaseDate)}</dd></div>}
         {expiry && <div><dt>{copy('Tanggal berakhir', 'Expiry date')}</dt><dd>{formatDate(expiry)}</dd></div>}
@@ -55,6 +57,7 @@ export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDa
       </dl>
       <div className="au-auth-notice au-auth-notice-saved"><CheckCircle2 size={17} /><div><strong>{copy('Ceritamu tetap tersimpan', 'Your saved work stays yours')}</strong><p>{copy('Status akses tidak menghapus folder dan pengaturanmu. Foto lokal tetap ada di browser tempat kamu mengunggahnya.', 'Your access status does not delete your folders or settings. Local photos remain in the browser where you uploaded them.')}</p></div></div>
       <div className="au-auth-actions au-auth-actions-stacked">
+        {isDeviceMismatch && <a className="au-auth-button au-auth-button-primary" href={landingLinks.support} target="_blank" rel="noopener noreferrer">{copy('Hubungi admin untuk reset perangkat', 'Contact admin to reset device')}<ArrowUpRight size={16} /></a>}
         {!isDeviceMismatch && <a className="au-auth-button au-auth-button-primary" href="/#pilihan-paket" target="_blank" rel="noopener noreferrer">{copy('Perpanjang akses', 'Renew access')}<ArrowUpRight size={16} /></a>}
         <button type="button" className="au-auth-button" onClick={onLogout}><LogOut size={15} />{copy('Ganti akun / keluar', 'Switch account / log out')}</button>
       </div>

@@ -23,6 +23,7 @@ type UseTabFormDataRegistryArgs = {
   whatsAppViewersData: any;
   tikTokProfileData: any;
   tikTokFeedLiveData: any;
+  tikTokLiveData: any;
   tikTokFypData: any;
   iosLockscreenData: any;
   lineChatData: any;
@@ -47,6 +48,7 @@ type UseTabFormDataRegistryArgs = {
   setWhatsAppViewersData: Setter;
   setTikTokProfileData: Setter;
   setTikTokFeedLiveData: Setter;
+  setTikTokLiveData: Setter;
   setTikTokFypData: Setter;
   setIosLockscreenData: Setter;
   setLineChatData: Setter;
@@ -179,6 +181,12 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
         username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
         avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
       }));
+    } else if (tab === 'tiktok-live') {
+      args.setTikTokLiveData((prev: any) => ({
+        ...prev,
+        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
+        avatarUrl: avatar !== undefined ? avatar : prev.avatarUrl,
+      }));
     } else if (tab === 'tiktok-fyp') {
       args.setTikTokFypData((prev: any) => ({
         ...prev,
@@ -220,6 +228,7 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
       case 'whatsapp-viewers': return args.whatsAppViewersData;
       case 'tiktok-profile': return args.tikTokProfileData;
       case 'tiktok-feed-live': return args.tikTokFeedLiveData;
+      case 'tiktok-live': return args.tikTokLiveData;
       case 'tiktok-fyp': return args.tikTokFypData;
       case 'ios-lockscreen': return args.iosLockscreenData;
       case 'line-chat': return args.lineChatData;
@@ -250,6 +259,7 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
     else if (tab === 'whatsapp-viewers') args.setWhatsAppViewersData(cloned);
     else if (tab === 'tiktok-profile') args.setTikTokProfileData(cloned);
     else if (tab === 'tiktok-feed-live') args.setTikTokFeedLiveData(cloned);
+    else if (tab === 'tiktok-live') args.setTikTokLiveData(cloned);
     else if (tab === 'tiktok-fyp') args.setTikTokFypData(cloned);
     else if (tab === 'ios-lockscreen') args.setIosLockscreenData(cloned);
     else if (tab === 'line-chat') args.setLineChatData(cloned);
