@@ -1,5 +1,4 @@
 import React from 'react';
-import { Camera } from 'lucide-react';
 import type { WhatsAppChatMessage } from '../../../../types';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { renderFormattedTextWithAppleEmojis } from '../../../../utils/emojiUtils';
@@ -24,7 +23,12 @@ export function WhatsAppStatusReplyQuote({ message, background, textColor }: Pro
           <span style={{ flexShrink: 0 }}>&middot; Status</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, fontSize: 11.5, lineHeight: '15px', opacity: 0.85 }}>
-          {message.showMediaIndicator && <Camera data-status-media-icon size={13} style={{ flexShrink: 0 }} aria-hidden="true" />}
+          {message.showMediaIndicator && (
+            <svg data-status-media-icon width={13} height={13} viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }} aria-hidden="true">
+              <path fillRule="evenodd" clipRule="evenodd" d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm7 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+              <circle cx="12" cy="13" r="2.5" />
+            </svg>
+          )}
           <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderFormattedTextWithAppleEmojis(caption)}</span>
         </div>
       </div>
