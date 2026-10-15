@@ -38,9 +38,9 @@ export function WhatsAppContactCard({ message, dark, time, metadataColor, ticks 
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3, fontSize: 10, lineHeight: '14px', paddingBottom: 4, color: metadataColor }}>
         <span>{time}</span>{ticks}
       </div>
-      <div data-contact-actions style={{ borderTop: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`, color: dark ? '#53bdeb' : '#007aff', textAlign: 'center', fontSize: 13, fontWeight: 500 }}>
+      <div data-contact-actions style={{ display: 'flex', borderTop: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`, color: dark ? '#53bdeb' : '#007aff', textAlign: 'center', fontSize: 13, fontWeight: 500 }}>
         {actions.map((action, index) => (
-          <div key={action} style={{ padding: '8px 2px', lineHeight: '18px', overflowWrap: 'anywhere', borderTop: index ? `1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}` : undefined }}>{action}</div>
+          <div key={action} style={{ flex: 1, minWidth: 0, padding: '8px 2px', lineHeight: '18px', overflowWrap: 'anywhere', borderLeft: index ? `1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}` : undefined }}>{action}</div>
         ))}
       </div>
     </div>

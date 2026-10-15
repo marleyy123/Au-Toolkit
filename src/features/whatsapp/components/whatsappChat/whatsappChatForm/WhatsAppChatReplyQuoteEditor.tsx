@@ -5,7 +5,7 @@ import { useLanguage } from '../../../../../context/LanguageContext';
 import type { ChatMessageEditorProps } from './whatsAppChatFormTypes';
 import { WhatsAppStatusReplyControls } from './WhatsAppStatusReplyControls';
 import { clearedWhatsAppReplyQuote, hasWhatsAppReplyQuote } from '../../../replyQuote';
-import { MessageSquare, Image as ImageIcon } from 'lucide-react';
+import { MessageSquare, Camera } from 'lucide-react';
 interface Props extends ChatMessageEditorProps {
   isDarkTheme: boolean;
   innerBoxClass: string;
@@ -37,7 +37,7 @@ export const WhatsAppChatReplyQuoteEditor: React.FC<Props> = ({ data, msg, index
             <button key={type} type="button" aria-pressed={(msg.replyType || 'message') === type}
               onClick={() => handleUpdateMessage(index, { replyType: type, showReplyQuote: true })}
               className={`flex items-center gap-1 px-2 py-1 text-[11px] rounded cursor-pointer ${(msg.replyType || 'message') === type ? 'bg-purple-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}>
-              {type === 'message' ? <MessageSquare size={12} /> : <ImageIcon size={12} />}
+              {type === 'message' ? <MessageSquare size={12} /> : <Camera size={12} />}
               {type === 'status' ? 'Status' : isId ? 'Pesan' : 'Message'}
             </button>
           ))}

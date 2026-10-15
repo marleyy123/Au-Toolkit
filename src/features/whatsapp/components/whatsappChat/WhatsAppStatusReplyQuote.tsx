@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image as ImageIcon } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import type { WhatsAppChatMessage } from '../../../../types';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { renderFormattedTextWithAppleEmojis } from '../../../../utils/emojiUtils';
@@ -24,7 +24,7 @@ export function WhatsAppStatusReplyQuote({ message, background, textColor }: Pro
           <span style={{ flexShrink: 0 }}>&middot; Status</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, fontSize: 11.5, lineHeight: '15px', opacity: 0.85 }}>
-          {message.showMediaIndicator && <ImageIcon data-status-media-icon size={13} style={{ flexShrink: 0 }} aria-hidden="true" />}
+          {message.showMediaIndicator && <Camera data-status-media-icon size={13} style={{ flexShrink: 0 }} aria-hidden="true" />}
           <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderFormattedTextWithAppleEmojis(caption)}</span>
         </div>
       </div>

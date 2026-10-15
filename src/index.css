@@ -3,6 +3,17 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *):not([data-preview-canvas], [data-preview-canvas] *));
 
+/* Shared brand colors match the live app's Tailwind purple utilities. */
+:root {
+  --au-accent: var(--color-purple-600);
+  --au-accent-hover: var(--color-purple-700);
+  --au-accent-focus: var(--color-purple-500);
+  --au-accent-soft: var(--color-purple-50);
+  --au-accent-ring: var(--color-purple-100);
+  --au-accent-border: var(--color-purple-300);
+}
+
+
 .au-select-trigger {
   display: inline-flex;
   align-items: center;
@@ -655,8 +666,8 @@ button.btn-locked-amber svg {
   --au-editor-page-padding: 50px;
   --au-editor-ink: #0f172a;
   --au-editor-muted: #64748b;
-  --au-editor-accent: var(--color-purple-600);
-  --au-editor-accent-dark: var(--color-purple-700);
+  --au-editor-accent: var(--au-accent);
+  --au-editor-accent-dark: var(--au-accent-hover);
   --au-editor-line: #e2e8f0;
   --au-editor-tint: #f8fafc;
   --au-editor-panel: #ffffff;
@@ -819,15 +830,14 @@ button.btn-locked-amber svg {
 }
 
 .au-brand { display: inline-block; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; letter-spacing: 0; }
-.au-brand > span { color: #a721b6; }
-.au-editor .au-brand > span, .au-auth-screen .au-brand > span, .au-auth-dialog .au-brand > span, .au-auth-inline .au-brand > span { color: var(--color-purple-600); }
+.au-brand > span { color: var(--au-accent); }
 .au-auth-screen, .au-auth-dialog, .au-auth-inline {
   --auth-ink: #0f172a;
   --auth-muted: #64748b;
   --auth-line: #e2e8f0;
   --auth-surface: #fff;
   --auth-soft: #f1f5f9;
-  --auth-accent: var(--color-purple-600);
+  --auth-accent: var(--au-accent);
   font-family: 'Hanken Grotesk', sans-serif;
   letter-spacing: 0;
 }
@@ -867,7 +877,7 @@ button.btn-locked-amber svg {
 .au-auth-button:hover { background: var(--auth-soft); }
 .au-auth-button:focus-visible { outline: 2px solid var(--auth-accent); outline-offset: 3px; }
 .au-auth-button-primary { background: var(--auth-accent); color: #fff; border-color: transparent; }
-.au-auth-button-primary:hover { background: var(--color-purple-700); }
+.au-auth-button-primary:hover { background: var(--au-accent-hover); }
 .au-auth-notice { display: flex; gap: 10px; width: 100%; text-align: left; padding: 14px 0; font-size: 12px; line-height: 1.6; border-top: 1px solid var(--auth-line); color: var(--auth-muted); }
 .au-auth-notice svg { flex-shrink: 0; margin-top: 2px; }
 .au-auth-notice strong { display: block; color: var(--auth-ink); font-weight: 600; margin-bottom: 3px; }
@@ -885,7 +895,7 @@ button.btn-locked-amber svg {
 .au-login-content :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-dialog :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-inline :is(.rounded-2xl, .rounded-xl) { border-radius: 6px; }
 .au-login-content :is(.shadow-xl, .shadow-lg), .au-auth-dialog .shadow-lg { box-shadow: none; }
 .au-login-content .bg-purple-600, .au-auth-dialog .bg-purple-600, .au-auth-inline .bg-purple-600 { background: var(--auth-accent); }
-.au-login-content .bg-purple-600:hover, .au-auth-dialog .bg-purple-600:hover, .au-auth-inline .bg-purple-600:hover { background: var(--color-purple-700); }
+.au-login-content .bg-purple-600:hover, .au-auth-dialog .bg-purple-600:hover, .au-auth-inline .bg-purple-600:hover { background: var(--au-accent-hover); }
 .au-login-content .bg-white { background: var(--auth-surface); }
 .au-login-content :is(.text-slate-900, .text-slate-800) { color: var(--auth-ink); }
 .au-login-content :is(.text-slate-500, .text-slate-400) { color: var(--auth-muted); }
