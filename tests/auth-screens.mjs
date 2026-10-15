@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { build } from 'esbuild';
+import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 
 const bundle = await build({ stdin: { loader: 'tsx', resolveDir: process.cwd(), contents: `
@@ -24,9 +25,10 @@ const bundle = await build({ stdin: { loader: 'tsx', resolveDir: process.cwd(), 
         onRetry={call('retry')} onBackToLogin={call('login')} />);
 ` }, bundle: true, write: false, format: 'iife' });
 const css = await (await fetch('http://localhost:3000/src/index.css?direct')).text();
+const logo = await readFile('public/favicon.svg', 'utf8');
 const server = createServer((req, res) => {
-  res.setHeader('Content-Type', req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : 'text/html');
-  res.end(req.url === '/bundle.js' ? bundle.outputFiles[0].text : req.url === '/style.css' ? css
+  res.setHeader('Content-Type', req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : req.url === '/favicon.svg' ? 'image/svg+xml' : 'text/html');
+  res.end(req.url === '/bundle.js' ? bundle.outputFiles[0].text : req.url === '/style.css' ? css : req.url === '/favicon.svg' ? logo
     : '<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -43,7 +45,8 @@ try {
     ]) {
       await page.goto(`${origin}/?${params}`);
       await page.locator('.au-auth-brand').waitFor();
-      assert.equal(await page.locator('.au-auth-brand').innerText(), 'au.');
+      assert.equal(await page.locator('.au-auth-brand').getAttribute('aria-label'), 'AU Toolkit');
+      await page.locator('.au-auth-brand img').evaluate(image => image.decode());
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${params} at ${width}`);
       const heading = page.getByRole('heading').first();
       assert(await heading.isVisible());

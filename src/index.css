@@ -713,10 +713,6 @@ button.btn-locked-amber svg {
   color: var(--au-editor-ink);
 }
 
-.au-editor-brand-mark span {
-  color: var(--au-editor-accent);
-}
-
 .au-editor .au-editor-header,
 .au-editor main {
   padding-left: var(--au-editor-page-padding);
@@ -829,8 +825,8 @@ button.btn-locked-amber svg {
   border-radius: 6px !important;
 }
 
-.au-brand { display: inline-block; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; letter-spacing: 0; }
-.au-brand > span { color: var(--au-accent); }
+.au-brand { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 1.22em; height: 1em; font-size: 30px; line-height: 1; vertical-align: middle; }
+.au-brand > img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .au-auth-screen, .au-auth-dialog, .au-auth-inline {
   --auth-ink: #0f172a;
   --auth-muted: #64748b;

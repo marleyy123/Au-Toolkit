@@ -21,7 +21,6 @@ html.au-landing-document { scroll-padding-top: 90px; }
 .landing-header-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .landing-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 750; color: var(--ink); white-space: nowrap; }
 .landing-brand-mark { font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; }
-.landing-brand-mark span { color: var(--accent); }
 .landing-desktop-nav { display: flex; gap: 23px; font-size: 13px; font-weight: 600; color: var(--muted); }
 .landing-desktop-nav a:hover, .landing-footer a:hover { color: var(--accent); }
 .landing-header-actions { display: flex; align-items: center; gap: 22px; }
