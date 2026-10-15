@@ -1412,7 +1412,9 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                           : (msg.text || 'Read a message');
                         const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText);
                         const hasHeaderOrQuote = Boolean(hasWhatsAppReplyQuote(msg) || showSenderName);
-                        const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 25 && !hasHeaderOrQuote;
+                        // A short status reply can share its last line with the timestamp.
+                        const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 25
+                          && (!hasHeaderOrQuote || msg.replyType === 'status');
                         const needsBottomRow = !isShortSingleLine;
 
                         return (
