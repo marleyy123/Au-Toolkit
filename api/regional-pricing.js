@@ -31,7 +31,7 @@ export function createHandler({ env = process.env } = {}) {
       let reason = null;
       try { midtransConfig(env); } catch (e) { reason = e.message; }
       return reply(200, { success: true, country, region: country === 'ID' ? 'indonesia' : 'international',
-        amount: country === 'ID' ? 15000 : 30000, currency: 'IDR', checkout: null,
+        amount: midtransPlans(country)[0].amount, currency: 'IDR', checkout: null,
         provider: 'midtrans', sandbox: true, ready: !reason, reason, plans: midtransPlans(country) });
     }
     const header = req.headers['x-vercel-ip-country'];

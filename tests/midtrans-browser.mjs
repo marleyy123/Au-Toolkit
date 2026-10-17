@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium, webkit } from 'playwright-core';
 import { mkdir } from 'node:fs/promises';
+import { midtransPlans } from '../lib/midtrans-plans.js';
 
 const base = process.env.MIDTRANS_TEST_URL || 'http://localhost:5190';
 await mkdir('dist/midtrans-qa', { recursive: true });
@@ -15,8 +16,7 @@ for (const engine of ['edge', 'webkit']) {
       await page.route('**/api/regional-pricing', route => route.fulfill({ json: {
         success: true, country: 'ID', region: 'indonesia', amount: 15000, currency: 'IDR', checkout: null,
         provider: 'midtrans', sandbox: true, ready, reason: ready ? null : 'SANDBOX_KEYS_REQUIRED',
-        plans: [['monthly', 30], ['quarterly', 90], ['yearly', 365]].map(([id, accessDays]) => ({ id, accessDays,
-          amount: id === 'monthly' ? 15000 : 0, checkout: null, available: id === 'monthly' })),
+        plans: midtransPlans('ID'),
       } }));
       await page.route('**/api/midtrans', async route => {
         const body = route.request().postDataJSON();
@@ -31,7 +31,7 @@ for (const engine of ['edge', 'webkit']) {
       await page.route('https://app.sandbox.midtrans.com/snap/snap.js', route => route.fulfill({ contentType: 'text/javascript',
         body: `window.snap={pay(token, callbacks){window.__snapToken=token;window.__snapCallbacks=callbacks;callbacks.onClose();}};` }));
       await page.goto(base);
-      await page.getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
+      await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
       const dialog = page.getByRole('dialog');
       await dialog.waitFor();
       await dialog.getByLabel('Email akun Google untuk akses').fill('buyer@example.com');
@@ -50,7 +50,7 @@ for (const engine of ['edge', 'webkit']) {
       const bounds = await dialog.boundingBox(); assert(bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
       await dialog.screenshot({ path: `dist/midtrans-qa/${engine}-${width}-pending.png` });
       await page.reload();
-      await page.getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
+      await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
       await dialog.getByRole('button', { name: 'Lanjutkan pembayaran' }).click();
       await page.waitForFunction(() => Boolean(window.__snapCallbacks));
       assert.equal(createCount, 2, 'Reload/resume must reuse the original order');
@@ -67,7 +67,7 @@ for (const engine of ['edge', 'webkit']) {
       await dialog.screenshot({ path: `dist/midtrans-qa/${engine}-${width}-paid.png` });
       ready = false;
       await page.reload();
-      await page.getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
+      await page.locator('[data-plan="monthly"]').getByRole('button', { name: 'Bayar melalui Midtrans' }).click();
       await dialog.getByRole('alert').filter({ hasText: 'Key Midtrans sandbox belum sesuai' }).waitFor();
       assert(await dialog.getByRole('button', { name: 'Pilih metode pembayaran' }).isDisabled());
       await dialog.getByRole('button', { name: 'Tutup' }).click();

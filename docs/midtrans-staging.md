@@ -1,8 +1,9 @@
 # Midtrans Snap di staging
 
-Integrasi hanya aktif untuk Firebase `au-toolkit-staging-20261005` ketika
-`MIDTRANS_SERVER_KEY` terisi. Production dan fallback checkout Lynk tetap memakai
-alur sebelumnya. Key server tidak menggunakan awalan `VITE_` dan tidak dikirim ke browser.
+Integrasi hanya aktif untuk Firebase `au-toolkit-staging-20261005`. Seluruh paket
+development memakai Midtrans Sandbox; key yang kosong atau salah menonaktifkan
+pembayaran tanpa fallback Lynk. Production tetap memakai alur sebelumnya.
+Key server tidak menggunakan awalan `VITE_` dan tidak dikirim ke browser.
 
 ## Konfigurasi
 
@@ -49,11 +50,22 @@ di merchant ditampilkan, sesuai pengaturan Snap Preferences dan kelayakan
 masing-masing kanal. Mengaktifkan kanal di dashboard tetap diperlukan.
 Integrasi tidak menjanjikan kanal yang belum diaktifkan merchant.
 
-Harga bulanan mengikuti harga server yang sudah ada: Indonesia Rp15.000,
-internasional Rp30.000, akses 30 hari. Paket 90/365 hari dinonaktifkan pada
-Midtrans sampai harga ditentukan; nilai nol lama untuk produk testing Lynk
-tidak dikirim sebagai pembayaran Midtrans. Browser tidak dapat menentukan harga,
-durasi akses atau negara transaksi.
+Harga development per 17 Oktober 2026 (seluruh transaksi dalam IDR):
+
+| Paket | Durasi akses | Indonesia | Internasional |
+| --- | --- | --- | --- |
+| 1 bulan | 30 hari | Rp15.000 | Rp39.000 |
+| 6 bulan | 180 hari | Rp90.000 | Rp234.000 |
+| 1 tahun | 365 hari | Rp180.000 | Rp468.000 |
+
+Harga internasional sementara untuk uji pasar. Katalog berada di
+`lib/midtrans-plans.js`, terpisah dari katalog Lynk lama agar transaksi historis
+tetap dapat diverifikasi. Browser hanya mengirim ID paket dan email; server
+menentukan harga, durasi akses, dan negara transaksi dari region tepercaya.
+Paket 6 bulan memakai ID `semiannual`, tidak mengganti ID `quarterly` milik
+transaksi lama. Order pending menyimpan harga/durasi saat dibuat, sehingga
+perubahan harga tidak mengubah nominal order yang sudah ada. Sesi checkout
+disimpan per paket agar melanjutkan order tidak tertukar dengan paket lain.
 
 ## Verifikasi dan penyimpanan
 

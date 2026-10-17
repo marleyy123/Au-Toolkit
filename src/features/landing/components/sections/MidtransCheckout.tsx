@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import type { Quote } from '../../hooks/useRegionalPricing';
+import { useEffect, useId, useRef, useState } from 'react';
+import type { PlanQuote, Quote } from '../../hooks/useRegionalPricing';
 import { useLandingLanguage } from '../../hooks/useLandingLanguage';
 import { landingLinks } from '../../data/landingContent';
 
-type Order = { orderId: string; statusToken: string; snapToken: string; clientKey: string; sandbox: true; amount: number };
+type Order = { orderId: string; statusToken: string; snapToken: string; clientKey: string; sandbox: true; amount: number; planId?: string; accessDays?: number };
 type Snap = { pay: (token: string, callbacks: { onSuccess: () => void; onPending: () => void; onError: () => void; onClose: () => void }) => void };
 const STORAGE = 'au-midtrans-sandbox-order';
-function savedOrder(): Order | null {
+function savedOrder(storage: string, planId: string): Order | null {
   try {
-    const data = JSON.parse(sessionStorage.getItem(STORAGE) || 'null');
-    return data?.sandbox === true && /^au_sb_[a-f0-9]{32}$/.test(data.orderId) && /^[a-f0-9]{64}$/.test(data.statusToken) &&
+    const data = JSON.parse(sessionStorage.getItem(storage) || 'null');
+    return data?.sandbox === true && (data.planId === planId || (!data.planId && planId === 'monthly')) &&
+      /^au_sb_[a-f0-9]{32}$/.test(data.orderId) && /^[a-f0-9]{64}$/.test(data.statusToken) &&
       typeof data.snapToken === 'string' && /^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(data.clientKey || '') ? data : null;
   } catch { return null; }
 }
@@ -37,10 +38,12 @@ function loadSnap(clientKey: string): Promise<Snap> {
   });
 }
 
-export function MidtransCheckout({ quote }: { quote: Quote }) {
+export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuote }) {
   const { copy } = useLandingLanguage();
+  const titleId = useId();
+  const storage = plan.id === 'monthly' ? STORAGE : `${STORAGE}-${plan.id}`;
   const dialog = useRef<HTMLDialogElement>(null);
-  const [order, setOrder] = useState<Order | null>(savedOrder);
+  const [order, setOrder] = useState<Order | null>(() => savedOrder(storage, plan.id));
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -63,7 +66,7 @@ export function MidtransCheckout({ quote }: { quote: Quote }) {
       const result = await api({ action: 'status', orderId: current.orderId, statusToken: current.statusToken });
       if (!mounted.current) return;
       if (result.status === 'paid') {
-        setPaid(true); try { sessionStorage.removeItem(STORAGE); } catch {}
+        setPaid(true); try { sessionStorage.removeItem(storage); } catch {}
         setMessage(result.accessActivated === true
           ? copy('Pembayaran terverifikasi. Akses staging aktif. Silakan masuk dengan email pembelian.', 'Payment verified. Staging access is active. Sign in using your purchase email.')
           : copy('Pembayaran terverifikasi, tetapi akses akun belum aktif. Hubungi admin dengan nomor transaksi ini.', 'Payment verified, but account access is inactive. Contact the administrator with this order number.'));
@@ -88,28 +91,28 @@ export function MidtransCheckout({ quote }: { quote: Quote }) {
   async function start() {
     setBusy(true); setMessage('');
     try {
-      const current: Order = order || await api({ action: 'create', planId: 'monthly', email });
+      const current: Order = order || await api({ action: 'create', planId: plan.id, email });
       if (!mounted.current) return;
       if (current.sandbox !== true || !/^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(current.clientKey || '') || !current.snapToken) throw new Error('SANDBOX_KEYS_REQUIRED');
       setOrder(current);
-      try { sessionStorage.setItem(STORAGE, JSON.stringify(current)); } catch { /* Checkout remains usable with storage disabled. */ }
+      try { sessionStorage.setItem(storage, JSON.stringify({ ...current, planId: plan.id })); } catch { /* Checkout remains usable with storage disabled. */ }
       await pay(current);
     } catch (e) { if (mounted.current) setMessage(explain((e as Error).message)); }
     finally { if (mounted.current) setBusy(false); }
   }
   return <>
     <button className="landing-button landing-button-primary" type="button" onClick={() => dialog.current?.showModal()}>{copy('Bayar melalui Midtrans', 'Pay with Midtrans')}</button>
-    <dialog ref={dialog} className="landing-payment-dialog" aria-labelledby="payment-title" onCancel={event => { if (busy) event.preventDefault(); }}>
-      <h2 id="payment-title">{copy('Pembayaran sandbox', 'Sandbox payment')}</h2>
+    <dialog ref={dialog} className="landing-payment-dialog" aria-labelledby={titleId} onCancel={event => { if (busy) event.preventDefault(); }}>
+      <h2 id={titleId}>{copy('Pembayaran sandbox', 'Sandbox payment')}</h2>
       <p>{copy('Simulasi pembayaran tanpa uang sungguhan. Semua metode yang aktif di akun Midtrans tersedia pada langkah berikutnya.', 'Test payments without real money. Every active Midtrans payment method is available in the next step.')}</p>
-      {!order && <p>{copy('Akses 30 hari · ', '30 days access · ')}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(quote.amount)}</p>}
+      <p>{copy(`Akses ${order?.accessDays ?? plan.accessDays} hari · `, `${order?.accessDays ?? plan.accessDays} days access · `)}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(order?.amount ?? plan.amount)}</p>
       {quote.ready === false && <p role="alert">{explain(quote.reason || '')}</p>}
       {paid ? <a className="landing-button landing-button-primary" href={landingLinks.editor}>{copy('Masuk ke akun', 'Sign in')}</a> : <form onSubmit={event => { event.preventDefault(); void start(); }}>
         {!order && <label>{copy('Email akun Google untuk akses', 'Google account email for access')}<input type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
         {order && <p className="landing-payment-order">{copy('Nomor transaksi: ', 'Order: ')}{order.orderId}</p>}
         <button className="landing-button landing-button-primary" disabled={busy || quote.ready === false}>{busy ? copy('Memproses…', 'Processing…') : order ? copy('Lanjutkan pembayaran', 'Resume payment') : copy('Pilih metode pembayaran', 'Choose payment method')}</button>
         {order && <button type="button" className="landing-button landing-button-secondary" disabled={busy} onClick={() => void check()}>{copy('Periksa status pembayaran', 'Check payment status')}</button>}
-        {order && <button type="button" className="landing-button landing-button-secondary" disabled={busy} onClick={() => { try { sessionStorage.removeItem(STORAGE); } catch {} setOrder(null); setMessage(''); }}>{copy('Buat transaksi baru', 'Create a new order')}</button>}
+        {order && <button type="button" className="landing-button landing-button-secondary" disabled={busy} onClick={() => { try { sessionStorage.removeItem(storage); } catch {} setOrder(null); setPaid(false); setMessage(''); }}>{copy('Buat transaksi baru', 'Create a new order')}</button>}
       </form>}
       <p role="status" aria-live="polite">{message}</p>
       <button className="landing-button landing-button-secondary" type="button" disabled={busy} onClick={() => dialog.current?.close()}>{copy('Tutup', 'Close')}</button>

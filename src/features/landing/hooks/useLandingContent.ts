@@ -31,12 +31,20 @@ const englishFaqs = [
 
 export function useLandingContent() {
   const { language } = useLandingLanguage();
-  if (language === 'id') return { navigation, formats, features, purchaseSteps, faqs };
+  const staging = import.meta.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005';
+  const accessAnswer = language === 'id'
+    ? 'Masa akses dihitung dari tanggal pembayaran yang terverifikasi: 30 hari untuk 1 bulan, 180 hari untuk 6 bulan, dan 365 hari untuk 1 tahun. Tanggal berakhir bisa diperiksa setelah akses terverifikasi.'
+    : 'Access starts on your verified payment date: 30 days for one month, 180 days for six months, and 365 days for one year. You can check the expiry date after your access is verified.';
+  const localizedFaqs = faqs.map((item, i) => ({ ...item,
+    question: language === 'id' ? item.question : englishFaqs[i][0],
+    answer: staging && i === 1 ? accessAnswer : language === 'id' ? item.answer : englishFaqs[i][1],
+  }));
+  if (language === 'id') return { navigation, formats, features, purchaseSteps, faqs: localizedFaqs };
   return {
     navigation: navigation.map((item, i) => ({ ...item, label: ['Format Gallery', 'Features', 'How to Buy', 'Plans', 'FAQ'][i] })),
     formats: formats.map((item, i) => ({ ...item, description: englishFormats[i][0], tag: englishFormats[i][1] })),
     features: features.map((item, i) => ({ ...item, title: englishFeatures[i][0], description: englishFeatures[i][1] })),
     purchaseSteps: purchaseSteps.map((item, i) => ({ ...item, title: englishSteps[i][0], description: englishSteps[i][1] })),
-    faqs: faqs.map((item, i) => ({ ...item, question: englishFaqs[i][0], answer: englishFaqs[i][1] })),
+    faqs: localizedFaqs,
   };
 }

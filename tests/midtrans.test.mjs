@@ -101,11 +101,50 @@ assert.equal(inactive.status, 'paid'); assert.equal(inactive.accessActivated, fa
 assert.equal(inactive.reason, 'ACCOUNT_INACTIVE', 'Payment cannot override an admin block');
 clock += 31000;
 const intl = await call({ ...input, email: 'international@example.com' }, { country: 'US' });
-assert.equal(intl.amount, 30000);
+assert.equal(intl.amount, 39000);
 assert.equal((await call(input, { country: 'ZZ' })).reason, 'REGION_UNAVAILABLE');
 const quote = await call(null, { method: 'GET', target: pricing({ env }) });
 assert.equal(quote.provider, 'midtrans'); assert.equal(quote.ready, true);
-assert.equal(quote.plans[0].available, true); assert.equal(quote.plans[1].available, false);
+assert.deepEqual(quote.plans.map(p => [p.id, p.amount, p.accessDays, p.available]), [
+  ['monthly', 15000, 30, true], ['semiannual', 90000, 180, true], ['yearly', 180000, 365, true],
+]);
+// Every package and region must charge the server price and grant the matching duration.
+for (const country of ['ID', 'US', 'PH', 'MY']) {
+  const expected = country === 'ID' ? [15000, 90000, 180000] : [39000, 234000, 468000];
+  const regional = await call(null, { method: 'GET', country, target: pricing({ env }) });
+  assert.deepEqual(regional.plans.map(p => p.amount), expected);
+  for (const [index, planId] of ['monthly', 'semiannual', 'yearly'].entries()) {
+    clock += 31000;
+    const email = `${country}-${planId}@example.com`;
+    const created = await call({ action: 'create', email, planId, amount: 1, accessDays: 9999, country: 'ID' }, { country });
+    assert.equal(created.code, 200);
+    assert.equal(created.amount, expected[index]);
+    assert.equal(created.planId, planId);
+    assert.equal(created.accessDays, [30, 180, 365][index]);
+    assert.equal(payload.item_details[0].id, 'au-' + planId);
+    assert.equal(payload.item_details[0].price, expected[index]);
+    assert.equal(payload.transaction_details.gross_amount, expected[index]);
+    const persisted = db.rows.get('midtransOrders/' + created.orderId);
+    assert.equal(persisted.country, country);
+    providerStatus = { order_id: created.orderId, gross_amount: `${expected[index]}.00`, currency: 'IDR',
+      transaction_id: `${country}-${planId}`, status_code: '200', transaction_status: 'settlement' };
+    const request = { action: 'status', orderId: created.orderId, statusToken: created.statusToken };
+    assert.equal((await call(request)).accessActivated, true);
+    assert.equal((await call(request)).accessActivated, true);
+    const account = await store.getAccount(email);
+    assert.equal(account.planId, planId);
+    assert.equal(account.accessDays, created.accessDays);
+    assert.equal((Date.parse(account.expirationDate) - Date.parse(account.purchaseDate)) / 86400000, created.accessDays);
+    assert.equal(account.revision, 1);
+  }
+}
+const missingKey = await call(null, { method: 'GET', target: pricing({ env: { ...env, MIDTRANS_SERVER_KEY: '' } }) });
+assert.equal(missingKey.provider, 'midtrans', 'Staging must never fall back to Lynk');
+assert.equal(missingKey.checkout, null);
+assert.equal(missingKey.ready, false);
+const legacyQuote = await call(null, { method: 'GET', country: 'US', target: pricing({ env: { VERCEL: '1', VITE_FIREBASE_PROJECT_ID: 'production' } }) });
+assert.equal(legacyQuote.amount, 30000, 'Live configuration retains its previous behavior');
+assert.match(legacyQuote.checkout, /^https:\/\/lynk\.id\//);
 const broken = await call(null, { method: 'GET', target: pricing({ env: { ...env, MIDTRANS_CLIENT_KEY: 'invalid-key' } }) });
 assert.equal(broken.ready, false); assert.equal(broken.reason, 'SANDBOX_KEYS_REQUIRED');
 const rejectedDb = new Db();
