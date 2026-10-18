@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React, { useState } from 'react';
 import {
   InstagramDMInboxData,
@@ -545,14 +546,14 @@ export const InstagramDMInboxForm: React.FC<InstagramDMInboxFormProps> = ({
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                       {isId ? 'Lencana Terverifikasi' : 'Verified Badge'}
                     </label>
-                    <select
+                    <Select
                       value={conv.verified || 'none'}
-                      onChange={(e) => handleUpdateConversation(conv.id, { verified: e.target.value as VerifiedType })}
+                      onValueChange={(value) => handleUpdateConversation(conv.id, { verified: value as VerifiedType })}
                       className="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="none">{isId ? 'Tanpa Lencana' : 'No Badge'}</option>
                       <option value="ig-blue">{isId ? 'Centang Biru Instagram' : 'Instagram Blue Checkmark'}</option>
-                    </select>
+                    </Select>
                   </div>
 
                   {/* Contact Avatar Upload */}

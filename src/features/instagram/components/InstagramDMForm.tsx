@@ -1,3 +1,5 @@
+import { Select } from '../../../components/ui/Select';
+import { InstagramDMNoteReplyEditor } from './dm/noteReply/InstagramDMNoteReplyEditor';
 import React, { useEffect, useState } from 'react';
 import {
   InstagramDMData,
@@ -369,14 +371,14 @@ export const InstagramDMForm: React.FC<Props> = ({
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Verified Badge
             </label>
-            <select
+            <Select
               value={data.verified === 'none' || !data.verified ? 'none' : 'ig-blue'}
-              onChange={(e) => updateField('verified', e.target.value as any)}
+              onValueChange={(value) => updateField('verified', value as any)}
               className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-purple-500 cursor-pointer"
             >
               <option value="none">None</option>
               <option value="ig-blue">Instagram Blue Verified</option>
-            </select>
+            </Select>
           </div>
 
           <div>
@@ -518,9 +520,9 @@ export const InstagramDMForm: React.FC<Props> = ({
                 <label className="block text-[11px] font-semibold text-slate-600 mb-1">
                   Relationship Status Subtitle
                 </label>
-                <select
+                <Select
                   value={data.profileSubtitle || "You don't follow each other on Instagram"}
-                  onChange={(e) => updateField('profileSubtitle', e.target.value)}
+                  onValueChange={(value) => updateField('profileSubtitle', value)}
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   <option value="You don't follow each other on Instagram">
@@ -529,7 +531,7 @@ export const InstagramDMForm: React.FC<Props> = ({
                   <option value="You follow each other on Instagram">
                     You follow each other on Instagram
                   </option>
-                </select>
+                </Select>
               </div>
             </div>
           )}
@@ -1419,7 +1421,7 @@ export const InstagramDMForm: React.FC<Props> = ({
                     <label className={`block text-[10px] font-semibold mb-1 ${isEditorDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       Pick Message to Reply
                     </label>
-                    <select
+                    <Select
                       value={(() => {
                         if (msg.replyToMessageId) {
                           const foundIndex = (data.messages || []).findIndex((message) => message.id === msg.replyToMessageId);
@@ -1433,8 +1435,8 @@ export const InstagramDMForm: React.FC<Props> = ({
                         }
                         return '';
                       })()}
-                      onChange={(e) => {
-                        const selectedIdx = parseInt(e.target.value, 10);
+                      onValueChange={(value) => {
+                        const selectedIdx = parseInt(value, 10);
                         const messagesList = data.messages || [];
                         if (!isNaN(selectedIdx) && messagesList[selectedIdx]) {
                           const targetMsg = messagesList[selectedIdx];
@@ -1471,7 +1473,7 @@ export const InstagramDMForm: React.FC<Props> = ({
                             </option>
                           );
                         })}
-                    </select>
+                    </Select>
                   </div>
 
                   {(msg.replyToText || msg.replyToSender) && (
@@ -1605,6 +1607,8 @@ export const InstagramDMForm: React.FC<Props> = ({
                     />
                   )}
                 </div>
+
+                <InstagramDMNoteReplyEditor message={msg} onChange={(patch) => handleUpdateMessage(msg.id, patch)} />
 
                 {/* Optional Image Attachment */}
                 <div className="space-y-2">

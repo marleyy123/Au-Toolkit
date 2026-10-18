@@ -17,6 +17,7 @@ import {
   PushNotificationData,
   SpotifyData,
   TikTokFeedLiveData,
+  TikTokLiveData,
   TikTokFypData,
   TikTokProfileData,
   TwitterPostData,
@@ -43,6 +44,7 @@ import {
   INITIAL_PUSH_NOTIFICATION_DATA,
   INITIAL_SPOTIFY_DATA,
   INITIAL_TIKTOK_FEED_LIVE_DATA,
+  INITIAL_TIKTOK_LIVE_DATA,
   INITIAL_TIKTOK_FYP_DATA,
   INITIAL_TIKTOK_PROFILE_DATA,
   INITIAL_TWITTER_DATA,
@@ -72,6 +74,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
   const [whatsAppViewersData, setWhatsAppViewersData] = useState<WhatsAppViewersData>(() => loadStoredFormState(userAccountKey, 'whatsapp-viewers', INITIAL_WHATSAPP_VIEWERS_DATA));
   const [tikTokProfileData, setTikTokProfileData] = useState<TikTokProfileData>(() => loadStoredFormState(userAccountKey, 'tiktok-profile', INITIAL_TIKTOK_PROFILE_DATA));
   const [tikTokFeedLiveData, setTikTokFeedLiveData] = useState<TikTokFeedLiveData>(() => loadStoredFormState(userAccountKey, 'tiktok-feed-live', INITIAL_TIKTOK_FEED_LIVE_DATA));
+  const [tikTokLiveData, setTikTokLiveData] = useState<TikTokLiveData>(() => loadStoredFormState(userAccountKey, 'tiktok-live', INITIAL_TIKTOK_LIVE_DATA));
   const [tikTokFypData, setTikTokFypData] = useState<TikTokFypData>(() => loadStoredFormState(userAccountKey, 'tiktok-fyp', INITIAL_TIKTOK_FYP_DATA));
   const [iosLockscreenData, setIosLockscreenData] = useState<IOSLockscreenData>(() => loadStoredFormState(userAccountKey, 'ios-lockscreen', INITIAL_IOS_LOCKSCREEN_DATA));
   const [lineChatData, setLineChatData] = useState<LineChatData>(() => loadStoredFormState(userAccountKey, 'line-chat', INITIAL_LINE_CHAT_DATA));
@@ -98,6 +101,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
     whatsAppViewersData,
     tikTokProfileData,
     tikTokFeedLiveData,
+    tikTokLiveData,
     tikTokFypData,
     iosLockscreenData,
     lineChatData,
@@ -122,6 +126,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
     setWhatsAppViewersData,
     setTikTokProfileData,
     setTikTokFeedLiveData,
+    setTikTokLiveData,
     setTikTokFypData,
     setIosLockscreenData,
     setLineChatData,

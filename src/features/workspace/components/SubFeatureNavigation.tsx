@@ -59,6 +59,7 @@ const SUB_FEATURES: Record<PlatformGroup, SubFeatureItem[]> = {
   tiktok: [
     { tab: 'tiktok-profile', category: 'tiktok', label: (language) => language === 'id' ? 'Profil' : 'Profile' },
     { tab: 'tiktok-feed-live', category: 'tiktok', label: () => 'FYP Live' },
+    { tab: 'tiktok-live', category: 'tiktok', label: () => 'LIVE' },
     { tab: 'tiktok-fyp', category: 'tiktok', label: (language) => language === 'id' ? 'Beranda FYP' : 'Home Page' },
   ],
   ios: [],

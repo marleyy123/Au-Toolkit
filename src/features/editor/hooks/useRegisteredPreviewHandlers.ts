@@ -12,6 +12,7 @@ interface UseRegisteredPreviewHandlersArgs {
   handleWhatsAppViewersDataChange: (next: any) => void;
   handleUpdateWhatsAppMessageText: (id: string, text: string) => void;
   handleTikTokProfileDataChange: (next: any) => void;
+  handleTikTokLiveDataChange: (next: any) => void;
   handleIosLockscreenDataChange: (next: any) => void;
   handleLineChatDataChange: (next: any) => void;
   handleUpdateLineMessageText: (id: string, text: string) => void;
@@ -32,6 +33,7 @@ export function useRegisteredPreviewHandlers({
   handleWhatsAppViewersDataChange,
   handleUpdateWhatsAppMessageText,
   handleTikTokProfileDataChange,
+  handleTikTokLiveDataChange,
   handleIosLockscreenDataChange,
   handleLineChatDataChange,
   handleUpdateLineMessageText,
@@ -49,6 +51,7 @@ export function useRegisteredPreviewHandlers({
       case 'whatsapp-status': return handleWhatsAppStatusDataChange(next);
       case 'whatsapp-viewers': return handleWhatsAppViewersDataChange(next);
       case 'tiktok-profile': return handleTikTokProfileDataChange(next);
+      case 'tiktok-live': return handleTikTokLiveDataChange(next);
       case 'ios-lockscreen': return handleIosLockscreenDataChange(next);
       case 'line-chat': return handleLineChatDataChange(next);
       case 'notes': return handleNotesDataChange(next);

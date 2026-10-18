@@ -4,6 +4,10 @@ import { DEFAULT_AVATAR, INITIAL_WHATSAPP_CHAT_DATA } from '../../../data/defaul
 import { renderFormattedTextWithAppleEmojis } from '../../../utils/emojiUtils';
 import { useLanguage } from '../../../context/LanguageContext';
 import { isSameWhatsAppSender, resolveWhatsAppGroupSenders } from '../messageSenders';
+import { WhatsAppVoiceNote } from './whatsappChat/WhatsAppVoiceNote';
+import { WhatsAppContactCard } from './whatsappChat/WhatsAppContactCard';
+import { WhatsAppStatusReplyQuote } from './whatsappChat/WhatsAppStatusReplyQuote';
+import { hasWhatsAppReplyQuote } from '../replyQuote';
 
 interface Props {
   data: WhatsAppChatData;
@@ -1150,11 +1154,11 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                     {/* BUBBLE UTAMA */}
                     <div
-                      style={{ ...bubbleStyles, textAlign: 'left', ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
+                      style={{ ...bubbleStyles, ...(msgType === 'voice_note' ? { width: 268 } : {}), textAlign: 'left', ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
                       className={`relative z-10 w-fit max-w-full shadow-2xs ${
                         msgType === 'image'
                           ? 'p-1'
-                          : (msg.showReplyQuote || msg.replyToText || msg.replyToSender)
+                          : hasWhatsAppReplyQuote(msg)
                             ? 'p-1 pb-1.5'
                             : 'px-[9px] py-[5.5px]'
                       }`}
@@ -1164,7 +1168,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                         <div
                           style={{ color: msg.senderColor || '#e542a3' }}
                           className={`text-[12.5px] font-bold leading-tight mb-0.5 truncate select-none ${
-                            (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-2 pt-0.5' : 'px-1'
+                            hasWhatsAppReplyQuote(msg) ? 'px-2 pt-0.5' : 'px-1'
                           }`}
                         >
                           {renderIosEmojis(msg.senderName || (language === 'id' ? 'Pengguna' : 'User'))}
@@ -1172,7 +1176,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                       )}
 
                       {/* Quoted / Reply Box with full-edge vertical bar and rounded contour */}
-                      {(msg.showReplyQuote || msg.replyToText || msg.replyToSender) && (() => {
+                      {hasWhatsAppReplyQuote(msg) && (() => {
                         const replyBarColor = getHarmoniousReplyBarColor(msg, isOutgoing);
                         const replySenderColor = getHarmoniousReplySenderColor(msg, isOutgoing);
                         const quoteBg = isOutgoing
@@ -1187,6 +1191,10 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                           || (language === 'id' ? 'Kontak' : 'Contact');
                         const previewReplyText = msg.replyToText?.trim()
                           || (language === 'id' ? 'Pesan' : 'Message');
+
+                        if (msg.replyType === 'status') {
+                          return <WhatsAppStatusReplyQuote message={msg} background={quoteBg} textColor={quoteTextColor} />;
+                        }
 
                         return (
                           <div
@@ -1213,6 +1221,19 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                       })()}
 
                       {/* Image Attachment inside Bubble (Single or Multi-Photo Album Grid) */}
+                      {msgType === 'contact' && !msg.isRecalled && msg.status !== 'recalled' && (
+                        <WhatsAppContactCard message={msg} dark={isOutgoing ? isSenderBubbleDark : isReceiverBubbleDark}
+                          time={formatWhatsAppTime(msg.time)} metadataColor={getMessageTimestampColor(isOutgoing)}
+                          ticks={isOutgoing ? renderTicks(msg, isDark, false, isSenderBubbleDark) : null} />
+                      )}
+                      {msgType === 'voice_note' && !msg.isRecalled && msg.status !== 'recalled' && !msg.deletedForMe && (
+                        <WhatsAppVoiceNote
+                          message={msg} outgoing={isOutgoing} dark={isOutgoing ? isSenderBubbleDark : isReceiverBubbleDark}
+                          avatar={(!isOutgoing && data.contactAvatar) || DEFAULT_AVATAR} time={formatWhatsAppTime(msg.time)}
+                          metadataColor={getMessageTimestampColor(isOutgoing)} ticks={renderTicks(msg, isDark, false, isSenderBubbleDark)}
+                          onChange={onChange ? patch => onChange({ ...data, messages: (data.messages || []).map(item => item.id === msg.id ? { ...item, ...patch } : item) }) : undefined}
+                        />
+                      )}
                       {msgType === 'image' && (() => {
                         const rawPhotos = (msg.imageUrls && msg.imageUrls.length > 0)
                           ? msg.imageUrls.filter(u => Boolean(u && u.trim() !== ''))
@@ -1314,7 +1335,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                   fontSize: `${messageFontSize}px`,
                                 }}
                                 className={`px-1 pt-1 pb-0.5 relative block max-w-full text-[15px] font-sans leading-[1.35] text-current ${
-                                  (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-2' : ''
+                                  hasWhatsAppReplyQuote(msg) ? 'px-2' : ''
                                 }`}
                               >
                                 <div className="min-w-0 max-w-full break-words">
@@ -1337,7 +1358,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                 <div
                                   style={{ color: getMessageTimestampColor(isOutgoing) }}
                                   className={`absolute bottom-0.5 ${
-                                    (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'right-2' : 'right-1'
+                                    hasWhatsAppReplyQuote(msg) ? 'right-2' : 'right-1'
                                   } inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap ${
                                     !useCustomColors && (isOutgoing
                                       ? (isSenderBubbleDark ? 'text-white/75' : 'text-slate-700/80')
@@ -1367,7 +1388,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                             overflowWrap: 'anywhere',
                           }}
                           className={`relative flex flex-wrap items-center justify-end gap-x-2 gap-y-0.5 max-w-full text-[14px] font-sans leading-[1.35] py-0.5 text-current ${
-                            (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-1' : ''
+                            hasWhatsAppReplyQuote(msg) ? 'px-1' : ''
                           }`}
                         >
                           <div className="grow shrink basis-auto min-w-0 max-w-full flex items-center gap-1.5 opacity-70 italic select-none">
@@ -1412,7 +1433,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                           <div
                             style={{ wordWrap: 'break-word', overflowWrap: 'anywhere', fontSize: `${messageFontSize}px` }}
                             className={`relative block max-w-full text-[15px] font-sans leading-[1.35] text-current ${
-                              (msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'px-1 pt-0.5 pb-0.5' : ''
+                              hasWhatsAppReplyQuote(msg) ? 'px-1 pt-0.5 pb-0.5' : ''
                             }`}
                           >
                             {editingId === (msg.id || String(index)) ? (
@@ -1442,7 +1463,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                               </div>
                             )}
                             <div style={{ color: getMessageTimestampColor(isOutgoing) }}
-                              className={`absolute bottom-0.5 ${(msg.showReplyQuote || msg.replyToText || msg.replyToSender) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap ${
+                              className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap ${
                                 !useCustomColors && (isOutgoing
                                   ? (isSenderBubbleDark ? 'text-white/75' : 'text-slate-700/80')
                                   : (isReceiverBubbleDark ? 'text-slate-400' : 'text-[#8e8e93]'))

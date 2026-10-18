@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React from 'react';
 import {
   PushNotificationData,
@@ -663,12 +664,12 @@ export const PushNotificationForm: React.FC<Props> = ({
             <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
                 <span>{language === 'id' ? 'Banner 2' : 'Banner 2'}</span>
-                <select
+                <Select
                   value={data.additionalNotifications?.[0]?.platform || data.platform || 'whatsapp'}
-                  onChange={(e) => {
+                  onValueChange={(value) => {
                     const existing0 = data.additionalNotifications?.[0] || { id: 'notif-2', senderName: '', messageText: '', timestamp: '2m ago', avatarUrl: '', platform: 'whatsapp' as NotificationAppPlatform };
                     const existing1 = data.additionalNotifications?.[1] || { id: 'notif-3', senderName: '', messageText: '', timestamp: '5m ago', avatarUrl: '', platform: 'whatsapp' as NotificationAppPlatform };
-                    const newAdd: NotificationItem[] = [{ ...existing0, platform: e.target.value as NotificationAppPlatform }, existing1];
+                    const newAdd: NotificationItem[] = [{ ...existing0, platform: value as NotificationAppPlatform }, existing1];
                     updateField('additionalNotifications', newAdd);
                   }}
                   className="px-2 py-1 bg-white border border-slate-300 rounded text-xs"
@@ -678,7 +679,7 @@ export const PushNotificationForm: React.FC<Props> = ({
                   <option value="tiktok">TikTok</option>
                   <option value="x">X (Twitter)</option>
                   <option value="line">LINE</option>
-                </select>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -725,12 +726,12 @@ export const PushNotificationForm: React.FC<Props> = ({
               <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
                   <span>{language === 'id' ? 'Banner 3' : 'Banner 3'}</span>
-                  <select
+                  <Select
                     value={data.additionalNotifications?.[1]?.platform || data.platform || 'whatsapp'}
-                    onChange={(e) => {
+                    onValueChange={(value) => {
                       const existing0 = data.additionalNotifications?.[0] || { id: 'notif-2', senderName: '', messageText: '', timestamp: '2m ago', avatarUrl: '', platform: 'whatsapp' as NotificationAppPlatform };
                       const existing1 = data.additionalNotifications?.[1] || { id: 'notif-3', senderName: '', messageText: '', timestamp: '5m ago', avatarUrl: '', platform: 'whatsapp' as NotificationAppPlatform };
-                      const newAdd: NotificationItem[] = [existing0, { ...existing1, platform: e.target.value as NotificationAppPlatform }];
+                      const newAdd: NotificationItem[] = [existing0, { ...existing1, platform: value as NotificationAppPlatform }];
                       updateField('additionalNotifications', newAdd);
                     }}
                     className="px-2 py-1 bg-white border border-slate-300 rounded text-xs"
@@ -740,7 +741,7 @@ export const PushNotificationForm: React.FC<Props> = ({
                     <option value="tiktok">TikTok</option>
                     <option value="x">X (Twitter)</option>
                     <option value="line">LINE</option>
-                  </select>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input

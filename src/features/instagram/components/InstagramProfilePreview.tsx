@@ -94,7 +94,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
           </div>
         </div>
 
-        {/* Profile Header (Avatar & Right Column: Name + Stats left-aligned) */}
+        {/* Profile Header (Avatar & Right Column: Name + Centered Stats) */}
         <div className="flex items-center gap-3.5 px-4 pt-1">
           {/* Avatar Profile Picture */}
           <div className="relative shrink-0">
@@ -116,7 +116,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
             </div>
           </div>
 
-          {/* Right Column: Name & Statistics directly below Name (Left Aligned & Compact) */}
+          {/* Right Column: Name & evenly spaced statistics */}
           <div className="flex flex-col flex-1 min-w-0 justify-center">
             {/* Display Name */}
             <div id="preview-name" className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-[15px] mb-1 truncate text-left`}>
@@ -124,7 +124,7 @@ export const InstagramProfilePreview: React.FC<Props> = ({ data, previewRef }) =
             </div>
 
             {/* Stats Summary (Posts, Followers, Following - bold, prominent font size & clean horizontal spacing) */}
-            <div className="flex items-center justify-start gap-5 sm:gap-6 text-left">
+            <div className="grid grid-cols-3 items-center gap-1 text-center">
               <div id="preview-stat-posts" className="min-w-0">
                 <div id="preview-posts-count" className={`font-bold text-[17px] sm:text-[18px] leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{postsCount || '12'}</div>
                 <div className={`text-[13px] ${isDark ? 'text-white' : 'text-gray-900'} font-normal leading-tight mt-0.5`}>posts</div>

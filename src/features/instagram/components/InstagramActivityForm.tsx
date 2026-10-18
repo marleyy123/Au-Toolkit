@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React from 'react';
 import {
   InstagramActivityData,
@@ -308,10 +309,10 @@ export const InstagramActivityForm: React.FC<Props> = ({
                   <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                     Notification Type
                   </label>
-                  <select
+                  <Select
                     value={notif.type}
-                    onChange={(e) => {
-                      const newType = e.target.value as InstagramActivityNotificationType;
+                    onValueChange={(value) => {
+                      const newType = value as InstagramActivityNotificationType;
                       let newFields: Partial<InstagramActivityNotification> = { type: newType, actionText: '' };
                       if (newType === 'follow') {
                         newFields = {
@@ -335,16 +336,16 @@ export const InstagramActivityForm: React.FC<Props> = ({
                     <option value="comment">Comment ("commented on your post: [Action Text]")</option>
                     <option value="mention">Mention ("mentioned you in a photo: [Action Text]")</option>
                     <option value="like">Like ("liked your photo.")</option>
-                  </select>
+                  </Select>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                     Header Time (Section)
                   </label>
-                  <select
+                  <Select
                     value={notif.section || 'Today'}
-                    onChange={(e) => handleUpdateNotif(notif.id, { section: e.target.value })}
+                    onValueChange={(value) => handleUpdateNotif(notif.id, { section: value })}
                     className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-purple-500 font-medium"
                   >
                     <option value="New">New</option>
@@ -352,7 +353,7 @@ export const InstagramActivityForm: React.FC<Props> = ({
                     <option value="This week">This week</option>
                     <option value="This month">This month</option>
                     <option value="Earlier">Earlier</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
 

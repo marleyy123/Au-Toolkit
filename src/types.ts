@@ -17,6 +17,7 @@ export type PlatformTab =
   | 'whatsapp-call'
   | 'tiktok-profile'
   | 'tiktok-feed-live'
+  | 'tiktok-live'
   | 'tiktok-fyp'
   | 'ios-lockscreen'
   | 'ios-notification'
@@ -350,7 +351,19 @@ export interface InstagramStoryReplyData {
 export interface WhatsAppChatMessage {
   id: string;
   sender: 'incoming' | 'outgoing' | 'me' | 'other' | 'system';
-  type?: 'text' | 'image' | 'sticker' | 'missed_voice_call' | 'missed_video_call' | 'date_divider' | 'divider' | 'unread_divider' | 'system' | 'recalled';
+  type?: 'text' | 'image' | 'sticker' | 'voice_note' | 'contact' | 'missed_voice_call' | 'missed_video_call' | 'date_divider' | 'divider' | 'unread_divider' | 'system' | 'recalled';
+  sharedContactName?: string;
+  sharedContactPhone?: string;
+  sharedContactAvatar?: string;
+  sharedContactType?: 'registered' | 'unregistered';
+  showSharedContactAvatar?: boolean;
+  voiceDuration?: string;
+  voiceProgress?: number;
+  voiceWaveformBars?: number[];
+  voiceAvatar?: string;
+  isVoicePlayed?: boolean;
+  isVoicePlaying?: boolean;
+  voiceSpeed?: '1x' | '1.5x' | '2x';
   text?: string;
   caption?: string;
   imageUrl?: string;
@@ -372,6 +385,11 @@ export interface WhatsAppChatMessage {
   replyToSender?: string;
   replyBarColor?: string;
   replySenderColor?: string;
+  replyType?: 'message' | 'status';
+  statusReplyName?: string;
+  statusReplyCaption?: string;
+  statusReplyImage?: string;
+  showMediaIndicator?: boolean;
   unreadDividerStyle?: 'pill' | 'banner';
   unreadDividerBgColor?: string;
   unreadDividerTextColor?: string;
@@ -690,6 +708,12 @@ export interface InstagramDMMessage {
   replySenderColor?: string;
   isStoryReply?: boolean;
   storyReplyImageUrl?: string;
+  isNoteReply?: boolean;
+  noteText?: string;
+  noteSongTitle?: string;
+  noteArtistName?: string;
+  noteOwnerName?: string;
+  noteOwnerAvatar?: string;
   isSystemMessage?: boolean;
   isThemeChange?: boolean;
   themeName?: string;
@@ -1018,4 +1042,59 @@ export interface ViewportTransform {
   x: number;
   y: number;
   scale: number;
+}
+
+
+export interface TikTokLiveComment {
+  id: string;
+  type: 'comment' | 'join' | 'like';
+  username: string;
+  content: string;
+  avatar?: string;
+  levelBadge?: string;
+  levelColor?: 'blue' | 'orange' | 'purple';
+  subBadge?: string;
+}
+export interface TikTokLiveProduct {
+  id: string;
+  image: string;
+  title: string;
+  price: string;
+  originalPrice: string;
+  discount: string;
+  subtitle: string;
+  hotBadge: string;
+  buttonText: string;
+}
+export interface TikTokLiveData {
+  showVoucherModal?: boolean;
+  voucherClaimed?: boolean;
+  liveMediaUrl: string;
+  liveMediaType: 'image' | 'video';
+  avatarUrl: string;
+  username: string;
+  likeCount: string;
+  joinButtonText: string;
+  showJoinButton: boolean;
+  viewerCount: string;
+  viewers: Array<{id: string; avatar: string; badge: string}>;
+  showDailyRanking: boolean;
+  dailyRankingText: string;
+  rankingBadgeIcon: 'bag' | 'fire' | 'heart' | 'star';
+  showNewRound: boolean;
+  newRoundText: string;
+  comments: TikTokLiveComment[];
+  showFloatingHearts: boolean;
+  floatingHeartsCount: number;
+  commentPlaceholder: string;
+  showGuestButton: boolean;
+  showRoseButton: boolean;
+  showGiftButton: boolean;
+  showShareButton: boolean;
+  showYellowCart: boolean;
+  cartItemCount: string;
+  showCartBadge: boolean;
+  showProductCard: boolean;
+  activeProductId: string;
+  products: TikTokLiveProduct[];
 }

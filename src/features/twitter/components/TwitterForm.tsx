@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React from 'react';
 import { TwitterPostData, ReplyItem, CharacterPreset } from '../../../types';
 import { CharacterSelector, ImageUploader, MultiImageUploader, VerifiedSelector, SaveProfileButton } from '../../../components/FormControls';
@@ -496,14 +497,14 @@ export const TwitterForm: React.FC<Props> = ({
                       placeholder={`Replying to: @${data.handle || 'username'}`}
                       className={inputClass}
                     />
-                    <select
+                    <Select
                       value={reply.verified === 'blue' ? 'blue' : 'none'}
-                      onChange={(e) => handleUpdateReply(index, { verified: e.target.value as any })}
+                      onValueChange={(value) => handleUpdateReply(index, { verified: value as any })}
                       className={`${inputClass} cursor-pointer`}
                     >
                       <option value="none">{isId ? 'Tanpa Lencana' : 'No Badge'}</option>
                       <option value="blue">{isId ? 'Verifikasi Biru' : 'Blue Verified'}</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <ImageUploader

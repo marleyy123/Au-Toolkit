@@ -33,6 +33,7 @@ const ALLOWED_PREVIEWS = new Set([
   'whatsapp-viewers',
   'tiktok-profile',
   'tiktok-feed-live',
+  'tiktok-live',
   'tiktok-fyp',
   'ios-lockscreen',
   'line-chat',

@@ -1,7 +1,8 @@
+import { Select } from '../../../components/ui/Select';
 import React, { useEffect, useState, useRef } from 'react';
 import { LineChatData, LineChatMessage, LineMessageType, CharacterPreset, LineThemePreset } from '../../../types';
 import { CharacterSelector, ImageUploader, SaveProfileButton } from '../../../components/FormControls';
-import { PinAuthModal } from '../../../features/auth/components/PinAuthModal';
+import { PinAuthModal } from '../../auth/components/PinAuthModal';
 import { useLanguage } from '../../../context/LanguageContext';
 import { formatLineTimestamp, getLineCurrentTime } from './LineChatPreview';
 import {
@@ -1154,15 +1155,15 @@ export const LineChatForm: React.FC<Props> = ({
 
             <div>
               <label className="text-xs text-slate-700 font-semibold block mb-1">{isId ? 'Rasio Aspek' : 'Aspect Ratio'}</label>
-              <select
+              <Select
                 value={data.aspectRatio || '9:16'}
-                onChange={(e) => updateField('aspectRatio', e.target.value as any)}
+                onValueChange={(value) => updateField('aspectRatio', value as any)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white"
               >
                 <option value="9:16">9:16 ({isId ? 'Layar Penuh Ponsel' : 'Phone Fullscreen'})</option>
                 <option value="4:5">4:5 ({isId ? 'Kartu Instagram' : 'Instagram Card'})</option>
                 <option value="1:1">1:1 ({isId ? 'Persegi' : 'Square'})</option>
-              </select>
+              </Select>
             </div>
           </div>
         </div>
@@ -1485,17 +1486,17 @@ export const LineChatForm: React.FC<Props> = ({
                       </div>
 
                       {/* Type Selector */}
-                      <select
+                      <Select
                         value={msgType}
-                        onChange={(e) =>
-                          handleUpdateMessage(index, { type: e.target.value as any })
+                        onValueChange={(value) =>
+                          handleUpdateMessage(index, { type: value as any })
                         }
                         className="bg-white border border-slate-200 rounded-md px-2 py-0.5 text-xs font-medium focus:outline-none shrink-0"
                       >
                         <option value="text">{isId ? 'Pesan Teks' : 'Text Message'}</option>
                         <option value="image">{isId ? 'Lampiran Gambar' : 'Image Attachment'}</option>
                         <option value="sticker">{isId ? 'Elemen Stiker (1:1)' : 'Sticker Element (1:1)'}</option>
-                      </select>
+                      </Select>
                     </div>
 
                     {/* Action Controls */}

@@ -337,9 +337,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // Storage is intentionally unavailable for this release. Convert the crop
-    // to a session-only object URL and commit it immediately to form/preview;
-    // Firestore serialization restores the previous stable URL instead.
+    // Show the crop immediately, then replace its URL with a stable local reference.
     setUploadError('');
 
     // Revoke the original draft object URL after the cropper has produced its
@@ -434,6 +432,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               alt={displayLabel}
               className="w-full h-full object-cover"
               onError={(event) => {
+                // The shared resolver is still loading this reference from IndexedDB.
+                if (event.currentTarget.getAttribute('src')?.startsWith('au-local-media://')) return;
                 if (event.currentTarget.src !== DEFAULT_AVATAR) event.currentTarget.src = DEFAULT_AVATAR;
               }}
             />

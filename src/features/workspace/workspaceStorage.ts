@@ -18,6 +18,7 @@ import {
   INITIAL_WHATSAPP_VIEWERS_DATA,
   INITIAL_TIKTOK_PROFILE_DATA,
   INITIAL_TIKTOK_FEED_LIVE_DATA,
+  INITIAL_TIKTOK_LIVE_DATA,
   INITIAL_TIKTOK_FYP_DATA,
   INITIAL_IOS_LOCKSCREEN_DATA,
   INITIAL_LINE_CHAT_DATA,
@@ -67,6 +68,8 @@ export const getPlatformAndSubFeature = (tab: PlatformTab): { platform: string; 
       return { platform: 'tiktok', subFeature: 'profile' };
     case 'tiktok-feed-live':
       return { platform: 'tiktok', subFeature: 'feed-live' };
+    case 'tiktok-live':
+      return { platform: 'tiktok', subFeature: 'live' };
     case 'tiktok-fyp':
       return { platform: 'tiktok', subFeature: 'fyp' };
     case 'ios-lockscreen':
@@ -190,6 +193,7 @@ export const getInitialTabData = (tab: PlatformTab): any => {
     case 'whatsapp-viewers': base = INITIAL_WHATSAPP_VIEWERS_DATA; break;
     case 'tiktok-profile': base = INITIAL_TIKTOK_PROFILE_DATA; break;
     case 'tiktok-feed-live': base = INITIAL_TIKTOK_FEED_LIVE_DATA; break;
+    case 'tiktok-live': base = INITIAL_TIKTOK_LIVE_DATA; break;
     case 'tiktok-fyp': base = INITIAL_TIKTOK_FYP_DATA; break;
     case 'ios-lockscreen': base = INITIAL_IOS_LOCKSCREEN_DATA; break;
     case 'line-chat': base = INITIAL_LINE_CHAT_DATA; break;
@@ -220,6 +224,7 @@ export const ALL_PLATFORM_TABS: PlatformTab[] = [
   'whatsapp-call',
   'tiktok-profile',
   'tiktok-feed-live',
+  'tiktok-live',
   'tiktok-fyp',
   'ios-lockscreen',
   'line-chat',

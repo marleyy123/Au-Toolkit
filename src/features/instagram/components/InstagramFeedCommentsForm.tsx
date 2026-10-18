@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React, { useState } from 'react';
 import {
   InstagramFeedCommentsData,
@@ -206,15 +207,15 @@ export const InstagramFeedCommentsForm: React.FC<Props> = ({
             <label className="block text-xs font-bold text-slate-700 mb-1">
               {isId ? 'Rasio Layar' : 'Aspect Ratio'}
             </label>
-            <select
+            <Select
               value={data.aspectRatio || '9:16'}
-              onChange={(e) => updateField('aspectRatio', e.target.value as any)}
+              onValueChange={(value) => updateField('aspectRatio', value as any)}
               className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 font-medium"
             >
               <option value="9:16">9:16 (Vertical Story / Sheet)</option>
               <option value="4:5">4:5 (Instagram Post)</option>
               <option value="1:1">1:1 (Square)</option>
-            </select>
+            </Select>
           </div>
         </div>
       </div>

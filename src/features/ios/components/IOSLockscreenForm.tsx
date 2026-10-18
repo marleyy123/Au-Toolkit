@@ -1,3 +1,4 @@
+import { Select } from '../../../components/ui/Select';
 import React from 'react';
 import { IOSLockscreenData, LockscreenAppType, CharacterPreset, LockscreenNotificationMessage } from '../../../types';
 import { CharacterSelector, ImageUploader, SaveProfileButton } from '../../../components/FormControls';
@@ -226,15 +227,15 @@ export const IOSLockscreenForm: React.FC<Props> = ({
                   <label className="text-[11px] text-slate-700 dark:text-slate-300 font-bold block mb-1">
                     {isId ? 'Aplikasi' : 'App'}
                   </label>
-                  <select
+                  <Select
                     value={item.appType || 'whatsapp'}
-                    onChange={(e) => handleUpdateNotificationItem(index, 'appType', e.target.value as LockscreenAppType)}
+                    onValueChange={(value) => handleUpdateNotificationItem(index, 'appType', value as LockscreenAppType)}
                     className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                   >
                     <option value="whatsapp">WhatsApp</option>
                     <option value="instagram">Instagram</option>
                     <option value="twitter">X / Twitter</option>
-                  </select>
+                  </Select>
                 </div>
 
                 <div>

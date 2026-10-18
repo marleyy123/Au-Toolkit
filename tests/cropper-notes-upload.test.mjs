@@ -25,6 +25,7 @@ const bundle = await build({ stdin: { contents: `
 `, resolveDir: process.cwd(), loader: 'tsx' }, bundle: true, write: false, format: 'iife', outfile: 'bundle.js', plugins: [{
   name: 'controlled-compression', setup(builder) {
     builder.onLoad({ filter: /[\\/]firebase\.ts$/ }, () => ({ contents: 'export const auth={currentUser:{uid:"test-user"}};export const getStoredAuthUser=()=>auth.currentUser;', loader: 'ts' }));
+    builder.onLoad({ filter: /[\\/]storageService\.ts$/ }, () => ({ contents: 'export const uploadMediaAsset=async()=>{throw new Error("Exercise the local fallback without remote uploads");};', loader: 'ts' }));
     builder.onLoad({ filter: /imageCompressor\.ts$/ }, () => ({ contents: `
       export const compressAndReadAsDataURL=()=>new Promise(resolve=>{(window.finishCompression ||= []).push(value=>resolve(value||window.testImage))});
       export const ensureDataUrlUnderSize=value=>value;

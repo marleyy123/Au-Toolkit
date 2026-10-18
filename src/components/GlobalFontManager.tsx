@@ -1,3 +1,4 @@
+import { Select } from './ui/Select';
 import React, { useRef, useState, useEffect } from 'react';
 import { Type, Upload, Check, RefreshCw, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
@@ -327,9 +328,9 @@ export const GlobalFontManager: React.FC<Props> = ({
           <label className={`text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-700'} block mb-1`}>
             Font Preset
           </label>
-          <select
+          <Select
             value={activeCustomFont ? activeCustomFont.id : selectedFont}
-            onChange={(e) => onSelectFont(e.target.value)}
+            onValueChange={(value) => onSelectFont(value)}
             className={`w-full ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 focus:bg-slate-800' : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'} border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors`}
           >
             <optgroup label="Default & Google Fonts">
@@ -349,7 +350,7 @@ export const GlobalFontManager: React.FC<Props> = ({
                 ))}
               </optgroup>
             )}
-          </select>
+          </Select>
         </div>
 
         {/* Custom Font Uploader */}
