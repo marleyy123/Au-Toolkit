@@ -21,22 +21,21 @@ const bundle = await build({stdin:{contents:`
     const [data,setData]=useState({...INITIAL_INSTAGRAM_PROFILE_DATA,username:'old_user',name:'Old name'});
     const [file,setFile]=useState(null); const ref=useRef(null);
     const exports=usePreviewExport({activeTab:'instagram-profile',language:'id',previewRef:ref,getCurrentTabFormData:()=>data,updateActiveFolderData:()=>{}});
-    useLayoutEffect(()=>{window.state=data;window.png=exports.handleDownload;window.jpg=exports.handleDownloadJpg;
+    useLayoutEffect(()=>{window.state=data;window.loadProfile=setData;window.png=exports.handleDownload;window.jpg=exports.handleDownloadJpg;
       window.prepared=exports.preparedImage?.name;registerExportContext(ref.current,{previewKey:'instagram-profile',data,fontCss:'Arial'});},[data,exports.preparedImage]);
     return <><InstagramProfileForm data={data} onChange={setData}/><InstagramProfilePreview data={data} previewRef={ref}/>
       <PreparedImageDialog file={file||exports.preparedImage} language="id" onClose={()=>{setFile(null);exports.closePreparedImage();}}/></>;
   }
   createRoot(document.getElementById('root')).render(<App/>);
-`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife',plugins:[{
+`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife',loader:{'.css':'empty'},plugins:[{
   name:'controlled-upload-delays',setup(build) {
     build.onLoad({filter:/[\\/]firebase\.ts$/},()=>({contents:'export const auth={currentUser:{uid:"test-user"}}; export const getStoredAuthUser=()=>auth.currentUser;',loader:'ts'}));
-    build.onLoad({filter:/ImageCropperModal\.tsx$/},()=>({contents:`import React from 'react'; export const ImageCropperModal=props=><button id="apply-test-crop" onClick={()=>props.onCropComplete(window.testImage,props.sessionId)}>Apply</button>;`,loader:'tsx'}));
     build.onLoad({filter:/imageManager\.ts$/},async ({path})=>({contents:(await readFile(path,'utf8')).replace('const cleanUid = String(uid', 'await new Promise<void>(resolve => { (window as any).finishPersist = resolve; ((window as any).persistTasks ||= []).push(resolve); });\n  const cleanUid = String(uid'),loader:'ts'}));
     build.onLoad({filter:/imageCompressor\.ts$/},()=>({contents:`export const compressAndReadAsDataURL=()=>new Promise(resolve=>{(window.finishCompression ||= []).push(()=>resolve(window.testImage))}); export const ensureDataUrlUnderSize=v=>v;`,loader:'ts'}));
   },
 }]});
 const assets=await readdir('dist/assets');
-const css=(await readFile('dist/assets/'+assets.find(f=>f.endsWith('.css')),'utf8')).replace(/@import[^;]+;/g,'');
+const css=(await Promise.all(assets.filter(f=>f.endsWith('.css')).map(f=>readFile('dist/assets/'+f,'utf8')))).join('\n').replace(/@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g,'');
 const server=createServer((req,res)=>{
   res.setHeader('Content-Type',req.url==='/bundle.js'?'application/javascript':req.url==='/style.css'?'text/css':'text/html');
   res.end(req.url==='/bundle.js'?bundle.outputFiles[0].text:req.url==='/style.css'?css:'<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');
@@ -59,19 +58,59 @@ try {
       await page.waitForFunction(()=>window.persistTasks?.length===2);
       await page.evaluate(()=>window.persistTasks.forEach(f=>f()));
       await page.waitForFunction(()=>window.state.gridPosts.length===2 && window.state.gridPosts.every(p=>p.image.startsWith('au-local-media://')));
+      await page.waitForFunction(()=>[...document.querySelectorAll('#preview-post-grid img')].every(img=>img.complete && img.naturalWidth>0));
       assert.equal(await page.locator('#preview-username').textContent(),'new_user');
       assert.equal(await page.locator('#preview-name').textContent(),'New name');
       await page.locator('input[type=file]').first().setInputFiles(file);
-      await page.locator('#apply-test-crop').click();
+      await page.waitForFunction(()=>document.querySelector('.cropper-container'));
+      await page.getByRole('button',{name:'Apply / Crop',exact:true}).click();
       await page.waitForFunction(()=>window.persistTasks?.length===3);
       await page.getByPlaceholder('username',{exact:true}).fill('final_user');
       await page.getByPlaceholder('Name',{exact:true}).fill('Final name');
       await page.evaluate(()=>window.finishPersist());
       await page.waitForFunction(()=>window.state.avatar.startsWith('au-local-media://'));
+      await page.waitForFunction(()=>document.querySelector('#preview-avatar-img')?.naturalWidth>0);
       assert.equal(await page.locator('#preview-username').textContent(),'final_user');
       assert.equal(await page.locator('#preview-name').textContent(),'Final name');
       assert.equal(await page.evaluate(()=>window.state.gridPosts.length),2);
+      const editedPostId=await page.evaluate(()=>window.state.gridPosts[0].id);
+      await page.getByText('Post #1',{exact:true}).locator('xpath=../../..').locator('input[type=file]').setInputFiles(file);
+      await page.waitForFunction(()=>document.querySelector('.cropper-container'));
+      await page.getByRole('button',{name:'Apply / Crop',exact:true}).click();
+      await page.waitForFunction(()=>window.persistTasks?.length===4);
+      await page.getByText('Pin',{exact:true}).first().locator('..').getByRole('checkbox').check();
+      await page.getByRole('button',{name:'Add Post',exact:true}).click();
+      await page.evaluate(()=>window.finishPersist());
+      await page.waitForFunction(id=>window.state.gridPosts.find(p=>p.id===id)?.image.startsWith('au-local-media://'),editedPostId);
+      assert.equal(await page.evaluate(id=>window.state.gridPosts.find(p=>p.id===id).isPinned,editedPostId),true);
+      assert.equal(await page.evaluate(()=>window.state.gridPosts.length),3);
+      await page.waitForFunction(()=>document.querySelector('#preview-grid-img-1')?.naturalWidth>0);
       const persistentRef=await page.evaluate(()=>window.state.avatar);
+      // An asynchronous local-media read must not overwrite a newer image.
+      const resolvedRace=await page.evaluate(async ref=>{
+        const img=document.createElement('img');
+        const replace=new MutationObserver(()=>{replace.disconnect();img.src=window.testImage;});
+        replace.observe(document.body,{childList:true});
+        img.src=ref;document.body.append(img);
+        await new Promise(resolve=>setTimeout(resolve,100));
+        const kept=img.getAttribute('src')===window.testImage;
+        img.remove();return kept;
+      },persistentRef);
+      assert.equal(resolvedRace,true,'Local media resolution must preserve a newer upload');
+      for(const width of [390,1280]) {
+        await page.setViewportSize({width,height:900});
+        const centers=await page.evaluate(()=>['posts','followers','following'].map(stat=>{
+          const box=document.querySelector('#preview-stat-'+stat).getBoundingClientRect();
+          const count=document.querySelector('#preview-'+stat+'-count');
+          const range=document.createRange();range.selectNodeContents(count);
+          const text=range.getBoundingClientRect();
+          return {center:box.x+box.width/2,textCenter:text.x+text.width/2,align:getComputedStyle(count).textAlign,display:getComputedStyle(count.parentElement.parentElement).display};
+        }));
+        centers.forEach(({center,textCenter})=>assert(Math.abs(center-textCenter)<1,'Statistic count must be centered above its label: '+JSON.stringify(centers)));
+        assert(Math.abs((centers[1].center-centers[0].center)-(centers[2].center-centers[1].center))<1,'Statistics must be evenly spaced');
+      }
+      await page.setViewportSize({width:390,height:844});
+      await page.locator('#export-ig-profile').screenshot({path:`dist/instagram-profile-${engine}.png`});
       await page.evaluate(()=>{
         Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>true});
         Object.defineProperty(navigator,'share',{configurable:true,value:async data=>{window.shared=data.files[0].name;window.shareActivated=navigator.userActivation.isActive;}});
@@ -91,14 +130,17 @@ try {
       await page.getByRole('button',{name:'Simpan / Bagikan',exact:true}).click();
       assert.equal(await page.evaluate(()=>window.shared),'AU-Toolkit-instagram-profile-1x.jpg');
       await page.getByRole('button',{name:'Tutup',exact:true}).click();
+      const savedProfile=await page.evaluate(()=>window.state);
       await page.reload();
       await page.waitForFunction(()=>window.state);
+      await page.evaluate(data=>window.loadProfile(data),savedProfile);
+      await page.waitForFunction(()=>['#preview-avatar-img','#preview-grid-img-1','#preview-grid-img-2'].every(selector=>document.querySelector(selector)?.naturalWidth>0));
       const restored=await page.evaluate(async ref=>{
         const url=await window.restoreImage(ref);const image=new Image();image.src=url;await image.decode();
         return {width:image.width,height:image.height};
       },persistentRef);
-      assert.deepEqual(restored,{width:32,height:32});
-      console.log('PASS',engine,'bulk upload, delayed avatar persistence preserves edits, native share has fresh user activation');
+      assert(restored.width>0 && restored.width===restored.height,'Cropped avatar must restore as a readable square image');
+      console.log('PASS',engine,'bulk upload, real avatar crop, readable previews, centered statistics, stale image protection, reload and native share');
     } finally {await browser.close();}
   }
 } finally {await new Promise(r=>server.close(r));}

@@ -8,6 +8,7 @@ import {
   revokeSafeObjectURL,
   isBlobUrl,
   persistLocalImageBlob,
+  bindPersistentImageObjectUrl,
   getLocalMediaOwnerUid,
 } from '../../../../utils/imageManager';
 import { auth, getStoredAuthUser } from '../../../../firebase';
@@ -61,6 +62,16 @@ export const InstagramProfileForm: React.FC<Props> = ({
     latest.current.onChange(updated);
   };
 
+  const updateGridPosts = (gridPosts: InstagramGridPost[]) => {
+    const updated = {
+      ...latest.current.data,
+      gridPosts,
+      postsCount: String(gridPosts.filter((post) => !!post.image).length),
+    };
+    latest.current.data = updated;
+    latest.current.onChange(updated);
+  };
+
 
   // Handle adding new Highlight
   const handleAddHighlight = () => {
@@ -87,14 +98,9 @@ export const InstagramProfileForm: React.FC<Props> = ({
 
   // Handle updating Grid Post
   const handleUpdateGridPost = (index: number, updated: Partial<InstagramGridPost>) => {
-    const updatedPosts = [...(data.gridPosts || [])];
+    const updatedPosts = [...(latest.current.data.gridPosts || [])];
     updatedPosts[index] = { ...updatedPosts[index], ...updated };
-    const validCount = updatedPosts.filter((p) => !!p.image).length;
-    onChange({
-      ...data,
-      gridPosts: updatedPosts,
-      postsCount: String(validCount),
-    });
+    updateGridPosts(updatedPosts);
   };
 
   // Handle adding Grid Post (Prepends to start of array for instant live preview)
@@ -103,28 +109,16 @@ export const InstagramProfileForm: React.FC<Props> = ({
       id: 'gp-' + Date.now(),
       image: '',
     };
-    const updatedPosts = [newPost, ...(data.gridPosts || [])];
-    const validCount = updatedPosts.filter((p) => !!p.image).length;
-    onChange({
-      ...data,
-      gridPosts: updatedPosts,
-      postsCount: String(validCount),
-    });
+    updateGridPosts([newPost, ...(latest.current.data.gridPosts || [])]);
   };
 
   // Handle removing Grid Post
   const handleRemoveGridPost = (index: number) => {
-    const postToRemove = (data.gridPosts || [])[index];
+    const postToRemove = (latest.current.data.gridPosts || [])[index];
     if (postToRemove && isBlobUrl(postToRemove.image)) {
       revokeSafeObjectURL(postToRemove.image);
     }
-    const updatedPosts = (data.gridPosts || []).filter((_, i) => i !== index);
-    const validCount = updatedPosts.filter((p) => !!p.image).length;
-    onChange({
-      ...data,
-      gridPosts: updatedPosts,
-      postsCount: String(validCount),
-    });
+    updateGridPosts((latest.current.data.gridPosts || []).filter((_, i) => i !== index));
   };
 
   // Handle bulk upload grid posts
@@ -139,16 +133,9 @@ export const InstagramProfileForm: React.FC<Props> = ({
       file,
     }));
 
-    const updatedPosts = [...newPosts.map(({ id, image }) => ({ id, image })), ...(data.gridPosts || [])];
-    const validCount = updatedPosts.filter((p) => !!p.image).length;
-    onChange({
-      ...data,
-      gridPosts: updatedPosts,
-      postsCount: String(validCount),
-    });
+    updateGridPosts([...newPosts.map(({ id, image }) => ({ id, image })), ...(latest.current.data.gridPosts || [])]);
 
     // 2. Asynchronously compress and persist in background
-    latest.current.data = { ...data, gridPosts: updatedPosts, postsCount: String(validCount) };
     newPosts.forEach(({ id, image: blobUrl, file }) => {
       compressAndReadAsDataURL(file)
         .then(async (dataUrl) => {
@@ -158,9 +145,10 @@ export const InstagramProfileForm: React.FC<Props> = ({
             const folder = localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1';
             const response = await fetch(dataUrl);
             const persistentRef = await persistLocalImageBlob(uid, await response.blob(), `${activeTab}:${folder}:grid`);
+            // Keep the displayed URL valid while React commits the stable reference.
+            bindPersistentImageObjectUrl(persistentRef, blobUrl);
             const current = latest.current.data;
             if (!mounted.current || !current.gridPosts?.some((p) => p.id === id && p.image === blobUrl)) {
-              revokeSafeObjectURL(blobUrl);
               return;
             }
             const updated = {
@@ -169,7 +157,6 @@ export const InstagramProfileForm: React.FC<Props> = ({
             };
             latest.current.data = updated;
             latest.current.onChange(updated);
-            revokeSafeObjectURL(blobUrl);
           }
         })
         .catch((err) => console.warn('Background grid post compression error:', err));

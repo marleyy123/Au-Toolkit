@@ -183,7 +183,8 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
     const ref = element.getAttribute('src') || element.getAttribute('data-au-local-media-ref') || '';
     if (ref.startsWith(LOCAL_MEDIA_PREFIX)) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
-      if (objectUrl && element.isConnected) {
+      // A newer upload may have changed src while IndexedDB was being read.
+      if (objectUrl && element.isConnected && element.getAttribute('src') === ref) {
         element.setAttribute('data-au-local-media-ref', ref);
         element.setAttribute('src', objectUrl);
       }
@@ -198,7 +199,9 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
       const objectUrl = await resolveLocalImageReference(ref, uid);
       if (objectUrl) resolvedStyle = resolvedStyle.split(ref).join(objectUrl);
     }
-    if (resolvedStyle !== style && element.isConnected) element.setAttribute('style', resolvedStyle);
+    if (resolvedStyle !== style && element.isConnected && element.getAttribute('style') === style) {
+      element.setAttribute('style', resolvedStyle);
+    }
   }
 }
 
