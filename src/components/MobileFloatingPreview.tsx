@@ -108,6 +108,23 @@ export const MobileFloatingPreview: React.FC<Props> = ({
     sourceElements.forEach((element, index) => {
       const clonedElement = cloneElements[index];
       if (!clonedElement) return;
+      // Replacing the mirror restarts CSS animations. Preserve their progress so
+      // existing live hearts do not jump back to the bottom on every new heart.
+      const sourceAnimations = element.getAnimations();
+      const clonedAnimations = clonedElement.getAnimations();
+      const startedAt = Number(element.dataset.auAnimationStart);
+      if (startedAt > 0) {
+        // The canonical preview is display:none in the mobile editor, so it
+        // has no running animations to copy. Its spawn time still tracks age.
+        clonedAnimations.forEach((animation) => { animation.currentTime = Math.max(0, Date.now() - startedAt); });
+      }
+      sourceAnimations.forEach((animation, animationIndex) => {
+        const mirroredAnimation = clonedAnimations[animationIndex];
+        if (!mirroredAnimation) return;
+        mirroredAnimation.currentTime = animation.currentTime;
+        mirroredAnimation.playbackRate = animation.playbackRate;
+        if (animation.playState === 'paused') mirroredAnimation.pause();
+      });
       if (element.scrollTop) clonedElement.scrollTop = element.scrollTop;
       if (element.scrollLeft) clonedElement.scrollLeft = element.scrollLeft;
       if (element instanceof HTMLInputElement && clonedElement instanceof HTMLInputElement) {

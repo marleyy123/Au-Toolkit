@@ -646,3 +646,7 @@ button.btn-locked-amber svg {
 .au-select-check { position: absolute; left: 8px; display: flex; color: var(--color-purple-500); }
 .au-select-group-label { padding: 7px 8px 3px; color: var(--select-muted); font-size: 10px; font-weight: 600; }
 .au-select-scroll { display: flex; justify-content: center; height: 20px; color: var(--select-muted); }
+/* A slider gesture belongs to the control, including on touch screens. */
+#customization-panel input[type="range"] {
+  touch-action: none;
+}

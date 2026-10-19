@@ -778,6 +778,7 @@ export default function App() {
   useWorkspaceAutoSaveProtection({
     activeTab,
     userAccountKey,
+    isHydratedRef,
     authUserUid: authUser?.uid,
     cloudSyncState,
     moduleFoldersRef,

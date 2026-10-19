@@ -115,7 +115,9 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       responsive: true,
       restore: false,
       checkCrossOrigin: !isLocal,
-      checkOrientation: true,
+      // Current browsers already apply EXIF orientation when decoding the image.
+      // Avoid CropperJS reading large phone JPEGs again through XHR/FileReader.
+      checkOrientation: false,
       guides: true,
       center: true,
       highlight: false,
@@ -124,8 +126,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       toggleDragModeOnDblclick: false,
       zoomOnTouch: true,
       zoomOnWheel: true,
-      minContainerWidth: 280,
-      minContainerHeight: 280,
+      minContainerWidth: 200,
+      minContainerHeight: 200,
       ready() {
         if (isMountedRef.current) {
           setIsCropperReady(true);

@@ -43,7 +43,7 @@ const server = createServer((req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 try {
   for (const engine of ['chrome', 'webkit']) {
-    const browser = await (engine === 'chrome' ? chromium.launch({ channel: 'chrome', headless: true }) : webkit.launch({ headless: true }));
+    const browser = await (engine === 'chrome' ? chromium.launch({ channel: process.env.TEST_BROWSER_CHANNEL || 'chrome', headless: true }) : webkit.launch({ headless: true }));
     try {
       const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
       await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -63,6 +63,14 @@ try {
       await apply.waitFor();
       await page.waitForFunction(() => [...document.querySelectorAll('button')].some(b => b.textContent.includes('Apply / Crop') && !b.disabled));
       assert.ok(await page.locator('.cropper-container').count());
+      const cropBox = page.locator('.cropper-crop-box');
+      const beforeResize = await cropBox.boundingBox();
+      const handle = await page.locator('.cropper-point.point-se').boundingBox();
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(handle.x - 24, handle.y - 24, { steps: 5 });
+      await page.mouse.up();
+      assert.ok((await cropBox.boundingBox()).width < beforeResize.width - 10, 'Purple crop handle must resize the crop on a mobile viewport');
       await page.screenshot({ path: `dist/cropper-local-${engine}.png` });
       await apply.click();
       await page.waitForFunction(old => window.avatar.startsWith('au-local-media://') && window.avatar !== old, ref);

@@ -354,9 +354,11 @@ export const loadAllStoredModuleFolders = (userKey: string, tabs: PlatformTab[])
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
             folders = parsed.map((item: any, idx: number) => ({
+              ...item,
               id: item.id || `folder-${idx + 1}`,
               name: item.name && item.name.trim() !== '' ? item.name : `Folder ${idx + 1}`,
-              data: item.data || item.profileData || loadStoredFormState(userKey, tab, getInitialTabData(tab)),
+              data: item.data || item.profileData || getInitialTabData(tab),
+              order: typeof item.order === 'number' ? item.order : idx + 1,
             }));
             break;
           }

@@ -29,7 +29,7 @@ const bundle=await build({stdin:{contents:`
     useLayoutEffect(()=>{window.state=data;window.capture=()=>exportPreviewToImage({element:ref.current,scale:1});},[data]);
     const Form=key==='whatsapp-chat'?WhatsAppChatForm:key==='instagram-story-reply'?InstagramStoryReplyForm:InstagramProfileForm;
     return <><button id="remount" onClick={()=>setGeneration(v=>v+1)}>Remount</button>
-      <Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/>
+      <section id="customization-panel"><Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/></section>
       <div id="canonical" style={{display:'none'}}><PreviewRegistry key={generation} previewKey={key} data={registry.currentPreviewData} previewRef={ref} fontCss="Arial"/></div>
       <MobileFloatingPreview sourceRef={ref} refreshKey={key} refreshData={registry.currentPreviewData} uiTheme="light" isOpen={true} onClose={()=>{}}/></>;
   }
@@ -48,10 +48,10 @@ const server=createServer((req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 try{
   for(const engine of ['chrome','webkit']){
-    const browser=await(engine==='chrome'?chromium.launch({channel:'chrome',headless:true}):webkit.launch({headless:true}));
+    const browser=await(engine==='chrome'?chromium.launch({channel:process.env.TEST_BROWSER_CHANNEL || 'chrome',headless:true}):webkit.launch({headless:true}));
     try{
       for(const key of ['whatsapp-chat','instagram-profile','instagram-story-reply']){
-        const page=await browser.newPage({viewport:{width:390,height:844}});
+        const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
         await page.goto('http://127.0.0.1:'+server.address().port+'/?key='+key);
         await page.waitForFunction(()=>window.state);
         if(key==='whatsapp-chat'){
@@ -59,6 +59,24 @@ try{
           await page.getByPlaceholder(/Pesan masuk \(kiri\)|Received message \(left\)/).fill('hii good apakabar?');
           await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone]')?.textContent.includes('hii good apakabar?'));
           assert.equal(await page.evaluate(()=>window.state.messages[0].text),'hii good apakabar?');
+          const slider = page.locator('#wa-message-font-size');
+          await slider.scrollIntoViewIfNeeded();
+          assert.equal(await slider.evaluate(el => getComputedStyle(el).touchAction), 'none');
+          if (engine === 'chrome') {
+            await page.evaluate(() => document.activeElement?.blur());
+            const box = await slider.boundingBox();
+            const scrollBefore = await page.evaluate(() => window.scrollY);
+            const session = await page.context().newCDPSession(page);
+            const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+            await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+            for (let step = 1; step <= 5; step++) {
+              await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: point.x + step * 8, y: point.y - step * 8 }] });
+            }
+            await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+            await page.waitForTimeout(200);
+            assert.ok(Math.abs(await page.evaluate(() => window.scrollY) - scrollBefore) < 3, 'Dragging and releasing the font slider must not pan the page');
+            await session.detach();
+          }
         }else if(key==='instagram-story-reply'){
           await page.getByPlaceholder('ramadhniap_', {exact:true}).fill('reply_updated');
           await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone]')?.textContent.includes('reply_updated'));

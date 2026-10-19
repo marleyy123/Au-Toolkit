@@ -26,13 +26,23 @@ async function loadModule(entryPoint, firebaseSdk = false) {
           let contents;
           if (path === 'react') contents = `
             export const useCallback = fn => fn;
-            export const useRef = current => ({ current });
+            export const useRef = current => {
+              const c = globalThis.__workspaceTest;
+              if (!c.refs) return { current };
+              return c.refs[c.refIndex++] ||= { current };
+            };
+            export const useState = initial => [initial, () => {}];
             export const useEffect = fn => { globalThis.__workspaceTest.effects.push(fn); };`;
           else if (path === 'firebase') contents = `
             const c = globalThis.__workspaceTest;
             export const auth = { get currentUser() { return c.currentUser; } };
             export const isFirestoreQuotaExhausted = () => false;
             export const getStoredAuthUser = () => c.currentUser;
+            export const loadUserWorkspaceFromFirestore = async () => null;
+            export const setStoredAuthUser = () => {};
+            export const clearWorkspaceFingerprintCache = () => {};
+            export const flushPendingWorkspaceSaves = async () => {};
+            export const signOutUser = async () => { c.currentUser = null; };
             export const syncFolderToFirestore = async (...args) => c.writes.push(args);
             export const deleteFolderFromFirestore = async () => {};
             export const saveUserWorkspaceToFirestore = (...args) => c.save(...args);`;
@@ -85,6 +95,8 @@ const storage = await loadModule('src/features/workspace/workspaceStorage.ts');
 const foldersModule = await loadModule('src/features/workspace/hooks/useWorkspaceFolders.ts');
 const applyModule = await loadModule('src/features/workspace/hooks/useApplyCloudWorkspaceData.ts');
 const syncModule = await loadModule('src/features/workspace/hooks/useWorkspaceCloudSync.ts');
+const protectionModule = await loadModule('src/features/workspace/hooks/useWorkspaceAutoSaveProtection.ts');
+const logoutModule = await loadModule('src/features/auth/hooks/useAuthLogoutActions.ts');
 const firebaseModule = await loadModule('src/firebase.ts', true);
 
 beforeEach(() => {
@@ -96,11 +108,73 @@ beforeEach(() => {
   };
   globalThis.window = { localStorage: globalThis.localStorage };
   context.effects = [];
+  context.refs = null;
   context.writes = [];
   context.currentUser = { uid: 'BuyerUID', email: 'buyer@icloud.com' };
   context.getDoc = async () => ({ exists: () => true, data: () => ({ userId: 'BuyerUID' }) });
   context.getDocs = async () => ({ docs: [], empty: true, forEach: () => {} });
   firebaseModule.clearWorkspaceFingerprintCache();
+});
+
+test('reopening folders retains conflict timestamps and never copies another contact into an empty folder', () => {
+  const folders = [
+    { id: 'folder-1', name: 'One', data: { text: 'contact one' }, order: 1, updatedAt: '2026-10-19T10:00:00Z' },
+    { id: 'folder-123-random', name: 'Two', order: 2, updatedAt: '2026-10-19T11:00:00Z' },
+  ];
+  localStorage.setItem(storage.getModuleFoldersKey('BuyerUID', 'twitter'), JSON.stringify(folders));
+  const reopened = storage.loadAllStoredModuleFolders('BuyerUID', ['twitter']).twitter;
+  assert.equal(reopened[0].updatedAt, folders[0].updatedAt);
+  assert.equal(reopened[1].order, 2);
+  assert.notEqual(reopened[1].data.text, 'contact one');
+});
+
+test('page exit reads the latest render and cannot overwrite a logged-out workspace', () => {
+  const listeners = {};
+  window.addEventListener = (name, fn) => { listeners[name] = fn; };
+  window.removeEventListener = () => {};
+  globalThis.document = { addEventListener: () => {}, removeEventListener: () => {} };
+  const args = {
+    activeTab: 'twitter', userAccountKey: 'BuyerUID', authUserUid: 'BuyerUID',
+    isHydratedRef: { current: true },
+    moduleFoldersRef: { current: { twitter: [{ id: 'folder-1', data: { text: 'old' } }] } },
+    activeFolderIdsRef: { current: { twitter: 'folder-1' } },
+    getCurrentTabFormData: () => ({ text: 'old' }),
+  };
+  context.refs = []; context.refIndex = 0;
+  protectionModule.useWorkspaceAutoSaveProtection(args);
+  context.effects[0]();
+  context.refIndex = 0;
+  protectionModule.useWorkspaceAutoSaveProtection({ ...args, getCurrentTabFormData: () => ({ text: 'latest edit' }) });
+  listeners.beforeunload();
+  assert.equal(args.moduleFoldersRef.current.twitter[0].data.text, 'latest edit');
+  args.isHydratedRef.current = false;
+  context.refIndex = 0;
+  protectionModule.useWorkspaceAutoSaveProtection({ ...args, getCurrentTabFormData: () => ({ text: 'reset defaults' }) });
+  listeners.beforeunload();
+  assert.equal(args.moduleFoldersRef.current.twitter[0].data.text, 'latest edit');
+});
+
+test('automatic logout backs up every folder and active selection before resetting state', () => {
+  const folders = { twitter: [
+    { id: 'folder-1', data: { text: 'one' } },
+    { id: 'folder-new', data: { text: 'two' } },
+  ] };
+  const noop = () => {};
+  const args = {
+    authUser: context.currentUser, moduleFoldersRef: { current: folders },
+    activeFolderIdsRef: { current: { twitter: 'folder-new' } },
+    isHydratedRef: { current: true }, hasLocalUserEditsInSessionRef: { current: true },
+    syncDebounceTimerRef: { current: null }, gatherCompleteWorkspacePayloadRef: { current: () => ({}) },
+    loadTabFormData: noop, setModuleFolders: noop, setActiveFolderIds: noop,
+    setAccessCode: noop, setIsAuthenticated: noop, setAuthUser: noop, setIsHydrated: noop,
+    setLogoutReason: noop, setAuthLifecycleStage: noop, setCloudSyncState: noop,
+  };
+  logoutModule.useAuthLogoutActions(args).handleAutoLogout('Session ended');
+  const userKey = storage.getUserAccountStorageKey({ uid: 'BuyerUID' });
+  assert.equal(storage.loadAllStoredModuleFolders(userKey, ['twitter']).twitter[1].data.text, 'two');
+  assert.equal(storage.loadAllStoredActiveFolderIds(userKey, ['twitter']).twitter, 'folder-new');
+  assert.equal(localStorage.getItem(storage.getPendingCloudSyncStorageKey(userKey)), 'true');
+  assert.equal(args.isHydratedRef.current, false);
 });
 
 test('adding a folder persists before React processes state updates, and rapid switching keeps both folders', async () => {

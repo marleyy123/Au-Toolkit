@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 import type { AUFolder, PlatformTab } from '../../../types';
 import { auth, loadUserWorkspaceFromFirestore } from '../../../firebase';
@@ -14,6 +14,7 @@ type UseWorkspaceAutoSaveProtectionArgs = {
   activeTab: PlatformTab;
   userAccountKey: string;
   authUserUid?: string;
+  isHydratedRef: MutableRefObject<boolean>;
   cloudSyncState: CloudConnectionState;
   moduleFoldersRef: MutableRefObject<Record<string, AUFolder[]>>;
   activeFolderIdsRef: MutableRefObject<Record<string, string>>;
@@ -28,6 +29,7 @@ export function useWorkspaceAutoSaveProtection({
   activeTab,
   userAccountKey,
   authUserUid,
+  isHydratedRef,
   cloudSyncState,
   moduleFoldersRef,
   activeFolderIdsRef,
@@ -37,16 +39,23 @@ export function useWorkspaceAutoSaveProtection({
   applyCloudWorkspaceDataRef,
   getCurrentTabFormData,
 }: UseWorkspaceAutoSaveProtectionArgs) {
+  const getCurrentTabFormDataRef = useRef(getCurrentTabFormData);
+  getCurrentTabFormDataRef.current = getCurrentTabFormData;
   useEffect(() => {
     const handleBeforeUnload = () => {
+      if (!isHydratedRef.current || (authUserUid && auth.currentUser?.uid !== authUserUid)) return;
       try {
-        const cur = getCurrentTabFormData(activeTab);
+        const cur = getCurrentTabFormDataRef.current(activeTab);
         if (cur) {
           const cloned = JSON.parse(JSON.stringify(cur));
           localStorage.setItem(getFormStorageKey(userAccountKey, activeTab), JSON.stringify(cloned));
           const currentList = moduleFoldersRef.current[activeTab] || [];
           const activeId = activeFolderIdsRef.current[activeTab] || currentList[0]?.id || 'folder-1';
-          const nextList = currentList.map((f) => (f.id === activeId ? { ...f, data: cloned } : f));
+          const nextList = currentList.map((f) => (
+            f.id === activeId && JSON.stringify(f.data) !== JSON.stringify(cloned)
+              ? { ...f, data: cloned, updatedAt: new Date().toISOString() }
+              : f
+          ));
           moduleFoldersRef.current[activeTab] = nextList;
           localStorage.setItem(getModuleFoldersKey(userAccountKey, activeTab), JSON.stringify(nextList));
           if (JSON.stringify(currentList) !== JSON.stringify(nextList)) {
