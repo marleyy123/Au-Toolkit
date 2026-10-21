@@ -97,7 +97,7 @@ try {
         img.remove();return kept;
       },persistentRef);
       assert.equal(resolvedRace,true,'Local media resolution must preserve a newer upload');
-      for(const width of [390,1280]) {
+      for(const width of [390,768,820,1024,1280]) {
         await page.setViewportSize({width,height:900});
         const centers=await page.evaluate(()=>['posts','followers','following'].map(stat=>{
           const box=document.querySelector('#preview-stat-'+stat).getBoundingClientRect();

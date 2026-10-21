@@ -50,8 +50,9 @@ try{
   for(const engine of ['chrome','webkit']){
     const browser=await(engine==='chrome'?chromium.launch({channel:process.env.TEST_BROWSER_CHANNEL || 'chrome',headless:true}):webkit.launch({headless:true}));
     try{
+      for(const width of [390,820]){
       for(const key of ['whatsapp-chat','instagram-profile','instagram-story-reply']){
-        const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+        const page=await browser.newPage({viewport:{width,height:1180},hasTouch:true,isMobile:true});
         await page.goto('http://127.0.0.1:'+server.address().port+'/?key='+key);
         await page.waitForFunction(()=>window.state);
         if(key==='whatsapp-chat'){
@@ -95,9 +96,10 @@ try{
         }
         const result=await page.evaluate(async()=>{const r=await window.capture();return {success:r.success,width:r.width,height:r.height};});
         assert.equal(result.success,true);assert.equal(result.width,380);assert(result.height>300);
-        await page.screenshot({path:'dist/sync-'+engine+'-'+key+'.png'});
-        console.log('PASS',engine,key,'input updates hidden canonical preview and visible floating mirror; export works');
+        await page.screenshot({path:'dist/sync-'+engine+'-'+width+'-'+key+'.png'});
+        console.log('PASS',engine,width,key,'input updates hidden canonical preview and visible floating mirror; export works');
         await page.close();
+      }
       }
     }finally{await browser.close();}
   }

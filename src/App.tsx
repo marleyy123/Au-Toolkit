@@ -802,6 +802,8 @@ export default function App() {
     cornerRadius,
     moduleFoldersRef,
     activeFolderIdsRef,
+    syncDebounceTimerRef,
+    hasLocalUserEditsInSessionRef,
     setModuleFolders,
     setActiveFolderIds,
     setCloudSyncState,

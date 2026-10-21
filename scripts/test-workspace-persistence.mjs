@@ -41,6 +41,7 @@ async function loadModule(entryPoint, firebaseSdk = false) {
             export const loadUserWorkspaceFromFirestore = async () => null;
             export const setStoredAuthUser = () => {};
             export const clearWorkspaceFingerprintCache = () => {};
+            export const markWorkspaceResetPending = uid => c.resetOwner = uid;
             export const flushPendingWorkspaceSaves = async () => {};
             export const signOutUser = async () => { c.currentUser = null; };
             export const syncFolderToFirestore = async (...args) => c.writes.push(args);
@@ -71,7 +72,7 @@ async function loadModule(entryPoint, firebaseSdk = false) {
             export const getDoc = ref => globalThis.__workspaceTest.getDoc(ref);
             export const getDocs = ref => globalThis.__workspaceTest.getDocs(ref);
             export const setDoc = async () => {};
-            export const deleteDoc = async () => {};
+            export const deleteDoc = async ref => globalThis.__workspaceTest.deletes.push(ref.path);
             export const onSnapshot = () => () => {};
             export const writeBatch = () => {
               const operations = [];
@@ -96,6 +97,7 @@ const foldersModule = await loadModule('src/features/workspace/hooks/useWorkspac
 const applyModule = await loadModule('src/features/workspace/hooks/useApplyCloudWorkspaceData.ts');
 const syncModule = await loadModule('src/features/workspace/hooks/useWorkspaceCloudSync.ts');
 const protectionModule = await loadModule('src/features/workspace/hooks/useWorkspaceAutoSaveProtection.ts');
+const resetModule = await loadModule('src/features/workspace/hooks/useWorkspaceHardReset.ts');
 const logoutModule = await loadModule('src/features/auth/hooks/useAuthLogoutActions.ts');
 const firebaseModule = await loadModule('src/firebase.ts', true);
 
@@ -110,6 +112,7 @@ beforeEach(() => {
   context.effects = [];
   context.refs = null;
   context.writes = [];
+  context.deletes = [];
   context.currentUser = { uid: 'BuyerUID', email: 'buyer@icloud.com' };
   context.getDoc = async () => ({ exists: () => true, data: () => ({ userId: 'BuyerUID' }) });
   context.getDocs = async () => ({ docs: [], empty: true, forEach: () => {} });
@@ -274,6 +277,74 @@ test('failed cloud writes remain retryable', async () => {
   context.commit = async operations => { commits.push(operations); };
   await firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload);
   assert.equal(commits.length, 1);
+});
+
+test('hard reset releases the editor during a stalled cloud save and preserves newer pending edits', async () => {
+  const states = [];
+  const resetting = [];
+  let finish;
+  context.save = () => new Promise(resolve => { finish = resolve; });
+  globalThis.sessionStorage = { clear() {} };
+  const noop = () => {};
+  const args = {
+    activeTab: 'twitter', activeCategory: 'social-feed', authUser: context.currentUser,
+    userAccountKey: 'BuyerUID', moduleFoldersRef: { current: {} }, activeFolderIdsRef: { current: {} },
+    syncDebounceTimerRef: { current: setTimeout(() => assert.fail('Old autosave was not cancelled'), 100) },
+    hasLocalUserEditsInSessionRef: { current: false },
+    loadTabFormData: noop, setModuleFolders: noop, setActiveFolderIds: noop,
+    setCloudSyncState: state => states.push(state), setLastSyncedTime: noop,
+    setIsResetting: state => resetting.push(state), setIsResetConfirmOpen: noop,
+    setResetSuccessToast: noop,
+  };
+  await resetModule.useWorkspaceHardReset(args).handlePerformHardReset();
+  assert.deepEqual(resetting, [true, false]);
+  assert.equal(args.syncDebounceTimerRef.current, null);
+  assert.equal(args.hasLocalUserEditsInSessionRef.current, true);
+  assert.equal(context.resetOwner, 'BuyerUID');
+  assert.equal(storage.loadAllStoredModuleFolders('BuyerUID', ['twitter']).twitter.length, 1);
+  assert.equal(localStorage.getItem(storage.getPendingCloudSyncStorageKey('BuyerUID')), 'true');
+  storage.markLocalWorkspaceUpdated('BuyerUID');
+  finish();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(states.includes('synced'), false);
+  assert.equal(localStorage.getItem(storage.getPendingCloudSyncStorageKey('BuyerUID')), 'true');
+});
+
+test('reset deletion waits for old autosaves and newer edits save after the clean snapshot', async () => {
+  const commits = [];
+  let finishOld;
+  context.commit = operations => {
+    commits.push(operations);
+    if (commits.length === 1) return new Promise(resolve => { finishOld = resolve; });
+    return Promise.resolve();
+  };
+  context.getDocs = async () => ({ docs: [{ id: 'twitter_old-folder' }] });
+  const payload = text => ({ moduleFolders: { twitter: [{ id: 'folder-1', data: { text } }] } });
+  const old = firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload('old'));
+  await new Promise(resolve => setImmediate(resolve));
+  firebaseModule.markWorkspaceResetPending('BuyerUID');
+  const reset = firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload('clean'));
+  const edit = firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload('new edit'));
+  assert.deepEqual(context.deletes, []);
+  finishOld();
+  await Promise.all([old, reset, edit]);
+  assert.deepEqual(context.deletes, ['users/BuyerUID/folders/twitter_old-folder']);
+  assert.deepEqual(commits.map(ops => ops.find(op => op.ref.includes('/folders/')).data.data.text), ['old', 'clean', 'new edit']);
+  assert.equal(localStorage.getItem('au_workspace_reset_pending_BuyerUID'), null);
+});
+
+test('a failed reset keeps its durable intent for the next workspace save', async () => {
+  const payload = { moduleFolders: { twitter: [{ id: 'folder-1', data: { text: 'clean' } }] } };
+  firebaseModule.markWorkspaceResetPending('BuyerUID');
+  context.getDocs = async () => { throw new Error('Deletion read failed'); };
+  context.commit = async () => assert.fail('Must not save or acknowledge a failed deletion');
+  await assert.rejects(firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload), /Deletion read failed/);
+  assert.ok(localStorage.getItem('au_workspace_reset_pending_BuyerUID'));
+  context.getDocs = async () => ({ docs: [{ id: 'twitter_old-folder' }] });
+  context.commit = async () => {};
+  await firebaseModule.saveUserWorkspaceToFirestore('BuyerUID', payload);
+  assert.equal(context.deletes.length, 1);
+  assert.equal(localStorage.getItem('au_workspace_reset_pending_BuyerUID'), null);
 });
 
 test('Instagram highlights can be hidden and restored without losing their content', async () => {

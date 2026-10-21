@@ -727,6 +727,12 @@ function getWorkspaceSaveFingerprint(workspaceData: any): string {
   return computeFingerprint(comparable);
 }
 
+const getWorkspaceResetKey = (ownerId: string) => `au_workspace_reset_pending_${ownerId}`;
+
+export function markWorkspaceResetPending(userIdentity: FirebaseUserIdentity): void {
+  localStorage.setItem(getWorkspaceResetKey(getUserDocumentId(userIdentity)), crypto.randomUUID());
+}
+
 // Persist complete user workspace partitioned across subcollections using a promise queue to prevent race conditions
 export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIdentity, workspaceData: any): Promise<void> {
   if (!userIdentity || getUserDocumentId(userIdentity) === 'anonymous_user') return;
@@ -737,17 +743,29 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
   }
 
   const ownerId = getUserDocumentId(userIdentity);
+  const resetRevision = localStorage.getItem(getWorkspaceResetKey(ownerId));
   // Each caller waits for its own immutable snapshot, including duplicate calls.
   const snapshot = JSON.parse(JSON.stringify(workspaceData));
   const workspaceFingerprint = getWorkspaceSaveFingerprint(snapshot);
 
   const queuedSave = savePromiseChain
     .then(async () => {
-      if (savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint) return;
+      // Capture reset intent when queued: an older autosave must never consume
+      // a reset requested after it. Failed resets remain retryable after reload.
+      const shouldReset = Boolean(resetRevision && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision);
+      if (!shouldReset && savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint) return;
       isExecutingSave = true;
       try {
+        if (shouldReset) {
+          if (auth.currentUser?.uid !== ownerId) throw new Error('Workspace owner is no longer signed in.');
+          await clearAllFirebaseData(userIdentity);
+          clearWorkspaceFingerprintCache();
+        }
         await executeSaveUserWorkspace(userIdentity, snapshot);
         savedWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
+        if (shouldReset && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision) {
+          localStorage.removeItem(getWorkspaceResetKey(ownerId));
+        }
       } finally {
         isExecutingSave = false;
       }
@@ -1327,6 +1345,7 @@ export async function clearAllFirebaseData(userId?: FirebaseUserIdentity): Promi
     console.log(`User ${cleanUser} private folders cleared successfully.`);
   } catch (error) {
     console.warn('Could not clear Firebase user collections:', error);
+    throw error;
   }
 }
 
