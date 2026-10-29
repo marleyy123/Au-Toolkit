@@ -623,13 +623,15 @@ async function createDesktopCanonicalStage(
   const clone = source.cloneNode(true) as HTMLElement;
   clone.dataset.auDesktopCanonicalClone = 'true';
   clone.removeAttribute('data-floating-preview-clone');
+  // Preserve explicit component heights; clearing them can make aspect-ratio
+  // recalculate a different height (e.g. WhatsApp viewers: 675px becomes 676px).
   Object.assign(clone.style, {
     width: `${canonicalWidth}px`,
     minWidth: `${canonicalWidth}px`,
     maxWidth: `${canonicalWidth}px`,
-    height: chatViewportHeight ? `${chatViewportHeight}px` : '',
-    minHeight: chatViewportHeight ? `${chatViewportHeight}px` : '',
-    maxHeight: chatViewportHeight ? `${chatViewportHeight}px` : '',
+    height: chatViewportHeight ? `${chatViewportHeight}px` : source.style.height,
+    minHeight: chatViewportHeight ? `${chatViewportHeight}px` : source.style.minHeight,
+    maxHeight: chatViewportHeight ? `${chatViewportHeight}px` : source.style.maxHeight,
     margin: '0',
     transform: 'none',
     zoom: '1',

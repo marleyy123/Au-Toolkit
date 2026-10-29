@@ -696,10 +696,10 @@ export const NotesPreview: React.FC<Props> = ({ data, previewRef, onChange }) =>
 
     return (
       <React.Fragment key={img.id}>
-        {/* Float clearance spacer to push the floating box down to posY vertically */}
+        {/* Keep this spacer in exports: html2canvas removes nodes with any
+            data-html2canvas-ignore attribute, even when its value is "false". */}
         {spacerHeight > 0 && (
           <div
-            data-html2canvas-ignore="false"
             aria-hidden="true"
             style={{
               float: floatSide,
