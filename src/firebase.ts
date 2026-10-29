@@ -376,6 +376,26 @@ function computeFingerprint(data: any): string {
   }
 }
 
+function getRootWorkspaceComparable(workspaceData: any): any {
+  return {
+    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
+    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
+    preferences: workspaceData?.preferences || {},
+    activeFolderIds: workspaceData?.activeFolderIds || {},
+    userAssets: workspaceData?.userAssets || {},
+  };
+}
+
+function getFolderComparable(folder: any, tabKey: string, fallbackOrder: number): any {
+  return removeUndefinedDeep({
+    id: folder?.id || '',
+    name: folder?.name || `Folder ${fallbackOrder}`,
+    data: folder?.data || folder?.profileData || null,
+    order: typeof folder?.order === 'number' ? folder.order : fallbackOrder,
+    tabKey,
+  });
+}
+
 // Cache of saved document fingerprints to enable differential writes (reduces writes by >90%)
 const savedTabFingerprints = new Map<string, string>();
 const savedFolderFingerprints = new Map<string, string>();
@@ -515,8 +535,6 @@ export function getUserDocumentId(userOrKey?: string | { email?: string | null; 
 
 // In-flight concurrency lock & promise chain queue to guarantee sequential execution without dropping writes
 let savePromiseChain: Promise<void> = Promise.resolve();
-const pendingWorkspacePayloads = new Map<string, { userIdentity: FirebaseUserIdentity; workspaceData: any; fingerprint: string }>();
-const pendingWorkspaceFingerprints = new Map<string, string>();
 let isExecutingSave = false;
 
 export async function flushPendingWorkspaceSaves(): Promise<void> {
@@ -527,12 +545,14 @@ export async function flushPendingWorkspaceSaves(): Promise<void> {
 async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, workspaceData: any): Promise<void> {
   // If quota is exhausted, exit immediately without contacting Firestore
   if (isFirestoreQuotaExhausted()) {
-    return;
+    throw new Error('Firestore quota exhausted; workspace remains pending.');
   }
 
   const docId = getUserDocumentId(userIdentity);
   const userEmail = getIdentityEmail(userIdentity);
-  if (!auth.currentUser?.uid || auth.currentUser.uid !== docId) return;
+  if (!auth.currentUser?.uid || auth.currentUser.uid !== docId) {
+    throw new Error('Workspace owner is no longer signed in.');
+  }
 
   try {
     interface BatchOp {
@@ -542,13 +562,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     const operations: BatchOp[] = [];
 
     // 1. Root Workspace Document check (Strictly partitioned metadata only, no bulk tab data)
-    const rootComparable = {
-      lastActiveTab: workspaceData.lastActiveTab || 'twitter',
-      lastActiveCategory: workspaceData.lastActiveCategory || 'social-feed',
-      preferences: workspaceData.preferences || {},
-      activeFolderIds: workspaceData.activeFolderIds || {},
-      userAssets: workspaceData.userAssets || {},
-    };
+    const rootComparable = getRootWorkspaceComparable(workspaceData);
     const rootFingerprint = computeFingerprint(rootComparable);
 
     if (rootFingerprint !== savedRootFingerprint) {
@@ -628,13 +642,7 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         const folder = tabFoldersList[idx];
         if (!folder || !folder.id) continue;
         const cleanFolderId = folder.id;
-        const folderComparable = removeUndefinedDeep({
-          id: cleanFolderId,
-          name: folder.name || `Folder ${idx + 1}`,
-          data: folder.data || null,
-          order: typeof folder.order === 'number' ? folder.order : idx + 1,
-          tabKey,
-        });
+        const folderComparable = getFolderComparable({ ...folder, id: cleanFolderId }, tabKey, idx + 1);
         const folderFingerprint = computeFingerprint(folderComparable);
         const folderFingerprintKey = `${tabKey}_${cleanFolderId}`;
         if (savedFolderFingerprints.get(folderFingerprintKey) === folderFingerprint) {
@@ -700,7 +708,6 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
   } catch (error) {
     if (isFirestoreQuotaExhaustedError(error)) {
       markFirestoreQuotaExhausted();
-      pendingWorkspacePayloads.delete(docId);
       console.warn('Daily Firestore write quota reached. Cloud sync is safely paused; changes remain completely preserved in local storage.');
       throw error;
     }
@@ -713,15 +720,17 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
 
 function getWorkspaceSaveFingerprint(workspaceData: any): string {
   const comparable = {
-    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
-    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
-    preferences: workspaceData?.preferences || {},
-    activeFolderIds: workspaceData?.activeFolderIds || {},
-    userAssets: workspaceData?.userAssets || {},
+    ...getRootWorkspaceComparable(workspaceData),
     formStates: workspaceData?.formStates || {},
     moduleFolders: workspaceData?.moduleFolders || {},
   };
   return computeFingerprint(comparable);
+}
+
+const getWorkspaceResetKey = (ownerId: string) => `au_workspace_reset_pending_${ownerId}`;
+
+export function markWorkspaceResetPending(userIdentity: FirebaseUserIdentity): void {
+  localStorage.setItem(getWorkspaceResetKey(getUserDocumentId(userIdentity)), crypto.randomUUID());
 }
 
 // Persist complete user workspace partitioned across subcollections using a promise queue to prevent race conditions
@@ -730,33 +739,33 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
 
   // Circuit breaker: do not invoke Firestore if daily free quota limit is currently exhausted
   if (isFirestoreQuotaExhausted()) {
-    pendingWorkspacePayloads.delete(getUserDocumentId(userIdentity));
-    pendingWorkspaceFingerprints.delete(getUserDocumentId(userIdentity));
-    return;
+    throw new Error('Firestore quota exhausted; workspace remains pending.');
   }
 
   const ownerId = getUserDocumentId(userIdentity);
-  const workspaceFingerprint = getWorkspaceSaveFingerprint(workspaceData);
-  if (
-    savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint ||
-    pendingWorkspaceFingerprints.get(ownerId) === workspaceFingerprint
-  ) {
-    return;
-  }
-
-  pendingWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
-  pendingWorkspacePayloads.set(ownerId, { userIdentity, workspaceData, fingerprint: workspaceFingerprint });
+  const resetRevision = localStorage.getItem(getWorkspaceResetKey(ownerId));
+  // Each caller waits for its own immutable snapshot, including duplicate calls.
+  const snapshot = JSON.parse(JSON.stringify(workspaceData));
+  const workspaceFingerprint = getWorkspaceSaveFingerprint(snapshot);
 
   const queuedSave = savePromiseChain
     .then(async () => {
-      const task = pendingWorkspacePayloads.get(ownerId);
-      if (!task) return;
-      pendingWorkspacePayloads.delete(ownerId);
-      pendingWorkspaceFingerprints.delete(ownerId);
+      // Capture reset intent when queued: an older autosave must never consume
+      // a reset requested after it. Failed resets remain retryable after reload.
+      const shouldReset = Boolean(resetRevision && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision);
+      if (!shouldReset && savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint) return;
       isExecutingSave = true;
       try {
-        await executeSaveUserWorkspace(task.userIdentity, task.workspaceData);
-        savedWorkspaceFingerprints.set(ownerId, task.fingerprint);
+        if (shouldReset) {
+          if (auth.currentUser?.uid !== ownerId) throw new Error('Workspace owner is no longer signed in.');
+          await clearAllFirebaseData(userIdentity);
+          clearWorkspaceFingerprintCache();
+        }
+        await executeSaveUserWorkspace(userIdentity, snapshot);
+        savedWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
+        if (shouldReset && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision) {
+          localStorage.removeItem(getWorkspaceResetKey(ownerId));
+        }
       } finally {
         isExecutingSave = false;
       }
@@ -767,7 +776,6 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
   savePromiseChain = queuedSave.catch((err) => {
       console.warn('saveUserWorkspaceToFirestore chain notice:', err);
       isExecutingSave = false;
-      pendingWorkspaceFingerprints.delete(ownerId);
     });
 
   return queuedSave;
@@ -1132,13 +1140,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
           composite.moduleFolders[tabKey] = tabFolders;
           tabFolders.forEach((folder: any, idx: number) => {
             if (!folder?.id) return;
-            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
-              id: folder.id,
-              name: folder.name || `Folder ${idx + 1}`,
-              data: folder.data || null,
-              order: typeof folder.order === 'number' ? folder.order : idx + 1,
-              tabKey,
-            })));
+            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(getFolderComparable(folder, tabKey, idx + 1)));
           });
         }
         if (tabData.folderStates && typeof tabData.folderStates === 'object') {
@@ -1162,16 +1164,11 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
       });
 
       // Pre-populate root fingerprint cache
-      const rootComparable = {
-        lastActiveTab: rootData.lastActiveTab || 'twitter',
-        lastActiveCategory: rootData.lastActiveCategory || 'social-feed',
-        preferences: rootData.preferences || {},
-        activeFolderIds: rootData.activeFolderIds || {},
-        userAssets: rootData.userAssets || {},
-      };
+      const rootComparable = getRootWorkspaceComparable(rootData);
       savedRootFingerprint = computeFingerprint(rootComparable);
     } catch (tabsErr) {
-      console.warn('Notice: tabs subcollection not yet populated:', tabsErr);
+      console.warn('Could not load workspace tabs:', tabsErr);
+      throw tabsErr;
     }
 
     // Hydrate user-isolated folders from `/users/{docId}/folders`
@@ -1182,6 +1179,8 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         userFolders.forEach((fDoc) => {
           const tab = fDoc.tabKey || fDoc.platform || fDoc.subFeature;
           if (tab) {
+            const fallbackOrder = typeof fDoc.order === 'number' ? fDoc.order : 1;
+            savedFolderFingerprints.set(`${tab}_${fDoc.id}`, computeFingerprint(getFolderComparable(fDoc, tab, fallbackOrder)));
             if (!composite.moduleFolders[tab]) {
               composite.moduleFolders[tab] = [];
             }
@@ -1211,7 +1210,8 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         });
       }
     } catch (fErr) {
-      console.warn('Notice: user folders check skipped:', fErr);
+      console.warn('Could not load workspace folders:', fErr);
+      throw fErr;
     }
 
     // If new user with zero prior documents, return clean new_user marker
@@ -1313,13 +1313,11 @@ export async function syncFolderToFirestore(
         throw firstErr;
       }
     }
-    savedFolderFingerprints.set(compositeDocId, computeFingerprint(removeUndefinedDeep({
-      id: cleanFolderId,
-      name: folderData.name || 'Folder',
-      data: folderData.data || null,
-      order: typeof folderData.order === 'number' ? folderData.order : null,
-      tabKey: tabKey || '',
-    })));
+    savedFolderFingerprints.set(compositeDocId, computeFingerprint(getFolderComparable(
+      { ...folderData, id: cleanFolderId, name: folderData.name || 'Folder' },
+      tabKey || '',
+      typeof folderData.order === 'number' ? folderData.order : 1
+    )));
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `users/${cleanUser}/folders/${folderId}`);
   }
@@ -1376,7 +1374,7 @@ export async function loadFoldersFromFirestore(userId?: FirebaseUserIdentity): P
     return results;
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, `users/${cleanUser}/folders`);
-    return [];
+    throw error;
   }
 }
 
@@ -1409,6 +1407,7 @@ export async function clearAllFirebaseData(userId?: FirebaseUserIdentity): Promi
     console.log(`User ${cleanUser} private folders cleared successfully.`);
   } catch (error) {
     console.warn('Could not clear Firebase user collections:', error);
+    throw error;
   }
 }
 

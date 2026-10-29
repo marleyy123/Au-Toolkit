@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 import type { AUFolder, PlatformTab } from '../../../types';
 import { auth, loadUserWorkspaceFromFirestore } from '../../../firebase';
@@ -6,6 +6,7 @@ import type { CloudConnectionState } from '../components/header/CloudSyncIndicat
 import {
   getFormStorageKey,
   getModuleFoldersKey,
+  getPendingCloudSyncStorageKey,
   markLocalWorkspaceUpdated,
 } from '../workspaceStorage';
 
@@ -13,12 +14,13 @@ type UseWorkspaceAutoSaveProtectionArgs = {
   activeTab: PlatformTab;
   userAccountKey: string;
   authUserUid?: string;
+  isHydratedRef: MutableRefObject<boolean>;
   cloudSyncState: CloudConnectionState;
   moduleFoldersRef: MutableRefObject<Record<string, AUFolder[]>>;
   activeFolderIdsRef: MutableRefObject<Record<string, string>>;
   hasLocalUserEditsInSessionRef: MutableRefObject<boolean>;
   lastManualCloudRefreshAtRef: MutableRefObject<number>;
-  triggerCloudWorkspaceSyncRef: MutableRefObject<() => void>;
+  forceCloudWorkspaceSyncNowRef: MutableRefObject<() => void | Promise<void>>;
   applyCloudWorkspaceDataRef: MutableRefObject<(cloudData: any, forceHydrate?: boolean) => void>;
   getCurrentTabFormData: (tab: PlatformTab) => any;
 };
@@ -27,38 +29,62 @@ export function useWorkspaceAutoSaveProtection({
   activeTab,
   userAccountKey,
   authUserUid,
+  isHydratedRef,
   cloudSyncState,
   moduleFoldersRef,
   activeFolderIdsRef,
   hasLocalUserEditsInSessionRef,
   lastManualCloudRefreshAtRef,
-  triggerCloudWorkspaceSyncRef,
+  forceCloudWorkspaceSyncNowRef,
   applyCloudWorkspaceDataRef,
   getCurrentTabFormData,
 }: UseWorkspaceAutoSaveProtectionArgs) {
+  const getCurrentTabFormDataRef = useRef(getCurrentTabFormData);
+  getCurrentTabFormDataRef.current = getCurrentTabFormData;
   useEffect(() => {
     const handleBeforeUnload = () => {
+      if (!isHydratedRef.current || (authUserUid && auth.currentUser?.uid !== authUserUid)) return;
       try {
-        const cur = getCurrentTabFormData(activeTab);
+        const cur = getCurrentTabFormDataRef.current(activeTab);
         if (cur) {
           const cloned = JSON.parse(JSON.stringify(cur));
           localStorage.setItem(getFormStorageKey(userAccountKey, activeTab), JSON.stringify(cloned));
           const currentList = moduleFoldersRef.current[activeTab] || [];
           const activeId = activeFolderIdsRef.current[activeTab] || currentList[0]?.id || 'folder-1';
-          const nextList = currentList.map((f) => (f.id === activeId ? { ...f, data: cloned } : f));
+          const nextList = currentList.map((f) => (
+            f.id === activeId && JSON.stringify(f.data) !== JSON.stringify(cloned)
+              ? { ...f, data: cloned, updatedAt: new Date().toISOString() }
+              : f
+          ));
+          moduleFoldersRef.current[activeTab] = nextList;
           localStorage.setItem(getModuleFoldersKey(userAccountKey, activeTab), JSON.stringify(nextList));
-          markLocalWorkspaceUpdated(userAccountKey);
+          if (JSON.stringify(currentList) !== JSON.stringify(nextList)) {
+            markLocalWorkspaceUpdated(userAccountKey);
+          }
         }
       } catch {}
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('pagehide', handleBeforeUnload);
+    const flushWorkspace = () => {
+      handleBeforeUnload();
+      if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) !== 'true') return;
+      void forceCloudWorkspaceSyncNowRef.current();
+    };
+    window.addEventListener('pagehide', flushWorkspace);
+    const retryPendingSave = () => {
+      if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true') {
+        void forceCloudWorkspaceSyncNowRef.current();
+        return true;
+      }
+      return false;
+    };
+    window.addEventListener('online', retryPendingSave);
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') {
-        handleBeforeUnload();
-        triggerCloudWorkspaceSyncRef.current?.();
+        flushWorkspace();
       } else if (document.visibilityState === 'visible') {
+        if (retryPendingSave()) return;
         const shouldFallbackRefresh =
           authUserUid &&
           !hasLocalUserEditsInSessionRef.current &&
@@ -85,7 +111,8 @@ export function useWorkspaceAutoSaveProtection({
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('pagehide', flushWorkspace);
+      window.removeEventListener('online', retryPendingSave);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [activeTab, userAccountKey, authUserUid, cloudSyncState]);

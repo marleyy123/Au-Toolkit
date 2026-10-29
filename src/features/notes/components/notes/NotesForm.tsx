@@ -5,6 +5,8 @@ import { toHexForPicker } from '../../../../utils/colorUtils';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { CharacterSelector } from '../../../../components/FormControls';
 import { compressImageFile } from '../../../../utils/imageCompressor';
+import { auth } from '../../../../firebase';
+import { uploadMediaAsset } from '../../../../utils/storageService';
 import { ImageCropperModal } from '../../../../components/ImageCropperModal';
 import {
   createSafeObjectURL,
@@ -203,13 +205,22 @@ export const NotesForm: React.FC<Props> = ({
     try {
       const file = blob instanceof File ? blob : new File([blob], 'note.png', { type: blob.type });
       const compressed = await compressImageFile(file, { maxSizeMB: 0.25, maxWidthOrHeight: 1200 });
-      const ref = await persistLocalImageBlob(uid, compressed, `${tab}:${folder}:notes`);
+      let ref: string;
+      try {
+        if (auth.currentUser?.uid !== uid) throw new Error('No matching signed-in account');
+        const uploaded = await uploadMediaAsset(compressed, uid, 'notes');
+        if (!uploaded.downloadURL.startsWith('https://')) throw new Error('Stable image URL required');
+        ref = uploaded.downloadURL;
+      } catch (error) {
+        console.warn('Notes upload unavailable; preserving the image locally.', error);
+        ref = await persistLocalImageBlob(uid, compressed, `${tab}:${folder}:notes`);
+      }
       if (!mounted.current || getLocalMediaOwnerUid() !== uid
         || (localStorage.getItem('au_last_active_tab') || 'notes') !== tab
         || (localStorage.getItem(`au_active_folder_${uid}_${tab}`) || 'folder-1') !== folder) return;
       const current = getNormalizedImages();
       if (!current.some(img => img.id === id && img.url === sourceUrl)) return;
-      bindPersistentImageObjectUrl(ref, sourceUrl);
+      if (ref.startsWith('au-local-media://')) bindPersistentImageObjectUrl(ref, sourceUrl);
       registerTransientImageUrl(sourceUrl, ref);
       commitImagesUpdate(current.map(img => img.id === id ? { ...img, url: ref } : img));
     } catch (error) {

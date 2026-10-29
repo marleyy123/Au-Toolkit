@@ -29,7 +29,7 @@ const bundle=await build({stdin:{contents:`
     useLayoutEffect(()=>{window.state=data;window.capture=()=>exportPreviewToImage({element:ref.current,scale:1});},[data]);
     const Form=key==='whatsapp-chat'?WhatsAppChatForm:key==='instagram-story-reply'?InstagramStoryReplyForm:InstagramProfileForm;
     return <><button id="remount" onClick={()=>setGeneration(v=>v+1)}>Remount</button>
-      <Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/>
+      <section id="customization-panel"><Form data={data} onChange={setData} characters={[]} onSaveCharacter={()=>{}} onSelectCharacter={()=>{}}/></section>
       <div id="canonical" style={{display:'none'}}><PreviewRegistry key={generation} previewKey={key} data={registry.currentPreviewData} previewRef={ref} fontCss="Arial"/></div>
       <MobileFloatingPreview sourceRef={ref} refreshKey={key} refreshData={registry.currentPreviewData} uiTheme="light" isOpen={true} onClose={()=>{}}/></>;
   }
@@ -40,7 +40,7 @@ const bundle=await build({stdin:{contents:`
   },
 }]});
 const assets=await readdir('dist/assets');
-const css=(await readFile('dist/assets/'+assets.find(f=>f.endsWith('.css')),'utf8')).replace(/@import[^;]+;/g,'');
+const css=((await Promise.all(assets.filter(f => f.endsWith('.css')).map(f => readFile('dist/assets/' + f, 'utf8')))).join('\n')).replace(/@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g,'');
 const server=createServer((req,res)=>{
   res.setHeader('Content-Type',req.url==='/bundle.js'?'application/javascript':req.url==='/style.css'?'text/css':'text/html');
   res.end(req.url==='/bundle.js'?bundle.outputFiles[0].text:req.url==='/style.css'?css:'<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');
@@ -48,10 +48,11 @@ const server=createServer((req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 try{
   for(const engine of ['chrome','webkit']){
-    const browser=await(engine==='chrome'?chromium.launch({channel:'chrome',headless:true}):webkit.launch({headless:true}));
+    const browser=await(engine==='chrome'?chromium.launch({channel:process.env.TEST_BROWSER_CHANNEL || 'chrome',headless:true}):webkit.launch({headless:true}));
     try{
+      for(const width of [390,820]){
       for(const key of ['whatsapp-chat','instagram-profile','instagram-story-reply']){
-        const page=await browser.newPage({viewport:{width:390,height:844}});
+        const page=await browser.newPage({viewport:{width,height:1180},hasTouch:true,isMobile:true});
         await page.goto('http://127.0.0.1:'+server.address().port+'/?key='+key);
         await page.waitForFunction(()=>window.state);
         if(key==='whatsapp-chat'){
@@ -59,6 +60,24 @@ try{
           await page.getByPlaceholder(/Pesan masuk \(kiri\)|Received message \(left\)/).fill('hii good apakabar?');
           await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone]')?.textContent.includes('hii good apakabar?'));
           assert.equal(await page.evaluate(()=>window.state.messages[0].text),'hii good apakabar?');
+          const slider = page.locator('#wa-message-font-size');
+          await slider.scrollIntoViewIfNeeded();
+          assert.equal(await slider.evaluate(el => getComputedStyle(el).touchAction), 'none');
+          if (engine === 'chrome') {
+            await page.evaluate(() => document.activeElement?.blur());
+            const box = await slider.boundingBox();
+            const scrollBefore = await page.evaluate(() => window.scrollY);
+            const session = await page.context().newCDPSession(page);
+            const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+            await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+            for (let step = 1; step <= 5; step++) {
+              await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: point.x + step * 8, y: point.y - step * 8 }] });
+            }
+            await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+            await page.waitForTimeout(200);
+            assert.ok(Math.abs(await page.evaluate(() => window.scrollY) - scrollBefore) < 3, 'Dragging and releasing the font slider must not pan the page');
+            await session.detach();
+          }
         }else if(key==='instagram-story-reply'){
           await page.getByPlaceholder('ramadhniap_', {exact:true}).fill('reply_updated');
           await page.waitForFunction(()=>document.querySelector('[data-floating-preview-clone]')?.textContent.includes('reply_updated'));
@@ -77,9 +96,10 @@ try{
         }
         const result=await page.evaluate(async()=>{const r=await window.capture();return {success:r.success,width:r.width,height:r.height};});
         assert.equal(result.success,true);assert.equal(result.width,380);assert(result.height>300);
-        await page.screenshot({path:'dist/sync-'+engine+'-'+key+'.png'});
-        console.log('PASS',engine,key,'input updates hidden canonical preview and visible floating mirror; export works');
+        await page.screenshot({path:'dist/sync-'+engine+'-'+width+'-'+key+'.png'});
+        console.log('PASS',engine,width,key,'input updates hidden canonical preview and visible floating mirror; export works');
         await page.close();
+      }
       }
     }finally{await browser.close();}
   }

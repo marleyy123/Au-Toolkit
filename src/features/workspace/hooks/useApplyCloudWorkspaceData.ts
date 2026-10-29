@@ -12,6 +12,7 @@ import {
   getModuleActiveFolderKey,
   getModuleFolderItemKey,
   getModuleFoldersKey,
+  getPendingCloudSyncStorageKey,
 } from '../workspaceStorage';
 
 type UseApplyCloudWorkspaceDataArgs = {
@@ -58,7 +59,13 @@ export function useApplyCloudWorkspaceData({
   const hasInitialTabHydratedRef = useRef(false);
 
   const applyCloudWorkspaceData = useCallback((cloudData: any, forceHydrate: boolean = false) => {
-    if (!cloudData) return;
+    if (!cloudData || cloudData.isError || cloudData.status === 'error') return;
+
+    // Unsaved local edits remain authoritative until their write is acknowledged.
+    if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true') {
+      if (!forceHydrate) forceCloudWorkspaceSyncNowRef.current();
+      return;
+    }
 
     if (!forceHydrate && hasLocalUserEditsInSessionRef.current) {
       const localLastUpdated = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);

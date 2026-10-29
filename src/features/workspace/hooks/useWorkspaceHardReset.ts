@@ -3,8 +3,9 @@ import type { AppLanguage } from '../../../context/LanguageContext';
 import type { UiTheme } from '../../../context/ThemeContext';
 import type { AUFolder, PlatformTab } from '../../../types';
 import {
-  clearAllFirebaseData,
+  auth,
   clearWorkspaceFingerprintCache,
+  markWorkspaceResetPending,
   saveUserWorkspaceToFirestore,
 } from '../../../firebase';
 import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
@@ -16,6 +17,8 @@ import {
   getInitialTabData,
   getModuleActiveFolderKey,
   getModuleFoldersKey,
+  getLocalUpdateStorageKey,
+  markLocalWorkspaceUpdated,
 } from '../workspaceStorage';
 
 type UseWorkspaceHardResetArgs = {
@@ -31,6 +34,8 @@ type UseWorkspaceHardResetArgs = {
   cornerRadius: number;
   moduleFoldersRef: MutableRefObject<Record<string, AUFolder[]>>;
   activeFolderIdsRef: MutableRefObject<Record<string, string>>;
+  syncDebounceTimerRef: MutableRefObject<ReturnType<typeof setTimeout> | null>;
+  hasLocalUserEditsInSessionRef: MutableRefObject<boolean>;
   setModuleFolders: Dispatch<SetStateAction<Record<string, AUFolder[]>>>;
   setActiveFolderIds: Dispatch<SetStateAction<Record<string, string>>>;
   setCloudSyncState: Dispatch<SetStateAction<CloudConnectionState>>;
@@ -54,6 +59,8 @@ export function useWorkspaceHardReset({
   cornerRadius,
   moduleFoldersRef,
   activeFolderIdsRef,
+  syncDebounceTimerRef,
+  hasLocalUserEditsInSessionRef,
   setModuleFolders,
   setActiveFolderIds,
   setCloudSyncState,
@@ -65,6 +72,11 @@ export function useWorkspaceHardReset({
 }: UseWorkspaceHardResetArgs) {
   const handlePerformHardReset = async () => {
     setIsResetting(true);
+    if (syncDebounceTimerRef.current) {
+      clearTimeout(syncDebounceTimerRef.current);
+      syncDebounceTimerRef.current = null;
+    }
+    hasLocalUserEditsInSessionRef.current = true;
     try {
       const preservedKeys = new Set([
         'au_access_code',
@@ -123,9 +135,6 @@ export function useWorkspaceHardReset({
       localStorage.setItem(STORAGE_RESET_KEY, 'true');
 
       clearWorkspaceFingerprintCache();
-      if (authUser?.uid) {
-        await clearAllFirebaseData(authUser.uid);
-      }
     } catch (e) {
       console.warn('Hard reset storage error:', e);
     }
@@ -162,11 +171,15 @@ export function useWorkspaceHardReset({
     const activeTabFreshData = freshInitialFolders[activeTab]?.[0]?.data || getInitialTabData(activeTab);
     loadTabFormData(activeTab, activeTabFreshData);
 
+    markLocalWorkspaceUpdated(userAccountKey);
+    const resetLocalRevision = localStorage.getItem(getLocalUpdateStorageKey(userAccountKey));
+
     if (authUser?.uid) {
       try {
+        markWorkspaceResetPending(authUser.uid);
         const cleanPayload = {
           userId: authUser.uid,
-          userEmail: authUser.email.toLowerCase(),
+          userEmail: authUser.email?.toLowerCase() || '',
           lastActiveTab: activeTab,
           lastActiveCategory: activeCategory,
           updatedBy: clientSessionId,
@@ -182,12 +195,25 @@ export function useWorkspaceHardReset({
           },
           updatedAt: new Date().toISOString(),
         };
-        await saveUserWorkspaceToFirestore(authUser.uid, cleanPayload);
-        clearPendingCloudSync(userAccountKey);
-        setCloudSyncState('synced');
-        setLastSyncedTime(new Date());
+        setCloudSyncState('syncing');
+        // Release the editor immediately. Deletion and the clean save run in
+        // the same queue as subsequent edits, and survive failure via the
+        // persisted reset marker. Only acknowledge this exact local revision.
+        void saveUserWorkspaceToFirestore(authUser.uid, cleanPayload).then(() => {
+          if (auth.currentUser?.uid !== authUser.uid) return;
+          if (localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) !== resetLocalRevision) return;
+          clearPendingCloudSync(userAccountKey);
+          setCloudSyncState('synced');
+          setLastSyncedTime(new Date());
+        }).catch((err) => {
+          console.warn('Hard reset cloud sync error:', err);
+          if (auth.currentUser?.uid === authUser.uid) {
+            setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
+          }
+        });
       } catch (err) {
         console.warn('Hard reset cloud sync error:', err);
+        setCloudSyncState('error');
       }
     }
 

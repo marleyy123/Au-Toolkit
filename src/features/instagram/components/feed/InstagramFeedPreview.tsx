@@ -124,6 +124,8 @@ export const InstagramFeedPreview: React.FC<Props> = ({ data, previewRef }) => {
 
   const activeLocation = locationText !== undefined ? locationText : (location || '');
   const activeMusic = musicText !== undefined ? musicText : (audioTrack || '');
+  const displayLikesCount = typeof likesCount === 'string' && likesCount.trim() !== '' ? likesCount.trim() : '2.000';
+  const displayCommentsCount = typeof commentsCount === 'string' && commentsCount.trim() !== '' ? commentsCount.trim() : '1.8K';
 
   let activeSubtitle: 'none' | 'location' | 'music' = 'none';
   if (subtitleMode) {
@@ -325,13 +327,13 @@ export const InstagramFeedPreview: React.FC<Props> = ({ data, previewRef }) => {
               <button className="hover:opacity-75 transition-opacity cursor-pointer flex items-center justify-center">
                 <InstagramHeartIcon filled={isLikedByMe} className="w-[23px] h-[23px]" />
               </button>
-              <span className="text-[13px] font-semibold tracking-tight leading-none select-none">35,8rb</span>
+              <span className="text-[13px] font-semibold tracking-tight leading-none select-none">{renderFormattedTextWithAppleEmojis(displayLikesCount)}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <button className="hover:opacity-75 transition-opacity cursor-pointer flex items-center justify-center">
                 <InstagramCommentIcon className="w-[23px] h-[23px]" />
               </button>
-              <span className="text-[13px] font-semibold tracking-tight leading-none select-none">220</span>
+              <span className="text-[13px] font-semibold tracking-tight leading-none select-none">{renderFormattedTextWithAppleEmojis(displayCommentsCount)}</span>
             </div>
             {showRepost && (
               <div className="flex items-center gap-1.5">
@@ -358,7 +360,7 @@ export const InstagramFeedPreview: React.FC<Props> = ({ data, previewRef }) => {
         {/* Likes Count */}
         <div className="px-3 text-[14px] font-semibold">
           <span>
-            {isId ? 'Disukai oleh' : 'Liked by'} <span className="font-bold">{renderFormattedTextWithAppleEmojis(likedByUsername || 'Jungkook')}</span> {isId ? 'dan' : 'and'} <span className="font-bold">{likesCount || '2.000'} {isId ? 'lainnya' : 'others'}</span>
+            {isId ? 'Disukai oleh' : 'Liked by'} <span className="font-bold">{renderFormattedTextWithAppleEmojis(likedByUsername || 'Jungkook')}</span> {isId ? 'dan' : 'and'} <span className="font-bold">{renderFormattedTextWithAppleEmojis(displayLikesCount)} {isId ? 'lainnya' : 'others'}</span>
           </span>
         </div>
 
@@ -372,7 +374,7 @@ export const InstagramFeedPreview: React.FC<Props> = ({ data, previewRef }) => {
 
         {/* View Comments Count */}
         <div className={`px-3 pt-1 text-[13px] cursor-pointer ${subtextClass}`}>
-          {isId ? `Lihat semua ${commentsCount || '1.8K'} komentar` : `View all ${commentsCount || '1.8K'} comments`}
+          {isId ? `Lihat semua ${displayCommentsCount} komentar` : `View all ${displayCommentsCount} comments`}
         </div>
 
         {/* Recent Fake Comments */}

@@ -59,7 +59,7 @@ const bundle = await build({
     }
     createRoot(document.getElementById('root')).render(<Harness />);
   ` },
-  bundle: true, write: false, format: 'iife',
+  bundle: true, write: false, format: 'iife', define: { 'import.meta.env': '{}' },
   plugins: [{ name: 'deferred-cloud', setup(builder) {
     builder.onResolve({ filter: /\/firebase$/ }, () => ({ path: 'firebase', namespace: 'mock' }));
     builder.onResolve({ filter: /deviceAuthService$/ }, () => ({ path: 'device', namespace: 'mock' }));
@@ -72,7 +72,11 @@ const bundle = await build({
         window.cloudRequests ||= [];
         return new Promise((resolve, reject) => window.cloudRequests.push({resolve, reject}));
       }
-      export const subscribeUserWorkspaceFromFirestore = () => () => {};
+      export const subscribeUserWorkspaceFromFirestore = (uid, resolve, reject) => {
+        window.cloudRequests ||= [];
+        window.cloudRequests.push({resolve, reject});
+        return () => {};
+      };
     ` : path === 'device' ? `export const verifyAndRegisterDevice = async () => {};` : `
       export const persistUserAssets = () => {};
       export const readPersistentUserAssets = () => ({});

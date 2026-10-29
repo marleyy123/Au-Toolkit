@@ -11,7 +11,16 @@ import {
 import { AUFolder, PlatformTab } from '../../../types';
 import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
 import { CloudConnectionState } from '../../workspace/components/header/CloudSyncIndicator';
-import { ALL_PLATFORM_TABS, getInitialTabData } from '../../workspace/workspaceStorage';
+import {
+  ALL_PLATFORM_TABS,
+  getFormStorageKey,
+  getInitialTabData,
+  getModuleActiveFolderKey,
+  getModuleFolderItemKey,
+  getModuleFoldersKey,
+  getUserAccountStorageKey,
+  markLocalWorkspaceUpdated,
+} from '../../workspace/workspaceStorage';
 
 interface UseAuthLogoutActionsArgs {
   authUser: any;
@@ -75,6 +84,40 @@ export function useAuthLogoutActions({
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
+  // Save before changing auth or resetting refs. Cloud writes can outlive logout
+  // on slow mobile connections; the next login must retain these local edits.
+  const persistBeforeLogout = () => {
+    if (!isHydratedRef.current || !authUser?.uid) return null;
+    const payload = gatherCompleteWorkspacePayloadRef.current?.();
+    if (!payload) return null;
+    const userKey = getUserAccountStorageKey(authUser);
+    payload.moduleFolders = JSON.parse(JSON.stringify(moduleFoldersRef.current || moduleFolders));
+    payload.activeFolderIds = { ...(activeFolderIdsRef.current || activeFolderIds) };
+    payload.characters = payload.moduleFolders;
+    payload.folderStates = payload.moduleFolders;
+    try {
+      // Preserve pending edits, without marking an untouched cloud snapshot as
+      // a new local edit when an automatic session logout occurs.
+      if (hasLocalUserEditsInSessionRef.current) markLocalWorkspaceUpdated(userKey);
+      Object.entries(payload.moduleFolders as Record<string, AUFolder[]>).forEach(([tab, folders]) => {
+        const platformTab = tab as PlatformTab;
+        localStorage.setItem(getModuleFoldersKey(userKey, platformTab), JSON.stringify(folders));
+        folders.forEach((folder) => {
+          localStorage.setItem(getModuleFolderItemKey(userKey, platformTab, folder.id), JSON.stringify(folder));
+        });
+        const activeId = payload.activeFolderIds[tab] || folders[0]?.id;
+        const folder = folders.find((item) => item.id === activeId) || folders[0];
+        if (folder) {
+          localStorage.setItem(getModuleActiveFolderKey(userKey, platformTab), folder.id);
+          localStorage.setItem(getFormStorageKey(userKey, platformTab), JSON.stringify(folder.data));
+        }
+      });
+    } catch (error) {
+      console.warn('Logout local backup notice:', error);
+    }
+    return payload;
+  };
+
   const resetWorkspaceState = () => {
     clearWorkspaceFingerprintCache();
     hasLocalUserEditsInSessionRef.current = false;
@@ -92,6 +135,12 @@ export function useAuthLogoutActions({
   };
 
   const handleAutoLogout = (reason: string) => {
+    persistBeforeLogout();
+    if (syncDebounceTimerRef.current) {
+      clearTimeout(syncDebounceTimerRef.current);
+      syncDebounceTimerRef.current = null;
+    }
+    isHydratedRef.current = false;
     clearAuthStorage();
     signOutUser().catch(() => {});
     setAccessCode('');
@@ -109,6 +158,7 @@ export function useAuthLogoutActions({
     if (isLoggingOut) return;
     setIsLoggingOut(true);
     try {
+      const currentPayload = persistBeforeLogout();
       if (syncDebounceTimerRef.current) {
         clearTimeout(syncDebounceTimerRef.current);
         syncDebounceTimerRef.current = null;
@@ -118,10 +168,7 @@ export function useAuthLogoutActions({
       if (userEmailOrId && !isFirestoreQuotaExhausted()) {
         try {
           clearWorkspaceFingerprintCache();
-          if (gatherCompleteWorkspacePayloadRef.current) {
-            const currentPayload = gatherCompleteWorkspacePayloadRef.current();
-            currentPayload.moduleFolders = { ...(moduleFoldersRef.current || moduleFolders) };
-            currentPayload.activeFolderIds = { ...(activeFolderIdsRef.current || activeFolderIds) };
+          if (currentPayload) {
             await Promise.race([
               saveUserWorkspaceToFirestore(userEmailOrId, currentPayload),
               new Promise((res) => setTimeout(res, 1200)),
@@ -136,6 +183,7 @@ export function useAuthLogoutActions({
         }
       }
 
+      isHydratedRef.current = false;
       try {
         await Promise.race([
           signOutUser(),

@@ -22,6 +22,7 @@ const bundle = await build({stdin: {contents: `
   import {PreviewRegistry} from './src/export/PreviewRegistry';
   import * as defaults from './src/data/defaultTemplates';
   import {exportPreviewToImage} from './src/utils/exportUtils';
+  import {persistLocalImageBlob, installPersistentLocalImageResolver} from './src/utils/imageManager';
   const key = new URLSearchParams(location.search).get('key');
   const cases = ${JSON.stringify(cases)};
   const c = document.createElement('canvas'); c.width = c.height = 1800;
@@ -47,6 +48,20 @@ const bundle = await build({stdin: {contents: `
     data.messages = [{id:'1',type:'text',sender:'incoming',text:'A complete message must remain visible.',time:'12:30'},
       {id:'2',type:'text',sender:'outgoing',text:'The layout must retain its original size.',time:'12:31',status:'read'}];
   }
+  if (key === 'tiktok-feed-live') {data.caption='Broadcast caption must stay visible';data.liveImage=media;}
+  if (key === 'notes') {
+    data.bodyText='Kalo yang ini namanya Dean\\nJail, banyak tingkah tapi baik kok.\\nWalau kadang ngeselin';
+    data.images=[{id:'positioned',url:avatar,x:220,y:200,width:120,height:100}];
+    data.imageUrl=''; data.fontStyle='arial';
+  }
+  async function mount() {
+  if (key === 'whatsapp-viewers') {
+    localStorage.setItem('au_auth_user',JSON.stringify({uid:'audit-user'}));
+    const ref=await persistLocalImageBlob('audit-user',await (await fetch(avatar)).blob(),'viewer');
+    installPersistentLocalImageResolver();
+    data.viewers=[{id:'local-viewer',name:'Updated viewer',avatar:ref,time:'Today 1.43 AM',hasRing:true,isLiked:true}];
+    data.mediaImage=media; data.viewCount='1';
+  }
   function App() {
     const ref = useRef(null);
     useLayoutEffect(() => {window.capture = options => exportPreviewToImage({element: ref.current,...options});
@@ -54,6 +69,8 @@ const bundle = await build({stdin: {contents: `
     return <div style={{transform:'scale(.65)',transformOrigin:'top left'}}><PreviewRegistry previewKey={key} data={data} previewRef={ref} fontCss="Arial"/></div>;
   }
   createRoot(document.getElementById('root')).render(<App/>);
+  }
+  mount();
 `,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife'});
 const assets = await readdir('dist/assets');
 const stylesheet = assets.find(f => /^index-.*\.css$/.test(f));
@@ -75,6 +92,9 @@ try {
         await page.goto(`http://127.0.0.1:${server.address().port}/?key=${key}`);
         await page.waitForFunction(() => window.ready);
         await page.evaluate(() => document.fonts.ready);
+        if (key === 'whatsapp-viewers') {
+          await page.waitForFunction(() => [...document.querySelectorAll('#root img')].some(img => img.alt === 'Updated viewer' && img.src.startsWith('blob:') && img.naturalWidth > 0));
+        }
         await page.evaluate(() => {
           const sample=document.createElement('canvas').getContext('2d');
           window.labels=Array.from(document.querySelectorAll('#root .truncate'))
@@ -91,7 +111,7 @@ try {
           };
           window.mediaMetrics=Array.from(document.querySelectorAll('#root img')).filter(n=>n.clientWidth>0).map((node,index)=>{
             node.dataset.auExportDiag='media-'+index;
-            return {id:'media-'+index,width:node.getBoundingClientRect().width/.65,height:node.getBoundingClientRect().height/.65};
+            return {id:'media-'+index,alt:node.alt,width:node.getBoundingClientRect().width/.65,height:node.getBoundingClientRect().height/.65, x:(node.getBoundingClientRect().x-document.querySelector('[data-au-canonical-export-source]').getBoundingClientRect().x)/.65, y:(node.getBoundingClientRect().y-document.querySelector('[data-au-canonical-export-source]').getBoundingClientRect().y)/.65};
           });
           window.__AU_EXPORT_DIAGNOSTIC__={enabled:true,record:entry=>{if(entry.stage==='direct-canvas-clone-layout')window.cloneMetrics=entry.nodes;}};
         });
@@ -115,8 +135,9 @@ try {
               if(p[i+3]>0 && (p[i]<240||p[i+1]<240||p[i+2]<240)) nonWhite++;
             }
             const labels=window.labels.map(label=>({...label,painted:window.painted.filter(p=>p.color===label.color).map(p=>p.text).join('').trim().replace(/\s+/g,' ')}));
-            const media=window.mediaMetrics.map(m=>({...m,clone:window.cloneMetrics.find(n=>n.id===m.id)?.rect}));
-            return {before,after:window.geometry(),width:r.width,height:r.height,red,nonWhite,labels,media,dataUrl:r.dataUrl};
+            const media=window.mediaMetrics.map(m=>({...m,clone:window.cloneMetrics.find(n=>n.id===m.id)?.rect,
+              centerPixel:[...ctx.getImageData(Math.round(m.x+m.width/2),Math.round(m.y+m.height/2),1,1).data]}));
+            return {before,after:window.geometry(),width:r.width,height:r.height,red,nonWhite,labels,media,paintedText:window.painted.map(p=>p.text).join(''),dataUrl:r.dataUrl};
           },format);
           assert.deepEqual(shot.after,shot.before,key+' changed live geometry');
           assert(shot.width>=300 && shot.width<=1000,key+' invalid width');
@@ -125,7 +146,16 @@ try {
           assert(shot.red<50000,key+' oversized avatar');
           for(const label of shot.labels) assert.equal(label.painted,label.text,`${engine} ${key}: fitting name must be painted completely`);
           for(const m of shot.media) assert(Math.abs(m.width-m.clone.width)<1 && Math.abs(m.height-m.clone.height)<1,`${engine} ${key}: media geometry differs from preview: ${JSON.stringify(m)}`);
-          if (['twitter','instagram-profile','instagram-story','whatsapp-chat','instagram-dm'].includes(key)) {
+          if (key === 'tiktok-feed-live') {
+            for (const text of ['audit_user','Broadcast caption must stay visible','Friends','Following','For You']) {
+              assert(shot.paintedText.includes(text),engine+' TikTok LIVE: missing text '+text);
+            }
+          }
+          if (['notes','whatsapp-viewers'].includes(key)) {
+            const photo=shot.media.find(m=>m.alt===(key==='notes'?'Notes attachment':'Updated viewer'));
+            assert(photo && photo.centerPixel[0]>180 && photo.centerPixel[1]<70,engine+' '+key+': uploaded photo must be painted at its preview position');
+          }
+          if (['tiktok-feed-live','notes','whatsapp-viewers','twitter','instagram-profile','instagram-story','whatsapp-chat','instagram-dm'].includes(key)) {
             await writeFile(`dist/audit-${engine}-${key}.${format==='png'?'png':'jpg'}`,Buffer.from(shot.dataUrl.split(',')[1],'base64'));
           }
           console.log('PASS',engine,key,format,shot.width+'x'+shot.height);

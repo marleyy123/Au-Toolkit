@@ -26,7 +26,10 @@ export const InstagramLivePreview: React.FC<Props> = ({ data, previewRef }) => {
 
   // Automatic spawner for floating live emojis (Love / Hearts only)
   useEffect(() => {
-    if (safeData.isAutoEmojiEnabled === false) return;
+    if (safeData.isAutoEmojiEnabled === false) {
+      setEmojis([]);
+      return;
+    }
 
     const symbols = ['❤️'];
 
@@ -38,20 +41,11 @@ export const InstagramLivePreview: React.FC<Props> = ({ data, previewRef }) => {
         scale: 0.8 + Math.random() * 0.4,
       };
 
-      setEmojis((prev) => [...prev.slice(-15), newEmoji]);
+      setEmojis((prev) => [...prev.filter((emoji) => newEmoji.id - emoji.id < 2200), newEmoji]);
     }, 450);
 
     return () => clearInterval(interval);
   }, [safeData.isAutoEmojiEnabled]);
-
-  // Clean up old emojis after animation completes
-  useEffect(() => {
-    if (emojis.length === 0) return;
-    const timer = setTimeout(() => {
-      setEmojis((prev) => prev.filter((e) => Date.now() - e.id < 2200));
-    }, 2200);
-    return () => clearTimeout(timer);
-  }, [emojis]);
 
   return (
     <div className="flex justify-center w-full">
@@ -188,7 +182,9 @@ export const InstagramLivePreview: React.FC<Props> = ({ data, previewRef }) => {
               {emojis.map((emoji) => (
                 <div
                   key={emoji.id}
+                  data-au-animation-start={Math.floor(emoji.id)}
                   className="absolute bottom-0 animate-float-up select-none"
+                  onAnimationEnd={() => setEmojis((prev) => prev.filter((item) => item.id !== emoji.id))}
                   style={{
                     left: `${emoji.left}%`,
                     transform: `scale(${emoji.scale})`,

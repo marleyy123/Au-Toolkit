@@ -140,7 +140,8 @@ export const getPendingCloudSyncStorageKey = (userKey: string): string =>
 
 export const markLocalWorkspaceUpdated = (userKey: string): void => {
   try {
-    localStorage.setItem(getLocalUpdateStorageKey(userKey), String(Date.now()));
+    const previous = Number(localStorage.getItem(getLocalUpdateStorageKey(userKey))) || 0;
+    localStorage.setItem(getLocalUpdateStorageKey(userKey), String(Math.max(Date.now(), previous + 1)));
     localStorage.setItem(getPendingCloudSyncStorageKey(userKey), 'true');
   } catch {}
 };
@@ -353,9 +354,11 @@ export const loadAllStoredModuleFolders = (userKey: string, tabs: PlatformTab[])
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
             folders = parsed.map((item: any, idx: number) => ({
+              ...item,
               id: item.id || `folder-${idx + 1}`,
               name: item.name && item.name.trim() !== '' ? item.name : `Folder ${idx + 1}`,
-              data: item.data || item.profileData || loadStoredFormState(userKey, tab, getInitialTabData(tab)),
+              data: item.data || item.profileData || getInitialTabData(tab),
+              order: typeof item.order === 'number' ? item.order : idx + 1,
             }));
             break;
           }

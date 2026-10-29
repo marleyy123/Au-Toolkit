@@ -10,7 +10,6 @@ import {
   ALL_PLATFORM_TABS,
   getFormStorageKey,
   getInitialTabData,
-  getLocalUpdateStorageKey,
   getModuleFoldersKey,
   getPendingCloudSyncStorageKey,
   loadAllStoredActiveFolderIds,
@@ -115,10 +114,8 @@ export function useWorkspaceCloudHydration({
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
         if (cloudWorkspace && cloudWorkspace.hasLoadedData && cloudWorkspace.status === 'loaded') {
-          const localUpdatedAt = parseInt(localStorage.getItem(getLocalUpdateStorageKey(userAccountKey)) || '0', 10);
           const hasPendingLocalSync = localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true';
-          const cloudUpdatedAt = cloudWorkspace.updatedAt ? new Date(cloudWorkspace.updatedAt).getTime() : 0;
-          if ((hasPendingLocalSync || hasLocalUserEditsInSessionRef.current) && localUpdatedAt > 0 && (!cloudUpdatedAt || localUpdatedAt > cloudUpdatedAt)) {
+          if (hasPendingLocalSync || hasLocalUserEditsInSessionRef.current) {
             setIsHydrated(true);
             isHydratedRef.current = true;
             void forceCloudWorkspaceSyncNowRef.current();
@@ -152,8 +149,6 @@ export function useWorkspaceCloudHydration({
             setIsHydrated(true);
             isHydratedRef.current = true;
             forceCloudWorkspaceSyncNowRef.current();
-            setCloudSyncState('synced');
-            setLastSyncedTime(new Date());
             setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
             return;
           }
@@ -217,11 +212,10 @@ export function useWorkspaceCloudHydration({
           return;
         }
         if (cloudData.updatedBy === clientSessionId) {
-          setCloudSyncState('synced');
-          setLastSyncedTime(new Date());
           return;
         }
         applyCloudWorkspaceDataRef.current(cloudData, false);
+        if (localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true') return;
         setCloudSyncState('synced');
         setLastSyncedTime(new Date());
       },

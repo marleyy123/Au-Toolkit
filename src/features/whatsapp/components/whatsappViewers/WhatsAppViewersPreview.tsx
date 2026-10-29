@@ -325,93 +325,34 @@ export const WhatsAppViewersPreview: React.FC<Props> = ({ data, previewRef, onCh
                   key={viewer.id || idx}
                   className="flex items-center space-x-3.5 w-full"
                 >
-                  {/* 1. Avatar Container with Status Ring & True Cut-Out Mask (Compact & Proportional) */}
+                  {/* 1. Avatar with status ring and reaction badge */}
                   <div className="relative shrink-0 w-9 h-9 flex items-center justify-center my-0.5">
-                    <svg
-                      className="w-9 h-9 overflow-visible shrink-0"
-                      viewBox="0 0 44 44"
-                    >
-                      <defs>
-                        {/* Circular clipping path for avatar */}
-                        <clipPath id={`wa-avatar-clip-${viewer.id || idx}`}>
-                          <circle cx="22" cy="22" r={viewer.hasRing ? "17" : "19.5"} />
-                        </clipPath>
-
-                        {/* True cut-out mask: creates a transparent hole cutting through both avatar and ring */}
-                        {viewer.isLiked && (
-                          <mask id={`wa-avatar-mask-${viewer.id || idx}`}>
-                            {/* White rectangle = fully opaque / visible */}
-                            <rect x="0" y="0" width="44" height="44" fill="white" />
-                            {/* Black heart with stroke = 100% transparent cut-out hole */}
-                            <g transform="translate(21.5, 21.5) scale(0.90)">
-                              <path
-                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                                fill="black"
-                                stroke="black"
-                                strokeWidth="3.6"
-                                strokeLinejoin="round"
-                                strokeLinecap="round"
-                              />
-                            </g>
-                          </mask>
-                        )}
-                      </defs>
-
-                      {/* Group masked by the cut-out hole (Avatar & Ring) */}
-                      <g mask={viewer.isLiked ? `url(#wa-avatar-mask-${viewer.id || idx})` : undefined}>
-                        {/* Status Ring if enabled */}
-                        {viewer.hasRing && (
-                          <circle
-                            cx="22"
-                            cy="22"
-                            r="20"
-                            fill="none"
-                            stroke="#25D366"
-                            strokeWidth="2.2"
-                          />
-                        )}
-
-                        {/* Avatar Image or Authentic Default WhatsApp Silhouette */}
-                        <g clipPath={`url(#wa-avatar-clip-${viewer.id || idx})`}>
-                          {viewer.avatar && viewer.avatar.trim() !== '' ? (
-                            <image
-                              href={viewer.avatar.trim()}
-                              x={viewer.hasRing ? "5" : "2.5"}
-                              y={viewer.hasRing ? "5" : "2.5"}
-                              width={viewer.hasRing ? "34" : "39"}
-                              height={viewer.hasRing ? "34" : "39"}
-                              preserveAspectRatio="xMidYMid slice"
-                            />
-                          ) : (
-                            <>
-                              {/* WhatsApp signature grey circle placeholder */}
-                              <circle
-                                cx="22"
-                                cy="22"
-                                r={viewer.hasRing ? "17" : "19.5"}
-                                fill={isDark ? '#6C757D' : '#94a3b8'}
-                              />
-                              {/* White head */}
-                              <circle
-                                cx="22"
-                                cy={viewer.hasRing ? "18" : "17.5"}
-                                r={viewer.hasRing ? "5.5" : "6"}
-                                fill="white"
-                              />
-                              {/* White shoulders curve */}
-                              <path
-                                d={viewer.hasRing
-                                  ? "M13.5 33c0-4.2 3.8-7 8.5-7s8.5 2.8 8.5 7"
-                                  : "M12.5 35c0-4.8 4.2-8 9.5-8s9.5 3.2 9.5 8"
-                                }
-                                fill="white"
-                              />
-                            </>
-                          )}
-                        </g>
-                      </g>
-
-                      {/* Solid Green Love Heart Reaction (Placed right inside the cutout hole, enlarged & prominent) */}
+                    {/* Use HTML media so persisted local photos are resolved and awaited
+                        by the same pipeline as every other uploaded preview image. */}
+                    {viewer.avatar && viewer.avatar.trim() !== '' && (
+                      <img
+                        src={viewer.avatar.trim()}
+                        alt={viewer.name || 'Viewer'}
+                        className="absolute rounded-full object-cover"
+                        style={{
+                          left: `${(viewer.hasRing ? 5 : 2.5) / 44 * 100}%`,
+                          top: `${(viewer.hasRing ? 5 : 2.5) / 44 * 100}%`,
+                          width: `${(viewer.hasRing ? 34 : 39) / 44 * 100}%`,
+                          height: `${(viewer.hasRing ? 34 : 39) / 44 * 100}%`,
+                        }}
+                      />
+                    )}
+                    <svg className="absolute inset-0 w-9 h-9 overflow-visible" viewBox="0 0 44 44">
+                      {viewer.hasRing && (
+                        <circle cx="22" cy="22" r="20" fill="none" stroke="#25D366" strokeWidth="2.2" />
+                      )}
+                      {(!viewer.avatar || viewer.avatar.trim() === '') && (
+                        <>
+                          <circle cx="22" cy="22" r={viewer.hasRing ? 17 : 19.5} fill={isDark ? '#6C757D' : '#94a3b8'} />
+                          <circle cx="22" cy={viewer.hasRing ? 18 : 17.5} r={viewer.hasRing ? 5.5 : 6} fill="white" />
+                          <path d={viewer.hasRing ? 'M13.5 33c0-4.2 3.8-7 8.5-7s8.5 2.8 8.5 7' : 'M12.5 35c0-4.8 4.2-8 9.5-8s9.5 3.2 9.5 8'} fill="white" />
+                        </>
+                      )}
                       {viewer.isLiked && (
                         <g
                           transform="translate(21.5, 21.5) scale(0.90)"
@@ -424,6 +365,10 @@ export const WhatsAppViewersPreview: React.FC<Props> = ({ data, previewRef, onCh
                           <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
                             fill="#25D366"
+                            stroke={isDark ? '#121B22' : '#FFFFFF'}
+                            strokeWidth="3.6"
+                            strokeLinejoin="round"
+                            paintOrder="stroke"
                           />
                         </g>
                       )}

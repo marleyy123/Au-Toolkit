@@ -933,3 +933,8 @@ button.btn-locked-amber svg {
 }
 
 
+
+/* A slider gesture belongs to the control, including on touch screens. */
+#customization-panel input[type="range"] {
+  touch-action: none;
+}

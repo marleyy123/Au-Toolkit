@@ -258,6 +258,7 @@ export interface InstagramProfileData {
   messageButtonText: string;
   isFollowing: boolean;
   highlights: InstagramHighlight[];
+  showHighlights?: boolean;
   gridPosts: InstagramGridPost[];
   showReelsTab: boolean;
   theme: InstagramTheme;

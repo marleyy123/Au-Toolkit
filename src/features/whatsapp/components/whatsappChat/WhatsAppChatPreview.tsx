@@ -120,6 +120,21 @@ const analyzeWhatsAppBubbleText = (text?: string | null) => {
 // Backwards compatibility alias
 export const formatWhatsAppLeftBubbleText = formatWhatsAppBubbleText;
 
+const WhatsAppInlineMetaSpacer: React.FC<{ msg: WhatsAppChatMessage; isOutgoing: boolean; isDark: boolean; isSenderBubbleDark: boolean }> = ({
+  msg,
+  isOutgoing,
+  isDark,
+  isSenderBubbleDark,
+}) => (
+  <span
+    aria-hidden="true"
+    className="inline-flex invisible items-center gap-1 pl-1.5 text-[10px] leading-none whitespace-nowrap align-baseline select-none"
+  >
+    <span className="leading-none font-normal">{formatWhatsAppTime(msg.time)}</span>
+    {isOutgoing && renderTicks(msg, isDark, false, isSenderBubbleDark)}
+  </span>
+);
+
 
 export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef, onUpdateMessageText, onChange }) => {
   const { language } = useLanguage();
@@ -137,8 +152,8 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
     unreadDividerStyle = 'banner',
     aspectRatio = '4:5',
     theme = 'light',
-    sameSenderGap = 3,
-    differentSenderGap = 12,
+    sameSenderGap = 0,
+    differentSenderGap = 6,
     dateDividerGap = 12,
     unreadDividerGap = 8,
     unreadDividerPadding = 3.5,
@@ -960,11 +975,10 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
             const photoWidth = Math.min(260, Math.max(120, msg.photoWidth ?? 260));
             const showTail = isLastInGroup && msgType !== 'sticker';
 
-            // Spacing: dynamic gap calculated in pixels (calibrated: slider 0 = 2px visual margin)
-            // When previous item was a divider, that divider already provided its own bottom margin,
-            // so setting marginTopVal to 0 guarantees exact symmetrical vertical positioning!
-            const effectiveSameSenderGap = (sameSenderGap ?? 0) + 2;
-            const marginTopVal = (index === 0 || isPrevDivider) ? 0 : isPrevSameSender ? effectiveSameSenderGap : differentSenderGap;
+            // Keep legacy saved gaps within the compact range; dividers provide their own spacing.
+            const effectiveSameSenderGap = Math.max(2, Math.min(sameSenderGap + 2, 6));
+            const effectiveDifferentSenderGap = Math.max(0, Math.min(differentSenderGap, 12));
+            const marginTopVal = (index === 0 || isPrevDivider) ? 0 : isPrevSameSender ? effectiveSameSenderGap : effectiveDifferentSenderGap;
 
             // Custom border radius & background styles for bubble
             const bubbleStyles = getBubbleStyle(isOutgoing, showTail);
@@ -1140,7 +1154,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
 
                     {/* BUBBLE UTAMA */}
                     <div
-                      style={{ ...bubbleStyles, ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}), ...(msgType === 'voice_note' ? { width: 268 } : {}) }}
+                      style={{ ...bubbleStyles, ...(msgType === 'voice_note' ? { width: 268 } : {}), textAlign: 'left', ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}) }}
                       className={`relative z-10 w-fit max-w-full shadow-2xs ${
                         msgType === 'image'
                           ? 'p-1'
@@ -1313,7 +1327,6 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                             {/* Photo Caption logic if text or caption present */}
                             {hasCaption ? (() => {
                               const captionMetrics = analyzeWhatsAppBubbleText(captionContent);
-                              const needsBottomRow = true;
                               return (
                               <div
                                 style={{
@@ -1325,9 +1338,7 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                   hasWhatsAppReplyQuote(msg) ? 'px-2' : ''
                                 }`}
                               >
-                                <div className={`min-w-0 max-w-full break-words ${
-                                  isOutgoing ? 'pr-[17px]' : 'pr-0'
-                                } ${needsBottomRow ? 'pb-[14px]' : ''}`}>
+                                <div className="min-w-0 max-w-full break-words">
                                   <span
                                     style={{
                                       wordWrap: 'break-word',
@@ -1337,6 +1348,12 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                   >
                                     {renderIosEmojis(captionMetrics.formatted)}
                                   </span>
+                                  <WhatsAppInlineMetaSpacer
+                                    msg={msg}
+                                    isOutgoing={isOutgoing}
+                                    isDark={isDark}
+                                    isSenderBubbleDark={isSenderBubbleDark}
+                                  />
                                 </div>
                                 <div
                                   style={{ color: getMessageTimestampColor(isOutgoing) }}
@@ -1411,16 +1428,11 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                           ? (msg.text || (language === 'id' ? 'Pesan masuk' : 'Received message'))
                           : (msg.text || 'Read a message');
                         const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText);
-                        const hasHeaderOrQuote = Boolean(hasWhatsAppReplyQuote(msg) || showSenderName);
-                        // A short status reply can share its last line with the timestamp.
-                        const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 25
-                          && (!hasHeaderOrQuote || msg.replyType === 'status');
-                        const needsBottomRow = !isShortSingleLine;
 
                         return (
                           <div
                             style={{ wordWrap: 'break-word', overflowWrap: 'anywhere', fontSize: `${messageFontSize}px` }}
-                            className={`relative ${isShortSingleLine ? 'flex items-end justify-end gap-x-1.5' : 'block'} max-w-full text-[15px] font-sans leading-[1.35] text-current ${
+                            className={`relative block max-w-full text-[15px] font-sans leading-[1.35] text-current ${
                               hasWhatsAppReplyQuote(msg) ? 'px-1 pt-0.5 pb-0.5' : ''
                             }`}
                           >
@@ -1435,22 +1447,23 @@ export const WhatsAppChatPreview: React.FC<Props> = ({ data: rawData, previewRef
                                 />
                               </div>
                             ) : (
-                              <div className={`min-w-0 max-w-full break-words ${
-                                isShortSingleLine ? 'grow shrink basis-auto' : `${isOutgoing ? 'pr-[17px]' : 'pr-0'} ${needsBottomRow ? 'pb-[14px]' : ''}`
-                              }`}>
+                              <div className="min-w-0 max-w-full break-words">
                                 <span onClick={() => handleStartEditing(msg.id || String(index), msg.text || '')}
                                   style={{ wordWrap: 'break-word', overflowWrap: 'anywhere' }}
                                   className="cursor-pointer hover:opacity-90 rounded-xs transition-opacity inline whitespace-pre-wrap break-words"
                                   title="Click to inline edit text">
                                   {renderIosEmojis(textMetrics.formatted)}
                                 </span>
+                                <WhatsAppInlineMetaSpacer
+                                  msg={msg}
+                                  isOutgoing={isOutgoing}
+                                  isDark={isDark}
+                                  isSenderBubbleDark={isSenderBubbleDark}
+                                />
                               </div>
                             )}
                             <div style={{ color: getMessageTimestampColor(isOutgoing) }}
-                              className={`${isShortSingleLine
-                                ? `shrink-0 self-end ml-auto ${isOutgoing ? 'translate-y-[0.75px] pb-0.5' : 'pb-0.5'}`
-                                : `absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'}`
-                              } inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap ${
+                              className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap ${
                                 !useCustomColors && (isOutgoing
                                   ? (isSenderBubbleDark ? 'text-white/75' : 'text-slate-700/80')
                                   : (isReceiverBubbleDark ? 'text-slate-400' : 'text-[#8e8e93]'))
