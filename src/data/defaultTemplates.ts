@@ -34,7 +34,9 @@ export const INITIAL_TWITTER_DATA: TwitterPostData = {
   isBookmarkedByMe: false,
   theme: 'light',
   showMetrics: true,
-  replies: []
+  replies: [],
+  aspectRatio: '1:1',
+  showReplyThreadLine: true,
 };
 
 export const INITIAL_INSTAGRAM_FEED_DATA: InstagramFeedData = {

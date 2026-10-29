@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AUFolder } from './types';
 import { DEFAULT_AVATAR } from './data/defaultTemplates';
+import { FormQuickScroll } from './components/FormQuickScroll';
 import { MobileFloatingPreview } from './components/MobileFloatingPreview';
 import { Login } from './features/auth/components/Login';
 import { AccountPasswordModal } from './features/auth/components/AccountPasswordModal';
@@ -1005,6 +1006,8 @@ export default function App() {
           handleToggleTikTokFypFollow={handleToggleTikTokFypFollow}
         />
       </main>
+
+      <FormQuickScroll uiTheme={uiTheme} language={language} />
 
       <MobileFloatingPreview
         sourceRef={previewRef}
