@@ -2,7 +2,7 @@ import { Select } from '../../../../components/ui/Select';
 import React from 'react';
 import { TwitterPostData, ReplyItem, CharacterPreset } from '../../../../types';
 import { CharacterSelector, ImageUploader, MultiImageUploader, VerifiedSelector, SaveProfileButton } from '../../../../components/FormControls';
-import { Plus, Trash2, Heart, MessageSquare, Repeat, Bookmark, Eye, Smartphone, Moon, Sun } from 'lucide-react';
+import { Plus, Trash2, Heart, MessageSquare, Repeat, Bookmark, Eye, Smartphone, Moon, Sun, Lock, Minus, Square, RectangleVertical, Scan } from 'lucide-react';
 import { useTheme } from '../../../../context/ThemeContext';
 import { useLanguage } from '../../../../context/LanguageContext';
 
@@ -46,6 +46,7 @@ export const TwitterForm: React.FC<Props> = ({
       timestamp: '',
       likes: '',
       isLiked: false,
+      isLocked: false,
       retweets: '',
       isRetweeted: false,
       bookmarks: '',
@@ -77,6 +78,31 @@ export const TwitterForm: React.FC<Props> = ({
         onRenameCharacter={onRenameCharacter}
         addLabel="+ Add Folder"
       />
+
+      <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3 shadow-xs">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">{isId ? 'Rasio Aspek Kontainer' : 'Container Aspect Ratio'}</h3>
+          <span className="text-[10px] text-slate-400">{isId ? 'Rasio kanvas X Twitter' : 'X Twitter canvas ratio'}</span>
+        </div>
+        <div className="grid grid-cols-4 gap-2" role="group" aria-label={isId ? 'Rasio kanvas' : 'Canvas ratio'}>
+          {([
+            { value: '1:1', sub: isId ? 'Persegi' : 'Square', Icon: Square },
+            { value: '4:5', sub: isId ? 'Potret' : 'Portrait', Icon: RectangleVertical },
+            { value: '9:16', sub: isId ? 'Vertikal' : 'Vertical', Icon: RectangleVertical },
+            { value: 'auto', sub: isId ? 'Bebas' : 'Fit', Icon: Scan },
+          ] as const).map(({ value, sub, Icon }) => {
+            const selected = (data.aspectRatio || '1:1') === value;
+            return <button key={value} type="button" aria-pressed={selected}
+              onClick={() => updateField('aspectRatio', value)}
+              className={`py-3 px-1 rounded-xl border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1 ${selected ? 'bg-purple-600 text-white border-purple-600' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
+              <Icon aria-hidden="true" className={value === '9:16' ? 'w-3 h-5' : 'w-4 h-5'} />
+              <span className="text-xs font-bold">{value === 'auto' ? 'Auto' : value}</span>
+              <span className={`text-[10px] ${selected ? 'text-purple-100' : 'text-slate-400'}`}>{sub}</span>
+            </button>;
+          })}
+        </div>
+        <p className="text-[10px] text-slate-500">{isId ? 'Rasio tetap memotong konten di luar kanvas. Pilih Auto untuk menampilkan seluruh utas.' : 'Fixed ratios crop content outside the canvas. Choose Auto to fit the full thread.'}</p>
+      </div>
 
       {/* 1. Profile Info */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3 shadow-xs">
@@ -438,6 +464,22 @@ export const TwitterForm: React.FC<Props> = ({
           </button>
         </div>
 
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+          <h4 className="text-xs font-bold text-slate-700">{isId ? 'Gaya Garis Balasan' : 'Reply Divider Style'}</h4>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label={isId ? 'Gaya garis balasan' : 'Reply divider style'}>
+            {[true, false].map(vertical => <button key={String(vertical)} type="button"
+              aria-pressed={(data.showReplyThreadLine !== false) === vertical}
+              onClick={() => updateField('showReplyThreadLine', vertical)}
+              className={`py-2 px-2 rounded-xl border text-xs font-bold cursor-pointer flex items-center justify-center gap-2 ${(data.showReplyThreadLine !== false) === vertical ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
+              <Minus aria-hidden="true" className={`w-4 h-4 ${vertical ? 'rotate-90' : ''}`} />
+              {vertical ? (isId ? 'Garis Vertikal' : 'Vertical Line') : (isId ? 'Garis Horizontal' : 'Horizontal Line')}
+            </button>)}
+          </div>
+          <p className="text-[10px] text-slate-500">{data.showReplyThreadLine !== false
+            ? (isId ? 'Balasan dihubungkan dengan garis vertikal berkesinambungan.' : 'Replies connected with a continuous vertical line.')
+            : (isId ? 'Setiap balasan dipisahkan dengan garis horizontal.' : 'Replies separated with horizontal lines.')}</p>
+        </div>
+
         {data.replies && data.replies.length > 0 ? (
           <div className="space-y-3">
             {data.replies.map((reply, index) => {
@@ -567,6 +609,13 @@ export const TwitterForm: React.FC<Props> = ({
 
                   {/* Status Toggles: Liked, Repost, Save */}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <label className={`flex items-center space-x-1.5 cursor-pointer text-xs font-semibold px-2.5 py-1 rounded-lg border ${isDarkTheme ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}>
+                      <input type="checkbox" checked={!!reply.isLocked}
+                        onChange={e => handleUpdateReply(index, { isLocked: e.target.checked })}
+                        className="rounded accent-purple-600 cursor-pointer" />
+                      <Lock aria-hidden="true" className="w-3.5 h-3.5" />
+                      <span>{isId ? 'Akun Privat (Gembok)' : 'Private (Lock)'}</span>
+                    </label>
                     {/* Liked Checkbox */}
                     <label className={`flex items-center space-x-1.5 cursor-pointer text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all ${
                       reply.isLiked

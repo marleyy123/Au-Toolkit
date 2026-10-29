@@ -35,6 +35,7 @@ export type TwitterTheme = 'light' | 'dim' | 'dark';
 export type InstagramTheme = 'light' | 'dark';
 
 export interface ReplyItem {
+  isLocked?: boolean;
   id: string;
   name: string;
   handle: string;
@@ -101,6 +102,8 @@ export interface TwitterPostData {
   theme: TwitterTheme;
   showMetrics: boolean;
   replies: ReplyItem[];
+  aspectRatio?: '1:1' | '4:5' | '9:16' | 'auto';
+  showReplyThreadLine?: boolean;
 }
 
 export interface InstagramFeedData {

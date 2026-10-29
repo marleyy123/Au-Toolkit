@@ -16,7 +16,7 @@ const bundle = await build({stdin: {
     const ctx = canvas.getContext('2d'); ctx.fillStyle = '#ed163c'; ctx.fillRect(0, 0, 1800, 1800);
     const avatar = canvas.toDataURL();
     ctx.fillStyle = '#008878'; ctx.fillRect(0, 0, 1800, 1800);
-    const data = {...INITIAL_TWITTER_DATA, name: 'Export Test', handle: 'twitter_export', avatar,
+    const data = {...INITIAL_TWITTER_DATA, aspectRatio: 'auto', name: 'Export Test', handle: 'twitter_export', avatar,
       content: 'The entire tweet must remain visible, not only the profile picture.', mediaImages: [canvas.toDataURL()]};
     function App() {
       const ref = useRef(null);

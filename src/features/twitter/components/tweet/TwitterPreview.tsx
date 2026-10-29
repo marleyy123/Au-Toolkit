@@ -125,18 +125,12 @@ export const TwitterPreview: React.FC<Props> = ({ data, previewRef, onChange }) 
     return null;
   };
 
-  // Solid background class & hex for outer export wrapper node
-  const wrapperBgClass = {
-    light: 'bg-white text-[#0f1419]',
-    dim: 'bg-[#15202b] text-[#f7f9f9]',
-    dark: 'bg-black text-[#e7e9ea]',
-  }[theme];
-
-  const wrapperBgHex = {
-    light: '#ffffff',
-    dim: '#15202b',
-    dark: '#000000',
-  }[theme];
+  const tweetBgHex = { light: '#ffffff', dim: '#15202b', dark: '#000000' }[safeTheme];
+  const containerBgHex = { light: '#f0f2f5', dim: '#1e2732', dark: '#16181c' }[safeTheme];
+  const aspectRatio = data?.aspectRatio;
+  const currentAspectRatio = aspectRatio === '4:5' || aspectRatio === '9:16' || aspectRatio === 'auto' ? aspectRatio : '1:1';
+  const fixedAspect = currentAspectRatio !== 'auto';
+  const hasThreadLine = data?.showReplyThreadLine !== false;
 
   const validMediaImages = (Array.isArray(mediaImages) ? mediaImages : []).filter(
     (img: any) => typeof img === 'string' && img.trim() !== ''
@@ -151,12 +145,14 @@ export const TwitterPreview: React.FC<Props> = ({ data, previewRef, onChange }) 
     <div
       ref={previewRef}
       id="export-twitter"
-      className={`w-[480px] min-w-[480px] max-w-[480px] mx-auto p-0 m-0 border-0 shadow-none outline-none transition-all font-sans leading-normal select-none overflow-hidden shrink-0 ${wrapperBgClass}`}
+      className={`w-[480px] min-w-[480px] max-w-[480px] mx-auto p-0 m-0 border-0 shadow-none outline-none transition-all font-sans leading-normal select-none overflow-hidden shrink-0 flex flex-col ${themeClasses}`}
       style={{
         borderRadius: 'var(--preview-corner-radius, 0px)',
-        backgroundColor: wrapperBgHex,
+        backgroundColor: fixedAspect ? containerBgHex : tweetBgHex,
+        aspectRatio: fixedAspect ? currentAspectRatio.replace(':', ' / ') : undefined,
       }}
     >
+      <div data-twitter-content="true" className="shrink-0" style={{ backgroundColor: tweetBgHex }}>
       {/* Top Header */}
       <div className={`px-4 sm:px-5 py-3 flex items-center justify-between border-b ${borderClass}`}>
         <div className="flex items-center">
@@ -404,21 +400,21 @@ export const TwitterPreview: React.FC<Props> = ({ data, previewRef, onChange }) 
 
       {/* Replies Section for AU Threading */}
       {replies && replies.length > 0 && (
-        <div className={`border-t ${borderClass} pt-1 pb-2`}>
+        <div className={`border-t border-b ${borderClass} pt-1 pb-2`}>
           {replies.map((reply, index) => (
-            <div key={reply.id} className="px-4 sm:px-5 flex space-x-3.5 items-stretch relative text-[14px] sm:text-[15px]">
+            <div key={reply.id} data-twitter-reply={reply.id} className={`px-4 sm:px-5 flex space-x-3.5 relative text-[14px] sm:text-[15px] ${hasThreadLine ? 'items-stretch' : `items-start ${index > 0 ? `border-t ${borderClass}` : ''}`}`}>
               {/* Left Column: Avatar + Continuous Vertical Thread Connector Line */}
               <div className="relative flex flex-col items-center shrink-0 w-10 sm:w-11 pt-2.5 pb-2.5">
                 {/* Continuous Thread Line Logic: 0px gap between consecutive rows */}
-                {replies.length > 1 && (
+                {hasThreadLine && replies.length > 1 && (
                   <>
                     {/* For all replies except the last: line extends from avatar center down through the bottom edge of the row */}
                     {index < replies.length - 1 && (
-                      <div className={`absolute top-[30px] sm:top-[32px] bottom-0 w-[2px] left-1/2 -translate-x-1/2 ${threadLineClass}`} />
+                      <div data-twitter-thread-line="true" className={`absolute top-[30px] sm:top-[32px] -bottom-px w-[2px] left-1/2 -translate-x-1/2 ${threadLineClass}`} />
                     )}
                     {/* For all replies except the first: line enters from top edge down to avatar center */}
                     {index > 0 && (
-                      <div className={`absolute top-0 h-[30px] sm:h-[32px] w-[2px] left-1/2 -translate-x-1/2 ${threadLineClass}`} />
+                      <div data-twitter-thread-line="true" className={`absolute -top-px h-[31px] sm:h-[33px] w-[2px] left-1/2 -translate-x-1/2 ${threadLineClass}`} />
                     )}
                   </>
                 )}
@@ -438,6 +434,7 @@ export const TwitterPreview: React.FC<Props> = ({ data, previewRef, onChange }) 
                   <span className="font-bold text-[15px] sm:text-[16px] text-inherit">
                     {renderFormattedTextWithAppleEmojis(reply.name || 'Name')}
                   </span>
+                  {reply.isLocked && <span data-twitter-reply-lock="true" className="inline-flex shrink-0" aria-label={language === 'id' ? 'Akun privat' : 'Private account'}><TwitterLockIcon className="w-3.5 h-3.5" /></span>}
                   {renderBadge(reply.verified)}
                   <span className={`${subtextClass} text-[14px]`}>@{renderFormattedTextWithAppleEmojis(reply.handle || 'username')}</span>
                   <span className={`${subtextClass} text-[14px]`}>· {renderFormattedTextWithAppleEmojis(reply.timestamp || '12m')}</span>
@@ -526,6 +523,7 @@ export const TwitterPreview: React.FC<Props> = ({ data, previewRef, onChange }) 
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };
