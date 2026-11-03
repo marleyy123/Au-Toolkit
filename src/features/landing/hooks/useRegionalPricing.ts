@@ -10,7 +10,7 @@ function readQuote(value: unknown): Quote {
   const data = value as Quote & { success?: boolean };
   if (!data || data.success !== true || !/^[A-Z]{2}$/.test(data.country) || data.currency !== 'IDR' ||
       data.region !== (data.country === 'ID' ? 'indonesia' : 'international') ||
-      data.amount !== (data.provider === 'midtrans' ? midtransPlans(data.country, data)[0].amount : data.country === 'ID' ? 15000 : 30000)) throw new Error('Invalid quote');
+      data.amount !== (data.provider === 'midtrans' ? midtransPlans(data.country, data)[0].amount : data.country === 'ID' ? (data.amount === 1000 ? 1000 : 15000) : 30000)) throw new Error('Invalid quote');
   if (data.checkout !== null) {
     const url = new URL(data.checkout);
     if (typeof data.checkout !== 'string' || url.protocol !== 'https:' || url.hostname !== 'lynk.id' ||

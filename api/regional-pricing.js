@@ -50,7 +50,7 @@ export function createHandler({ env = process.env } = {}) {
       const url = plan.checkoutEnv ? String(env[plan.checkoutEnv] || '').trim() : '';
       const planCheckout = url ? checkoutUrl(url) : null;
       return { id: plan.id, title: plan.title, accessDays: plan.accessDays,
-        amount: plan.id === 'monthly' ? domestic ? 15000 : 30000 : 0,
+        amount: plan.id === 'monthly' ? domestic ? (env.MIDTRANS_DEV_PRICE ? Number(env.MIDTRANS_DEV_PRICE) : 1000) : 30000 : 0,
         checkout: plan.id === 'monthly' ? checkout :
           env.ACCESS_BACKEND === 'firestore' && env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005' && plan.productId ? planCheckout : null };
     });
@@ -59,7 +59,7 @@ export function createHandler({ env = process.env } = {}) {
     }
     return reply(200, {
       success: true, country, region: domestic ? 'indonesia' : 'international',
-      amount: domestic ? 15000 : 30000, currency: 'IDR', checkout, plans,
+      amount: domestic ? (env.MIDTRANS_DEV_PRICE ? Number(env.MIDTRANS_DEV_PRICE) : 1000) : 30000, currency: 'IDR', checkout, plans,
     });
   };
 }
