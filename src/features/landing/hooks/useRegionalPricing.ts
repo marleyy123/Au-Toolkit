@@ -10,7 +10,7 @@ function readQuote(value: unknown): Quote {
   const data = value as Quote & { success?: boolean };
   if (!data || data.success !== true || !/^[A-Z]{2}$/.test(data.country) || data.currency !== 'IDR' ||
       data.region !== (data.country === 'ID' ? 'indonesia' : 'international') ||
-      data.amount !== (data.provider === 'midtrans' ? midtransPlans(data.country)[0].amount : data.country === 'ID' ? 15000 : 30000)) throw new Error('Invalid quote');
+      data.amount !== (data.provider === 'midtrans' ? midtransPlans(data.country, data)[0].amount : data.country === 'ID' ? 15000 : 30000)) throw new Error('Invalid quote');
   if (data.checkout !== null) {
     const url = new URL(data.checkout);
     if (typeof data.checkout !== 'string' || url.protocol !== 'https:' || url.hostname !== 'lynk.id' ||
@@ -19,7 +19,7 @@ function readQuote(value: unknown): Quote {
   if (data.provider !== undefined && data.provider !== 'midtrans') throw new Error('Invalid provider');
   if (data.provider === 'midtrans' && (typeof data.production !== 'boolean' || typeof data.ready !== 'boolean' || data.checkout !== null)) throw new Error('Invalid Midtrans mode');
   if (data.provider === 'midtrans' && !Array.isArray(data.plans)) throw new Error('Missing payment plans');
-  const plans: PlanQuote[] = data.provider === 'midtrans' ? midtransPlans(data.country) : ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
+  const plans: PlanQuote[] = data.provider === 'midtrans' ? midtransPlans(data.country, data) : ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
     amount: plan.id === 'monthly' ? data.amount : 0, checkout: plan.id === 'monthly' ? data.checkout : null }));
   if (data.plans !== undefined) {
     if (!Array.isArray(data.plans) || data.plans.length !== plans.length) throw new Error('Invalid plans');

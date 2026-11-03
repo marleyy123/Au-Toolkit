@@ -136,6 +136,7 @@ async function startServer() {
   if (isLocalStaging) {
     // These server handlers read private environment variables; Vite only receives VITE_*.
     process.env.MIDTRANS_LOCAL_TEST = 'true';
+    if (!process.env.MIDTRANS_DEV_PRICE) process.env.MIDTRANS_DEV_PRICE = '1000';
     process.env.ALLOWED_ORIGINS = [...new Set([...(process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean), `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`])].join(',');
     const { createMidtransHandler } = await import('./lib/midtrans.js');
     const { createHandler: pricingHandler } = await import('./api/regional-pricing.js');
