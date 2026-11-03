@@ -291,3 +291,18 @@ html.au-landing-document { scroll-padding-top: 90px; }
 .landing-payment-dialog input { min-width: 0; width: 100%; border: 1px solid #76707e; border-radius: 8px; padding: 12px; background: #fff; color: #25212d; }
 .landing-payment-dialog .landing-button { width: 100%; white-space: normal; }
 .landing-payment-order { overflow-wrap: anywhere; font-size: 13px; }
+.landing-account-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--tint); border: 1px solid var(--line); margin: 14px 0; }
+.landing-account-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.landing-account-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.landing-account-avatar-placeholder { width: 34px; height: 34px; border-radius: 50%; background: #e3f1e8; color: #2b7357; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.landing-account-details { display: grid; min-width: 0; line-height: 1.35; }
+.landing-account-name { font-weight: 700; font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.landing-account-email { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.landing-account-switch { background: transparent; border: 0; color: var(--accent); font-size: 11px; font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+.landing-account-switch:hover { background: rgba(0, 0, 0, 0.05); }
+.landing-auth-prompt { display: grid; gap: 12px; margin: 16px 0; padding: 16px; background: var(--tint); border-radius: 12px; border: 1px solid var(--line); }
+.landing-auth-prompt-desc { font-size: 13px; line-height: 1.5; color: var(--ink); margin: 0 !important; }
+.landing-google-btn { width: 100%; background: #fff !important; color: #3c4043 !important; border: 1px solid #dadce0 !important; box-shadow: 0 1px 2px rgba(60,64,67,.08); font-weight: 650; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+.landing-google-btn:hover:not(:disabled) { background: #f8f9fa !important; border-color: #c6c9cf !important; box-shadow: 0 1px 3px rgba(60,64,67,.15); }
+.landing-verified-badge { display: inline-flex; align-items: center; gap: 4px; color: #2a926f; font-size: 11px; font-weight: 600; margin-top: 3px; }
+
