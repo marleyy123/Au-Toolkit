@@ -13,7 +13,7 @@ import {
   writeBatch,
   Firestore,
 } from 'firebase/firestore';
-import { replaceTransientImageUrlsDeep } from './utils/imageManager';
+import { migrateLocalImageReference, replaceTransientImageUrlsDeep } from './utils/imageManager';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -326,10 +326,12 @@ export function removeUndefinedDeep<T = any>(value: T): T {
 // 2. It remains well below the hard 1MB (1,048,576 byte) document limit.
 async function sanitizeObjectForFirestore(obj: any, maxDocBytes = 750_000): Promise<any> {
   if (!obj) return obj;
+  const uid = auth.currentUser?.uid;
+  const migrated = uid ? await migrateLocalMediaDeep(obj, uid) : obj;
   try {
     // Local preview references are valid only in the current browser session.
     // Restore their last stable value before any Firestore fingerprint/write.
-    const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(obj));
+    const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(migrated));
     let rawStr = JSON.stringify(cleaned);
     if (rawStr.length < maxDocBytes) {
       return cleaned;
@@ -359,6 +361,23 @@ async function sanitizeObjectForFirestore(obj: any, maxDocBytes = 750_000): Prom
   } catch {
     return removeUndefinedDeep(obj);
   }
+}
+
+async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<string, string>()): Promise<any> {
+  if (typeof value === 'string') {
+    const refs = value.match(/au-local-media:\/\/[^)'"\s]+/g) || [];
+    let migrated = value;
+    for (const ref of refs) {
+      if (!cache.has(ref)) cache.set(ref, await migrateLocalImageReference(ref, uid));
+      migrated = migrated.split(ref).join(cache.get(ref) || ref);
+    }
+    return migrated;
+  }
+  if (Array.isArray(value)) return Promise.all(value.map(item => migrateLocalMediaDeep(item, uid, cache)));
+  if (!value || typeof value !== 'object') return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value)) result[key] = await migrateLocalMediaDeep(nested, uid, cache);
+  return result;
 }
 
 // Fast fingerprint generator to detect data changes

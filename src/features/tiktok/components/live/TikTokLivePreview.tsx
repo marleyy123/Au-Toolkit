@@ -55,14 +55,14 @@ export const TikTokLivePreview: React.FC<Props> = ({ data, previewRef, onChange 
   const [localVideo, setLocalVideo] = useState({ source: '', url: '' });
   useEffect(() => {
     let cancelled = false;
-    if (liveMediaType === 'video' && liveMediaUrl.startsWith('au-local-media://')) {
+    if (liveMediaType === 'video' && (liveMediaUrl.startsWith('au-local-media://') || liveMediaUrl.startsWith('au-cloud-media://'))) {
       void resolveLocalImageReference(liveMediaUrl).then(url => {
         if (!cancelled) setLocalVideo({ source: liveMediaUrl, url });
       }).catch(() => { if (!cancelled) setLocalVideo({ source: liveMediaUrl, url: '' }); });
     }
     return () => { cancelled = true; };
   }, [liveMediaUrl, liveMediaType]);
-  const videoUrl = liveMediaUrl.startsWith('au-local-media://')
+  const videoUrl = liveMediaUrl.startsWith('au-local-media://') || liveMediaUrl.startsWith('au-cloud-media://')
     ? (localVideo.source === liveMediaUrl ? localVideo.url : '') : liveMediaUrl;
 
   // Empty media uses a neutral placeholder.

@@ -30,7 +30,7 @@ const ReposterAvatar: React.FC<{ src?: string; alt: string }> = ({ src, alt }) =
     const prepareSource = async () => {
       const cleanSource = src.trim();
       if (!cleanSource) return;
-      const resolvedSource = cleanSource.startsWith('au-local-media://')
+      const resolvedSource = cleanSource.startsWith('au-local-media://') || cleanSource.startsWith('au-cloud-media://')
         ? await resolveLocalImageReference(cleanSource)
         : cleanSource;
       if (cancelled || !resolvedSource) return;

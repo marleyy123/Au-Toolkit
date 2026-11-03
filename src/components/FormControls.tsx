@@ -384,8 +384,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       setPendingPreviewUrl('');
       setUploadNotice(
         language === 'id'
-          ? 'Gambar tersimpan lokal untuk akun ini. Sinkronisasi antar-device menunggu Firebase Storage.'
-          : 'Image saved locally for this account. Cross-device sync still requires Firebase Storage.'
+          ? persistentRef.startsWith('au-cloud-media://')
+            ? 'Gambar tersimpan di cloud storage dan bisa dibuka dari perangkat lain.'
+            : 'Gambar tersimpan lokal di browser ini; upload cloud belum dikonfigurasi.'
+          : persistentRef.startsWith('au-cloud-media://')
+            ? 'Image saved to cloud storage and available on your other devices.'
+            : 'Image is saved in this browser; cloud uploads are not configured.'
       );
     } catch (error) {
       console.error('Local image preview failed:', error);

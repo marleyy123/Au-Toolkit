@@ -15,6 +15,7 @@ const activeObjectUrls = new Set<string>();
 const transientPersistentFallbacks = new Map<string, string>();
 const persistentObjectUrlCache = new Map<string, string>();
 const LOCAL_MEDIA_PREFIX = 'au-local-media://';
+const CLOUD_MEDIA_PREFIX = 'au-cloud-media://';
 const LOCAL_MEDIA_DB = 'au-toolkit-local-media';
 const LOCAL_MEDIA_STORE = 'images';
 let localMediaResolverInstalled = false;
@@ -29,6 +30,7 @@ interface LocalMediaRecord {
   mimeType: string;
   size: number;
   updatedAt: string;
+  cloudRef?: string;
 }
 
 function openLocalMediaDatabase(): Promise<IDBDatabase> {
@@ -81,6 +83,49 @@ function parseLocalMediaReference(ref: string): { uid: string; context: string; 
   }
 }
 
+function parseCloudMediaReference(ref: string): { uid: string; key: string } | null {
+  if (!ref.startsWith(CLOUD_MEDIA_PREFIX)) return null;
+  const parts = ref.slice(CLOUD_MEDIA_PREFIX.length).split('/');
+  if (parts.length !== 2) return null;
+  try {
+    const [uid, key] = parts.map(part => decodeURIComponent(part));
+    return uid && key && key.startsWith(`${uid}/`) ? { uid, key } : null;
+  } catch { return null; }
+}
+
+const cloudMediaEndpoint = () => String(import.meta.env.VITE_CLOUDFLARE_MEDIA_URL || '').replace(/\/$/, '');
+async function cloudMediaRequest(path: string, init: RequestInit = {}): Promise<Response> {
+  const endpoint = cloudMediaEndpoint();
+  if (!endpoint) throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
+  const { auth } = await import('../firebase');
+  await auth.authStateReady();
+  const user = auth.currentUser;
+  if (!user) throw new Error('AUTH_REQUIRED');
+  const token = await user.getIdToken();
+  const headers = new Headers(init.headers);
+  headers.set('Authorization', `Bearer ${token}`);
+  return fetch(`${endpoint}${path}`, { ...init, headers });
+}
+
+async function uploadCloudMediaBlob(uid: string, blob: Blob): Promise<string> {
+  const { auth } = await import('../firebase');
+  if (auth.currentUser?.uid !== uid) throw new Error('AUTH_REQUIRED');
+  const response = await cloudMediaRequest('/media', {
+    method: 'PUT',
+    headers: { 'Content-Type': blob.type || 'application/octet-stream' },
+    body: blob,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'MEDIA_UPLOAD_FAILED');
+  const key = String(result.key || '');
+  if (!key.startsWith(`${uid}/`)) throw new Error('MEDIA_UPLOAD_FAILED');
+  return `${CLOUD_MEDIA_PREFIX}${encodeURIComponent(uid)}/${encodeURIComponent(key)}`;
+}
+
+export function getCachedCloudMediaUsage(): { usedBytes: number; quotaBytes: number } | null {
+  return null;
+}
+
 function createMediaId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -94,6 +139,10 @@ export async function persistLocalImageBlob(uid: string, blob: Blob, context: st
   const cleanContext = String(context || 'workspace').trim() || 'workspace';
   if (!cleanUid) throw new Error('A Firebase UID is required for local image persistence.');
   if (!(blob instanceof Blob) || blob.size <= 0) throw new Error('A valid image Blob is required.');
+
+  if (cloudMediaEndpoint()) {
+    return uploadCloudMediaBlob(cleanUid, blob);
+  }
 
   const mediaId = createMediaId();
   const ref = `${LOCAL_MEDIA_PREFIX}${encodeURIComponent(cleanUid)}/${encodeURIComponent(cleanContext)}/${encodeURIComponent(mediaId)}`;
@@ -124,13 +173,57 @@ export async function persistLocalImageBlob(uid: string, blob: Blob, context: st
   return ref;
 }
 
+/** Migrate one browser-local file to R2 while leaving the source intact for rollback. */
+export async function migrateLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
+  if (!cloudMediaEndpoint() || !ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
+  const parsed = parseLocalMediaReference(ref);
+  if (!parsed || !uid || parsed.uid !== uid) throw new Error('LOCAL_MEDIA_OWNER_MISMATCH');
+  const database = await openLocalMediaDatabase();
+  let record: LocalMediaRecord | undefined;
+  try {
+    record = await new Promise<LocalMediaRecord | undefined>((resolve, reject) => {
+      const request = database.transaction(LOCAL_MEDIA_STORE, 'readonly').objectStore(LOCAL_MEDIA_STORE).get(ref);
+      request.onsuccess = () => resolve(request.result as LocalMediaRecord | undefined);
+      request.onerror = () => reject(request.error || new Error('Unable to read the local image for migration.'));
+    });
+  } finally { database.close(); }
+  if (!record || record.uid !== uid) throw new Error('LOCAL_MEDIA_UNAVAILABLE');
+  if (record.cloudRef?.startsWith(CLOUD_MEDIA_PREFIX)) return record.cloudRef;
+  const blob = record.blob instanceof Blob ? record.blob
+    : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], { type: record.mimeType }) : null;
+  if (!blob) throw new Error('LOCAL_MEDIA_UNAVAILABLE');
+  const cloudRef = await uploadCloudMediaBlob(uid, blob);
+  record.cloudRef = cloudRef;
+  const writeDatabase = await openLocalMediaDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = writeDatabase.transaction(LOCAL_MEDIA_STORE, 'readwrite');
+      transaction.objectStore(LOCAL_MEDIA_STORE).put(record!);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error || new Error('Unable to save the media migration record.'));
+    });
+  } finally { writeDatabase.close(); }
+  return cloudRef;
+}
+
 export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): void {
-  if (parseLocalMediaReference(ref) && isBlobUrl(objectUrl)) {
+  if ((parseLocalMediaReference(ref) || parseCloudMediaReference(ref)) && isBlobUrl(objectUrl)) {
     persistentObjectUrlCache.set(ref, objectUrl);
   }
 }
 
 export async function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
+  const cloud = parseCloudMediaReference(ref);
+  if (cloud) {
+    if (!uid || cloud.uid !== uid) return '';
+    const cached = persistentObjectUrlCache.get(ref);
+    if (cached) return cached;
+    const response = await cloudMediaRequest(`/media?key=${encodeURIComponent(cloud.key)}`);
+    if (!response.ok) return '';
+    const objectUrl = createSafeObjectURL(await response.blob());
+    if (objectUrl) persistentObjectUrlCache.set(ref, objectUrl);
+    return objectUrl;
+  }
   const parsed = parseLocalMediaReference(ref);
   if (!parsed || !uid || parsed.uid !== uid) return '';
   const cached = persistentObjectUrlCache.get(ref);
@@ -157,6 +250,17 @@ export async function resolveLocalImageReference(ref: string, uid = currentStore
 }
 
 export async function deleteLocalImageReference(ref: string, uid = currentStoredUid()): Promise<void> {
+  const cloud = parseCloudMediaReference(ref);
+  if (cloud) {
+    if (!uid || cloud.uid !== uid) return;
+    const response = await cloudMediaRequest(`/media?key=${encodeURIComponent(cloud.key)}`, { method: 'DELETE' });
+    const usage = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(usage.error || 'MEDIA_DELETE_FAILED');
+    const objectUrl = persistentObjectUrlCache.get(ref);
+    if (objectUrl) revokeSafeObjectURL(objectUrl);
+    persistentObjectUrlCache.delete(ref);
+    return;
+  }
   const parsed = parseLocalMediaReference(ref);
   if (!parsed || !uid || parsed.uid !== uid) return;
   const database = await openLocalMediaDatabase();
@@ -181,7 +285,7 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 
   if (element instanceof HTMLImageElement || element instanceof HTMLSourceElement) {
     const ref = element.getAttribute('src') || element.getAttribute('data-au-local-media-ref') || '';
-    if (ref.startsWith(LOCAL_MEDIA_PREFIX)) {
+    if (ref.startsWith(LOCAL_MEDIA_PREFIX) || ref.startsWith(CLOUD_MEDIA_PREFIX)) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
       // A newer upload may have changed src while IndexedDB was being read.
       if (objectUrl && element.isConnected && element.getAttribute('src') === ref) {
@@ -192,7 +296,7 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
   }
 
   const style = element.getAttribute('style') || '';
-  const refs = style.match(/au-local-media:\/\/[^)'"\s]+/g) || [];
+  const refs = style.match(/au-(?:local|cloud)-media:\/\/[^)'"\s]+/g) || [];
   if (refs.length > 0) {
     let resolvedStyle = style;
     for (const ref of refs) {
@@ -208,7 +312,7 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 function scanLocalMedia(root: ParentNode): void {
   const elements: Element[] = [];
   if (root instanceof Element) elements.push(root);
-  elements.push(...Array.from(root.querySelectorAll('img[src^="au-local-media://"], source[src^="au-local-media://"], [style*="au-local-media://"]')));
+  elements.push(...Array.from(root.querySelectorAll('img[src^="au-local-media://"], source[src^="au-local-media://"], img[src^="au-cloud-media://"], source[src^="au-cloud-media://"], [style*="au-local-media://"], [style*="au-cloud-media://"]')));
   elements.forEach((element) => void resolveElementLocalMedia(element));
 }
 
@@ -294,7 +398,7 @@ export function registerTransientImageUrl(localUrl: string, persistentFallback =
 
 export function resolvePersistentImageUrl(url: string | null | undefined): string {
   if (!url || typeof url !== 'string') return '';
-  if (url.startsWith(LOCAL_MEDIA_PREFIX)) return url;
+  if (url.startsWith(LOCAL_MEDIA_PREFIX) || url.startsWith(CLOUD_MEDIA_PREFIX)) return url;
   if (transientPersistentFallbacks.has(url)) {
     return transientPersistentFallbacks.get(url) || '';
   }

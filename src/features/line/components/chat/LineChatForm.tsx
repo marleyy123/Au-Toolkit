@@ -19,9 +19,9 @@ import {
   createSafeObjectURL,
   revokeSafeObjectURL,
   isBlobUrl,
+  persistLocalImageBlob,
 } from '../../../../utils/imageManager';
 import { auth } from '../../../../firebase';
-import { uploadMediaAsset } from '../../../../utils/storageService';
 import {
   readPersistentUserAssets,
   subscribePersistentUserAssets,
@@ -392,7 +392,7 @@ export const LineChatForm: React.FC<Props> = ({
     }
 
     if (newItems.length > 0) {
-      // Blob URLs are preview-only and never persisted. Stable Firebase URLs replace them.
+      // Blob URLs are preview-only and never persisted. Stable media refs replace them.
       setCustomStickers((prev) => [...newItems.map((entry) => entry.item), ...prev]);
       const firebaseUser = auth.currentUser;
       if (!firebaseUser?.uid) {
@@ -401,11 +401,8 @@ export const LineChatForm: React.FC<Props> = ({
         setGdriveSyncStatus(isId ? 'Login diperlukan untuk menyimpan stiker.' : 'Sign in is required to save stickers.');
       } else {
         Promise.all(newItems.map(async ({ item, file }) => {
-          const uploaded = await uploadMediaAsset(file, firebaseUser.uid, 'stickers');
-          if (!uploaded.downloadURL.startsWith('https://')) {
-            throw new Error('Firebase Storage did not return a stable sticker URL.');
-          }
-          return { ...item, url: uploaded.downloadURL, dateAdded: Date.now() };
+          const mediaRef = await persistLocalImageBlob(firebaseUser.uid, file, 'line:stickers');
+          return { ...item, url: mediaRef, dateAdded: Date.now() };
         }))
           .then((uploadedItems) => {
             handleUpdateCustomStickers([...uploadedItems, ...customStickers]);

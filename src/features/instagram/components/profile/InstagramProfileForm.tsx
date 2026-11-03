@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { InstagramProfileData, InstagramHighlight, InstagramGridPost, CharacterPreset } from '../../../../types';
 import { CharacterSelector, ImageUploader, MultiImageUploader, VerifiedSelector, SaveProfileButton } from '../../../../components/FormControls';
 import { Plus, Trash2, Upload, Pin, Layers, Sparkles, Image as ImageIcon, Moon, Sun } from 'lucide-react';
-import { compressAndReadAsDataURL } from '../../../../utils/imageCompressor';
 import {
   createSafeObjectURL,
   revokeSafeObjectURL,
@@ -139,31 +138,24 @@ export const InstagramProfileForm: React.FC<Props> = ({
 
     updateGridPosts([...newPosts.map(({ id, image }) => ({ id, image })), ...(latest.current.data.gridPosts || [])]);
 
-    // 2. Asynchronously compress and persist in background
+    // 2. Persist the original file bytes in the background to preserve image quality.
     newPosts.forEach(({ id, image: blobUrl, file }) => {
-      compressAndReadAsDataURL(file)
-        .then(async (dataUrl) => {
-          if (dataUrl) {
-            const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
-            const activeTab = localStorage.getItem('au_last_active_tab') || 'instagram-profile';
-            const folder = localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1';
-            const response = await fetch(dataUrl);
-            const persistentRef = await persistLocalImageBlob(uid, await response.blob(), `${activeTab}:${folder}:grid`);
-            // Keep the displayed URL valid while React commits the stable reference.
-            bindPersistentImageObjectUrl(persistentRef, blobUrl);
-            const current = latest.current.data;
-            if (!mounted.current || !current.gridPosts?.some((p) => p.id === id && p.image === blobUrl)) {
-              return;
-            }
-            const updated = {
-              ...current,
-              gridPosts: current.gridPosts.map((p) => (p.id === id ? { ...p, image: persistentRef } : p)),
-            };
-            latest.current.data = updated;
-            latest.current.onChange(updated);
-          }
-        })
-        .catch((err) => console.warn('Background grid post compression error:', err));
+      (async () => {
+        const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
+        const activeTab = localStorage.getItem('au_last_active_tab') || 'instagram-profile';
+        const folder = localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1';
+        const persistentRef = await persistLocalImageBlob(uid, file, `${activeTab}:${folder}:grid`);
+        // Keep the displayed URL valid while React commits the stable reference.
+        bindPersistentImageObjectUrl(persistentRef, blobUrl);
+        const current = latest.current.data;
+        if (!mounted.current || !current.gridPosts?.some((p) => p.id === id && p.image === blobUrl)) return;
+        const updated = {
+          ...current,
+          gridPosts: current.gridPosts.map((p) => (p.id === id ? { ...p, image: persistentRef } : p)),
+        };
+        latest.current.data = updated;
+        latest.current.onChange(updated);
+      })().catch((err) => console.warn('Background grid post upload error:', err));
     });
 
     e.target.value = '';
