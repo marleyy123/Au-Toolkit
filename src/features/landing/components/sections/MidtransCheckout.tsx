@@ -3,15 +3,15 @@ import type { PlanQuote, Quote } from '../../hooks/useRegionalPricing';
 import { useLandingLanguage } from '../../hooks/useLandingLanguage';
 import { landingLinks } from '../../data/landingContent';
 
-type Order = { orderId: string; statusToken: string; snapToken: string; clientKey: string; sandbox: true; amount: number; planId?: string; accessDays?: number };
+type Order = { orderId: string; statusToken: string; snapToken: string; clientKey: string; production: boolean; amount: number; planId?: string; accessDays?: number };
 type Snap = { pay: (token: string, callbacks: { onSuccess: () => void; onPending: () => void; onError: () => void; onClose: () => void }) => void };
-const STORAGE = 'au-midtrans-sandbox-order';
+const STORAGE = 'au-midtrans-order';
 function savedOrder(storage: string, planId: string): Order | null {
   try {
     const data = JSON.parse(sessionStorage.getItem(storage) || 'null');
-    return data?.sandbox === true && (data.planId === planId || (!data.planId && planId === 'monthly')) &&
-      /^au_sb_[a-f0-9]{32}$/.test(data.orderId) && /^[a-f0-9]{64}$/.test(data.statusToken) &&
-      typeof data.snapToken === 'string' && /^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(data.clientKey || '') ? data : null;
+    return typeof data?.production === 'boolean' && (data.planId === planId || (!data.planId && planId === 'monthly')) &&
+      /^au_(?:sb|live)_[a-f0-9]{32}$/.test(data.orderId) && /^[a-f0-9]{64}$/.test(data.statusToken) &&
+      typeof data.snapToken === 'string' && /^Mid-client-[A-Za-z0-9_-]+$/.test(data.clientKey || '') ? data : null;
   } catch { return null; }
 }
 async function api(body: object) {
@@ -21,16 +21,17 @@ async function api(body: object) {
   if (!response.ok || !data.success) throw new Error(data.reason || 'PAYMENT_SERVICE_UNAVAILABLE');
   return data;
 }
-function loadSnap(clientKey: string): Promise<Snap> {
+function loadSnap(clientKey: string, production: boolean): Promise<Snap> {
   return new Promise((resolve, reject) => {
     const target = window as Window & { snap?: Snap };
     const existing = document.getElementById('au-midtrans-snap') as HTMLScriptElement | null;
-    if (existing?.dataset.clientKey === clientKey && target.snap) return resolve(target.snap);
+    if (existing?.dataset.clientKey === clientKey && existing.dataset.production === String(production) && target.snap) return resolve(target.snap);
     existing?.remove();
     const script = document.createElement('script');
     script.id = 'au-midtrans-snap';
-    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+    script.src = `https://app${production ? '' : '.sandbox'}.midtrans.com/snap/snap.js`;
     script.dataset.clientKey = clientKey;
+    script.dataset.production = String(production);
     const timeout = window.setTimeout(() => { script.remove(); reject(new Error('SNAP_LOAD_FAILED')); }, 15000);
     script.onload = () => { clearTimeout(timeout); target.snap ? resolve(target.snap) : reject(new Error('SNAP_LOAD_FAILED')); };
     script.onerror = () => { clearTimeout(timeout); script.remove(); reject(new Error('SNAP_LOAD_FAILED')); };
@@ -51,8 +52,8 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const explain = (reason: string) => ({
-    SANDBOX_KEYS_REQUIRED: copy('Key Midtrans sandbox belum sesuai. Hubungi admin untuk mengaktifkan pembayaran testing.', 'Sandbox keys need to be configured by the administrator.'),
-    SANDBOX_AUTH_FAILED: copy('API Sandbox menolak key Midtrans. Salin ulang key dari dashboard Sandbox dan restart server.', 'The Sandbox API rejected the Midtrans key. Copy the key from the Sandbox dashboard and restart the server.'),
+    MIDTRANS_KEYS_REQUIRED: copy('Key Midtrans belum sesuai. Hubungi admin.', 'Midtrans keys need to be configured by the administrator.'),
+    MIDTRANS_AUTH_FAILED: copy('API Midtrans menolak key. Periksa key dan mode environment di dashboard Midtrans.', 'Midtrans rejected the key. Check the key and environment mode in the Midtrans dashboard.'),
     FIRESTORE_ACCESS_REQUIRED: copy('Backend akses staging belum siap. Hubungi admin.', 'The staging access backend is not ready. Contact the administrator.'),
     FIREBASE_ADMIN_CONFIG_REQUIRED: copy('Konfigurasi server akses staging belum lengkap.', 'The staging access server configuration is incomplete.'),
     CHECKOUT_RATE_LIMIT: copy('Tunggu 30 detik sebelum membuat pembayaran baru.', 'Wait 30 seconds before starting another payment.'),
@@ -76,7 +77,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
     finally { if (mounted.current) setBusy(false); }
   }
   async function pay(current: Order) {
-    const snap = await loadSnap(current.clientKey);
+    const snap = await loadSnap(current.clientKey, current.production);
     if (!mounted.current) return;
     // A native modal sits above Snap's iframe. Close it before opening Snap.
     dialog.current?.close();
@@ -93,7 +94,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
     try {
       const current: Order = order || await api({ action: 'create', planId: plan.id, email });
       if (!mounted.current) return;
-      if (current.sandbox !== true || !/^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(current.clientKey || '') || !current.snapToken) throw new Error('SANDBOX_KEYS_REQUIRED');
+      if (typeof current.production !== 'boolean' || !/^Mid-client-[A-Za-z0-9_-]+$/.test(current.clientKey || '') || !current.snapToken) throw new Error('MIDTRANS_KEYS_REQUIRED');
       setOrder(current);
       try { sessionStorage.setItem(storage, JSON.stringify({ ...current, planId: plan.id })); } catch { /* Checkout remains usable with storage disabled. */ }
       await pay(current);
@@ -103,8 +104,8 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
   return <>
     <button className="landing-button landing-button-primary" type="button" onClick={() => dialog.current?.showModal()}>{copy('Bayar melalui Midtrans', 'Pay with Midtrans')}</button>
     <dialog ref={dialog} className="landing-payment-dialog" aria-labelledby={titleId} onCancel={event => { if (busy) event.preventDefault(); }}>
-      <h2 id={titleId}>{copy('Pembayaran sandbox', 'Sandbox payment')}</h2>
-      <p>{copy('Simulasi pembayaran tanpa uang sungguhan. Semua metode yang aktif di akun Midtrans tersedia pada langkah berikutnya.', 'Test payments without real money. Every active Midtrans payment method is available in the next step.')}</p>
+      <h2 id={titleId}>{copy(order?.production ?? quote.production ? 'Pembayaran Midtrans' : 'Pembayaran sandbox', order?.production ?? quote.production ? 'Midtrans payment' : 'Sandbox payment')}</h2>
+      <p>{copy(order?.production ?? quote.production ? 'Pembayaran diproses langsung oleh Midtrans. Semua metode yang aktif di akun tersedia pada langkah berikutnya.' : 'Simulasi pembayaran tanpa uang sungguhan. Semua metode yang aktif di akun Midtrans tersedia pada langkah berikutnya.', order?.production ?? quote.production ? 'Payment is processed by Midtrans. Every active payment method in the account is available in the next step.' : 'Test payments without real money. Every active Midtrans payment method is available in the next step.')}</p>
       <p>{copy(`Akses ${order?.accessDays ?? plan.accessDays} hari · `, `${order?.accessDays ?? plan.accessDays} days access · `)}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(order?.amount ?? plan.amount)}</p>
       {quote.ready === false && <p role="alert">{explain(quote.reason || '')}</p>}
       {paid ? <a className="landing-button landing-button-primary" href={landingLinks.editor}>{copy('Masuk ke akun', 'Sign in')}</a> : <form onSubmit={event => { event.preventDefault(); void start(); }}>

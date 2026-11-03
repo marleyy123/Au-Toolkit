@@ -32,7 +32,7 @@ export function createHandler({ env = process.env } = {}) {
       try { midtransConfig(env); } catch (e) { reason = e.message; }
       return reply(200, { success: true, country, region: country === 'ID' ? 'indonesia' : 'international',
         amount: midtransPlans(country)[0].amount, currency: 'IDR', checkout: null,
-        provider: 'midtrans', sandbox: true, ready: !reason, reason, plans: midtransPlans(country) });
+        provider: 'midtrans', production: env.MIDTRANS_IS_PRODUCTION === 'true', ready: !reason, reason, plans: midtransPlans(country) });
     }
     const header = req.headers['x-vercel-ip-country'];
     const country = typeof header === 'string' ? header.trim().toUpperCase() : '';

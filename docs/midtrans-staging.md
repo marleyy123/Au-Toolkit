@@ -1,28 +1,26 @@
 # Midtrans Snap di staging
 
-Integrasi hanya aktif untuk Firebase `au-toolkit-staging-20261005`. Seluruh paket
-development memakai Midtrans Sandbox; key yang kosong atau salah menonaktifkan
-pembayaran tanpa fallback Lynk. Production tetap memakai alur sebelumnya.
-Key server tidak menggunakan awalan `VITE_` dan tidak dikirim ke browser.
+Integrasi aktif untuk Firebase `au-toolkit-staging-20261005`. Pilih Sandbox
+atau Production dengan `MIDTRANS_IS_PRODUCTION`. Kedua mode memberi akses pada
+backend staging ini; mode Production memproses pembayaran uang sungguhan dan
+tidak memindahkan data akses ke Firebase production. Key server tidak memakai
+awalan `VITE_` dan tidak dikirim ke browser.
 
 ## Konfigurasi
 
 Di `.env.staging.vercel` untuk lokal dan environment Vercel **staging**:
 
 ```dotenv
-MIDTRANS_IS_PRODUCTION=false
-MIDTRANS_SERVER_KEY=Mid-server-... # salin persis dari dashboard Sandbox
+MIDTRANS_IS_PRODUCTION=true
+MIDTRANS_SERVER_KEY=Mid-server-... # gunakan key sesuai mode
 MIDTRANS_CLIENT_KEY=Mid-client-...
 ACCESS_BACKEND=firestore
 FIREBASE_ADMIN_SERVICE_ACCOUNT={...}
 ```
 
-Service account harus berasal dari project staging tersebut. Gunakan kredensial
-staging yang sama dengan API akses yang sudah berjalan. `MIDTRANS_MERCHANT_ID`
-boleh disimpan, tetapi tidak diperlukan untuk request Snap standar.
-Key Sandbox dapat memakai format `Mid-*` maupun `SB-Mid-*`; awalan bukan
-penentu environment. Jangan menambahkan `SB-` secara manual. Mode eksplisit
-`false` dan endpoint API/skrip Sandbox yang menentukan tujuan request.
+Gunakan `true` dengan key dashboard Production atau `false` dengan key
+Sandbox. Server memilih endpoint berdasarkan flag tersebut. Service account
+harus tetap berasal dari project staging.
 `ALLOWED_ORIGINS` mencantumkan origin staging dan origin lokal yang digunakan.
 Jangan mengaktifkan backend Firestore sebelum konfigurasi akses staging yang ada
 siap; lihat [panduan akses](./firestore-access-staging.md).
@@ -33,15 +31,15 @@ internasional. Pada Vercel hanya header negara dari Vercel yang dipakai.
 Mode lokal tidak berlaku di server production.
 
 Setelah kode dan environment dideploy ke Vercel staging, atur **Payment
-Notification URL** di dashboard Midtrans **Sandbox**:
+Notification URL** di dashboard Midtrans yang sesuai dengan mode yang digunakan:
 
 ```text
 https://au-toolkit-testing.vercel.app/api/midtrans-webhook
 ```
 
 URL itu belum tersedia sebelum deploy. Webhook tidak dapat menjangkau localhost.
-Tombol **Periksa status pembayaran** juga dapat memverifikasi dan mengaktifkan
-akses dari API Midtrans saat tes lokal, tanpa webhook.
+Tombol **Periksa status pembayaran** juga memverifikasi status melalui API
+Midtrans yang sesuai dengan order, tanpa webhook.
 
 ## Metode dan harga
 
@@ -103,11 +101,9 @@ npm run build
 ```
 
 Tes otomatis memakai provider palsu dan database dalam memori; browser memakai
-mock Snap pada Edge dan WebKit. Untuk uji nyata, ganti key ke Sandbox, lengkapi
-Admin SDK staging, buat order dari landing, bayar melalui simulator Sandbox,
-periksa status dan login menggunakan email pembelian. Periksa order di dashboard
-Sandbox dan satu purchase/grant di Firestore. Tes nyata tidak boleh menggunakan
-key production atau pembayaran uang sungguhan.
+mock Snap pada Edge dan WebKit. Untuk uji nyata, gunakan Sandbox dan simulator
+Sandbox. Order Sandbox lama tetap memakai endpoint Sandbox; order Production
+memakai endpoint Production dan dicatat dengan sumber `midtrans-production`.
 
 Referensi resmi: [parameter Snap](https://docs.midtrans.com/reference/request-body-json-parameter),
 [notifikasi dan verifikasi](https://docs.midtrans.com/docs/https-notification-webhooks),

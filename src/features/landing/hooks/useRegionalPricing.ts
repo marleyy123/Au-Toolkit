@@ -3,7 +3,7 @@ import { ACCESS_PLANS } from '../../../../lib/access-plans.js';
 import { midtransPlans } from '../../../../lib/midtrans-plans.js';
 
 export type PlanQuote = { id: string; title?: string; accessDays: number; amount: number; checkout: string | null; available?: boolean };
-export type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null; plans: PlanQuote[]; provider?: 'midtrans'; sandbox?: boolean; ready?: boolean; reason?: string | null };
+export type Quote = { country: string; region: 'indonesia' | 'international'; amount: number; currency: 'IDR'; checkout: string | null; plans: PlanQuote[]; provider?: 'midtrans'; production?: boolean; ready?: boolean; reason?: string | null };
 type PricingState = { status: 'loading' | 'error'; quote?: never } | { status: 'ready'; quote: Quote };
 
 function readQuote(value: unknown): Quote {
@@ -17,7 +17,7 @@ function readQuote(value: unknown): Quote {
         url.username || url.password || !url.pathname.endsWith('/checkout')) throw new Error('Invalid checkout');
   }
   if (data.provider !== undefined && data.provider !== 'midtrans') throw new Error('Invalid provider');
-  if (data.provider === 'midtrans' && (data.sandbox !== true || typeof data.ready !== 'boolean' || data.checkout !== null)) throw new Error('Invalid sandbox');
+  if (data.provider === 'midtrans' && (typeof data.production !== 'boolean' || typeof data.ready !== 'boolean' || data.checkout !== null)) throw new Error('Invalid Midtrans mode');
   if (data.provider === 'midtrans' && !Array.isArray(data.plans)) throw new Error('Missing payment plans');
   const plans: PlanQuote[] = data.provider === 'midtrans' ? midtransPlans(data.country) : ACCESS_PLANS.map(plan => ({ id: plan.id, accessDays: plan.accessDays,
     amount: plan.id === 'monthly' ? data.amount : 0, checkout: plan.id === 'monthly' ? data.checkout : null }));
