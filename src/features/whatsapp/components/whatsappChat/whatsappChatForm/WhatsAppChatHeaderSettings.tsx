@@ -280,6 +280,23 @@ export const WhatsAppChatHeaderSettings: React.FC<ChatSectionProps> = ({ data, o
             />
             <p className="text-[10px] text-slate-500">Kelengkungan sudut (0-30px)</p>
           </div>
+
+          {/* Bubble Tail Toggle */}
+          <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+            <div>
+              <span className="text-xs font-semibold text-slate-700 block">Ekor Bubble Chat</span>
+              <p className="text-[10px] text-slate-500">Tampilkan ekor pada pesan terakhir</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.showBubbleTail !== false}
+                onChange={(e) => updateField('showBubbleTail', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
         </div>
       </div>
 

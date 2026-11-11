@@ -1,15 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html lang="id" translate="no" class="notranslate">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AU Toolkit</title>
     <meta name="description" content="Fake social media generator for Alternate Universe (AU) writers & storytellers to craft X (Twitter) posts, Instagram feeds, and Instagram stories." />
+    <meta name="google" content="notranslate" />
+    <meta name="googlebot" content="notranslate" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#7c3aed" />
     <meta property="og:title" content="AU Toolkit" />
     <meta property="og:description" content="Fake social media generator for Alternate Universe (AU) writers & storytellers to craft X (Twitter) posts, Instagram feeds, and Instagram stories." />
     <script>
+      // Safeguard against third-party translation extensions (e.g. Google Translate) mutating React DOM text nodes
+      if (typeof Node === 'function' && Node.prototype) {
+        const originalRemoveChild = Node.prototype.removeChild;
+        Node.prototype.removeChild = function (child) {
+          if (child.parentNode !== this) {
+            return child;
+          }
+          return originalRemoveChild.apply(this, arguments);
+        };
+        const originalInsertBefore = Node.prototype.insertBefore;
+        Node.prototype.insertBefore = function (newNode, referenceNode) {
+          if (referenceNode && referenceNode.parentNode !== this) {
+            return newNode;
+          }
+          return originalInsertBefore.apply(this, arguments);
+        };
+      }
+
       // Global error safeguard to intercept unhandled exceptions and prevent bubbling to parent frame as cross-origin "Script error."
       (function () {
         window.onerror = function (msg, url, lineno, colno, error) {

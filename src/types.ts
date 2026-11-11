@@ -431,6 +431,7 @@ export interface WhatsAppChatData {
   differentSenderGap?: number;
   dateDividerGap?: number;
   bubbleRoundness?: number;
+  showBubbleTail?: boolean;
   bubbleWidthPercent?: number;
   messageFontSize?: number;
   useCustomColors?: boolean;
