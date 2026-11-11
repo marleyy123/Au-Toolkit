@@ -267,6 +267,7 @@ export const INITIAL_WHATSAPP_CHAT_DATA: WhatsAppChatData = {
   differentSenderGap: 6,
   dateDividerGap: 12,
   bubbleRoundness: 12,
+  showBubbleTail: true,
   useCustomColors: false,
   barBgColor: '#075E54',
   chatBgColor: '#efeae2',

@@ -57,6 +57,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 {this.state.error.message}
               </div>
             )}
+            {this.state.error && (this.state.error.message.includes('removeChild') || this.state.error.message.includes('insertBefore') || this.state.error.message.includes('Node')) && (
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 rounded-xl text-left text-[11px] text-amber-800 dark:text-amber-200 leading-snug">
+                ⚠️ <strong>Penerjemah Browser Terdeteksi:</strong> Matikan fitur Google Translate / terjemahan otomatis di menu browser Anda (pilih &quot;Jangan terjemahkan situs ini&quot;) agar tidak merusak pratinjau teks.
+              </div>
+            )}
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
