@@ -26,6 +26,24 @@
   force = true
 
 [[redirects]]
+  from = "/api/regional-pricing"
+  to = "/.netlify/functions/regional-pricing"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/midtrans"
+  to = "/.netlify/functions/midtrans"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/midtrans-webhook"
+  to = "/.netlify/functions/midtrans-webhook"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
