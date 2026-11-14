@@ -38,7 +38,7 @@ function savedOrder(storage: string, planId: string): Order | null {
       /^au_(?:sb|live)_[a-f0-9]{32}$/.test(data.orderId) &&
       /^[a-f0-9]{64}$/.test(data.statusToken) &&
       typeof data.snapToken === 'string' &&
-      /^Mid-client-[A-Za-z0-9_-]+$/.test(data.clientKey || '')
+      /^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(data.clientKey || '')
       ? data
       : null;
   } catch {
@@ -259,7 +259,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
           uid: currentUser.uid || undefined,
         }));
       if (!mounted.current) return;
-      if (typeof current.production !== 'boolean' || !/^Mid-client-[A-Za-z0-9_-]+$/.test(current.clientKey || '') || !current.snapToken) {
+      if (typeof current.production !== 'boolean' || !/^(?:SB-)?Mid-client-[A-Za-z0-9_-]+$/.test(current.clientKey || '') || !current.snapToken) {
         throw new Error('MIDTRANS_KEYS_REQUIRED');
       }
       setOrder(current);
