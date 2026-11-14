@@ -224,6 +224,32 @@ export interface InstagramStoryData {
   showKeyboard?: boolean;
   keyboardTheme?: 'dark' | 'light';
   emojis?: string[];
+  // Repost Story Mode fields
+  isRepost?: boolean;
+  repostUsername?: string;
+  repostTimeAgo?: string;
+  repostAvatar?: string;
+  repostVerified?: VerifiedType;
+  repostMedia?: string;
+  repostBgColor?: string;
+  repostSizePercent?: number;
+  repostCornerRadius?: number;
+  // Question Box / Text Box Sticker fields
+  showQuestionBox?: boolean;
+  questionBoxMode?: 'ask' | 'answer';
+  showQuestionBoxAvatar?: boolean;
+  questionBoxAvatar?: string;
+  questionBoxPrompt?: string;
+  questionBoxResponseText?: string;
+  questionBoxPlaceholder?: string;
+  questionBoxBgColor?: string;
+  questionBoxTheme?: 'white' | 'dark' | 'blue' | 'purple' | 'pink' | 'custom';
+  questionBoxX?: number;
+  questionBoxY?: number;
+  questionBoxScale?: number;
+  questionBoxAnswerBgColor?: string;
+  questionBoxAnswerUser?: string;
+  questionBoxAnswerText?: string;
 }
 
 export interface InstagramHighlight {

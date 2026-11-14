@@ -3,6 +3,8 @@ import { LineChatData, LineChatMessage } from '../../../../types';
 import { DEFAULT_AVATAR } from '../../../../data/defaultTemplates';
 import { renderIosEmojis } from '../../../../utils/emojiUtils';
 import { useLanguage } from '../../../../context/LanguageContext';
+import { ChatBubbleShiftControls } from '../../../../components/ChatBubbleShiftControls';
+import { formatChatTime, cascadeMessageTime } from '../../../../utils/chatTimeUtils';
 
 export const formatLineTimestamp = (rawTime?: string): string => {
   if (!rawTime) return '';
@@ -65,6 +67,117 @@ export const LineChatPreview: React.FC<Props> = ({ data, previewRef, onUpdateMes
   // Inline Editing State
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editingText, setEditingText] = React.useState<string>('');
+
+  // 1. Geser bubble ke atas (Tukar posisi dengan indeks sebelumnya)
+  const handleMoveMessageUp = (index: number) => {
+    if (index <= 0 || !data?.messages || !onChange) return;
+    const newMessages = [...data.messages];
+    const temp = newMessages[index];
+    newMessages[index] = newMessages[index - 1];
+    newMessages[index - 1] = temp;
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // 2. Geser bubble ke bawah (Tukar posisi dengan indeks setelahnya)
+  const handleMoveMessageDown = (index: number) => {
+    if (!data?.messages || index >= data.messages.length - 1 || !onChange) return;
+    const newMessages = [...data.messages];
+    const temp = newMessages[index];
+    newMessages[index] = newMessages[index + 1];
+    newMessages[index + 1] = temp;
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // 3. Balik sisi bubble (Kiri <-> Kanan)
+  const handleToggleMessageSide = (index: number) => {
+    if (!data?.messages || index < 0 || index >= data.messages.length || !onChange) return;
+    const newMessages = [...data.messages];
+    const currentMsg = newMessages[index];
+    const currentSender = currentMsg.sender || 'incoming';
+    const newSender = currentSender === 'outgoing' ? 'incoming' : 'outgoing';
+    newMessages[index] = {
+      ...currentMsg,
+      sender: newSender,
+    };
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // State untuk menyimpan ID pesan yang sedang diedit jamnya
+  const [editingTimeId, setEditingTimeId] = React.useState<string | null>(null);
+  const [editingTimeValue, setEditingTimeValue] = React.useState<string>('');
+
+  const handleStartTimeEditing = (msgId: string, currentTime?: string) => {
+    setEditingTimeId(msgId);
+    setEditingTimeValue(formatChatTime(currentTime, '16.34'));
+  };
+
+  const handleSaveTimeEditing = (msgId: string, applyToAll: boolean = false) => {
+    if (!onChange || !data?.messages) {
+      setEditingTimeId(null);
+      return;
+    }
+    const cleanTime = formatChatTime(editingTimeValue, '16.34');
+    const targetIdx = (data.messages || []).findIndex(
+      (m, idx) => m.id === msgId || String(idx) === msgId
+    );
+    if (targetIdx !== -1) {
+      const updated = cascadeMessageTime(data.messages, targetIdx, cleanTime, applyToAll);
+      onChange({ ...data, messages: updated });
+    }
+    setEditingTimeId(null);
+  };
+
+  const renderInteractiveTimestamp = (
+    msg: LineChatMessage,
+    index: number,
+    colorStyle?: string,
+    extraClasses: string = ''
+  ) => {
+    const isEditingThis = editingTimeId === (msg.id || String(index));
+    const formatted = formatChatTime(msg.time, '16.34');
+
+    if (isEditingThis) {
+      return (
+        <span
+          data-html2canvas-ignore="false"
+          className="inline-flex items-center z-30 pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            autoFocus
+            type="text"
+            value={editingTimeValue}
+            onChange={(e) => setEditingTimeValue(e.target.value)}
+            onBlur={() => handleSaveTimeEditing(msg.id || String(index))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSaveTimeEditing(msg.id || String(index));
+              } else if (e.key === 'Escape') {
+                setEditingTimeId(null);
+              }
+            }}
+            placeholder="16.34"
+            className="w-12 text-[10px] leading-tight font-mono font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-purple-500 rounded px-1 py-0 shadow-xs outline-none text-center"
+          />
+        </span>
+      );
+    }
+
+    return (
+      <span
+        onClick={(e) => {
+          e.stopPropagation();
+          handleStartTimeEditing(msg.id || String(index), msg.time);
+        }}
+        style={{ color: colorStyle }}
+        className={`cursor-pointer hover:underline hover:opacity-100 transition-opacity tracking-tight leading-none pointer-events-auto inline-block select-none font-normal ${extraClasses}`}
+        title="Klik untuk ubah jam"
+      >
+        {formatted}
+      </span>
+    );
+  };
 
   const handleStartEditing = (msgId: string, currentText: string) => {
     setEditingId(msgId);
@@ -613,7 +726,15 @@ export const LineChatPreview: React.FC<Props> = ({ data, previewRef, onUpdateMes
                       </span>
                     )}
 
-                    <div className="flex items-end space-x-1.5">
+                    <div className="relative group flex items-end space-x-1.5">
+                      <ChatBubbleShiftControls
+                        isOutgoing={false}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < (messages?.length || 0) - 1}
+                        onMoveUp={() => handleMoveMessageUp(index)}
+                        onMoveDown={() => handleMoveMessageDown(index)}
+                        onToggleSide={() => handleToggleMessageSide(index)}
+                      />
                       {/* BUBBLE OR STICKER OR CALL BOX */}
                       {msg.isRecalled || msgType === 'recalled' ? (
                         <div
@@ -823,12 +944,7 @@ export const LineChatPreview: React.FC<Props> = ({ data, previewRef, onUpdateMes
                       )}
 
                       {/* Incoming Timestamp (Right side of bubble) */}
-                      <span
-                        style={{ color: effectiveTimestampColor }}
-                        className="text-[10px] font-normal shrink-0 mb-0.5 select-none"
-                      >
-                        {formatLineTimestamp(msg.time) || '16.34'}
-                      </span>
+                      {renderInteractiveTimestamp(msg, index, effectiveTimestampColor, 'shrink-0 mb-0.5')}
                     </div>
                   </div>
                 </div>
@@ -836,7 +952,15 @@ export const LineChatPreview: React.FC<Props> = ({ data, previewRef, onUpdateMes
 
               {/* OUTGOING MESSAGE CONTAINER (RIGHT ALIGNED) */}
               {isOutgoing && (
-                <div className="flex items-end justify-end space-x-1.5 max-w-[82%]">
+                <div className="relative group flex items-end justify-end space-x-1.5 max-w-[82%]">
+                  <ChatBubbleShiftControls
+                    isOutgoing={true}
+                    canMoveUp={index > 0}
+                    canMoveDown={index < (messages?.length || 0) - 1}
+                    onMoveUp={() => handleMoveMessageUp(index)}
+                    onMoveDown={() => handleMoveMessageDown(index)}
+                    onToggleSide={() => handleToggleMessageSide(index)}
+                  />
                   {/* Outgoing Read Status & Timestamp (LEFT side of green bubble) */}
                   <div className="flex flex-col items-end shrink-0 mb-0.5 text-right select-none">
                     {showReadStatus && msg.isRead !== false && (
@@ -847,12 +971,7 @@ export const LineChatPreview: React.FC<Props> = ({ data, previewRef, onUpdateMes
                         {renderIosEmojis(msg.readText || readTextLabel || 'read')}
                       </span>
                     )}
-                    <span
-                      style={{ color: effectiveTimestampColor }}
-                      className="text-[10px] font-normal leading-tight"
-                    >
-                      {formatLineTimestamp(msg.time) || '16.34'}
-                    </span>
+                    {renderInteractiveTimestamp(msg, index, effectiveTimestampColor)}
                   </div>
 
                   {/* BUBBLE OR STICKER OR CALL BOX */}

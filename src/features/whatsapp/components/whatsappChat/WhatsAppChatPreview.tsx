@@ -17,6 +17,7 @@ import {
 import { WhatsAppChatHeader } from './preview/WhatsAppChatHeader';
 import { WhatsAppChatInputBar } from './preview/WhatsAppChatInputBar';
 import { WhatsAppChatMessageBubble } from './preview/WhatsAppChatMessageBubble';
+import { formatChatTime, cascadeMessageTime } from '../../../../utils/chatTimeUtils';
 
 export {
   formatWhatsAppBubbleText,
@@ -155,6 +156,71 @@ export const WhatsAppChatPreview: React.FC<Props> = ({
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+
+  // 1. Geser bubble ke atas (Tukar posisi dengan indeks sebelumnya)
+  const handleMoveMessageUp = (index: number) => {
+    if (index <= 0 || !data?.messages || !onChange) return;
+    const newMessages = [...data.messages];
+    const temp = newMessages[index];
+    newMessages[index] = newMessages[index - 1];
+    newMessages[index - 1] = temp;
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // 2. Geser bubble ke bawah (Tukar posisi dengan indeks setelahnya)
+  const handleMoveMessageDown = (index: number) => {
+    if (!data?.messages || index >= data.messages.length - 1 || !onChange) return;
+    const newMessages = [...data.messages];
+    const temp = newMessages[index];
+    newMessages[index] = newMessages[index + 1];
+    newMessages[index + 1] = temp;
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // 3. Balik sisi bubble (Kiri <-> Kanan)
+  const handleToggleMessageSide = (index: number) => {
+    if (!data?.messages || index < 0 || index >= data.messages.length || !onChange) return;
+    const newMessages = [...data.messages];
+    const currentMsg = newMessages[index];
+    const currentSender = currentMsg.sender || 'incoming';
+    const newSender = currentSender === 'outgoing' ? 'incoming' : 'outgoing';
+    newMessages[index] = {
+      ...currentMsg,
+      sender: newSender,
+    };
+    onChange({ ...data, messages: newMessages });
+  };
+
+  // State untuk menyimpan ID pesan yang sedang diedit jamnya
+  const [editingTimeId, setEditingTimeId] = React.useState<string | null>(null);
+  const [editingTimeValue, setEditingTimeValue] = React.useState<string>('');
+
+  // Memulai mode edit jam saat teks jam di-tap/klik
+  const handleStartTimeEditing = (msgId: string, currentTime?: string) => {
+    setEditingTimeId(msgId);
+    setEditingTimeValue(formatChatTime(currentTime));
+  };
+
+  // Menyimpan jam baru dan menjalankan cascade ke bubble di bawahnya
+  const handleSaveTimeEditing = (msgId: string, applyToAll: boolean = false) => {
+    if (!onChange || !data?.messages) {
+      setEditingTimeId(null);
+      return;
+    }
+    const cleanTime = formatChatTime(editingTimeValue, '12.00');
+    const targetIdx = (data.messages || []).findIndex(
+      (m, idx) => m.id === msgId || String(idx) === msgId
+    );
+    if (targetIdx !== -1) {
+      // Menjalankan cascade: bubble target dan semua bubble di bawahnya otomatis berubah
+      const updated = cascadeMessageTime(data.messages, targetIdx, cleanTime, applyToAll);
+      onChange({
+        ...data,
+        messages: updated,
+      });
+    }
+    setEditingTimeId(null);
+  };
 
   const handleStartEditing = (msgId: string, currentText: string) => {
     setEditingId(msgId);
@@ -542,6 +608,15 @@ export const WhatsAppChatPreview: React.FC<Props> = ({
                     getHarmoniousReplySenderColor={getHarmoniousReplySenderColor}
                     getMessageTimestampColor={getMessageTimestampColor}
                     onChange={onChange}
+                    onMoveMessageUp={handleMoveMessageUp}
+                    onMoveMessageDown={handleMoveMessageDown}
+                    onToggleMessageSide={handleToggleMessageSide}
+                    editingTimeId={editingTimeId}
+                    editingTimeValue={editingTimeValue}
+                    handleStartTimeEditing={handleStartTimeEditing}
+                    handleSaveTimeEditing={handleSaveTimeEditing}
+                    setEditingTimeValue={setEditingTimeValue}
+                    setEditingTimeId={setEditingTimeId}
                   />
                 </div>
               );

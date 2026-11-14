@@ -3,7 +3,22 @@ import { InstagramStoryData } from '../../../../types';
 import { InstagramVerifiedBadge, InstagramHeartIcon, InstagramCommentIcon, InstagramSendIcon } from '../shared/InstagramIcons';
 import { DEFAULT_AVATAR } from '../../../../data/defaultTemplates';
 import { renderEmojiReaction, renderFormattedTextWithAppleEmojis } from '../../../../utils/emojiUtils';
-import { Star, ChevronDown } from 'lucide-react';
+import { Star, ChevronDown, Repeat } from 'lucide-react';
+
+const isDarkColor = (hexOrColor?: string): boolean => {
+  if (!hexOrColor) return false;
+  let color = hexOrColor.replace('#', '').trim();
+  if (color.length === 3) {
+    color = color.split('').map((c) => c + c).join('');
+  }
+  if (color.length !== 6) return false;
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return false;
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq < 128;
+};
 
 interface Props {
   data: InstagramStoryData;
@@ -14,6 +29,17 @@ interface Props {
 export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, previewRef }) => {
   const [isShift, setIsShift] = React.useState(false);
   const [is123, setIs123] = React.useState(false);
+
+  const internalContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const setContainerRef = (el: HTMLDivElement | null) => {
+    internalContainerRef.current = el;
+    if (previewRef) {
+      (previewRef as any).current = el;
+    }
+  };
+
+  const isDraggingStickerRef = React.useRef(false);
+  const dragStartPosRef = React.useRef({ startX: 0, startY: 0, initialPercentX: 50, initialPercentY: 50 });
 
   const {
     username,
@@ -40,6 +66,32 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
     showKeyboard = true,
     keyboardTheme,
     emojis = ['😂', '😮', '😍', '😢', '👏', '🔥'],
+    // Repost Story Mode
+    isRepost = false,
+    repostUsername = '',
+    repostTimeAgo = '',
+    repostAvatar = '',
+    repostVerified = 'none',
+    repostMedia = '',
+    repostBgColor = '#000000',
+    repostSizePercent = 78,
+    repostCornerRadius = 24,
+    // Question Box / Text Box Sticker
+    showQuestionBox = false,
+    questionBoxMode = 'ask',
+    showQuestionBoxAvatar = true,
+    questionBoxAvatar = '',
+    questionBoxPrompt = '',
+    questionBoxResponseText = '',
+    questionBoxPlaceholder = 'Type something...',
+    questionBoxBgColor = '#FFFFFF',
+    questionBoxTheme = 'white',
+    questionBoxX = 50,
+    questionBoxY = 50,
+    questionBoxScale = 100,
+    questionBoxAnswerBgColor = '#FFFFFF',
+    questionBoxAnswerUser = '',
+    questionBoxAnswerText = '',
   } = (data || {}) as any;
 
   const currentReplyText = replyMessageText ?? 'Send message...';
@@ -96,6 +148,238 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
     return renderEmojiReaction(value, fallback);
   };
 
+  const handleStickerPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    isDraggingStickerRef.current = true;
+    dragStartPosRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialPercentX: questionBoxX ?? 50,
+      initialPercentY: questionBoxY ?? 50,
+    };
+  };
+
+  const handleStickerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingStickerRef.current || !onChange) return;
+    const container = internalContainerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const deltaX = e.clientX - dragStartPosRef.current.startX;
+    const deltaY = e.clientY - dragStartPosRef.current.startY;
+
+    const deltaPercentX = (deltaX / rect.width) * 100;
+    const deltaPercentY = (deltaY / rect.height) * 100;
+
+    const newX = Math.round(Math.max(10, Math.min(90, dragStartPosRef.current.initialPercentX + deltaPercentX)));
+    const newY = Math.round(Math.max(10, Math.min(90, dragStartPosRef.current.initialPercentY + deltaPercentY)));
+
+    onChange({
+      ...data,
+      questionBoxX: newX,
+      questionBoxY: newY,
+    });
+  };
+
+  const handleStickerPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isDraggingStickerRef.current) {
+      isDraggingStickerRef.current = false;
+      try {
+        (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+      } catch {}
+    }
+  };
+
+  const renderRepostCard = () => {
+    if (!isRepost) return null;
+    const sizePercent = Math.max(50, Math.min(100, Number(repostSizePercent ?? 78)));
+    const isFull = sizePercent >= 100;
+    // Fallback username ke 'username' (sesuai placeholder form)
+    const originalUser = (repostUsername && repostUsername.trim() !== '') ? repostUsername : 'username';
+    // Time ago kosong jika tidak diisi pengguna
+    const originalTime = repostTimeAgo || '';
+    const originalAvatarUrl = (repostAvatar && repostAvatar.trim() !== '') ? repostAvatar : DEFAULT_AVATAR;
+    const innerMedia = repostMedia || mediaImage;
+    const repostRadius = typeof repostCornerRadius === 'number' ? Math.max(0, Math.min(48, repostCornerRadius)) : 24;
+
+    if (isFull) {
+      return (
+        <div className="absolute inset-0 w-full h-full z-10 overflow-hidden pointer-events-none">
+          {innerMedia && innerMedia.trim() !== '' ? (
+            <img src={innerMedia} alt="Repost media" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-neutral-900 flex flex-col items-center justify-center text-neutral-400 p-6 text-center">
+              <Repeat className="w-10 h-10 mb-2 opacity-50" />
+              <span className="text-xs font-semibold">Foto Cerita Layar Penuh (100%)</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full h-full flex items-center justify-center pointer-events-none p-1.5">
+        <div
+          id="ig-repost-story-card"
+          className="relative overflow-hidden bg-neutral-900 flex flex-col shrink-0 shadow-none pointer-events-auto"
+          style={{
+            width: `${sizePercent}%`,
+            maxWidth: '100%',
+            maxHeight: '100%',
+            aspectRatio: '9 / 16',
+            borderRadius: `${repostRadius}px`,
+          }}
+        >
+          <div className="absolute inset-0 w-full h-full bg-neutral-950 flex items-center justify-center">
+            {innerMedia && innerMedia.trim() !== '' ? (
+              <img src={innerMedia} alt="Repost media" className="w-full h-full object-cover" />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-neutral-400 p-6 text-center">
+                <Repeat className="w-8 h-8 mb-2 opacity-50" />
+                <span className="text-xs font-semibold">Foto Cerita 9:16</span>
+              </div>
+            )}
+          </div>
+
+          {/* Header Akun Asli di Dalam Kartu Repost */}
+          <div className="absolute top-0 left-0 right-0 px-3 py-2 flex items-center justify-between z-10">
+            <div className="flex items-center space-x-2 min-w-0">
+              {/* Avatar tanpa outline */}
+              <img
+                src={originalAvatarUrl}
+                alt={originalUser}
+                className="w-6 h-6 rounded-full object-cover shrink-0"
+              />
+              <div className="flex items-center space-x-1 min-w-0">
+                <span className="text-[12px] font-bold text-white tracking-tight truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                  {originalUser}
+                </span>
+                {repostVerified === 'ig-blue' && <InstagramVerifiedBadge className="w-3 h-3 shrink-0" />}
+                {/* Hanya tampil jika diisi */}
+                {originalTime && originalTime.trim() !== '' && (
+                  <span className="text-[11px] text-white/80 ml-0.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                    {originalTime}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderQuestionBoxSticker = () => {
+    if (!showQuestionBox) return null;
+    const isAnswerMode = questionBoxMode === 'answer';
+    const topBgColor = questionBoxBgColor || (
+      questionBoxTheme === 'dark' ? '#1C1C1E' :
+      questionBoxTheme === 'blue' ? '#0095F6' :
+      questionBoxTheme === 'purple' ? '#8B5CF6' :
+      questionBoxTheme === 'pink' ? '#EC4899' : '#FFFFFF'
+    );
+    const isTopDark = isDarkColor(topBgColor);
+    const bottomBgColor = questionBoxAnswerBgColor || '#FFFFFF';
+    const isBottomDark = isDarkColor(bottomBgColor);
+    const promptText = (questionBoxPrompt && questionBoxPrompt.trim() !== '') ? questionBoxPrompt : (isAnswerMode ? 'Drop your thoughts here' : 'Ask me a question');
+    const hasResponseDraft = !!(questionBoxResponseText && questionBoxResponseText.trim() !== '');
+    const placeholderText = (questionBoxPlaceholder && questionBoxPlaceholder.trim() !== '') ? questionBoxPlaceholder : 'Type something...';
+    const currentX = questionBoxX ?? 50;
+    const currentY = questionBoxY ?? 50;
+    const currentScale = Math.max(0.4, Math.min(1.6, Number(questionBoxScale ?? 100) / 100));
+    const stickerAvatarUrl = (questionBoxAvatar && questionBoxAvatar.trim() !== '') ? questionBoxAvatar : (avatar && avatar.trim() !== '') ? avatar : DEFAULT_AVATAR;
+
+    return (
+      <div
+        id="ig-question-box-sticker"
+        onPointerDown={handleStickerPointerDown}
+        onPointerMove={handleStickerPointerMove}
+        onPointerUp={handleStickerPointerUp}
+        onPointerCancel={handleStickerPointerUp}
+        className="absolute z-35 w-[86%] max-w-[335px] select-none cursor-grab active:cursor-grabbing group transition-[transform] duration-75 active:scale-[1.015] touch-none"
+        style={{
+          left: `${currentX}%`,
+          top: `${currentY}%`,
+          transform: `translate(-50%, -50%) scale(${currentScale})`,
+          transformOrigin: 'center center',
+        }}
+        title="Geser langsung untuk memindahkan stiker"
+      >
+        <div className="relative w-full">
+          {/* Circular Avatar: Tanpa Outline Putih */}
+          {showQuestionBoxAvatar !== false && (
+            <div className="absolute -top-[22px] left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+              <img
+                src={stickerAvatarUrl}
+                alt="Avatar"
+                className="w-11 h-11 rounded-full object-cover shadow-sm bg-neutral-800"
+              />
+            </div>
+          )}
+
+          {isAnswerMode ? (
+            /* Tampilan Menjawab Pertanyaan (Shared Response / Answer Card) */
+            <div className="w-full rounded-[24px] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex flex-col">
+              <div
+                className="px-4 pt-7 pb-3 text-center"
+                style={{ backgroundColor: topBgColor }}
+              >
+                <p className={`text-[13.5px] font-bold tracking-tight leading-snug ${isTopDark ? 'text-white' : 'text-black'}`}>
+                  {renderFormattedTextWithAppleEmojis(promptText)}
+                </p>
+              </div>
+              <div
+                className="px-4.5 py-4 text-center min-h-[64px] flex flex-col justify-center border-t border-black/5"
+                style={{ backgroundColor: bottomBgColor }}
+              >
+                {questionBoxAnswerUser && questionBoxAnswerUser.trim() !== '' && (
+                  <span className={`text-[10.5px] font-semibold mb-1 opacity-80 ${isBottomDark ? 'text-white' : 'text-neutral-700'}`}>
+                    {questionBoxAnswerUser.startsWith('@') ? questionBoxAnswerUser : `@${questionBoxAnswerUser}`}
+                  </span>
+                )}
+                <p className={`text-[14px] font-semibold tracking-tight leading-snug ${questionBoxAnswerText && questionBoxAnswerText.trim() !== '' ? '' : 'opacity-75'} ${isBottomDark ? 'text-white' : 'text-black'}`}>
+                  {renderFormattedTextWithAppleEmojis(
+                    questionBoxAnswerText && questionBoxAnswerText.trim() !== ''
+                      ? questionBoxAnswerText
+                      : 'Can you share your skincare routine?'
+                  )}
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Tampilan Tanya (Interactive Ask Sticker) */
+            <div
+              className="w-full rounded-[24px] px-4.5 pt-7 pb-4.5 text-center shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex flex-col items-center justify-center transition-colors"
+              style={{ backgroundColor: topBgColor }}
+            >
+              <p className={`text-[14.5px] font-bold tracking-tight leading-snug max-w-[92%] break-words ${isTopDark ? 'text-white' : 'text-black'}`}>
+                {renderFormattedTextWithAppleEmojis(promptText)}
+              </p>
+
+              <div className={`mt-3 w-full rounded-[14px] px-3.5 py-2.5 text-[12px] flex items-center justify-start text-left pointer-events-none transition-colors ${
+                isTopDark
+                  ? 'bg-white/15 text-white/90 border border-white/10'
+                  : 'bg-black/5 text-neutral-800 border border-black/5'
+              }`}>
+                {hasResponseDraft ? (
+                  <span className="font-medium truncate">
+                    {renderFormattedTextWithAppleEmojis(questionBoxResponseText!)}
+                  </span>
+                ) : (
+                  <span className={isTopDark ? 'text-white/45' : 'text-black/40'}>
+                    {placeholderText}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // Keyboard theme styling based on dark / light mode
   const effectiveKeyboardTheme = keyboardTheme || theme || 'dark';
   const isDarkKb = effectiveKeyboardTheme === 'dark';
@@ -116,7 +400,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
   if (isStoryReplyMode) {
     return (
       <div
-        ref={previewRef}
+        ref={setContainerRef}
         id="preview-target"
         style={{
           ...sfFontStyle,
@@ -125,8 +409,15 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
         className="w-[380px] min-w-[380px] max-w-[380px] aspect-[9/16] mx-auto bg-black text-white overflow-hidden shadow-2xl border-0 relative select-none flex flex-col justify-between font-sans shrink-0"
       >
         {/* STORY BACKGROUND AREA */}
-        <div className="relative w-full flex-1 bg-[#111111] overflow-hidden flex flex-col justify-between p-3.5 pt-3">
-          {mediaImage ? (
+        <div
+          className="relative w-full flex-1 overflow-hidden flex flex-col justify-between p-3.5 pt-3"
+          style={{ backgroundColor: isRepost ? (repostBgColor || '#000000') : '#111111' }}
+        >
+          {isRepost ? (
+            <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
+              {renderRepostCard()}
+            </div>
+          ) : mediaImage ? (
             <>
               <img
                 src={mediaImage}
@@ -142,6 +433,9 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
               <div className={`absolute inset-0 z-10 pointer-events-none ${isStoryReplyMode ? 'bg-black/40' : 'bg-transparent'}`} />
             </>
           ) : null}
+
+          {/* Render Question Box Sticker in Reply Mode */}
+          {renderQuestionBoxSticker()}
 
           {/* STORY HEADER (PROGRESS BAR & USER INFO) */}
           <div className="relative z-20">
@@ -174,11 +468,31 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
                   )}
                 </div>
                 <div className="flex flex-col flex-1 min-w-0">
-                  <div className="flex items-center space-x-1 leading-tight min-w-0">
-                    <span className="text-xs font-semibold text-white tracking-wide truncate min-w-0">{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
-                    {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
-                    <span className="text-[11px] text-white/70 shrink-0 whitespace-nowrap">{renderFormattedTextWithAppleEmojis(timeAgo || '1h')}</span>
+                  <div className="flex items-center space-x-1.5 leading-normal">
+                    <span className="text-xs font-semibold text-white tracking-wide">{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
+                    {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5" />}
+                    {/* Hanya tampil jika timeAgo diisi */}
+                    {timeAgo && timeAgo.trim() !== '' && (
+                      <span className="text-[11px] text-white/70">{timeAgo}</span>
+                    )}
                   </div>
+
+                  {/* Repost Indicator under Username (Icon Repost + Avatar Akun yang Direpost + Username) */}
+                  {isRepost && (
+                    <div className="flex items-center gap-1.5 text-[11px] mt-0.5 text-white max-w-[240px] leading-normal drop-shadow-sm">
+                      <Repeat className="w-3 h-3 text-white/90 shrink-0" />
+                      <img
+                        src={(repostAvatar && repostAvatar.trim() !== '') ? repostAvatar : DEFAULT_AVATAR}
+                        alt={repostUsername || 'username'}
+                        className="w-3.5 h-3.5 rounded-full object-cover shrink-0"
+                      />
+                      <span className="font-semibold text-white truncate">
+                        {repostUsername || 'username'}
+                      </span>
+                      {repostVerified === 'ig-blue' && <InstagramVerifiedBadge className="w-2.5 h-2.5 shrink-0" />}
+                    </div>
+                  )}
+
                   {(musicArtist || musicTitle) && (
                     <div className="flex items-center gap-1 text-[10.5px] mt-0.5 text-white max-w-[210px] leading-tight">
                       <svg className="w-2 h-2.5 fill-white shrink-0" viewBox="0 0 10 12">
@@ -398,7 +712,7 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
 
   return (
     <div
-      ref={previewRef}
+      ref={setContainerRef}
       id="export-ig-story"
       className={`w-[380px] min-w-[380px] max-w-[380px] mx-auto aspect-[9/16] relative overflow-hidden flex flex-col justify-between font-sans select-none shadow-none outline-none transition-all shrink-0 ${cardBgClass}`}
       style={{
@@ -406,8 +720,15 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
         backgroundColor: wrapperBgHex,
       }}
     >
-      {/* Media Backdrop / Image */}
-      {mediaImage && mediaImage.trim() !== '' ? (
+      {/* Media Backdrop / Image OR Repost Card */}
+      {isRepost ? (
+        <div
+          className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden"
+          style={{ backgroundColor: repostBgColor || '#000000' }}
+        >
+          {renderRepostCard()}
+        </div>
+      ) : mediaImage && mediaImage.trim() !== '' ? (
         <div className="absolute inset-0 z-0">
           <img
             src={mediaImage}
@@ -440,6 +761,9 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
           No story image uploaded
         </div>
       )}
+
+      {/* Render Question Box / Text Box Sticker */}
+      {renderQuestionBoxSticker()}
 
       {/* Top Header Overlay */}
       <div className="relative z-10 w-full pt-2">
@@ -475,11 +799,32 @@ export const InstagramStoryPreview: React.FC<Props> = ({ data, onChange, preview
             />
 
             <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center space-x-1 leading-tight min-w-0">
-                <span className={`text-[13px] font-semibold drop-shadow-xs truncate min-w-0 ${textHeaderClass}`}>{renderFormattedTextWithAppleEmojis(username || 'username')}</span>
-                {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
-                <span className={`text-[12px] shrink-0 whitespace-nowrap ${subtextClass}`}>{renderFormattedTextWithAppleEmojis(timeAgo || '12m')}</span>
+              <div className="flex items-center space-x-1.5 leading-normal">
+                <span className={`text-[13px] font-semibold drop-shadow-xs truncate ${textHeaderClass}`}>
+                  {renderFormattedTextWithAppleEmojis(username || 'username')}
+                </span>
+                {verified === 'ig-blue' && <InstagramVerifiedBadge className="w-3.5 h-3.5" />}
+                {/* Hanya tampil jika timeAgo diisi */}
+                {timeAgo && timeAgo.trim() !== '' && (
+                  <span className={`text-[12px] ${subtextClass}`}>{timeAgo}</span>
+                )}
               </div>
+
+              {/* Repost Indicator under Username (Icon Repost + Avatar Akun yang Direpost + Username) */}
+              {isRepost && (
+                <div className="flex items-center gap-1.5 text-[11px] mt-0.5 text-white max-w-[240px] leading-normal drop-shadow-sm">
+                  <Repeat className="w-3 h-3 text-white/90 shrink-0" />
+                  <img
+                    src={(repostAvatar && repostAvatar.trim() !== '') ? repostAvatar : DEFAULT_AVATAR}
+                    alt={repostUsername || 'username'}
+                    className="w-3.5 h-3.5 rounded-full object-cover shrink-0"
+                  />
+                  <span className="font-semibold text-white truncate">
+                    {repostUsername || 'username'}
+                  </span>
+                  {repostVerified === 'ig-blue' && <InstagramVerifiedBadge className="w-2.5 h-2.5 shrink-0" />}
+                </div>
+              )}
 
               {/* Music Indicator under Username */}
               {(musicArtist || musicTitle) && (

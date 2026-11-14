@@ -111,7 +111,31 @@ export const INITIAL_INSTAGRAM_STORY_DATA: InstagramStoryData = {
   showQuickReactions: true,
   showKeyboard: true,
   keyboardTheme: 'dark',
-  emojis: ['😂', '😮', '😍', '😢', '👏', '🔥']
+  emojis: ['😂', '😮', '😍', '😢', '👏', '🔥'],
+  isRepost: false,
+  repostUsername: '',
+  repostTimeAgo: '',
+  repostAvatar: '',
+  repostVerified: 'none',
+  repostMedia: '',
+  repostBgColor: '#000000',
+  repostSizePercent: 78,
+  repostCornerRadius: 24,
+  showQuestionBox: false,
+  questionBoxMode: 'ask',
+  showQuestionBoxAvatar: true,
+  questionBoxAvatar: '',
+  questionBoxPrompt: '',
+  questionBoxResponseText: '',
+  questionBoxPlaceholder: 'Type something...',
+  questionBoxBgColor: '#FFFFFF',
+  questionBoxTheme: 'white',
+  questionBoxX: 50,
+  questionBoxY: 50,
+  questionBoxScale: 100,
+  questionBoxAnswerBgColor: '#FFFFFF',
+  questionBoxAnswerUser: '',
+  questionBoxAnswerText: ''
 };
 
 export const INITIAL_INSTAGRAM_PROFILE_DATA: InstagramProfileData = {
