@@ -205,6 +205,8 @@ export function useAuthLogoutActions({
       resetWorkspaceState();
     } finally {
       setIsLoggingOut(false);
+      // Redirect to the landing page instead of showing the editor login screen
+      window.location.href = '/';
     }
   };
 
