@@ -3,11 +3,12 @@ import { createServer } from 'node:http';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { chromium } from 'playwright-core';
+import { parse } from 'postcss';
 
 const bundle = await build({stdin: {
   contents: `import React, {useRef, useLayoutEffect} from 'react';
     import {createRoot} from 'react-dom/client';
-    import {TwitterPreview} from './src/features/twitter/components/TwitterPreview';
+    import {TwitterPreview} from './src/features/twitter/components/tweet/TwitterPreview';
     import {INITIAL_TWITTER_DATA} from './src/data/defaultTemplates';
     import {registerExportContext} from './src/export/exportContext';
     import {exportPreviewToImage} from './src/utils/exportUtils';
@@ -30,7 +31,11 @@ const bundle = await build({stdin: {
   resolveDir: process.cwd(), loader: 'tsx',
 }, bundle: true, write: false, format: 'iife'});
 const assets = await readdir('dist/assets');
-const css = (await readFile(`dist/assets/${assets.find(file => file.endsWith('.css'))}`, 'utf8')).replace(/@import[^;]+;/g, '');
+const stylesheet = assets.find(file => /^index-.*\.css$/.test(file));
+assert(stylesheet, 'Build the app before running the export test');
+const styles = parse(await readFile(`dist/assets/${stylesheet}`, 'utf8'));
+styles.walkAtRules('import', rule => rule.remove());
+const css = styles.toString();
 const server = createServer((req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Content-Type', req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : 'text/html');

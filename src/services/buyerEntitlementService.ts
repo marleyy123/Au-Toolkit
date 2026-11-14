@@ -60,17 +60,7 @@ const STORAGE_KEY_ENTITLEMENT_CACHE = 'au_buyer_entitlement_cache_';
  * Retrieves cached entitlement from localStorage if available.
  */
 export function getCachedEntitlement(email: string): EntitlementCheckResult | null {
-  try {
-    const cleanEmail = normalizeEmail(email);
-    if (!cleanEmail) return null;
-    const raw = localStorage.getItem(`${STORAGE_KEY_ENTITLEMENT_CACHE}${cleanEmail}`);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        return parsed as EntitlementCheckResult;
-      }
-    }
-  } catch {}
+  // Browser-owned cache is never proof of a current server-side entitlement.
   return null;
 }
 
@@ -432,7 +422,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   // 2. INVALID_FIREBASE_TOKEN
-  if (httpStatus === 401 && reasonCode === 'INVALID_FIREBASE_TOKEN') {
+  if (httpStatus === 401 && ['INVALID_FIREBASE_TOKEN', 'INVALID_AUTH_TOKEN'].includes(reasonCode)) {
     return {
       allowed: false,
       status: 'INVALID_FIREBASE_TOKEN',
@@ -452,6 +442,9 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   // 4. APPS_SCRIPT_UNAVAILABLE
+  if (reasonCode === 'FIRESTORE_UNAVAILABLE') {
+    return { allowed: false, status: 'BACKEND_ERROR', message: 'Server akses sedang tidak dapat dijangkau. Silakan coba lagi.', data: resData };
+  }
   if (httpStatus === 503 || reasonCode === 'APPS_SCRIPT_UNAVAILABLE') {
     return {
       allowed: false,
@@ -536,7 +529,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'DEVICE_MISMATCH',
-      message: 'Perangkat ini tidak terdaftar.',
+      message: resData.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah 1 laptop dan 1 HP. Gunakan perangkat terdaftar atau hubungi admin untuk reset perangkat.',
       data: resData,
     };
   }
@@ -776,7 +769,7 @@ export async function checkBuyerEntitlement(
       laptopDeviceId: remoteData?.laptopDeviceId || null,
       deviceModel: detectedDeviceLabel,
       deviceSlot: slot,
-      message: 'Perangkat ini tidak terdaftar.',
+      message: access.message,
     };
   }
 

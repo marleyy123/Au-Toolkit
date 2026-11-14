@@ -7,10 +7,10 @@ import {chromium, webkit} from 'playwright-core';
 const bundle = await build({stdin:{contents:`
   import React,{useState,useRef,useLayoutEffect} from 'react';
   import {createRoot} from 'react-dom/client';
-  import {InstagramProfileForm} from './src/features/instagram/components/InstagramProfileForm';
-  import {InstagramProfilePreview} from './src/features/instagram/components/InstagramProfilePreview';
+  import {InstagramProfileForm} from './src/features/instagram/components/profile/InstagramProfileForm';
+  import {InstagramProfilePreview} from './src/features/instagram/components/profile/InstagramProfilePreview';
   import {INITIAL_INSTAGRAM_PROFILE_DATA} from './src/data/defaultTemplates';
-  import {PreparedImageDialog} from './src/features/editor/components/PreparedImageDialog';
+  import {PreparedImageDialog} from './src/features/editor/components/export/PreparedImageDialog';
   import {resolveLocalImageReference,installPersistentLocalImageResolver} from './src/utils/imageManager';
   import {usePreviewExport} from './src/features/editor/hooks/usePreviewExport';
   import {registerExportContext} from './src/export/exportContext';

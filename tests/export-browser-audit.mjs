@@ -3,6 +3,7 @@ import {createServer} from 'node:http';
 import {readFile, readdir, writeFile} from 'node:fs/promises';
 import {build} from 'esbuild';
 import {chromium, webkit} from 'playwright-core';
+import {parse} from 'postcss';
 
 const cases = {
   twitter: 'TWITTER', 'instagram-feed': 'INSTAGRAM_FEED', 'instagram-story': 'INSTAGRAM_STORY',
@@ -11,7 +12,7 @@ const cases = {
   'instagram-activity': 'INSTAGRAM_ACTIVITY', 'instagram-dm': 'INSTAGRAM_DM', 'instagram-dm-inbox': 'INSTAGRAM_DM_INBOX',
   'instagram-feed-comments': 'INSTAGRAM_FEED_COMMENTS', 'instagram-story-viewers': 'INSTAGRAM_STORY_VIEWERS',
   'whatsapp-chat': 'WHATSAPP_CHAT', 'whatsapp-call': 'WHATSAPP_CALL', 'whatsapp-status': 'WHATSAPP_STATUS',
-  'whatsapp-viewers': 'WHATSAPP_VIEWERS', 'tiktok-profile': 'TIKTOK_PROFILE', 'tiktok-feed-live': 'TIKTOK_FEED_LIVE',
+  'whatsapp-viewers': 'WHATSAPP_VIEWERS', 'tiktok-profile': 'TIKTOK_PROFILE', 'tiktok-feed-live': 'TIKTOK_FEED_LIVE', 'tiktok-live': 'TIKTOK_LIVE',
   'tiktok-fyp': 'TIKTOK_FYP', 'ios-lockscreen': 'IOS_LOCKSCREEN', 'line-chat': 'LINE_CHAT', notes: 'NOTES',
   'push-notification': 'PUSH_NOTIFICATION', 'spotify-card': 'SPOTIFY',
 };
@@ -72,7 +73,11 @@ const bundle = await build({stdin: {contents: `
   mount();
 `,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife'});
 const assets = await readdir('dist/assets');
-const css = (await readFile('dist/assets/'+assets.find(f => f.endsWith('.css')),'utf8')).replace(/@import[^;]+;/g,'');
+const stylesheet = assets.find(f => /^index-.*\.css$/.test(f));
+assert(stylesheet, 'Build the app before running the export audit');
+const styles = parse(await readFile('dist/assets/'+stylesheet,'utf8'));
+styles.walkAtRules('import', rule => rule.remove());
+const css = styles.toString();
 const server = createServer((req,res) => {
   res.setHeader('Content-Type',req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : 'text/html');
   res.end(req.url === '/bundle.js' ? bundle.outputFiles[0].text : req.url === '/style.css' ? css : '<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');
@@ -136,7 +141,7 @@ try {
           },format);
           assert.deepEqual(shot.after,shot.before,key+' changed live geometry');
           assert(shot.width>=300 && shot.width<=1000,key+' invalid width');
-          assert(shot.height>100 && shot.height<2500,key+' invalid height');
+          assert(shot.height>100 && shot.height<2500,`${key} invalid height ${shot.height}; preview height ${shot.before.height}`);
           assert(shot.nonWhite>100,key+' blank export');
           assert(shot.red<50000,key+' oversized avatar');
           for(const label of shot.labels) assert.equal(label.painted,label.text,`${engine} ${key}: fitting name must be painted completely`);

@@ -44,6 +44,7 @@ interface PreparedNativeExportRequest {
 }
 
 const LOCAL_MEDIA_PREFIX = 'au-local-media://';
+const CLOUD_MEDIA_PREFIX = 'au-cloud-media://';
 const INTERNAL_MEDIA_PREFIX = 'https://au-toolkit-export.local/media/';
 
 function ratioForDimensions(width: number, height: number): NativeExportPayload['ratio'] {
@@ -75,7 +76,7 @@ function readCustomFontFaces(fontCss: string): ExportFontFacePayload[] {
 
 async function blobForMediaSource(source: string): Promise<Blob | null> {
   let resolvedSource = source;
-  if (source.startsWith(LOCAL_MEDIA_PREFIX)) {
+  if (source.startsWith(LOCAL_MEDIA_PREFIX) || source.startsWith(CLOUD_MEDIA_PREFIX)) {
     resolvedSource = await resolveLocalImageReference(source, getLocalMediaOwnerUid());
   }
 
@@ -99,7 +100,7 @@ async function replaceLocalMediaDeep(
   seen: WeakMap<object, unknown>
 ): Promise<unknown> {
   if (typeof value === 'string') {
-    if (!/^(?:blob:|data:image\/|au-local-media:\/\/)/i.test(value)) return value;
+    if (!/^(?:blob:|data:image\/|au-(?:local|cloud)-media:\/\/)/i.test(value)) return value;
     const blob = await blobForMediaSource(value);
     if (!blob) throw new Error('Media lokal tidak dapat dibaca untuk export.');
     const id = `media-${files.length + 1}-${crypto.randomUUID?.() || Date.now()}`;

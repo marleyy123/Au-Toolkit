@@ -47,17 +47,20 @@ export function useWorkspaceFolders({
   forceCloudWorkspaceSyncNow,
 }: UseWorkspaceFoldersArgs) {
   const updateActiveFolderData = (tab: PlatformTab, updated: any) => {
-    hasLocalUserEditsInSessionRef.current = true;
     const activeFolderId =
       activeFolderIdsRef.current[tab] ||
       activeFolderIds[tab] ||
       moduleFoldersRef.current[tab]?.[0]?.id ||
       'folder-1';
     const clonedUpdated = JSON.parse(JSON.stringify(updated));
-    const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [{ id: 'folder-1', name: 'Folder 1', data: clonedUpdated }];
+    const currentList = moduleFoldersRef.current[tab] || moduleFolders[tab] || [];
     const targetId = currentList.some((f) => f.id === activeFolderId) ? activeFolderId : currentList[0]?.id || 'folder-1';
+    const currentFolder = currentList.find((folder) => folder.id === targetId);
+    if (currentFolder && JSON.stringify(currentFolder.data) === JSON.stringify(clonedUpdated)) return;
+
+    hasLocalUserEditsInSessionRef.current = true;
     const updatedAt = new Date().toISOString();
-    const nextList = currentList.map((folder) =>
+    const nextList = (currentList.length ? currentList : [{ id: targetId, name: 'Folder 1' }]).map((folder) =>
       folder.id === targetId ? { ...folder, data: clonedUpdated, updatedAt } : folder
     );
     moduleFoldersRef.current[tab] = nextList;

@@ -1,0 +1,68 @@
+import { ArrowUpRight, CheckCircle2, LogOut } from 'lucide-react';
+import type { EntitlementCheckResult } from '../../../../services/buyerEntitlementService';
+import { AuBrand } from '../../../../components/AuBrand';
+import { landingLinks } from '../../../landing/data/landingContent';
+
+interface AccessGuardProps {
+  email: string;
+  purchaseDate?: string;
+  accessExpiresAt?: string;
+  expirationDate?: string | null;
+  statusAccount?: 'Active' | 'Expired' | 'Inactive';
+  daysRemaining?: number | null;
+  status?: EntitlementCheckResult['status'];
+  customMessage?: string;
+  onLogout: () => void;
+  language?: 'en' | 'id';
+  uiTheme?: 'light' | 'dark';
+}
+
+export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDate, statusAccount,
+  daysRemaining, status = 'EXPIRED', customMessage, onLogout, language = 'id', uiTheme = 'light' }: AccessGuardProps) {
+  const copy = (id: string, en: string) => language === 'id' ? id : en;
+  const isDeviceMismatch = status === 'DEVICE_MISMATCH';
+  const isOrderNotSuccess = status === 'ORDER_NOT_SUCCESS';
+  const isInactive = status === 'INACTIVE' || statusAccount === 'Inactive';
+  const isInvalidPurchase = status === 'INVALID_PURCHASE_DATA';
+  const isExpired = status === 'EXPIRED' || statusAccount === 'Expired';
+  const displayStatus = statusAccount || (isExpired ? 'Expired' : isInactive ? 'Inactive' : copy('Belum terverifikasi', 'Not verified'));
+  const expiry = expirationDate || accessExpiresAt;
+  const title = isDeviceMismatch ? copy('Akun sudah terdaftar di perangkat lain', 'Account registered on another device')
+    : isOrderNotSuccess ? copy('Pembayaran belum terverifikasi', 'Payment not verified')
+    : isInactive ? copy('Akun sedang nonaktif', 'Your account is inactive')
+    : isInvalidPurchase ? copy('Data pembelian perlu diperiksa', 'Purchase details need checking')
+    : isExpired ? copy('Waktunya melanjutkan cerita', 'Time for your next chapter') : copy('Akses belum terverifikasi', 'Access not verified');
+  const description = customMessage || (isDeviceMismatch ? copy('Setiap akun dapat digunakan pada 1 laptop dan 1 HP. Slot perangkat ini sudah dipakai. Masuk dari perangkat yang terdaftar atau hubungi admin untuk reset slot perangkat. Masa aksesmu tetap aktif sesuai tanggal berakhir.', 'Each account supports 1 laptop and 1 phone. This device slot is already in use. Sign in from your registered device or contact the administrator to reset the slot. Your subscription keeps its existing expiry date.')
+    : isOrderNotSuccess ? copy('Akses akan tersedia setelah pembayaran Lynk.id terverifikasi sukses.', 'Access becomes available once your Lynk.id payment is verified as successful.')
+    : isInactive ? copy('Hubungi administrator untuk memeriksa status akunmu.', 'Contact the administrator to check your account status.')
+    : isInvalidPurchase ? copy('Tanggal pembelian belum valid. Hubungi bantuan dengan invoice pembelianmu.', 'The purchase date is invalid. Contact support with your purchase invoice.')
+    : isExpired ? copy('Masa akses AU Toolkit kamu telah berakhir. Perpanjang untuk kembali ke editor.', 'Your AU Toolkit access has expired. Renew your plan to return to the editor.') : copy('Data akses akun belum dapat diverifikasi. Silakan hubungi administrator.', 'Account access could not be verified. Please contact the administrator.'));
+  const statusLabel = isDeviceMismatch ? copy('Perangkat', 'Device') : isOrderNotSuccess ? copy('Pembayaran', 'Payment')
+    : isInvalidPurchase ? copy('Data pembelian', 'Purchase details') : isInactive ? copy('Nonaktif', 'Inactive') : isExpired ? copy('Akses berakhir', 'Access expired') : copy('Belum terverifikasi', 'Not verified');
+  const formatDate = (value: string) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  return <div className={`au-auth-screen ${uiTheme === 'dark' ? 'au-auth-dark' : ''}`}>
+    <section className="au-auth-content au-access-content" aria-labelledby="au-access-title">
+      <AuBrand className="au-auth-brand" />
+      <span className="au-auth-product">AU Toolkit</span>
+      <span className="au-access-status">{statusLabel}</span>
+      <div className="au-auth-heading"><h1 id="au-access-title">{title}</h1><p>{description}</p></div>
+      <dl className="au-access-details">
+        <div><dt>{copy('Email akun', 'Account email')}</dt><dd>{email}</dd></div>
+        {isDeviceMismatch && <div><dt>{copy('Batas perangkat', 'Device limit')}</dt><dd>{copy('1 laptop + 1 HP', '1 laptop + 1 phone')}</dd></div>}
+        <div><dt>{copy('Status akun', 'Account status')}</dt><dd>{displayStatus}</dd></div>
+        {purchaseDate && <div><dt>{copy('Tanggal pembelian', 'Purchase date')}</dt><dd>{formatDate(purchaseDate)}</dd></div>}
+        {expiry && <div><dt>{copy('Tanggal berakhir', 'Expiry date')}</dt><dd>{formatDate(expiry)}</dd></div>}
+        {daysRemaining != null && <div><dt>{copy('Sisa akses', 'Remaining access')}</dt><dd>{daysRemaining} {copy('hari', 'days')}</dd></div>}
+      </dl>
+      <div className="au-auth-notice au-auth-notice-saved"><CheckCircle2 size={17} /><div><strong>{copy('Ceritamu tetap tersimpan', 'Your saved work stays yours')}</strong><p>{copy('Status akses tidak menghapus folder dan pengaturanmu. Foto lokal tetap ada di browser tempat kamu mengunggahnya.', 'Your access status does not delete your folders or settings. Local photos remain in the browser where you uploaded them.')}</p></div></div>
+      <div className="au-auth-actions au-auth-actions-stacked">
+        {isDeviceMismatch && <a className="au-auth-button au-auth-button-primary" href={landingLinks.support} target="_blank" rel="noopener noreferrer">{copy('Hubungi admin untuk reset perangkat', 'Contact admin to reset device')}<ArrowUpRight size={16} /></a>}
+        {!isDeviceMismatch && isExpired && <a className="au-auth-button au-auth-button-primary" href="/#pilihan-paket" target="_blank" rel="noopener noreferrer">{copy('Perpanjang akses', 'Renew access')}<ArrowUpRight size={16} /></a>}
+        <button type="button" className="au-auth-button" onClick={onLogout}><LogOut size={15} />{copy('Ganti akun / keluar', 'Switch account / log out')}</button>
+      </div>
+    </section>
+  </div>;
+}

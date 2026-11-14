@@ -1,5 +1,70 @@
 @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *):not([data-preview-canvas], [data-preview-canvas] *));
+
+/* Shared brand colors match the live app's Tailwind purple utilities. */
+:root {
+  --au-accent: var(--color-purple-600);
+  --au-accent-hover: var(--color-purple-700);
+  --au-accent-focus: var(--color-purple-500);
+  --au-accent-soft: var(--color-purple-50);
+  --au-accent-ring: var(--color-purple-100);
+  --au-accent-border: var(--color-purple-300);
+}
+
+
+.au-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  border: 1px solid var(--au-editor-field-line, #cbd5e1) !important;
+  border-radius: 6px !important;
+  background: var(--au-editor-field, #fff) !important;
+  color: var(--au-editor-ink, #0f172a) !important;
+  box-shadow: 0 1px 2px rgba(32, 32, 40, .04);
+  cursor: pointer;
+  text-align: left;
+}
+.au-select-trigger:hover, .au-select-trigger[data-state="open"] { border-color: #94a3b8 !important; }
+.au-select-trigger:focus-visible { outline: 2px solid var(--color-purple-500) !important; outline-offset: 2px; }
+.au-select-trigger:disabled { opacity: .5; cursor: not-allowed; }
+.au-select-trigger[data-theme="dark"] { background: var(--au-editor-field, #1e293b) !important; color: var(--au-editor-ink, #f1f5f9) !important; border-color: var(--au-editor-field-line, #334155) !important; }
+.au-select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.au-select-trigger > svg { flex-shrink: 0; opacity: .65; }
+.au-select-content {
+  --select-bg: #fff;
+  --select-ink: #0f172a;
+  --select-line: #cbd5e1;
+  --select-hover: #f1f5f9;
+  --select-muted: #64748b;
+  z-index: 10000;
+  width: var(--radix-select-trigger-width);
+  max-width: calc(100vw - 16px);
+  max-height: min(320px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border: 1px solid var(--select-line);
+  border-radius: 8px;
+  padding: 4px;
+  background: var(--select-bg);
+  color: var(--select-ink);
+  box-shadow: 0 4px 6px -2px rgba(32,32,40,.06), 0 12px 24px -6px rgba(32,32,40,.18);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+}
+.au-select-content[data-theme="dark"] { --select-bg: #1e293b; --select-ink: #f1f5f9; --select-line: #334155; --select-hover: #334155; --select-muted: #94a3b8; }
+.au-select-viewport { max-height: 280px; }
+.au-select-item { position: relative; display: flex; align-items: center; min-height: 34px; padding: 7px 8px 7px 28px; border-radius: 4px; cursor: pointer; overflow-wrap: anywhere; }
+.au-select-item[data-highlighted] { outline: none; background: var(--select-hover); }
+.au-select-item[data-disabled] { opacity: .45; pointer-events: none; }
+.au-select-check { position: absolute; left: 8px; display: flex; color: var(--color-purple-500); }
+.au-select-group-label { padding: 7px 8px 3px; color: var(--select-muted); font-size: 10px; font-weight: 600; }
+.au-select-scroll { display: flex; justify-content: center; height: 20px; color: var(--select-muted); }
 
 html,
 body {
@@ -154,100 +219,100 @@ body.dark,
    are crisp pure white or clean light slate, with ZERO residual dark tones
    and ZERO unwanted shadow effects.
    ========================================================================== */
-html:not(.dark) #customization-panel,
-html:not(.dark) .customization-editor-panel {
+html:not(.dark) #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: transparent !important;
 }
 
 /* Remove all shadows in editor in light mode */
-html:not(.dark) #customization-panel *,
-html:not(.dark) .customization-editor-panel * {
+html:not(.dark) #customization-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   box-shadow: none !important;
 }
 
 /* Primary cards in light mode */
-html:not(.dark) #customization-panel .bg-white,
-html:not(.dark) .customization-editor-panel .bg-white,
-html:not(.dark) #customization-panel [class*="bg-white"],
-html:not(.dark) .customization-editor-panel [class*="bg-white"],
-html:not(.dark) #customization-panel .theme-panel-card,
-html:not(.dark) .customization-editor-panel .theme-panel-card {
+html:not(.dark) #customization-panel .bg-white:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .bg-white:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
 /* Sub-panels, inner boxes, quote cards, and secondary wrappers in light mode */
-html:not(.dark) #customization-panel [class*="bg-slate-50"],
-html:not(.dark) #customization-panel [class*="bg-slate-100"],
-html:not(.dark) #customization-panel [class*="bg-gray-50"],
-html:not(.dark) #customization-panel [class*="bg-gray-100"],
-html:not(.dark) #customization-panel [class*="bg-zinc-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-slate-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-slate-100"],
-html:not(.dark) .customization-editor-panel [class*="bg-gray-50"],
-html:not(.dark) .customization-editor-panel [class*="bg-gray-100"],
-html:not(.dark) .customization-editor-panel [class*="bg-zinc-50"] {
+html:not(.dark) #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #f8fafc !important; /* clean light slate-50 */
   border-color: #e2e8f0 !important;
   color: #1e293b !important;
 }
 
 /* Override any accidental dark background classes in editor when in Light mode */
-html:not(.dark) #customization-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-slate-950"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-zinc-900"]:not(button):not([role="button"]),
-html:not(.dark) #customization-panel [class*="bg-zinc-800"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-900"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-800"]:not(button):not([role="button"]),
-html:not(.dark) .customization-editor-panel [class*="bg-slate-950"]:not(button):not([role="button"]) {
+html:not(.dark) #customization-panel [class*="bg-slate-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-slate-950"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel [class*="bg-zinc-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-900"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-800"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-slate-950"]:not(button):not([role="button"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
-html:not(.dark) #customization-panel [class*="bg-purple-950"],
-html:not(.dark) .customization-editor-panel [class*="bg-purple-950"] {
+html:not(.dark) #customization-panel [class*="bg-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel [class*="bg-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #faf5ff !important;
   border-color: #e9d5ff !important;
   color: #581c87 !important;
 }
 
 /* Text colors in light mode */
-html:not(.dark) #customization-panel label,
-html:not(.dark) #customization-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
-html:not(.dark) #customization-panel h4,
-html:not(.dark) .customization-editor-panel label,
-html:not(.dark) .customization-editor-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title),
-html:not(.dark) .customization-editor-panel h4 {
+html:not(.dark) #customization-panel label:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel h4:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel label:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel h3:not(#crop-adjust-modal-title):not(.cropper-modal-title):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel h4:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #0f172a !important;
 }
 
-html:not(.dark) #customization-panel .text-slate-800,
-html:not(.dark) #customization-panel .text-slate-900,
-html:not(.dark) .customization-editor-panel .text-slate-800,
-html:not(.dark) .customization-editor-panel .text-slate-900 {
+html:not(.dark) #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #0f172a !important;
 }
 
 /* Form inputs, textareas, selects in light mode */
-html:not(.dark) #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html:not(.dark) .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html:not(.dark) #customization-panel textarea,
-html:not(.dark) .customization-editor-panel textarea,
-html:not(.dark) #customization-panel select,
-html:not(.dark) .customization-editor-panel select {
+html:not(.dark) #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html:not(.dark) .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: none !important;
 }
 
-html:not(.dark) #customization-panel input::placeholder,
-html:not(.dark) .customization-editor-panel input::placeholder,
-html:not(.dark) #customization-panel textarea::placeholder,
-html:not(.dark) .customization-editor-panel textarea::placeholder {
+html:not(.dark) #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html:not(.dark) .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder {
   color: #94a3b8 !important;
 }
 
@@ -256,257 +321,257 @@ html:not(.dark) .customization-editor-panel textarea::placeholder {
    When master global theme is Dark, all container cards, input panels,
    wrapper boxes, and theme controls switch seamlessly to dark tones.
    ========================================================================== */
-html.dark .customization-editor-panel,
-.dark .customization-editor-panel,
-html.dark #customization-panel,
-.dark #customization-panel {
+html.dark .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #0b1120 !important;
 }
 
 /* Remove shadows in dark mode */
-html.dark #customization-panel *,
-html.dark .customization-editor-panel * {
+html.dark #customization-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel *:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   box-shadow: none !important;
 }
 
-html.dark #customization-panel [class*="bg-white"],
-.dark #customization-panel [class*="bg-white"],
-html.dark .customization-editor-panel [class*="bg-white"],
-.dark .customization-editor-panel [class*="bg-white"],
-html.dark [role="dialog"] [class*="bg-white"],
-.dark [role="dialog"] [class*="bg-white"],
-html.dark .editor-modal [class*="bg-white"],
-.dark .editor-modal [class*="bg-white"],
-html.dark .theme-panel-card,
-.dark .theme-panel-card {
+html.dark #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .editor-modal [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .editor-modal [class*="bg-white"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .theme-panel-card:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #0f172a !important; /* slate-900 */
   border-color: #1e293b !important; /* slate-800 */
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel [class*="bg-slate-50"],
-html.dark #customization-panel [class*="bg-gray-50"],
-html.dark #customization-panel [class*="bg-zinc-50"],
-.dark #customization-panel [class*="bg-slate-50"],
-.dark #customization-panel [class*="bg-gray-50"],
-.dark #customization-panel [class*="bg-zinc-50"],
-html.dark .customization-editor-panel [class*="bg-slate-50"],
-html.dark .customization-editor-panel [class*="bg-gray-50"],
-html.dark .customization-editor-panel [class*="bg-zinc-50"],
-.dark .customization-editor-panel [class*="bg-slate-50"],
-.dark .customization-editor-panel [class*="bg-gray-50"],
-.dark .customization-editor-panel [class*="bg-zinc-50"],
-html.dark #customization-panel [class*="bg-slate-100"],
-html.dark #customization-panel [class*="bg-gray-100"],
-html.dark #customization-panel [class*="bg-zinc-100"],
-.dark #customization-panel [class*="bg-slate-100"],
-.dark #customization-panel [class*="bg-gray-100"],
-.dark #customization-panel [class*="bg-zinc-100"],
-html.dark .customization-editor-panel [class*="bg-slate-100"],
-html.dark .customization-editor-panel [class*="bg-gray-100"],
-html.dark .customization-editor-panel [class*="bg-zinc-100"],
-.dark .customization-editor-panel [class*="bg-slate-100"],
-.dark .customization-editor-panel [class*="bg-gray-100"],
-.dark .customization-editor-panel [class*="bg-zinc-100"] {
+html.dark #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-slate-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-gray-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-zinc-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-zinc-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important; /* slate-800 */
   border-color: #334155 !important; /* slate-700 */
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel .text-slate-900,
-html.dark #customization-panel .text-slate-800,
-html.dark #customization-panel .text-slate-700,
-html.dark #customization-panel .text-gray-900,
-html.dark #customization-panel .text-gray-800,
-html.dark #customization-panel .text-gray-700,
-html.dark #customization-panel .text-zinc-900,
-html.dark #customization-panel .text-zinc-800,
-.dark #customization-panel .text-slate-900,
-.dark #customization-panel .text-slate-800,
-.dark #customization-panel .text-slate-700,
-.dark #customization-panel .text-gray-900,
-.dark #customization-panel .text-gray-800,
-html.dark .customization-editor-panel .text-slate-900,
-html.dark .customization-editor-panel .text-slate-800,
-html.dark .customization-editor-panel .text-slate-700,
-html.dark .customization-editor-panel .text-gray-900,
-html.dark .customization-editor-panel .text-gray-800,
-html.dark .customization-editor-panel .text-gray-700,
-html.dark .customization-editor-panel .text-zinc-900,
-html.dark .customization-editor-panel .text-zinc-800,
-.dark .customization-editor-panel .text-slate-900,
-.dark .customization-editor-panel .text-slate-800,
-.dark .customization-editor-panel .text-slate-700,
-.dark .customization-editor-panel .text-gray-900,
-.dark .customization-editor-panel .text-gray-800,
-html.dark [role="dialog"] .text-slate-900,
-html.dark [role="dialog"] .text-slate-800,
-.dark [role="dialog"] .text-slate-900,
-.dark [role="dialog"] .text-slate-800 {
+html.dark #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-zinc-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-zinc-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-zinc-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-zinc-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-700:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-gray-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-gray-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] .text-slate-900:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] .text-slate-800:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #f8fafc !important; /* high contrast white */
 }
 
-html.dark #customization-panel .text-slate-600,
-html.dark #customization-panel .text-slate-500,
-html.dark #customization-panel .text-gray-600,
-html.dark #customization-panel .text-gray-500,
-.dark #customization-panel .text-slate-600,
-.dark #customization-panel .text-slate-500,
-html.dark .customization-editor-panel .text-slate-600,
-html.dark .customization-editor-panel .text-slate-500,
-html.dark .customization-editor-panel .text-gray-600,
-html.dark .customization-editor-panel .text-gray-500,
-.dark .customization-editor-panel .text-slate-600,
-.dark .customization-editor-panel .text-slate-500 {
+html.dark #customization-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-600:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-500:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #cbd5e1 !important; /* slate-300 */
 }
 
-html.dark #customization-panel .text-slate-400,
-html.dark #customization-panel .text-gray-400,
-.dark #customization-panel .text-slate-400,
-html.dark .customization-editor-panel .text-slate-400,
-html.dark .customization-editor-panel .text-gray-400,
-.dark .customization-editor-panel .text-slate-400 {
+html.dark #customization-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel .text-gray-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel .text-gray-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel .text-slate-400:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #94a3b8 !important; /* slate-400 */
 }
 
-html.dark #customization-panel [class*="border-slate-200"],
-html.dark #customization-panel [class*="border-slate-300"],
-html.dark #customization-panel [class*="border-gray-200"],
-html.dark #customization-panel [class*="border-slate-100"],
-html.dark #customization-panel [class*="border-gray-100"],
-.dark #customization-panel [class*="border-slate-200"],
-.dark #customization-panel [class*="border-slate-300"],
-.dark #customization-panel [class*="border-gray-200"],
-.dark #customization-panel [class*="border-slate-100"],
-html.dark .customization-editor-panel [class*="border-slate-200"],
-html.dark .customization-editor-panel [class*="border-slate-300"],
-html.dark .customization-editor-panel [class*="border-gray-200"],
-html.dark .customization-editor-panel [class*="border-slate-100"],
-html.dark .customization-editor-panel [class*="border-gray-100"],
-.dark .customization-editor-panel [class*="border-slate-200"],
-.dark .customization-editor-panel [class*="border-slate-300"],
-.dark .customization-editor-panel [class*="border-gray-200"],
-.dark .customization-editor-panel [class*="border-slate-100"] {
+html.dark #customization-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-gray-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-gray-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-slate-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   border-color: #334155 !important; /* slate-700 */
 }
 
 /* Form Inputs, Textareas, Selects in Dark Mode (Strictly inside editor panel & dialogs) */
-html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-html.dark #customization-panel select,
-.dark #customization-panel select,
-html.dark .customization-editor-panel select,
-.dark .customization-editor-panel select,
-html.dark [role="dialog"] select,
-.dark [role="dialog"] select,
-html.dark #customization-panel textarea,
-.dark #customization-panel textarea,
-html.dark .customization-editor-panel textarea,
-.dark .customization-editor-panel textarea,
-html.dark [role="dialog"] textarea,
-.dark [role="dialog"] textarea {
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] select:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark [role="dialog"] textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark [role="dialog"] textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
-html.dark #customization-panel select:focus,
-.dark #customization-panel select:focus,
-html.dark .customization-editor-panel select:focus,
-.dark .customization-editor-panel select:focus,
-html.dark #customization-panel textarea:focus,
-.dark #customization-panel textarea:focus,
-html.dark .customization-editor-panel textarea:focus,
-.dark .customization-editor-panel textarea:focus,
-html.dark #customization-panel [class*="focus:bg-white"]:focus,
-.dark #customization-panel [class*="focus:bg-white"]:focus,
-html.dark .customization-editor-panel [class*="focus:bg-white"]:focus,
-.dark .customization-editor-panel [class*="focus:bg-white"]:focus {
+html.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel textarea:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="focus:bg-white"]:focus:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #a855f7 !important;
   box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4) !important;
 }
 
-html.dark #customization-panel select option,
-.dark #customization-panel select option,
-html.dark .customization-editor-panel select option,
-.dark .customization-editor-panel select option {
+html.dark #customization-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel select option:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   color: #f8fafc !important;
 }
 
-html.dark #customization-panel input::placeholder,
-.dark #customization-panel input::placeholder,
-html.dark .customization-editor-panel input::placeholder,
-.dark .customization-editor-panel input::placeholder,
-html.dark #customization-panel textarea::placeholder,
-.dark #customization-panel textarea::placeholder,
-html.dark .customization-editor-panel textarea::placeholder,
-.dark .customization-editor-panel textarea::placeholder {
+html.dark #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark #customization-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark .customization-editor-panel input:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark #customization-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+html.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder,
+.dark .customization-editor-panel textarea:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *)::placeholder {
   color: #64748b !important;
 }
 
-html.dark #customization-panel input[type="checkbox"],
-.dark #customization-panel input[type="checkbox"],
-html.dark .customization-editor-panel input[type="checkbox"],
-.dark .customization-editor-panel input[type="checkbox"],
-html.dark #customization-panel input[type="radio"],
-.dark #customization-panel input[type="radio"],
-html.dark .customization-editor-panel input[type="radio"],
-.dark .customization-editor-panel input[type="radio"] {
+html.dark #customization-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input[type="checkbox"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel input[type="radio"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: #1e293b !important;
   border-color: #475569 !important;
   accent-color: #9333ea !important;
 }
 
-html.dark #customization-panel [class*="bg-purple-50"],
-.dark #customization-panel [class*="bg-purple-50"],
-html.dark .customization-editor-panel [class*="bg-purple-50"],
-.dark .customization-editor-panel [class*="bg-purple-50"],
-html.dark #customization-panel [class*="bg-purple-100"],
-.dark #customization-panel [class*="bg-purple-100"],
-html.dark .customization-editor-panel [class*="bg-purple-100"],
-.dark .customization-editor-panel [class*="bg-purple-100"] {
+html.dark #customization-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-purple-50"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="bg-purple-100"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   background-color: rgba(147, 51, 234, 0.15) !important;
   border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
-html.dark #customization-panel [class*="border-purple-200"],
-.dark #customization-panel [class*="border-purple-200"],
-html.dark .customization-editor-panel [class*="border-purple-200"],
-.dark .customization-editor-panel [class*="border-purple-200"],
-html.dark #customization-panel [class*="border-purple-300"],
-.dark #customization-panel [class*="border-purple-300"],
-html.dark .customization-editor-panel [class*="border-purple-300"],
-.dark .customization-editor-panel [class*="border-purple-300"] {
+html.dark #customization-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-purple-200"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="border-purple-300"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
-html.dark #customization-panel [class*="text-purple-950"],
-.dark #customization-panel [class*="text-purple-950"],
-html.dark .customization-editor-panel [class*="text-purple-950"],
-.dark .customization-editor-panel [class*="text-purple-950"],
-html.dark #customization-panel [class*="text-purple-900"],
-.dark #customization-panel [class*="text-purple-900"],
-html.dark .customization-editor-panel [class*="text-purple-900"],
-.dark .customization-editor-panel [class*="text-purple-900"],
-html.dark #customization-panel [class*="text-purple-800"],
-.dark #customization-panel [class*="text-purple-800"],
-html.dark .customization-editor-panel [class*="text-purple-800"],
-.dark .customization-editor-panel [class*="text-purple-800"],
-html.dark #customization-panel [class*="text-purple-700"],
-.dark #customization-panel [class*="text-purple-700"],
-html.dark .customization-editor-panel [class*="text-purple-700"],
-.dark .customization-editor-panel [class*="text-purple-700"] {
+html.dark #customization-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-950"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-900"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-800"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark #customization-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark #customization-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+html.dark .customization-editor-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *),
+.dark .customization-editor-panel [class*="text-purple-700"]:not(.au-editor, .au-editor *):not([data-preview-canvas], [data-preview-canvas] *) {
   color: #e9d5ff !important;
 }
 
@@ -592,60 +657,283 @@ button.btn-locked-amber svg {
     );
 }
 
+/* ==========================================================================
+   AU TOOLKIT: EDITOR CHROME
+   Editor layout with the live application's purple/slate palette.
+   Keep theme corrections and preview isolation while retaining the newer layout.
+   ========================================================================== */
+.au-editor {
+  --au-editor-page-padding: 50px;
+  --au-editor-ink: #0f172a;
+  --au-editor-muted: #64748b;
+  --au-editor-accent: var(--au-accent);
+  --au-editor-accent-dark: var(--au-accent-hover);
+  --au-editor-line: #e2e8f0;
+  --au-editor-tint: #f8fafc;
+  --au-editor-panel: #ffffff;
+  --au-editor-field: #ffffff;
+  --au-editor-field-line: #cbd5e1;
+  --au-editor-soft: #f1f5f9;
+  --au-editor-green: #059669;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--au-editor-tint);
+  color: var(--au-editor-ink);
+  letter-spacing: 0;
+}
+
+.au-editor.dark {
+  --au-editor-ink: #f1f5f9;
+  --au-editor-muted: #94a3b8;
+  --au-editor-line: #1e293b;
+  --au-editor-tint: #020617;
+  --au-editor-panel: #0f172a;
+  --au-editor-field: #1e293b;
+  --au-editor-field-line: #334155;
+  --au-editor-soft: #1e293b;
+  background: var(--au-editor-tint);
+}
+
+.au-editor h1:not([data-preview-canvas] *),
+.au-editor h2:not([data-preview-canvas] *),
+.au-editor h3:not([data-preview-canvas] *),
+.au-editor h4:not([data-preview-canvas] *) {
+  font-family: 'Bricolage Grotesque', 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0;
+}
+
+.au-editor header:not([data-preview-canvas] *) {
+  box-shadow: none !important;
+}
+
+.au-editor-brand-mark {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--au-editor-ink);
+}
+
+.au-editor .au-editor-header,
+.au-editor main {
+  padding-left: var(--au-editor-page-padding);
+  padding-right: var(--au-editor-page-padding);
+}
+
+.au-editor main {
+  max-width: none;
+  gap: clamp(20px, 2.5vw, 34px);
+}
+
+.au-editor #customization-panel > div:first-child {
+  border-color: var(--au-editor-line) !important;
+  padding-bottom: 14px;
+}
+
+.au-editor #customization-panel > div:first-child h2 {
+  color: var(--au-editor-accent) !important;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.au-editor #customization-panel > div:first-child p {
+  color: var(--au-editor-muted) !important;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-2xl:not([data-preview-canvas] *),
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-xl:not([data-preview-canvas] *),
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .rounded-lg:not([data-preview-canvas] *) {
+  border-radius: 8px !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xs, .shadow-inner):not([data-preview-canvas] *) {
+  box-shadow: none !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) .bg-white:not([data-preview-canvas] *) {
+  background-color: var(--au-editor-panel) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-zinc-50, .bg-slate-50\/50, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-50\/90):not([data-preview-canvas] *) {
+  background-color: var(--au-editor-soft) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.bg-purple-50, .bg-purple-100):not([data-preview-canvas] *) {
+  background-color: color-mix(in srgb, var(--au-editor-accent) 8%, var(--au-editor-panel)) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is([class*="border-slate-"], [class*="border-gray-"], [class*="border-zinc-"]):not([data-preview-canvas] *) {
+  border-color: var(--au-editor-line) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-zinc-900):not([data-preview-canvas] *) {
+  color: var(--au-editor-ink) !important;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-zinc-600):not([data-preview-canvas] *) {
+  color: var(--au-editor-muted) !important;
+}
 
 
-/* Shared editor dropdowns used by generator features. */
-.au-select-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
-  min-height: 32px;
-  border: 1px solid var(--au-editor-field-line, #cbd5e1) !important;
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) button:is(:hover, :focus-visible):not(:disabled):not([data-preview-canvas] *) {
+  border-color: #cbd5e1;
+}
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select):not([data-preview-canvas] *) {
+  background-color: var(--au-editor-field) !important;
+  border-color: var(--au-editor-field-line) !important;
+  color: var(--au-editor-ink) !important;
   border-radius: 6px !important;
-  background: var(--au-editor-field, #fff) !important;
-  color: var(--au-editor-ink, #0f172a) !important;
-  box-shadow: 0 1px 2px rgba(32, 32, 40, .04);
-  cursor: pointer;
-  text-align: left;
 }
-.au-select-trigger:hover, .au-select-trigger[data-state="open"] { border-color: #94a3b8 !important; }
-.au-select-trigger:focus-visible { outline: 2px solid var(--color-purple-500) !important; outline-offset: 2px; }
-.au-select-trigger:disabled { opacity: .5; cursor: not-allowed; }
-.au-select-trigger[data-theme="dark"] { background: var(--au-editor-field, #1e293b) !important; color: var(--au-editor-ink, #f1f5f9) !important; border-color: var(--au-editor-field-line, #334155) !important; }
-.au-select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.au-select-trigger > svg { flex-shrink: 0; opacity: .65; }
-.au-select-content {
-  --select-bg: #fff;
-  --select-ink: #0f172a;
-  --select-line: #cbd5e1;
-  --select-hover: #f1f5f9;
-  --select-muted: #64748b;
-  z-index: 10000;
-  width: var(--radix-select-trigger-width);
-  max-width: calc(100vw - 16px);
-  max-height: min(320px, var(--radix-select-content-available-height));
-  overflow: hidden;
-  border: 1px solid var(--select-line);
-  border-radius: 8px;
-  padding: 4px;
-  background: var(--select-bg);
-  color: var(--select-ink);
-  box-shadow: 0 4px 6px -2px rgba(32,32,40,.06), 0 12px 24px -6px rgba(32,32,40,.18);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 12px;
-  line-height: 18px;
+
+.au-editor :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
+  border-color: var(--color-purple-500) !important;
+  box-shadow: 0 0 0 3px #f3e8ff !important;
 }
-.au-select-content[data-theme="dark"] { --select-bg: #1e293b; --select-ink: #f1f5f9; --select-line: #334155; --select-hover: #334155; --select-muted: #94a3b8; }
-.au-select-viewport { max-height: 280px; }
-.au-select-item { position: relative; display: flex; align-items: center; min-height: 34px; padding: 7px 8px 7px 28px; border-radius: 4px; cursor: pointer; overflow-wrap: anywhere; }
-.au-select-item[data-highlighted] { outline: none; background: var(--select-hover); }
-.au-select-item[data-disabled] { opacity: .45; pointer-events: none; }
-.au-select-check { position: absolute; left: 8px; display: flex; color: var(--color-purple-500); }
-.au-select-group-label { padding: 7px 8px 3px; color: var(--select-muted); font-size: 10px; font-weight: 600; }
-.au-select-scroll { display: flex; justify-content: center; height: 20px; color: var(--select-muted); }
+
+.au-editor.dark :is(#customization-panel, .customization-editor-panel, #preview-panel) :is(input, textarea, select):focus:not([data-preview-canvas] *) {
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, .22) !important;
+}
+
+.au-editor #preview-viewport-container {
+  background-color: var(--au-editor-soft) !important;
+  border-color: var(--au-editor-line) !important;
+}
+
+.au-editor #preview-viewport-container > .absolute.inset-0 {
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px) !important;
+  opacity: .8 !important;
+}
+
+.au-editor.dark #preview-viewport-container > .absolute.inset-0 {
+  background-image: radial-gradient(#334155 1px, transparent 1px) !important;
+}
+
+.au-editor #preview-panel > div:first-child::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--au-editor-green);
+  margin-right: 2px;
+}
+
+.au-editor .btn-locked-amber {
+  border-radius: 6px !important;
+}
+
+.au-brand { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 1.22em; height: 1em; font-size: 30px; line-height: 1; vertical-align: middle; }
+.au-brand > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.au-auth-screen, .au-auth-dialog, .au-auth-inline {
+  --auth-ink: #0f172a;
+  --auth-muted: #64748b;
+  --auth-line: #e2e8f0;
+  --auth-surface: #fff;
+  --auth-soft: #f1f5f9;
+  --auth-accent: var(--au-accent);
+  font-family: 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0;
+}
+.au-auth-dark {
+  --auth-ink: #f1f5f9;
+  --auth-muted: #94a3b8;
+  --auth-line: #334155;
+  --auth-surface: #0f172a;
+  --auth-soft: #1e293b;
+}
+.au-auth-screen { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; overflow: auto; padding: 48px 24px; background: #f1f5f9; color: var(--auth-ink); }
+.au-auth-screen.au-auth-dark { background: #020617; }
+.au-auth-content { width: 100%; max-width: 440px; flex-shrink: 0; margin: auto 0; }
+.au-loading-content, .au-access-content { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; }
+.au-auth-brand { font-size: 64px; }
+.au-auth-product { margin-top: -8px; color: var(--auth-muted); font-size: 12px; font-weight: 600; }
+.au-auth-heading { width: 100%; }
+.au-auth-heading h1, .au-auth-content h2 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.25; color: var(--auth-ink); letter-spacing: 0; }
+.au-auth-heading p { max-width: 360px; margin: 10px auto 0; font-size: 14px; line-height: 1.65; color: var(--auth-muted); }
+.au-loading-content { max-width: 380px; }
+.au-loading-indicator { width: 100%; height: 3px; margin-top: 6px; background: var(--auth-line); overflow: hidden; border-radius: 2px; }
+.au-loading-indicator > span { display: block; width: 35%; height: 100%; background: var(--auth-accent); border-radius: inherit; animation: au-loading-travel 1.6s ease-in-out infinite; }
+@keyframes au-loading-travel { from { transform: translateX(-100%); } to { transform: translateX(390%); } }
+.au-loading-steps { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; margin: -6px 0 0; padding: 0; }
+.au-loading-steps li { display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--auth-muted); font-size: 11px; }
+.au-loading-steps li > span { width: 4px; height: 4px; flex-shrink: 0; border-radius: 50%; background: var(--auth-line); }
+.au-loading-steps li[aria-current=step] { color: var(--auth-accent); font-weight: 700; }
+.au-loading-steps li[aria-current=step] > span { background: var(--auth-accent); }
+.au-loading-steps li[data-complete=true] > span { background: #16836a; }
+.au-loading-spinner { color: var(--auth-muted); animation: au-loading-spin 1s linear infinite; }
+@keyframes au-loading-spin { to { transform: rotate(360deg); } }
+.au-loading-recovery { width: 100%; padding-top: 18px; border-top: 1px solid var(--auth-line); }
+.au-loading-recovery > p { font-size: 12px; line-height: 1.6; color: var(--auth-muted); margin-bottom: 14px; }
+.au-auth-actions { display: flex; justify-content: center; gap: 8px; width: 100%; flex-wrap: wrap; }
+.au-auth-actions-stacked { flex-direction: column; }
+.au-auth-button { min-height: 40px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--auth-line); border-radius: 6px; background: var(--auth-surface); color: var(--auth-ink); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background .15s; }
+.au-auth-button:hover { background: var(--auth-soft); }
+.au-auth-button:focus-visible { outline: 2px solid var(--auth-accent); outline-offset: 3px; }
+.au-auth-button-primary { background: var(--auth-accent); color: #fff; border-color: transparent; }
+.au-auth-button-primary:hover { background: var(--au-accent-hover); }
+.au-auth-notice { display: flex; gap: 10px; width: 100%; text-align: left; padding: 14px 0; font-size: 12px; line-height: 1.6; border-top: 1px solid var(--auth-line); color: var(--auth-muted); }
+.au-auth-notice svg { flex-shrink: 0; margin-top: 2px; }
+.au-auth-notice strong { display: block; color: var(--auth-ink); font-weight: 600; margin-bottom: 3px; }
+.au-auth-notice-error { color: #be123c; overflow-wrap: anywhere; }
+.au-auth-dark .au-auth-notice-error { color: #fda4af; }
+.au-auth-notice-saved svg { color: #16836a; }
+.au-access-status { padding: 4px 9px; border-radius: 4px; color: #a13d32; background: #faeee9; font-size: 11px; font-weight: 600; }
+.au-auth-dark .au-access-status { background: #3a2824; color: #f0b2a9; }
+.au-access-details { width: 100%; padding: 16px 0; margin: 0; border-top: 1px solid var(--auth-line); border-bottom: 1px solid var(--auth-line); font-size: 12px; }
+.au-access-details > div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 6px 0; text-align: left; }
+.au-access-details dt { color: var(--auth-muted); }
+.au-access-details dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
+.au-access-content .au-auth-notice { border-top: 0; padding: 0; }
+.au-login-content h1 { font-family: 'Bricolage Grotesque', sans-serif; letter-spacing: 0; }
+.au-login-content :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-dialog :is(.rounded-3xl, .rounded-2xl, .rounded-xl), .au-auth-inline :is(.rounded-2xl, .rounded-xl) { border-radius: 6px; }
+.au-login-content :is(.shadow-xl, .shadow-lg), .au-auth-dialog .shadow-lg { box-shadow: none; }
+.au-login-content .bg-purple-600, .au-auth-dialog .bg-purple-600, .au-auth-inline .bg-purple-600 { background: var(--auth-accent); }
+.au-login-content .bg-purple-600:hover, .au-auth-dialog .bg-purple-600:hover, .au-auth-inline .bg-purple-600:hover { background: var(--au-accent-hover); }
+.au-login-content .bg-white { background: var(--auth-surface); }
+.au-login-content :is(.text-slate-900, .text-slate-800) { color: var(--auth-ink); }
+.au-login-content :is(.text-slate-500, .text-slate-400) { color: var(--auth-muted); }
+.au-login-content :is(input, textarea) { background: var(--auth-surface); }
+.au-auth-dialog { overflow-y: auto; padding-block: 24px; }
+.au-auth-dialog > div { margin-block: auto; flex-shrink: 0; max-height: calc(100dvh - 48px); overflow-y: auto; border-color: var(--auth-line); border-radius: 8px; background: var(--auth-surface); color: var(--auth-ink); }
+.au-auth-dialog :is(h2, h3) { font-family: 'Bricolage Grotesque', sans-serif; letter-spacing: 0; }
+@media (max-width: 400px) {
+  .au-auth-screen { padding: 32px 20px; }
+  .au-auth-brand { font-size: 56px; }
+  .au-auth-heading h1 { font-size: 22px; }
+  .au-access-details > div { grid-template-columns: 115px minmax(0, 1fr); gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .au-loading-indicator > span { animation: none; width: 100%; opacity: .5; }
+  .au-loading-spinner { animation: none; }
+}
+
+@media (max-width: 1050px) {
+  .au-editor {
+    --au-editor-page-padding: 40px;
+  }
+}
+
+@media (max-width: 900px) {
+  .au-editor {
+    --au-editor-page-padding: 20px;
+  }
+}
+
+@media (max-width: 650px) {
+  .au-editor main {
+    gap: 18px;
+  }
+
+  .au-editor-brand-mark {
+    font-size: 26px;
+  }
+}
+
+
+
 /* A slider gesture belongs to the control, including on touch screens. */
 #customization-panel input[type="range"] {
   touch-action: none;

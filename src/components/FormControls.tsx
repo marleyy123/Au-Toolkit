@@ -3,7 +3,7 @@ import { VerifiedType, CharacterPreset } from '../types';
 import { User, Upload, Plus, Trash2, Image as ImageIcon, X, Crop, Loader2, Folder, Edit2, Check } from 'lucide-react';
 import { DEFAULT_AVATAR } from '../data/defaultTemplates';
 import { ImageCropperModal } from './ImageCropperModal';
-import { UniversalFolderItem } from '../features/workspace/components/UniversalFolderItem';
+import { UniversalFolderItem } from '../features/workspace/components/folders/UniversalFolderItem';
 import { compressAndReadAsDataURL } from '../utils/imageCompressor';
 import {
   fileToBase64,
@@ -384,8 +384,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       setPendingPreviewUrl('');
       setUploadNotice(
         language === 'id'
-          ? 'Gambar tersimpan lokal untuk akun ini. Sinkronisasi antar-device menunggu Firebase Storage.'
-          : 'Image saved locally for this account. Cross-device sync still requires Firebase Storage.'
+          ? persistentRef.startsWith('au-cloud-media://')
+            ? 'Gambar tersimpan di cloud storage dan bisa dibuka dari perangkat lain.'
+            : 'Gambar tersimpan lokal di browser ini; upload cloud belum dikonfigurasi.'
+          : persistentRef.startsWith('au-cloud-media://')
+            ? 'Image saved to cloud storage and available on your other devices.'
+            : 'Image is saved in this browser; cloud uploads are not configured.'
       );
     } catch (error) {
       console.error('Local image preview failed:', error);

@@ -1,9 +1,14 @@
 import dotenv from 'dotenv';
-dotenv.config({ override: true });
+const isLocalStaging = process.argv.includes('--staging');
+const envResult = dotenv.config({ path: isLocalStaging ? '.env.staging.vercel' : '.env', override: true });
+if (isLocalStaging && (envResult.error || process.env.VITE_FIREBASE_PROJECT_ID !== 'au-toolkit-staging-20261005')) {
+  throw new Error('Local staging requires .env.staging.vercel configured for au-toolkit-staging-20261005.');
+}
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
+import { verifyFirebaseAuthorization } from './netlify/lib/firebase-token.mjs';
 
 interface AuthenticatedRequest extends express.Request {
   user?: {
@@ -14,7 +19,7 @@ interface AuthenticatedRequest extends express.Request {
 }
 
 // Optional auth middleware (attaches user claims if a valid token is provided)
-function optionalFirebaseToken(
+async function optionalFirebaseToken(
   req: AuthenticatedRequest,
   res: express.Response,
   next: express.NextFunction
@@ -24,17 +29,7 @@ function optionalFirebaseToken(
     const idToken = authHeader.split('Bearer ')[1].trim();
     if (idToken) {
       try {
-        const parts = idToken.split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          if (payload && (payload.user_id || payload.sub)) {
-            req.user = {
-              uid: payload.user_id || payload.sub,
-              email: (payload.email || '').trim().toLowerCase(),
-              emailVerified: Boolean(payload.email_verified),
-            };
-          }
-        }
+        req.user = await verifyFirebaseAuthorization(authHeader);
       } catch (tokenErr: any) {
         console.warn('[OptionalAuth] Token parse notice:', tokenErr?.message || tokenErr);
       }
@@ -138,6 +133,21 @@ async function startServer() {
   const PORT = Number(process.env.PORT || 3000);
 
   const jsonParser = express.json();
+  if (isLocalStaging) {
+    // These server handlers read private environment variables; Vite only receives VITE_*.
+    process.env.MIDTRANS_LOCAL_TEST = 'true';
+    if (!process.env.MIDTRANS_DEV_PRICE) process.env.MIDTRANS_DEV_PRICE = '1000';
+    process.env.ALLOWED_ORIGINS = [...new Set([...(process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean), `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`])].join(',');
+    const { createMidtransHandler } = await import('./lib/midtrans.js');
+    const { createHandler: pricingHandler } = await import('./api/regional-pricing.js');
+    app.all('/api/midtrans', express.json({ limit: '16kb' }), createMidtransHandler());
+    app.all('/api/midtrans-webhook', express.json({ limit: '16kb' }), createMidtransHandler({ webhook: true }));
+    app.all('/api/regional-pricing', pricingHandler());
+    if (process.env.ACCESS_BACKEND === 'firestore') {
+      const { createHandler: verifyHandler } = await import('./api/verify-buyer.js');
+      app.all('/api/verify-buyer', express.json({ limit: '16kb' }), verifyHandler());
+    }
+  }
 
   // CORS configuration
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -257,6 +267,9 @@ async function startServer() {
 
     try {
       const queryOrBody = req.method === 'POST' ? { ...req.query, ...req.body } : req.query;
+      if (!req.user) {
+        return res.status(401).json({ success: false, accessGranted: false, reason: 'AUTH_REQUIRED', status: 'AUTH_REQUIRED' });
+      }
       const requestedEmail = String(
         queryOrBody.email ||
         queryOrBody.buyer_email ||
@@ -285,7 +298,10 @@ async function startServer() {
         });
       }
 
-      const verifiedEmail = requestedEmail;
+      if (requestedEmail !== req.user.email) {
+        return res.status(403).json({ success: false, accessGranted: false, reason: 'EMAIL_MISMATCH', status: 'EMAIL_MISMATCH' });
+      }
+      const verifiedEmail = req.user.email;
 
       const rawDeviceId = String(queryOrBody.device_id || queryOrBody.deviceId || '').trim();
       const rawDeviceLabel = String(
@@ -649,11 +665,11 @@ async function startServer() {
     String(process.env.GOOGLE_SHEETS_SCRIPT_URL || '').trim()
   );
 
-  // In local development without the server-only Apps Script configuration,
-  // leave this route to Vite's development proxy. The proxy targets the
-  // deployed Netlify Function, so verification remains enforced and no
-  // server secret is exposed to the client bundle.
-  if (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig) {
+  // Staging uses its deployed verifier; legacy development uses the proxy
+  // only when local Apps Script configuration is absent.
+  const useStagingVerificationProxy = process.env.NODE_ENV !== 'production' &&
+    process.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005';
+  if (!useStagingVerificationProxy && (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig)) {
     app.post('/api/verify-buyer', jsonParser, optionalFirebaseToken, handleBuyerVerification);
   }
   app.post('/api/verify-code', jsonParser, optionalFirebaseToken, handleBuyerVerification);

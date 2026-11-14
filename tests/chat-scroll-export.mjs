@@ -8,9 +8,9 @@ const bundle = await build({
   stdin: {
     contents: `import React, {useRef, useLayoutEffect} from 'react';
       import {createRoot} from 'react-dom/client';
-      import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
-      import {LineChatPreview} from './src/features/line/components/LineChatPreview';
-      import {InstagramDMPreview} from './src/features/instagram/components/InstagramDMPreview';
+      import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
+      import {LineChatPreview} from './src/features/line/components/chat/LineChatPreview';
+      import {InstagramDMPreview} from './src/features/instagram/components/dm/InstagramDMPreview';
       import {INITIAL_WHATSAPP_CHAT_DATA, INITIAL_LINE_CHAT_DATA, INITIAL_INSTAGRAM_DM_DATA} from './src/data/defaultTemplates';
       import {registerExportContext} from './src/export/exportContext';
       import {exportPreviewToImage} from './src/utils/exportUtils';
@@ -56,7 +56,7 @@ const bundle = await build({
   }, bundle: true, write: false, format: 'iife',
 });
 const assets = await readdir('dist/assets');
-const css = await readFile(`dist/assets/${assets.find((file) => file.endsWith('.css'))}`, 'utf8');
+const css = (await Promise.all(assets.filter(f => f.endsWith('.css')).map(f => readFile('dist/assets/' + f, 'utf8')))).join('\n');
 const server = createServer((req, res) => {
   res.setHeader('Content-Type', req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : 'text/html');
   res.end(req.url === '/bundle.js' ? bundle.outputFiles[0].text : req.url === '/style.css' ? css : '<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');

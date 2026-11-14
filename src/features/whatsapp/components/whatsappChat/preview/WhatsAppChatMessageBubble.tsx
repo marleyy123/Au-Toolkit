@@ -12,6 +12,8 @@ import {
   analyzeWhatsAppBubbleText,
   WhatsAppInlineMetaSpacer,
 } from './whatsAppPreviewHelpers';
+import { ChatBubbleShiftControls } from '../../../../../components/ChatBubbleShiftControls';
+import { formatChatTime } from '../../../../../utils/chatTimeUtils';
 
 interface Props {
   msg: WhatsAppChatMessage;
@@ -42,6 +44,15 @@ interface Props {
   getHarmoniousReplySenderColor: (msg: WhatsAppChatMessage, isMsgOutgoing: boolean) => string;
   getMessageTimestampColor: (isMsgOutgoing: boolean) => string;
   onChange?: (updated: WhatsAppChatData) => void;
+  onMoveMessageUp?: (index: number) => void;
+  onMoveMessageDown?: (index: number) => void;
+  onToggleMessageSide?: (index: number) => void;
+  editingTimeId?: string | null;
+  editingTimeValue?: string;
+  handleStartTimeEditing?: (msgId: string, currentTime?: string) => void;
+  handleSaveTimeEditing?: (msgId: string, applyToAll?: boolean) => void;
+  setEditingTimeValue?: (val: string) => void;
+  setEditingTimeId?: (val: string | null) => void;
 }
 
 export const WhatsAppChatMessageBubble: React.FC<Props> = ({
@@ -72,19 +83,89 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
   getHarmoniousReplySenderColor,
   getMessageTimestampColor,
   onChange,
+  onMoveMessageUp,
+  onMoveMessageDown,
+  onToggleMessageSide,
+  editingTimeId,
+  editingTimeValue = '',
+  handleStartTimeEditing,
+  handleSaveTimeEditing,
+  setEditingTimeValue,
+  setEditingTimeId,
 }) => {
+  // Render elemen timestamp interaktif di bubble chat
+  const renderInteractiveTimestamp = (
+    targetMsg: WhatsAppChatMessage,
+    msgIndex: number,
+    isOutgoingMsg: boolean,
+    colorStyle?: string,
+    extraClasses: string = ''
+  ) => {
+    const isEditingThis = editingTimeId === (targetMsg.id || String(msgIndex));
+    const formatted = formatChatTime(targetMsg.time);
+
+    if (isEditingThis) {
+      return (
+        <span
+          data-html2canvas-ignore="false"
+          className="inline-flex items-center z-30 pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            autoFocus
+            type="text"
+            value={editingTimeValue}
+            onChange={(e) => setEditingTimeValue?.(e.target.value)}
+            onBlur={() => handleSaveTimeEditing?.(targetMsg.id || String(msgIndex))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSaveTimeEditing?.(targetMsg.id || String(msgIndex));
+              } else if (e.key === 'Escape') {
+                setEditingTimeId?.(null);
+              }
+            }}
+            placeholder="12.00"
+            className="w-12 text-[10px] leading-tight font-mono font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-purple-500 rounded px-1 py-0 shadow-xs outline-none text-center"
+          />
+        </span>
+      );
+    }
+
+    return (
+      <span
+        onClick={(e) => {
+          e.stopPropagation();
+          handleStartTimeEditing?.(targetMsg.id || String(msgIndex), targetMsg.time);
+        }}
+        style={{ color: colorStyle }}
+        className={`cursor-pointer hover:underline hover:opacity-100 transition-opacity tracking-tight leading-none pointer-events-auto inline-block select-none font-normal ${extraClasses}`}
+        title="Klik untuk ubah jam"
+      >
+        {formatted}
+      </span>
+    );
+  };
   // 1. Sticker type
   if (msgType === 'sticker') {
     if (!msg.stickerUrl && !msg.imageUrl && !msg.text) return null;
     return (
-      <div className={`flex flex-col ${isOutgoing ? 'items-end' : 'items-start'} max-w-[70%]`}>
+      <div className={`relative group flex flex-col ${isOutgoing ? 'items-end' : 'items-start'} max-w-[70%]`}>
+        <ChatBubbleShiftControls
+          isOutgoing={isOutgoing}
+          canMoveUp={index > 0}
+          canMoveDown={index < (data.messages?.length || 0) - 1}
+          onMoveUp={() => onMoveMessageUp?.(index)}
+          onMoveDown={() => onMoveMessageDown?.(index)}
+          onToggleSide={() => onToggleMessageSide?.(index)}
+        />
         <img
           src={(msg.stickerUrl || msg.imageUrl || msg.text || '').trim()}
           alt="sticker"
           className="max-w-[120px] max-h-[120px] object-contain drop-shadow-sm select-none pointer-events-none"
         />
-        <div className="bg-black/40 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1 mt-1 w-fit select-none">
-          <span className="leading-none">{formatWhatsAppTime(msg.time)}</span>
+        <div className="bg-black/40 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1 mt-1 w-fit select-none pointer-events-auto">
+          {renderInteractiveTimestamp(msg, index, isOutgoing, '#ffffff')}
           {isOutgoing && (
             <svg viewBox="0 0 16 15" width="14" height="13" className="shrink-0 block">
               <path
@@ -101,7 +182,15 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
   // 2. Missed call type
   if (msgType === 'missed_voice_call' || msgType === 'missed_video_call') {
     return (
-      <div className="relative flex max-w-[85%] items-end">
+      <div className="relative group flex max-w-[85%] items-end">
+        <ChatBubbleShiftControls
+          isOutgoing={isOutgoing}
+          canMoveUp={index > 0}
+          canMoveDown={index < (data.messages?.length || 0) - 1}
+          onMoveUp={() => onMoveMessageUp?.(index)}
+          onMoveDown={() => onMoveMessageDown?.(index)}
+          onToggleSide={() => onToggleMessageSide?.(index)}
+        />
         {!isOutgoing && showTail && (
           <svg
             viewBox="0 0 14 15"
@@ -156,10 +245,8 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
                   : (language === 'id' ? 'Panggilan suara tak terjawab' : 'Missed voice call'))
               )}
             </span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[11px] select-none text-slate-500">
-                {formatWhatsAppTime(msg.time)}
-              </span>
+            <div className="flex items-center gap-1.5 mt-0.5 pointer-events-auto">
+              {renderInteractiveTimestamp(msg, index, isOutgoing, undefined, 'text-[11px] text-slate-500')}
             </div>
           </div>
         </div>
@@ -181,7 +268,16 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
 
   // 3. Regular Bubble (Text, Media, Voice, Contact, Recalled)
   return (
-    <div className="relative flex items-end" style={{ maxWidth: `${bubbleWidthPercent}%` }}>
+    <div className="relative group flex items-end max-w-[358px]" style={{ maxWidth: `${bubbleWidthPercent}%` }}>
+      <ChatBubbleShiftControls
+        isOutgoing={isOutgoing}
+        canMoveUp={index > 0}
+        canMoveDown={index < (data.messages?.length || 0) - 1}
+        onMoveUp={() => onMoveMessageUp?.(index)}
+        onMoveDown={() => onMoveMessageDown?.(index)}
+        onToggleSide={() => onToggleMessageSide?.(index)}
+      />
+
       {!isOutgoing && showTail && (
         <svg
           viewBox="0 0 14 15"
@@ -363,16 +459,16 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
                     </div>
                     <div
                       style={{ color: getMessageTimestampColor(isOutgoing) }}
-                      className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-2' : 'right-1'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap`}
+                      className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-2' : 'right-1'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-auto whitespace-nowrap`}
                     >
-                      <span className="tracking-tight leading-none font-normal">{formatWhatsAppTime(msg.time)}</span>
+                      {renderInteractiveTimestamp(msg, index, isOutgoing, getMessageTimestampColor(isOutgoing))}
                       {isOutgoing && renderTicks(msg, isDark, false, isSenderBubbleDark)}
                     </div>
                   </div>
                 );
               })() : (
-                <div className="absolute bottom-1.5 right-1.5 bg-black/45 backdrop-blur-xs px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 text-white text-[10px] leading-none select-none z-20">
-                  <span className="leading-none">{formatWhatsAppTime(msg.time)}</span>
+                <div className="absolute bottom-1.5 right-1.5 bg-black/45 backdrop-blur-xs px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 text-white text-[10px] leading-none select-none z-20 pointer-events-auto">
+                  {renderInteractiveTimestamp(msg, index, isOutgoing, '#ffffff')}
                   {isOutgoing && renderTicks(msg, isDark, true)}
                 </div>
               )}
@@ -403,9 +499,9 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
             </div>
             <div
               style={{ color: getMessageTimestampColor(isOutgoing) }}
-              className={`shrink-0 self-end ml-auto inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap pb-0.5 ${isOutgoing ? 'translate-y-[0.75px]' : ''}`}
+              className={`shrink-0 self-end ml-auto inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-auto whitespace-nowrap pb-0.5 ${isOutgoing ? 'translate-y-[0.75px]' : ''}`}
             >
-              <span className="tracking-tight leading-none font-normal">{formatWhatsAppTime(msg.time)}</span>
+              {renderInteractiveTimestamp(msg, index, isOutgoing, getMessageTimestampColor(isOutgoing))}
             </div>
           </div>
         )}
@@ -455,9 +551,9 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
               )}
               <div
                 style={{ color: getMessageTimestampColor(isOutgoing) }}
-                className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-none whitespace-nowrap`}
+                className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-auto whitespace-nowrap`}
               >
-                <span className="tracking-tight leading-none font-normal">{formatWhatsAppTime(msg.time)}</span>
+                {renderInteractiveTimestamp(msg, index, isOutgoing, getMessageTimestampColor(isOutgoing))}
                 {isOutgoing && renderTicks(msg, isDark, false, isSenderBubbleDark)}
               </div>
             </div>

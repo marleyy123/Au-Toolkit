@@ -7,7 +7,7 @@ import {
 } from '../../../firebase';
 import { USER_ASSETS_SYNC_EVENT } from '../../../utils/userAssets';
 import { getPendingCloudSyncStorageKey, markLocalWorkspaceUpdated } from '../workspaceStorage';
-import { CloudConnectionState } from '../components/CloudSyncIndicator';
+import { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 
 interface UseWorkspaceCloudStatusArgs {
   authUser: any;

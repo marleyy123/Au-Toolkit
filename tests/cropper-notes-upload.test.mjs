@@ -8,7 +8,7 @@ const bundle = await build({ stdin: { contents: `
   import React,{useState,useLayoutEffect} from 'react';
   import {createRoot} from 'react-dom/client';
   import {ImageUploader} from './src/components/FormControls';
-  import {NotesForm} from './src/features/notes/components/NotesForm';
+  import {NotesForm} from './src/features/notes/components/notes/NotesForm';
   import {INITIAL_NOTES_DATA} from './src/data/defaultTemplates';
   import {persistLocalImageBlob,resolveLocalImageReference} from './src/utils/imageManager';
   localStorage.setItem('au_auth_user',JSON.stringify({uid:'test-user'}));
@@ -17,7 +17,7 @@ const bundle = await build({ stdin: { contents: `
   function App(){
     const [avatar,setAvatar]=useState('');
     const [notes,setNotes]=useState({...INITIAL_NOTES_DATA,images:[],imageUrl:''});
-    useLayoutEffect(()=>{window.avatar=avatar;window.notes=notes;window.setAvatar=setAvatar;},[avatar,notes]);
+    useLayoutEffect(()=>{window.avatar=avatar;window.notes=notes;window.setNotes=setNotes;window.setAvatar=setAvatar;},[avatar,notes]);
     return <><section id="avatar"><ImageUploader label="Profile Photo" value={avatar} onChange={setAvatar}/></section>
       <section id="notes"><NotesForm data={notes} onChange={setNotes}/></section></>;
   }
@@ -25,15 +25,16 @@ const bundle = await build({ stdin: { contents: `
 `, resolveDir: process.cwd(), loader: 'tsx' }, bundle: true, write: false, format: 'iife', outfile: 'bundle.js', plugins: [{
   name: 'controlled-compression', setup(builder) {
     builder.onLoad({ filter: /[\\/]firebase\.ts$/ }, () => ({ contents: 'export const auth={currentUser:{uid:"test-user"}};export const getStoredAuthUser=()=>auth.currentUser;', loader: 'ts' }));
-    builder.onLoad({ filter: /[\\/]storageService\.ts$/ }, () => ({ contents: 'export const uploadMediaAsset=async()=>{throw new Error("Exercise the local fallback without remote uploads");};', loader: 'ts' }));
+    builder.onLoad({ filter: /[\\/]storageService\.ts$/ }, () => ({ contents: 'export const uploadMediaAsset=async()=>{if(window.uploadMode==="success")return {downloadURL:"https://example.com/notes.png"};if(window.uploadMode==="delayed")return new Promise(resolve=>window.finishUpload=resolve);throw new Error("Exercise the local fallback without remote uploads");};', loader: 'ts' }));
     builder.onLoad({ filter: /imageCompressor\.ts$/ }, () => ({ contents: `
       export const compressAndReadAsDataURL=()=>new Promise(resolve=>{(window.finishCompression ||= []).push(value=>resolve(value||window.testImage))});
+      export const compressImageFile=()=>new Promise(resolve=>{(window.finishCompression ||= []).push(async value=>resolve(await (await fetch(value||window.testImage)).blob()))});
       export const ensureDataUrlUnderSize=value=>value;
     `, loader: 'ts' }));
   },
 }] });
 const assets = await readdir('dist/assets');
-const css = (await readFile('dist/assets/' + assets.find(f => f.endsWith('.css')), 'utf8')).replace(/@import[^;]+;/g, '')
+const css = ((await Promise.all(assets.filter(f => f.endsWith('.css')).map(f => readFile('dist/assets/' + f, 'utf8')))).join('\n')).replace(/@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g, '')
   + bundle.outputFiles.filter(f => f.path.endsWith('.css')).map(f => f.text).join('\n');
 const js = bundle.outputFiles.find(f => f.path.endsWith('.js')).text;
 const server = createServer((req, res) => {
@@ -107,8 +108,25 @@ try {
       await notesFile.setInputFiles({ ...file, name: 'second.png' });
       await page.waitForFunction(() => window.finishCompression.length === 2 && window.notes.images.length === 2);
       await page.evaluate(() => { window.finishCompression[1](); window.finishCompression[0](); });
-      await page.waitForFunction(() => window.notes.images.length === 2 && window.notes.images.every(img => img.url.startsWith('data:image/')));
+      await page.waitForFunction(() => window.notes.images.length === 2 && window.notes.images.every(img => img.url.startsWith('au-local-media://')));
       assert.equal(await page.evaluate(() => window.notes.bodyText), 'Edited while compression is running');
+      await page.evaluate(() => { window.uploadMode = 'success'; });
+      await notesFile.setInputFiles({ ...file, name: 'cloud.png' });
+      await page.waitForFunction(() => window.finishCompression.length === 3);
+      await page.evaluate(() => window.finishCompression[2]());
+      await page.waitForFunction(() => window.notes.images.some(img => img.url === 'https://example.com/notes.png'));
+      assert.equal(await page.evaluate(() => window.notes.bodyText), 'Edited while compression is running');
+      await page.evaluate(() => { window.uploadMode = 'delayed'; });
+      await notesFile.setInputFiles({ ...file, name: 'deleted.png' });
+      await page.waitForFunction(() => window.finishCompression.length === 4);
+      await page.evaluate(() => window.finishCompression[3]());
+      await page.waitForFunction(() => window.finishUpload);
+      await page.evaluate(() => window.setNotes({ ...window.notes, images: window.notes.images.slice(0, -1) }));
+      await page.waitForFunction(() => window.notes.images.length === 3);
+      await page.evaluate(() => window.finishUpload({ downloadURL: 'https://example.com/deleted.png' }));
+      await page.waitForTimeout(100);
+      assert.equal(await page.evaluate(() => window.notes.images.length), 3, 'A late upload must not restore a deleted image');
+
       console.log('PASS', engine, 'local crop after reload, missing/corrupt image recovery, Notes delayed uploads preserve images and text');
     } finally { await browser.close(); }
   }

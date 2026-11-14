@@ -9,11 +9,11 @@ const bundle = await build({
   stdin: {
     contents: `import React from 'react';
       import { createRoot } from 'react-dom/client';
-      import { Login } from './src/features/auth/components/Login';
+      import { Login } from './src/features/auth/components/access/Login';
       window.calls = [];
       createRoot(document.getElementById('root')).render(<Login
         onLoginSuccess={(email) => window.calls.push({event: 'allowed', email})}
-        onAccessExpired={() => window.calls.push({event: 'expired'})} />);`,
+        onAccessExpired={(email, entitlement) => window.calls.push({event: 'expired', message: entitlement.message})} />);`,
     resolveDir: process.cwd(), loader: 'tsx',
   },
   bundle: true, write: false, format: 'iife',
@@ -27,7 +27,7 @@ const bundle = await build({
         export const getOrCreateDeviceId = () => 'test-desktop';
         export const getStableDeviceModel = () => 'Test desktop';
       ` : `
-        export const auth = { currentUser: null, authStateReady: async () => {} };
+        export const auth = { app: { options: { projectId: window.testProject || 'au-toolkit-staging-20261005' } }, currentUser: null, authStateReady: async () => {} };
         export async function signInWithGoogle() {
           window.calls.push({event: 'google', activation: navigator.userActivation.isActive});
           const popup = window.open('about:blank', 'google-login-test', 'popup');
@@ -39,6 +39,7 @@ const bundle = await build({
         }
         export async function signInWithEmail(email) {
           window.calls.push({event: 'email', email});
+          if (window.unverifiedEmail) throw Object.assign(new Error('Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali.'), {code: 'auth/email-not-verified'});
           auth.currentUser = {uid: 'email-user', email, getIdToken: async () => 'test-token'};
           return auth.currentUser;
         }
@@ -65,11 +66,13 @@ try {
     {name: 'unknown email', body: {reason: 'BUYER_NOT_FOUND', accessGranted: false}},
     {name: 'expired buyer', body: {reason: 'ACCOUNT_EXPIRED', statusAccount: 'Expired', accessGranted: false}, expired: true},
     {name: 'inactive buyer', body: {reason: 'ACCOUNT_INACTIVE', statusAccount: 'Inactive', accessGranted: false}},
-    {name: 'device mismatch', body: {reason: 'DEVICE_MISMATCH', accessGranted: false}},
+    {name: 'device mismatch', body: {reason: 'DEVICE_MISMATCH', accessGranted: false, message: 'Slot laptop sudah dipakai. Batas 1 laptop dan 1 HP. Hubungi admin untuk reset.'}, expired: true},
     {name: 'server unavailable despite valid cache', http: 503, body: {reason: 'APPS_SCRIPT_UNAVAILABLE', accessGranted: false}},
+    {name: 'production fails closed despite valid cache', production: true, http: 503, body: {reason: 'APPS_SCRIPT_UNAVAILABLE', accessGranted: false}},
     {name: 'popup cancelled', cancel: true},
   ]) {
     const page = await browser.newPage();
+    if (scenario.production) await page.addInitScript(() => { window.testProject = 'gen-lang-client-0839250297'; });
     const requests = [];
     await page.route('**/api/verify-buyer', async (route) => {
       requests.push(route.request().postDataJSON());
@@ -88,6 +91,7 @@ try {
     assert.equal(calls[0].activation, true, 'Popup must be invoked during user activation');
     assert.equal(calls.some((call) => call.event === 'allowed'), !!scenario.allowed, scenario.name);
     assert.equal(calls.some((call) => call.event === 'expired'), !!scenario.expired);
+    if (scenario.name === 'device mismatch') assert.equal(calls.find(call => call.event === 'expired').message, scenario.body.message);
     if (!scenario.cancel) {
       assert.equal(requests.length, 1);
       assert.equal(requests[0].action, 'validateAccess');
@@ -103,6 +107,14 @@ try {
   assert.equal(await page.locator('input[type="email"]').count(), 1);
   assert.equal(await page.locator('input[type="password"]').count(), 1);
   console.log('PASS email/password form preserved');
+  await page.route('**/api/verify-buyer', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ...active, reason: 'BUYER_EMAIL_OK' }) }));
+  await page.evaluate(() => { window.unverifiedEmail = true; });
+  await page.locator('input[type="email"]').fill('buyer@example.com');
+  await page.locator('input[type="password"]').fill('test-password');
+  await page.locator('button[type="submit"]').click();
+  await page.getByText('Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali.', { exact: true }).waitFor();
+  assert.equal(await page.evaluate(() => window.calls.some(call => call.event === 'allowed')), false);
+  console.log('PASS unverified email displays verification guidance and never enters editor');
   for (const viewport of [{width: 1440, height: 900}, {width: 390, height: 844}]) {
     await page.setViewportSize(viewport);
     await page.getByRole('tab', {name: 'Google', exact: true}).click();

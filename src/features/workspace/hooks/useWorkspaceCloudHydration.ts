@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import type { AuthLifecycleStage } from '../../auth/components/AppLoadingScreen';
+import type { AuthLifecycleStage } from '../../auth/components/access/AppLoadingScreen';
 import type { AUFolder, PlatformTab } from '../../../types';
 import {
   loadUserWorkspaceFromFirestore,
@@ -15,10 +15,11 @@ import {
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
 } from '../workspaceStorage';
-import type { CloudConnectionState } from '../components/CloudSyncIndicator';
+import type { CloudConnectionState } from '../components/header/CloudSyncIndicator';
 import { persistUserAssets, readPersistentUserAssets } from '../../../utils/userAssets';
 
 type UseWorkspaceCloudHydrationArgs = {
+  enabled: boolean;
   authUser: any;
   userAccountKey: string;
   clientSessionId: string;
@@ -41,6 +42,7 @@ type UseWorkspaceCloudHydrationArgs = {
 };
 
 export function useWorkspaceCloudHydration({
+  enabled,
   authUser,
   userAccountKey,
   clientSessionId,
@@ -73,9 +75,14 @@ export function useWorkspaceCloudHydration({
       return;
     }
 
+    if (!enabled) return;
+
     const expectedUid = userEmailOrId;
     const generation = ++accountSyncGenerationRef.current;
     let disposed = false;
+    let initialSnapshotHandled = false;
+    let initialRecoveryPending = false;
+    let latestSnapshot: any = null;
     const isCurrentAccount = () =>
       !disposed &&
       accountSyncGenerationRef.current === generation &&
@@ -102,17 +109,16 @@ export function useWorkspaceCloudHydration({
       setAuthLifecycleStage((prev) => (prev === 'HYDRATE_DATA' || prev === 'LOAD_USER_DATA' ? 'READY' : prev));
     }, 6000);
 
-    loadUserWorkspaceFromFirestore(userEmailOrId)
-      .then((cloudWorkspace) => {
+    const hydrateInitialWorkspace = (cloudWorkspace: any) => {
         if (!isCurrentAccount()) return;
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
         if (cloudWorkspace && cloudWorkspace.hasLoadedData && cloudWorkspace.status === 'loaded') {
           const hasPendingLocalSync = localStorage.getItem(getPendingCloudSyncStorageKey(userAccountKey)) === 'true';
-          if (hasPendingLocalSync) {
+          if (hasPendingLocalSync || hasLocalUserEditsInSessionRef.current) {
             setIsHydrated(true);
             isHydratedRef.current = true;
-            forceCloudWorkspaceSyncNowRef.current();
+            void forceCloudWorkspaceSyncNowRef.current();
           } else {
             applyCloudWorkspaceDataRef.current(cloudWorkspace, true);
             setCloudSyncState('synced');
@@ -143,7 +149,7 @@ export function useWorkspaceCloudHydration({
             setIsHydrated(true);
             isHydratedRef.current = true;
             forceCloudWorkspaceSyncNowRef.current();
-            setAuthLifecycleStage('READY');
+            setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
             return;
           }
 
@@ -161,29 +167,50 @@ export function useWorkspaceCloudHydration({
           setIsHydrated(true);
           isHydratedRef.current = true;
           forceCloudWorkspaceSyncNowRef.current();
-          setAuthLifecycleStage('READY');
+          setCloudSyncState('synced');
+          setLastSyncedTime(new Date());
+          setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
           return;
         } else {
           setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
         }
         setIsHydrated(true);
         isHydratedRef.current = true;
-        setAuthLifecycleStage('READY');
-      })
-      .catch(() => {
+        setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
+      };
+    const handleInitialError = () => {
         if (!isCurrentAccount()) return;
         clearTimeout(hydrationSafetyTimer);
         setIsInitialCloudLoading(false);
         setIsHydrated(true);
         isHydratedRef.current = true;
         setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
-        setAuthLifecycleStage('READY');
-      });
+        setAuthLifecycleStage((prev) => (prev === 'LOAD_USER_DATA' || prev === 'HYDRATE_DATA' ? 'READY' : prev));
+      };
 
     const unsubscribe = subscribeUserWorkspaceFromFirestore(
       userEmailOrId,
       (cloudData) => {
         if (!cloudData || !isCurrentAccount()) return;
+        latestSnapshot = cloudData;
+        if (!initialSnapshotHandled) {
+          // Cached absence must never initialize a new workspace before the server replies.
+          if (cloudData.fromCache || initialRecoveryPending) return;
+          if (cloudData.needsRecovery) {
+            initialRecoveryPending = true;
+            loadUserWorkspaceFromFirestore(userEmailOrId)
+              .then((recovered) => {
+                if (!isCurrentAccount()) return;
+                initialSnapshotHandled = true;
+                hydrateInitialWorkspace(latestSnapshot && !latestSnapshot.needsRecovery ? latestSnapshot : recovered);
+              })
+              .catch(handleInitialError);
+          } else {
+            initialSnapshotHandled = true;
+            hydrateInitialWorkspace(cloudData);
+          }
+          return;
+        }
         if (cloudData.updatedBy === clientSessionId) {
           return;
         }
@@ -193,8 +220,7 @@ export function useWorkspaceCloudHydration({
         setLastSyncedTime(new Date());
       },
       () => {
-        if (!isCurrentAccount()) return;
-        setCloudSyncState(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error');
+        handleInitialError();
       }
     );
 
@@ -203,5 +229,5 @@ export function useWorkspaceCloudHydration({
       clearTimeout(hydrationSafetyTimer);
       unsubscribe();
     };
-  }, [authUser?.uid, userAccountKey]);
+  }, [enabled, authUser?.uid, userAccountKey]);
 }

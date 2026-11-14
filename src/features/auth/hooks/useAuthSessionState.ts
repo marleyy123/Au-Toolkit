@@ -3,7 +3,7 @@ import { getStoredAuthUser, onAuthUserChanged } from '../../../firebase';
 import { getUserAccountStorageKey } from '../../workspace/workspaceStorage';
 import { detectDeviceSlot } from '../../../utils/deviceAuthService';
 import { EntitlementCheckResult } from '../../../services/buyerEntitlementService';
-import { AuthLifecycleStage } from '../components/AppLoadingScreen';
+import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
 
 export function useAuthSessionState() {
   const [authUser, setAuthUser] = useState<any>(() => {

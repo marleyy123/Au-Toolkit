@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "gen-lang-client-0839250297"
+    "default": "gen-lang-client-0839250297",
+    "staging": "au-toolkit-staging-20261005"
   }
 }

@@ -3,8 +3,8 @@ import { AUFolder } from './types';
 import { DEFAULT_AVATAR } from './data/defaultTemplates';
 import { FormQuickScroll } from './components/FormQuickScroll';
 import { MobileFloatingPreview } from './components/MobileFloatingPreview';
-import { Login } from './features/auth/components/Login';
-import { AccountPasswordModal } from './features/auth/components/AccountPasswordModal';
+import { Login } from './features/auth/components/access/Login';
+import { AccountPasswordModal } from './features/auth/components/account/AccountPasswordModal';
 import {
   signInWithGoogle,
   getStoredAuthUser,
@@ -16,8 +16,8 @@ import {
   getDeviceFriendlyLabel,
   subscribeDeviceSlotSession,
 } from './utils/deviceAuthService';
-import { AccessGuard } from './features/auth/components/AccessGuard';
-import { AppLoadingScreen } from './features/auth/components/AppLoadingScreen';
+import { AccessGuard } from './features/auth/components/access/AccessGuard';
+import { AppLoadingScreen } from './features/auth/components/access/AppLoadingScreen';
 import { ThemeContext, UiTheme } from './context/ThemeContext';
 import { useLanguage } from './context/LanguageContext';
 import {
@@ -27,18 +27,18 @@ import {
   loadAllStoredActiveFolderIds,
   loadAllStoredModuleFolders,
 } from './features/workspace/workspaceStorage';
-import { WorkspaceFeedback } from './features/workspace/components/WorkspaceFeedback';
-import { AppHeader } from './features/workspace/components/AppHeader';
-import { PreviewExportPanel } from './features/workspace/components/PreviewExportPanel';
-import { EditorFormPanel } from './features/editor/components/EditorFormPanel';
-import { DeveloperAccessControls } from './features/admin/components/DeveloperAccessControls';
+import { WorkspaceFeedback } from './features/workspace/components/feedback/WorkspaceFeedback';
+import { AppHeader } from './features/workspace/components/header/AppHeader';
+import { PreviewExportPanel } from './features/workspace/components/preview/PreviewExportPanel';
+import { EditorFormPanel } from './features/editor/components/form/EditorFormPanel';
+import { DeveloperAccessControls } from './features/admin/components/access/DeveloperAccessControls';
 import { useTikTokFormHandlers } from './features/tiktok/hooks/useTikTokFormHandlers';
 import { useWhatsAppFormHandlers } from './features/whatsapp/hooks/useWhatsAppFormHandlers';
 import { useLineFormHandlers } from './features/line/hooks/useLineFormHandlers';
 import { useInstagramFormHandlers } from './features/instagram/hooks/useInstagramFormHandlers';
 import { useTwitterFormHandlers } from './features/twitter/hooks/useTwitterFormHandlers';
 import { usePreviewExport } from './features/editor/hooks/usePreviewExport';
-import { PreparedImageDialog } from './features/editor/components/PreparedImageDialog';
+import { PreparedImageDialog } from './features/editor/components/export/PreparedImageDialog';
 import { usePreviewViewport } from './features/editor/hooks/usePreviewViewport';
 import { useWorkspaceFolders } from './features/workspace/hooks/useWorkspaceFolders';
 import { useWorkspaceAutoSaveProtection } from './features/workspace/hooks/useWorkspaceAutoSaveProtection';
@@ -601,6 +601,9 @@ export default function App() {
     setCloudToast,
   });
   useWorkspaceCloudHydration({
+    enabled: isAuthenticated && buyerEntitlement?.isValid === true &&
+      buyerEntitlement.status === 'ACTIVE' &&
+      ['LOAD_USER_DATA', 'HYDRATE_DATA', 'READY'].includes(authLifecycleStage),
     authUser,
     userAccountKey,
     clientSessionId,
@@ -838,12 +841,14 @@ export default function App() {
   // 1. Check if 30-day access has expired or account is locked/mismatched -> render AccessGuard
   // Backend errors and invalid API responses must NEVER render the expiration screen!
   if (
-    authLifecycleStage === 'ACCESS_EXPIRED' &&
+    (authLifecycleStage === 'ACCESS_EXPIRED' ||
+      (buyerEntitlement && ['EXPIRED', 'INACTIVE', 'DEVICE_MISMATCH', 'ORDER_NOT_SUCCESS', 'INVALID_PURCHASE_DATA'].includes(buyerEntitlement.status))) &&
     buyerEntitlement?.status !== 'INVALID_API_RESPONSE' &&
     buyerEntitlement?.status !== 'BACKEND_ERROR'
   ) {
     return (
       <AccessGuard
+        uiTheme={uiTheme}
         email={buyerEntitlement?.email || authUser?.email || localStorage.getItem('au_user_email') || ''}
         purchaseDate={buyerEntitlement?.purchaseDate}
         accessExpiresAt={buyerEntitlement?.accessExpiresAt}
@@ -868,6 +873,7 @@ export default function App() {
   ) {
     return (
       <AppLoadingScreen
+        uiTheme={uiTheme}
         stage={authLifecycleStage}
         language={language}
         errorMessage={loadingErrorMessage}
@@ -890,7 +896,7 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={{ uiTheme, isDark: uiTheme === 'dark', setUiTheme: handleSetUiTheme, toggleTheme: handleToggleTheme }}>
-      <div className={`w-full min-h-screen lg:h-screen lg:overflow-hidden font-sans flex flex-col antialiased selection:bg-purple-600 selection:text-white transition-colors duration-200 ${
+      <div className={`au-editor w-full min-h-screen lg:h-screen lg:overflow-hidden font-sans flex flex-col antialiased selection:bg-purple-700 selection:text-white transition-colors duration-200 ${
         uiTheme === 'dark' ? 'theme-dark dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
       }`}>
       {/* Top Application Header */}

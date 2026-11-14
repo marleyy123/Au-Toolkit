@@ -61,7 +61,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     if (isOpen && imageSrc) {
       void (async () => {
         try {
-          const src = imageSrc.startsWith('au-local-media://')
+          const src = imageSrc.startsWith('au-local-media://') || imageSrc.startsWith('au-cloud-media://')
             ? await resolveLocalImageReference(imageSrc)
             : imageSrc;
           if (!src) throw new Error('Local image unavailable');
@@ -236,10 +236,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     setIsApplying(true);
 
     try {
-      const maxDim = maxOutputDimension || 2048;
       const croppedCanvas = cropperRef.current.getCroppedCanvas({
-        maxWidth: maxDim,
-        maxHeight: maxDim,
         imageSmoothingEnabled: true,
         imageSmoothingQuality: 'high',
       });
@@ -251,11 +248,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       let finalDataUrl = '';
       if (shape === 'round') {
         // High-definition circular crop with smooth antialiased clipping
-        const diameter = Math.min(1080, croppedCanvas.width, croppedCanvas.height);
+        const diameter = Math.min(croppedCanvas.width, croppedCanvas.height);
         finalDataUrl = await createCircularCropDataUrl(croppedCanvas, diameter);
       } else {
-        const outQuality = quality !== undefined ? quality : 0.94;
-        finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/jpeg', outQuality);
+        finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/png', 1);
       }
 
       if (!finalDataUrl || finalDataUrl === 'data:,') throw new Error('Empty cropped image');

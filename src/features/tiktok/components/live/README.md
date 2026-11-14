@@ -1,4 +1,4 @@
-# TikTok LIVE
+# TikTok LIVE (staging)
 
 The `tiktok-live` tab is separate from the existing `tiktok-feed-live` (FYP Live)
 format. Its form and preview adapt the supplied `FormLiveTiktok.txt` and
@@ -17,7 +17,8 @@ export payload freezes that frame before rebuilding the preview.
 
 The new state participates in folder switching, account-scoped local storage,
 cloud workspace payloads, hydration and reset. Existing FYP Live data is retained.
+Keep this change on the staging branch until it is approved for production.
 
-Validation: `node tests/tiktok-live.mjs`, `npm run lint`, and `npm run build`.
-Browser tests mock authentication/cloud calls; they do not verify a deployed
-account or a live remote export service.
+Validation: `node tests/tiktok-live.mjs`, `node tests/editor-theme-contrast.mjs`,
+`npm run lint`, and `npm run build`. Browser tests mock authentication/cloud calls;
+they do not verify a deployed staging account or a live remote export service.

@@ -11,6 +11,7 @@ import { WhatsAppChatUnreadDividerEditor } from './WhatsAppChatUnreadDividerEdit
 import { WhatsAppChatSystemMessageEditor } from './WhatsAppChatSystemMessageEditor';
 import { WhatsAppChatMessageEditor } from './WhatsAppChatMessageEditor';
 import { SAMPLE_STICKERS } from './whatsAppChatFormConstants';
+import { getLastMessageTime, cascadeMessageTime } from '../../../../../utils/chatTimeUtils';
 export const WhatsAppChatMessagesEditor: React.FC<ChatSectionProps> = ({ data, onChange }) => {
   const { isId } = useLanguage();
   const [openSenderNameIds, setOpenSenderNameIds] = useState<Record<string, boolean>>({});
@@ -23,6 +24,7 @@ export const WhatsAppChatMessagesEditor: React.FC<ChatSectionProps> = ({ data, o
   const handleAddMessage = (sender: 'incoming' | 'outgoing', type: 'text' | 'image' | 'sticker' | 'voice_note' | 'contact' = 'text') => {
     const lastMessage = data.isGroupChat ? resolveWhatsAppGroupSenders(data.messages || []).at(-1) : undefined;
     const previous = lastMessage && !isWhatsAppMessageDivider(lastMessage) ? lastMessage : undefined;
+    const defaultTime = getLastMessageTime(data.messages, '12.00');
     const newMessage: WhatsAppChatMessage = {
       id: 'wa-msg-' + Date.now(),
       sender,
@@ -32,7 +34,7 @@ export const WhatsAppChatMessagesEditor: React.FC<ChatSectionProps> = ({ data, o
       imageUrl: '',
       imageUrls: type === 'image' ? [''] : [],
       stickerUrl: type === 'sticker' ? SAMPLE_STICKERS[0].url : '',
-      time: '',
+      time: defaultTime,
       isRead: true,
       senderName: sender === 'incoming' && previous?.sender === 'incoming' ? previous.senderName : undefined,
       senderColor: sender === 'incoming' && previous?.sender === 'incoming' ? previous.senderColor : undefined,
@@ -42,8 +44,13 @@ export const WhatsAppChatMessagesEditor: React.FC<ChatSectionProps> = ({ data, o
 
   // Update Message
   const handleUpdateMessage = (index: number, updatedField: Partial<WhatsAppChatMessage>) => {
-    const updatedMsgs = [...(data.messages || [])];
-    updatedMsgs[index] = { ...updatedMsgs[index], ...updatedField };
+    let updatedMsgs = [...(data.messages || [])];
+    if (updatedField.time !== undefined && updatedField.time !== updatedMsgs[index]?.time) {
+      updatedMsgs[index] = { ...updatedMsgs[index], ...updatedField };
+      updatedMsgs = cascadeMessageTime(updatedMsgs, index, updatedField.time);
+    } else {
+      updatedMsgs[index] = { ...updatedMsgs[index], ...updatedField };
+    }
     updateField('messages', updatedMsgs);
   };
 

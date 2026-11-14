@@ -13,7 +13,7 @@ import {
   writeBatch,
   Firestore,
 } from 'firebase/firestore';
-import { replaceTransientImageUrlsDeep } from './utils/imageManager';
+import { migrateLocalImageReference, replaceTransientImageUrlsDeep } from './utils/imageManager';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -21,6 +21,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updatePassword,
   updateProfile,
   deleteUser,
@@ -76,25 +77,6 @@ console.log('[Firestore] Initializing Firestore instance...', {
   projectId: firebaseConfig.projectId,
   databaseId: firebaseConfig.firestoreDatabaseId || '(default)',
 });
-
-// Validate Connection to Firestore on startup per skill guidelines
-async function testConnection() {
-  try {
-    console.log('[Firestore] Testing connection to Firestore server...');
-    const snap = await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log('[Firestore] Connection established successfully (exists:', snap.exists(), ')');
-  } catch (error: any) {
-    const msg = error?.message || String(error);
-    if (error?.code === 'not-found' || msg.includes('not found') || msg.includes('NOT_FOUND')) {
-      console.log('[Firestore] Connection established successfully (test doc ready).');
-    } else if (msg.includes('the client is offline')) {
-      console.warn('[Firestore] Notice: Client is operating in local/offline cache mode.');
-    } else {
-      console.log('[Firestore] Connection test status:', error?.code || msg || 'ready');
-    }
-  }
-}
-testConnection();
 
 // Local Auth Mock State & Persistence helpers
 const LOCAL_AUTH_STORAGE_KEY = 'au_auth_user';
@@ -175,10 +157,27 @@ export async function deleteSignedInAuthUser(): Promise<void> {
 }
 
 // Email/Password Sign-in helper
+async function requireVerifiedEmail(user: User): Promise<void> {
+  if (user.emailVerified) return;
+  let sent = false;
+  try {
+    await sendEmailVerification(user);
+    sent = true;
+  } catch (error) {
+    console.warn('Email verification delivery failed:', (error as { code?: string }).code || 'unknown');
+  } finally {
+    await signOutUser();
+  }
+  throw Object.assign(new Error(sent
+    ? 'Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali.'
+    : 'Email belum terverifikasi. Coba masuk kembali nanti untuk mengirim tautan verifikasi.'), { code: 'auth/email-not-verified' });
+}
+
 export async function signInWithEmail(email: string, pass: string): Promise<User> {
   const cleanEmail = email.trim();
   const res = await signInWithEmailAndPassword(auth, cleanEmail, pass);
   if (res?.user) {
+    await requireVerifiedEmail(res.user);
     const userPayload = {
       uid: res.user.uid,
       email: res.user.email,
@@ -222,6 +221,7 @@ export async function signUpWithEmail(email: string, pass: string, displayName?:
     if (cleanName) {
       await updateProfile(res.user, { displayName: cleanName }).catch(() => {});
     }
+    await requireVerifiedEmail(res.user);
     const userPayload = {
       uid: res.user.uid,
       email: res.user.email,
@@ -326,10 +326,12 @@ export function removeUndefinedDeep<T = any>(value: T): T {
 // 2. It remains well below the hard 1MB (1,048,576 byte) document limit.
 async function sanitizeObjectForFirestore(obj: any, maxDocBytes = 750_000): Promise<any> {
   if (!obj) return obj;
+  const uid = auth.currentUser?.uid;
+  const migrated = uid ? await migrateLocalMediaDeep(obj, uid) : obj;
   try {
     // Local preview references are valid only in the current browser session.
     // Restore their last stable value before any Firestore fingerprint/write.
-    const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(obj));
+    const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(migrated));
     let rawStr = JSON.stringify(cleaned);
     if (rawStr.length < maxDocBytes) {
       return cleaned;
@@ -359,6 +361,23 @@ async function sanitizeObjectForFirestore(obj: any, maxDocBytes = 750_000): Prom
   } catch {
     return removeUndefinedDeep(obj);
   }
+}
+
+async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<string, string>()): Promise<any> {
+  if (typeof value === 'string') {
+    const refs = value.match(/au-local-media:\/\/[^)'"\s]+/g) || [];
+    let migrated = value;
+    for (const ref of refs) {
+      if (!cache.has(ref)) cache.set(ref, await migrateLocalImageReference(ref, uid));
+      migrated = migrated.split(ref).join(cache.get(ref) || ref);
+    }
+    return migrated;
+  }
+  if (Array.isArray(value)) return Promise.all(value.map(item => migrateLocalMediaDeep(item, uid, cache)));
+  if (!value || typeof value !== 'object') return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value)) result[key] = await migrateLocalMediaDeep(nested, uid, cache);
+  return result;
 }
 
 // Fast fingerprint generator to detect data changes
@@ -789,12 +808,15 @@ export function subscribeUserWorkspaceFromFirestore(
 ): () => void {
   if (!userOrKey) return () => {};
   const docId = getUserDocumentId(userOrKey);
-  const userEmail = typeof userOrKey === 'string' ? userOrKey : (userOrKey.email || userOrKey.uid || docId);
 
   let currentRootData: any = null;
   const currentTabsData: Record<string, any> = {};
   const currentFoldersData: Record<string, any> = {};
   let hasReceivedTabsSnapshot = false;
+  let hasReceivedRootSnapshot = false;
+  let rootExists = false;
+  let rootFromCache = true;
+  let tabsFromCache = true;
 
   const getUpdatedAtMs = (value: any): number => {
     const parsed = value ? new Date(value).getTime() : 0;
@@ -804,7 +826,7 @@ export function subscribeUserWorkspaceFromFirestore(
   const emitComposite = () => {
     // Folder snapshots can arrive before tabs. Wait for the authoritative tab membership
     // snapshot so redundant/stale folder docs never flash back into application state.
-    if (!currentRootData || !hasReceivedTabsSnapshot) return;
+    if (!hasReceivedRootSnapshot || !hasReceivedTabsSnapshot) return;
     const composite: any = {
       ...currentRootData,
       formStates: { ...(currentRootData.formStates || {}) },
@@ -817,10 +839,10 @@ export function subscribeUserWorkspaceFromFirestore(
       if (tData.formState) {
         composite.formStates[tabKey] = tData.formState;
       }
-      const tabFolders = (Array.isArray(tData.characters) && tData.characters.length > 0)
-        ? tData.characters
-        : (Array.isArray(tData.folders) && tData.folders.length > 0)
+      const tabFolders = Array.isArray(tData.folders)
         ? tData.folders
+        : Array.isArray(tData.characters)
+        ? tData.characters
         : null;
 
       if (tabFolders) {
@@ -897,7 +919,17 @@ export function subscribeUserWorkspaceFromFirestore(
       composite.characters[tab] = composite.moduleFolders[tab];
     });
 
-    onData(composite);
+    const hasLoadedData = rootExists || Object.keys(currentTabsData).length > 0;
+    onData({
+      ...composite,
+      status: hasLoadedData ? 'loaded' : 'new_user',
+      hasLoadedData,
+      isNewUser: !hasLoadedData,
+      fromCache: rootFromCache || tabsFromCache,
+      needsRecovery: Object.keys(currentTabsData).length === 0 || Object.values(currentTabsData).some(
+        (data) => !Array.isArray(data.folders) && !Array.isArray(data.characters)
+      ),
+    });
   };
 
   const unsubRoot = onSnapshot(
@@ -906,10 +938,25 @@ export function subscribeUserWorkspaceFromFirestore(
     (snap) => {
       // Ignore local writes that have not yet reached the server
       if (snap.metadata.hasPendingWrites) return;
+      hasReceivedRootSnapshot = true;
+      rootExists = snap.exists();
+      rootFromCache = snap.metadata.fromCache;
       if (snap.exists()) {
         currentRootData = snap.data();
-        emitComposite();
+        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+          savedRootFingerprint = computeFingerprint({
+            lastActiveTab: currentRootData.lastActiveTab || 'twitter',
+            lastActiveCategory: currentRootData.lastActiveCategory || 'social-feed',
+            preferences: currentRootData.preferences || {},
+            activeFolderIds: currentRootData.activeFolderIds || {},
+            userAssets: currentRootData.userAssets || {},
+          });
+          savedWorkspaceFingerprints.delete(docId);
+        }
+      } else {
+        currentRootData = {};
       }
+      emitComposite();
     },
     (err) => {
       handleFirestoreError(err, OperationType.READ, `users/${docId}`);
@@ -923,7 +970,8 @@ export function subscribeUserWorkspaceFromFirestore(
     (snap) => {
       // Ignore local writes that have not yet reached the server
       if (snap.metadata.hasPendingWrites) return;
-      snap.docChanges().forEach((change) => {
+      tabsFromCache = snap.metadata.fromCache;
+      snap.docChanges({ includeMetadataChanges: true }).forEach((change) => {
         if (change.doc.metadata.hasPendingWrites) return;
         const tabKey = change.doc.id;
         if (change.type === 'removed') {
@@ -931,10 +979,38 @@ export function subscribeUserWorkspaceFromFirestore(
         } else {
           currentTabsData[tabKey] = change.doc.data();
         }
+        // Only server-confirmed data can become the baseline for differential writes.
+        // A local batch acknowledgement must not replace fingerprints mid-save.
+        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+          savedWorkspaceFingerprints.delete(docId);
+          if (change.type === 'removed') {
+            savedTabFingerprints.delete(tabKey);
+            for (const key of savedFolderFingerprints.keys()) {
+              if (key.startsWith(`${tabKey}_`)) savedFolderFingerprints.delete(key);
+            }
+          } else {
+            const data = currentTabsData[tabKey];
+            savedTabFingerprints.set(tabKey, computeFingerprint({
+              tabKey,
+              characters: data.characters || [],
+              folders: data.folders || [],
+              formState: data.formState || null,
+              folderStates: data.folderStates || {},
+            }));
+            const folders = data.folders || data.characters || [];
+            folders.forEach((folder: any, index: number) => {
+              if (!folder?.id) return;
+              savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
+                id: folder.id,
+                name: folder.name || `Folder ${index + 1}`,
+                data: folder.data || null,
+                order: typeof folder.order === 'number' ? folder.order : index + 1,
+                tabKey,
+              })));
+            });
+          }
+        }
       });
-      if (!currentRootData) {
-        currentRootData = { userId: docId, userEmail };
-      }
       hasReceivedTabsSnapshot = true;
       emitComposite();
     },
@@ -1013,8 +1089,10 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         if (rootSnap.exists()) break;
         try {
           const candUsersRef = doc(db, 'users', candId);
-          const candUsersSnap = await getDoc(candUsersRef);
-          if (candUsersSnap.exists()) {
+          // A missing legacy users document may be denied; still check its
+          // independently owner-protected workspaces counterpart.
+          const candUsersSnap = await getDoc(candUsersRef).catch(() => null);
+          if (candUsersSnap?.exists()) {
             rootRef = candUsersRef;
             rootSnap = candUsersSnap;
             break;
@@ -1047,6 +1125,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     let hasLoadedData = rootSnap.exists();
     const authoritativeFolderTabs = new Set<string>();
+    let needsFolderRecovery = true;
 
     // Hydrate tab partitions from user subcollection
     try {
@@ -1054,6 +1133,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         ? collection(db, 'workspaces', rootRef.id, 'tabs')
         : collection(db, 'users', rootRef.id, 'tabs');
       const tabsSnap = await getDocs(tabsCol);
+      needsFolderRecovery = tabsSnap.empty;
 
       if (!tabsSnap.empty) {
         hasLoadedData = true;
@@ -1061,14 +1141,15 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
       tabsSnap.forEach((docSnap) => {
         const tabData = docSnap.data();
+        if (!Array.isArray(tabData.folders) && !Array.isArray(tabData.characters)) needsFolderRecovery = true;
         const tabKey = tabData.tabKey || docSnap.id;
 
         if (tabData.formState) {
           composite.formStates[tabKey] = tabData.formState;
         }
-        const tabFolders = (Array.isArray(tabData.folders) && tabData.folders.length > 0)
+        const tabFolders = Array.isArray(tabData.folders)
           ? tabData.folders
-          : (Array.isArray(tabData.characters) && tabData.characters.length > 0)
+          : Array.isArray(tabData.characters)
           ? tabData.characters
           : null;
 
@@ -1111,7 +1192,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     // Hydrate user-isolated folders from `/users/{docId}/folders`
     try {
-      const userFolders = await loadFoldersFromFirestore(docId);
+      const userFolders = needsFolderRecovery ? await loadFoldersFromFirestore(docId) : [];
       if (userFolders && userFolders.length > 0) {
         hasLoadedData = true;
         userFolders.forEach((fDoc) => {

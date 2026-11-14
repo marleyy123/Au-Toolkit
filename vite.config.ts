@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 import {defineConfig} from 'vite';
+import { createHandler as createRegionalPricingHandler } from './api/regional-pricing.js';
 
 const appleEmojiAssetDir = path.resolve(
   __dirname,
@@ -44,9 +45,27 @@ const appleEmojiAssets = () => ({
   },
 });
 
+const landingPricingPreview = () => ({
+  name: 'au-toolkit-local-pricing',
+  configureServer(server: any) {
+    server.middlewares.use('/api/regional-pricing', (request: any, response: any) => {
+      // Bare Vite has no Vercel geo headers; this simulation exists only in dev.
+      const handler = createRegionalPricingHandler({ env: {
+        VERCEL: '1',
+        LYNK_DOMESTIC_CHECKOUT_URL: process.env.LYNK_DOMESTIC_CHECKOUT_URL,
+        LYNK_INTERNATIONAL_CHECKOUT_URL: process.env.LYNK_INTERNATIONAL_CHECKOUT_URL,
+      } });
+      handler({ method: request.method, headers: { 'x-vercel-ip-country': process.env.LANDING_DEV_COUNTRY || 'ID' } }, response);
+    });
+  },
+});
+
 export default defineConfig(() => {
+  const verificationOrigin = process.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005'
+    ? 'https://au-toolkit-testing.vercel.app'
+    : 'https://autoolkit.netlify.app';
   return {
-    plugins: [react(), tailwindcss(), appleEmojiAssets()],
+    plugins: [react(), tailwindcss(), appleEmojiAssets(), landingPricingPreview()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -56,17 +75,14 @@ export default defineConfig(() => {
       cors: true,
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
-      // The Netlify rewrite/function does not exist in a bare Vite preview.
-      // Proxy only during local development so Google Sign-In can complete the
-      // same production buyer-verification contract without weakening CORS in
-      // the deployed Function.
+      // Match the verifier to the frontend Firebase project during local development.
       proxy: {
         '/api/verify-buyer': {
-          target: 'https://autoolkit.netlify.app',
+          target: verificationOrigin,
           changeOrigin: true,
           secure: true,
           headers: {
-            Origin: 'https://autoolkit.netlify.app',
+            Origin: verificationOrigin,
           },
         },
       },

@@ -7,9 +7,9 @@ import {chromium,webkit} from 'playwright-core';
 const bundle=await build({stdin:{contents:`
   import React,{useState,useRef,useLayoutEffect} from 'react';
   import {createRoot} from 'react-dom/client';
-  import {WhatsAppChatForm} from './src/features/whatsapp/components/WhatsAppChatForm';
-  import {InstagramProfileForm} from './src/features/instagram/components/InstagramProfileForm';
-  import {InstagramStoryReplyForm} from './src/features/instagram/components/InstagramStoryReplyForm';
+  import {WhatsAppChatForm} from './src/features/whatsapp/components/whatsappChat/whatsappChatForm/WhatsAppChatForm';
+  import {InstagramProfileForm} from './src/features/instagram/components/profile/InstagramProfileForm';
+  import {InstagramStoryReplyForm} from './src/features/instagram/components/storyReply/InstagramStoryReplyForm';
   import {PreviewRegistry} from './src/export/PreviewRegistry';
   import {MobileFloatingPreview} from './src/components/MobileFloatingPreview';
   import {INITIAL_WHATSAPP_CHAT_DATA,INITIAL_INSTAGRAM_PROFILE_DATA,INITIAL_INSTAGRAM_STORY_REPLY_DATA} from './src/data/defaultTemplates';
@@ -40,7 +40,7 @@ const bundle=await build({stdin:{contents:`
   },
 }]});
 const assets=await readdir('dist/assets');
-const css=(await readFile('dist/assets/'+assets.find(f=>f.endsWith('.css')),'utf8')).replace(/@import[^;]+;/g,'');
+const css=((await Promise.all(assets.filter(f => f.endsWith('.css')).map(f => readFile('dist/assets/' + f, 'utf8')))).join('\n')).replace(/@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g,'');
 const server=createServer((req,res)=>{
   res.setHeader('Content-Type',req.url==='/bundle.js'?'application/javascript':req.url==='/style.css'?'text/css':'text/html');
   res.end(req.url==='/bundle.js'?bundle.outputFiles[0].text:req.url==='/style.css'?css:'<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><div id="root"></div><script src="/bundle.js"></script>');

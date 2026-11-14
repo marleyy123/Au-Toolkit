@@ -1,12 +1,20 @@
-import {StrictMode} from 'react';
+import {StrictMode, lazy, Suspense} from 'react';
 import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { AppLoadingScreen } from './features/auth/components/access/AppLoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LegalPage } from './components/LegalPage';
 import { ExportRenderPage } from './export/ExportRenderPage';
 import { installPersistentLocalImageResolver } from './utils/imageManager';
 import './index.css';
+
+const LandingPage = lazy(() => import('./features/landing/LandingPage'));
+const App = lazy(() => import('./App.tsx'));
+
+function RouteLoading({ editor = false }: { editor?: boolean }) {
+  const { language } = useLanguage();
+  return <AppLoadingScreen stage={editor ? 'EDITOR_LOADING' : 'UNAUTHENTICATED'} language={language} />;
+}
 
 // Intercept global runtime exceptions
 if (typeof window !== 'undefined') {
@@ -41,13 +49,15 @@ if (typeof window !== 'undefined') {
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
-  const publicPage = pathname === '/__export-render'
+  const publicPage = pathname === '/' || pathname === '/landing'
+    ? <Suspense fallback={<RouteLoading />}><LandingPage /></Suspense>
+    : pathname === '/__export-render'
     ? <ExportRenderPage />
     : pathname === '/privacy'
     ? <LegalPage kind="privacy" />
     : pathname === '/terms'
       ? <LegalPage kind="terms" />
-      : <App />;
+      : <Suspense fallback={<RouteLoading editor />}><App /></Suspense>;
 
   createRoot(rootElement).render(
     <StrictMode>

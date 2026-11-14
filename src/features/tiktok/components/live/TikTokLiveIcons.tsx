@@ -75,7 +75,7 @@ export const RoseGiftIcon: React.FC<{ className?: string }> = ({ className = 'w-
       strokeWidth="1.8"
       strokeLinecap="round"
     />
-
+    
     {/* Left Leaf with vein */}
     <path
       d="M11 16.8c-2.4-.2-4.2-1.3-4.8-3.2 2-.3 3.8.8 4.8 3.2z"
@@ -281,3 +281,4 @@ export const YellowShoppingBagIcon: React.FC<{ className?: string }> = ({ classN
     />
   </svg>
 );
+

@@ -19,8 +19,8 @@ try {
       import {toPng} from 'html-to-image';
       import {exportPreviewToImage} from './src/utils/exportUtils';
       import {registerExportContext} from './src/export/exportContext';
-      import {WhatsAppChatForm} from './src/features/whatsapp/components/WhatsAppChatForm';
-      import {WhatsAppChatPreview} from './src/features/whatsapp/components/WhatsAppChatPreview';
+      import {WhatsAppChatForm} from './src/features/whatsapp/components/whatsappChat/whatsappChatForm/WhatsAppChatForm';
+      import {WhatsAppChatPreview} from './src/features/whatsapp/components/whatsappChat/WhatsAppChatPreview';
       import {INITIAL_WHATSAPP_CHAT_DATA} from './src/data/defaultTemplates';
       import {LanguageContext} from './src/context/LanguageContext';
       import {normalizeVoiceDuration, normalizeVoiceProgress, normalizeVoiceWaveform} from './src/features/whatsapp/voiceNote';

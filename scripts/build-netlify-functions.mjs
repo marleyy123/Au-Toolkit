@@ -52,3 +52,36 @@ await build({
   target: 'node20',
   sourcemap: false,
 });
+
+await build({
+  entryPoints: [resolve(sourceDirectory, 'midtrans.mjs')],
+  outfile: resolve(outputDirectory, 'midtrans.cjs'),
+  bundle: true,
+  platform: 'node',
+  format: 'cjs',
+  target: 'node20',
+  sourcemap: false,
+  external: ['firebase-admin', 'firebase-admin/app', 'firebase-admin/firestore'],
+});
+
+await build({
+  entryPoints: [resolve(sourceDirectory, 'midtrans-webhook.mjs')],
+  outfile: resolve(outputDirectory, 'midtrans-webhook.cjs'),
+  bundle: true,
+  platform: 'node',
+  format: 'cjs',
+  target: 'node20',
+  sourcemap: false,
+  external: ['firebase-admin', 'firebase-admin/app', 'firebase-admin/firestore'],
+});
+
+await build({
+  entryPoints: [resolve(sourceDirectory, 'regional-pricing.mjs')],
+  outfile: resolve(outputDirectory, 'regional-pricing.cjs'),
+  bundle: true,
+  platform: 'node',
+  format: 'cjs',
+  target: 'node20',
+  sourcemap: false,
+  external: ['firebase-admin', 'firebase-admin/app', 'firebase-admin/firestore'],
+});

@@ -14,8 +14,8 @@ try {
   const bundle = await build({ stdin: { resolveDir: process.cwd(), loader: 'tsx', contents: `
     import React,{useState,useRef,useLayoutEffect} from 'react';
     import {createRoot} from 'react-dom/client';
-    import {InstagramDMForm} from './src/features/instagram/components/InstagramDMForm';
-    import {InstagramDMPreview} from './src/features/instagram/components/InstagramDMPreview';
+    import {InstagramDMForm} from './src/features/instagram/components/dm/InstagramDMForm';
+    import {InstagramDMPreview} from './src/features/instagram/components/dm/InstagramDMPreview';
     import {INITIAL_INSTAGRAM_DM_DATA} from './src/data/defaultTemplates';
     import {LanguageContext} from './src/context/LanguageContext';
     import {ThemeContext} from './src/context/ThemeContext';

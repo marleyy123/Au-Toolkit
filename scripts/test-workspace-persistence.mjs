@@ -58,6 +58,7 @@ async function loadModule(entryPoint, firebaseSdk = false) {
             export const signInWithEmailAndPassword = () => {};
             export const createUserWithEmailAndPassword = () => {};
             export const sendPasswordResetEmail = () => {};
+            export const sendEmailVerification = () => {};
             export const updatePassword = () => {};
             export const updateProfile = () => {};
             export const deleteUser = () => {};
@@ -349,7 +350,7 @@ test('a failed reset keeps its durable intent for the next workspace save', asyn
 
 test('Instagram highlights can be hidden and restored without losing their content', async () => {
   const result = await build({
-    entryPoints: ['src/features/instagram/components/InstagramProfilePreview.tsx'],
+    entryPoints: ['src/features/instagram/components/profile/InstagramProfilePreview.tsx'],
     bundle: true, write: false, platform: 'node', format: 'cjs', external: ['react'],
   });
   const module = { exports: {} };
@@ -366,7 +367,7 @@ test('Instagram highlights can be hidden and restored without losing their conte
 
 test('Instagram profile preview omits optional bio and empty highlights', async () => {
   const result = await build({
-    entryPoints: ['src/features/instagram/components/InstagramProfilePreview.tsx'],
+    entryPoints: ['src/features/instagram/components/profile/InstagramProfilePreview.tsx'],
     bundle: true, write: false, platform: 'node', format: 'cjs', external: ['react'],
   });
   const module = { exports: {} };

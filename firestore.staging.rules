@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    function hasActiveAccess(userId) {
+      let grant = get(/databases/$(database)/documents/workspaceAccess/$(userId)).data;
+      return isOwner(userId) && request.auth.token.email_verified == true &&
+        request.auth.token.email.lower() == grant.email && grant.active == true &&
+        request.time.toMillis() < grant.expiresAtMs;
+    }
+
+    match /test/{docId} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /users/{userId} {
+      allow get, list, create, update: if hasActiveAccess(userId);
+      allow delete: if false;
+
+      match /tabs/{tabKey} {
+        allow read, write: if hasActiveAccess(userId);
+      }
+      match /folders/{folderId} {
+        allow read, write: if hasActiveAccess(userId);
+      }
+      match /devices/{deviceSlot} {
+        allow read, write: if hasActiveAccess(userId);
+      }
+    }
+
+    match /workspaceAccess/{userId} {
+      allow read, write: if false;
+    }
+    // Only the server Admin SDK can grant access, register billing device slots,
+    // or process spreadsheet administrator commands.
+    match /billingAccounts/{accountId} {
+      allow read, write: if false;
+    }
+    match /billingPurchases/{ref} {
+      allow read, write: if false;
+    }
+    match /billingAdminAudit/{commandId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

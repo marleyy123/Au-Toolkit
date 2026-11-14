@@ -8,7 +8,7 @@ const bundle = await build({
   stdin: { resolveDir: process.cwd(), loader: 'tsx', contents: `
     import React, {useRef, useState} from 'react';
     import {createRoot} from 'react-dom/client';
-    import {InstagramLivePreview} from './src/features/instagram/components/InstagramLivePreview';
+    import {InstagramLivePreview} from './src/features/instagram/components/live/InstagramLivePreview';
     import {MobileFloatingPreview} from './src/components/MobileFloatingPreview';
     import {INITIAL_INSTAGRAM_LIVE_DATA} from './src/data/defaultTemplates';
     function App() {
@@ -26,7 +26,7 @@ const bundle = await build({
   ` }, bundle: true, write: false, format: 'iife',
 });
 const assets = await readdir('dist/assets');
-const css = (await readFile('dist/assets/' + assets.find(file => file.endsWith('.css')), 'utf8')).replace(/@import[^;]+;/g, '');
+const css = ((await Promise.all(assets.filter(f => f.endsWith('.css')).map(f => readFile('dist/assets/' + f, 'utf8')))).join('\n')).replace(/@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g, '');
 const server = createServer((req, res) => {
   res.setHeader('Content-Type', req.url === '/bundle.js' ? 'application/javascript' : req.url === '/style.css' ? 'text/css' : 'text/html');
   res.end(req.url === '/bundle.js' ? bundle.outputFiles[0].text : req.url === '/style.css' ? css :
