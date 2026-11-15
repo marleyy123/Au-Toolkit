@@ -40,7 +40,7 @@ no Lynk fallback when Midtrans keys are missing. The old Lynk catalog remains
 for historical purchases and the unchanged production configuration.
 Optional public Vite environment variables:
 
-- `VITE_LANDING_WHATSAPP_URL`: HTTPS `wa.me` support URL override; defaults to `https://wa.me/6285179615352`.
+- `VITE_LANDING_WHATSAPP_URL`: HTTPS `wa.me` support URL override; defaults to `https://wa.me/62895622361584`.
 
 Legacy production-only variables for `/api/regional-pricing`:
 

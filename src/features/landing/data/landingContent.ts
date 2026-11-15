@@ -49,5 +49,5 @@ function trustedExternalUrl(value: string | undefined, hostname: string): string
 
 export const landingLinks = {
   editor: '/editor',
-  support: trustedExternalUrl(import.meta.env.VITE_LANDING_WHATSAPP_URL, 'wa.me') || 'https://wa.me/6285179615352',
+  support: trustedExternalUrl(import.meta.env.VITE_LANDING_WHATSAPP_URL, 'wa.me') || 'https://wa.me/62895622361584',
 };
