@@ -139,7 +139,7 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
           handleStartTimeEditing?.(targetMsg.id || String(msgIndex), targetMsg.time);
         }}
         style={{ color: colorStyle }}
-        className={`cursor-pointer hover:underline hover:opacity-100 transition-opacity tracking-tight leading-none pointer-events-auto inline-block select-none font-normal ${extraClasses}`}
+        className={`cursor-pointer hover:underline hover:opacity-100 transition-opacity tracking-tight leading-none pointer-events-auto inline-block select-none font-normal text-[10px] ${extraClasses}`}
         title="Klik untuk ubah jam"
       >
         {formatted}
@@ -551,7 +551,7 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
               )}
               <div
                 style={{ color: getMessageTimestampColor(isOutgoing) }}
-                className={`absolute bottom-0.5 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-auto whitespace-nowrap`}
+                className={`absolute bottom-1 ${hasWhatsAppReplyQuote(msg) ? 'right-1' : 'right-0'} inline-flex items-center gap-1 text-[10px] leading-none select-none pointer-events-auto whitespace-nowrap`}
               >
                 {renderInteractiveTimestamp(msg, index, isOutgoing, getMessageTimestampColor(isOutgoing))}
                 {isOutgoing && renderTicks(msg, isDark, false, isSenderBubbleDark)}

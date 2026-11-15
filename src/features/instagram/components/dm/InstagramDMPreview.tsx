@@ -7,6 +7,8 @@ import { normalizeColor } from '../../../../utils/colorUtils';
 import { INSTAGRAM_DM_PRESETS } from '../../../../data/instagramPresets';
 import { InstagramVerifiedBadge } from '../shared/InstagramIcons';
 import { useLanguage } from '../../../../context/LanguageContext';
+import { ChatBubbleShiftControls } from '../../../../components/ChatBubbleShiftControls';
+import { formatChatTime, cascadeMessageTime } from '../../../../utils/chatTimeUtils';
 
 interface Props {
   data: InstagramDMData;
@@ -350,6 +352,7 @@ const MessageBubble: React.FC<{
   msg: InstagramDMMessage;
   data: InstagramDMData;
   isDark: boolean;
+  index: number;
   isPrevSame: boolean;
   isNextSame: boolean;
   isLastOutgoing?: boolean;
@@ -359,11 +362,16 @@ const MessageBubble: React.FC<{
   onSaveEdit?: (id: string, newText: string) => void;
   onCancelEdit?: () => void;
   onEditingTextChange?: (text: string) => void;
+  onMoveMessageUp?: (index: number) => void;
+  onMoveMessageDown?: (index: number) => void;
+  onToggleMessageSide?: (index: number) => void;
+  renderInteractiveTimestamp?: (msg: InstagramDMMessage, index: number) => React.ReactNode;
   onChange?: (data: InstagramDMData) => void;
 }> = ({
   msg,
   data,
   isDark,
+  index,
   isPrevSame,
   isNextSame,
   isLastOutgoing,
@@ -373,6 +381,10 @@ const MessageBubble: React.FC<{
   onSaveEdit,
   onCancelEdit,
   onEditingTextChange,
+  onMoveMessageUp,
+  onMoveMessageDown,
+  onToggleMessageSide,
+  renderInteractiveTimestamp,
   onChange,
 }) => {
   const { language } = useLanguage();
@@ -573,6 +585,14 @@ const MessageBubble: React.FC<{
           )}
 
           <div className={`relative group w-fit max-w-full flex flex-col ${isOutgoing ? 'items-end' : 'items-start'}`}>
+            <ChatBubbleShiftControls
+              isOutgoing={isOutgoing}
+              canMoveUp={index > 0}
+              canMoveDown={index < (data.messages?.length || 0) - 1}
+              onMoveUp={() => onMoveMessageUp?.(index)}
+              onMoveDown={() => onMoveMessageDown?.(index)}
+              onToggleSide={() => onToggleMessageSide?.(index)}
+            />
             {/* Quoted Reply Box */}
             {(msg.showReplyQuote || msg.replyToText || msg.replyToSender) && (
               <div className={`mb-1.5 flex flex-col ${isOutgoing ? 'items-end' : 'items-start'} max-w-full`}>
@@ -743,6 +763,12 @@ const MessageBubble: React.FC<{
           )}
         </div>
       )}
+
+      {renderInteractiveTimestamp ? (
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <span className="text-[10.5px] opacity-80">{renderInteractiveTimestamp(msg, index)}</span>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -1018,6 +1044,99 @@ export const InstagramDMPreview = forwardRef<HTMLDivElement, Props>(
       setEditingText('');
     };
 
+    // Message Reorder & Side Toggle Handlers
+    const handleMoveMessageUp = (index: number) => {
+      if (index <= 0 || !data?.messages || !onChange) return;
+      const newMessages = [...data.messages];
+      const temp = newMessages[index];
+      newMessages[index] = newMessages[index - 1];
+      newMessages[index - 1] = temp;
+      onChange({ ...data, messages: newMessages });
+    };
+
+    const handleMoveMessageDown = (index: number) => {
+      if (!data?.messages || index >= data.messages.length - 1 || !onChange) return;
+      const newMessages = [...data.messages];
+      const temp = newMessages[index];
+      newMessages[index] = newMessages[index + 1];
+      newMessages[index + 1] = temp;
+      onChange({ ...data, messages: newMessages });
+    };
+
+    const handleToggleMessageSide = (index: number) => {
+      if (!data?.messages || index < 0 || index >= data.messages.length || !onChange) return;
+      const newMessages = [...data.messages];
+      const currentMsg = newMessages[index];
+      const currentSender = currentMsg.sender || 'incoming';
+      const newSender = currentSender === 'outgoing' ? 'incoming' : 'outgoing';
+      newMessages[index] = { ...currentMsg, sender: newSender };
+      onChange({ ...data, messages: newMessages });
+    };
+
+    const [editingTimeId, setEditingTimeId] = React.useState<string | null>(null);
+    const [editingTimeValue, setEditingTimeValue] = React.useState<string>('');
+
+    const handleStartTimeEditing = (msgId: string, currentTime?: string) => {
+      setEditingTimeId(msgId);
+      setEditingTimeValue(formatChatTime(currentTime, '12.00'));
+    };
+
+    const handleSaveTimeEditing = (msgId: string, applyToAll: boolean = false) => {
+      if (!onChange || !data?.messages) {
+        setEditingTimeId(null);
+        return;
+      }
+      const cleanTime = formatChatTime(editingTimeValue, '12.00');
+      const targetIdx = (data.messages || []).findIndex((m, idx) => m.id === msgId || String(idx) === msgId);
+      if (targetIdx !== -1) {
+        const updated = cascadeMessageTime(data.messages, targetIdx, cleanTime, applyToAll);
+        onChange({ ...data, messages: updated });
+      }
+      setEditingTimeId(null);
+    };
+
+    const renderInteractiveTimestamp = (msg: InstagramDMMessage, index: number) => {
+      const isEditingThis = editingTimeId === (msg.id || String(index));
+      const value = formatChatTime(msg.time, '12.00');
+
+      if (isEditingThis) {
+        return (
+          <span className="inline-flex items-center z-30 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+            <input
+              autoFocus
+              type="text"
+              value={editingTimeValue}
+              onChange={(e) => setEditingTimeValue(e.target.value)}
+              onBlur={() => handleSaveTimeEditing(msg.id || String(index))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSaveTimeEditing(msg.id || String(index));
+                } else if (e.key === 'Escape') {
+                  setEditingTimeId(null);
+                }
+              }}
+              placeholder="12.00"
+              className="w-12 text-[10px] leading-tight font-mono font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-purple-500 rounded px-1 py-0 shadow-xs outline-none text-center"
+            />
+          </span>
+        );
+      }
+
+      return (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            handleStartTimeEditing(msg.id || String(index), msg.time);
+          }}
+          className="cursor-pointer hover:underline hover:opacity-100 transition-opacity tracking-tight leading-none pointer-events-auto inline-block select-none font-normal text-[10.5px] opacity-80"
+          title="Klik untuk ubah jam"
+        >
+          {value}
+        </span>
+      );
+    };
+
     // Aspect Ratio Class Mapping
     const getAspectRatioClass = () => {
       const ratio = data.aspectRatio || '4:5';
@@ -1094,6 +1213,7 @@ export const InstagramDMPreview = forwardRef<HTMLDivElement, Props>(
                   msg={msg}
                   data={data}
                   isDark={isDark}
+                  index={index}
                   isPrevSame={isPrevSame}
                   isNextSame={isNextSame}
                   isLastOutgoing={index === lastOutgoingIndex}
@@ -1103,6 +1223,10 @@ export const InstagramDMPreview = forwardRef<HTMLDivElement, Props>(
                   onSaveEdit={handleSaveEditing}
                   onCancelEdit={handleCancelEditing}
                   onEditingTextChange={setEditingText}
+                  onMoveMessageUp={handleMoveMessageUp}
+                  onMoveMessageDown={handleMoveMessageDown}
+                  onToggleMessageSide={handleToggleMessageSide}
+                  renderInteractiveTimestamp={renderInteractiveTimestamp}
                   onChange={onChange}
                 />
               );

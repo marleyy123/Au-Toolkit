@@ -1,8 +1,8 @@
 // Replace the old staging script with this complete file when enabling Firestore.
 // No Fast Track dependency; only the two established testing spreadsheets are used.
 const FIRESTORE_STAGING = {
-  accessId: '1ez3-ilO4rAXXWaXRBn2Dsl6IN6zXW5wb8JACIQbByTs',
-  regularId: '16NKN_XpFDeSR396xMHMC77rLlWZ7ZJ1SfPzp5TncK6k',
+  accessId: '1KPw__EBmi0eWhiRjianOfthWF3s3ns5DHRPVPm8hXLo',
+  regularId: '1KPw__EBmi0eWhiRjianOfthWF3s3ns5DHRPVPm8hXLo',
   accessTab: 'AU Access', regularTab: 'AU Toolkit PRO',
   api: 'https://au-toolkit-testing.vercel.app/api/sheet-admin',
   timezone: 'Asia/Jakarta'
@@ -28,17 +28,51 @@ function onOpen() {
 function firestoreSheets_() {
   const bound = SpreadsheetApp.getActiveSpreadsheet();
   if (bound && bound.getId() !== FIRESTORE_STAGING.accessId) throw new Error('STAGING_BOUND_SHEET_REQUIRED');
-  const access = SpreadsheetApp.openById(FIRESTORE_STAGING.accessId).getSheetByName(FIRESTORE_STAGING.accessTab);
-  const regular = SpreadsheetApp.openById(FIRESTORE_STAGING.regularId).getSheetByName(FIRESTORE_STAGING.regularTab);
-  if (!access || !regular) throw new Error('STAGING_TABS_REQUIRED');
+
+  const spreadsheet = SpreadsheetApp.openById(FIRESTORE_STAGING.accessId);
+  const access = spreadsheet.getSheetByName(FIRESTORE_STAGING.accessTab);
+  const regularCandidates = [FIRESTORE_STAGING.regularTab, 'Order', 'Orders'];
+  const regular = regularCandidates.map(function(name) { return spreadsheet.getSheetByName(name); }).find(Boolean);
+
+  if (!access || !regular) {
+    const missing = [];
+    if (!access) missing.push(FIRESTORE_STAGING.accessTab);
+    if (!regular) missing.push(FIRESTORE_STAGING.regularTab + ' / Order / Orders');
+    throw new Error('STAGING_TABS_REQUIRED: Missing tab(s): ' + missing.join(', '));
+  }
+
   const actual = access.getRange(1, 1, 1, 12).getDisplayValues()[0];
   if (actual.some(function(value, i) { return value !== FIRESTORE_ACCESS_HEADERS[i]; })) throw new Error('ACCESS_HEADERS_MISMATCH');
   const extra = access.getRange(1, 13, 1, 2).getDisplayValues()[0];
   if (extra.some(function(value, i) { return value && value !== FIRESTORE_ACCESS_HEADERS[i + 12]; })) throw new Error('ADMIN_HEADERS_MISMATCH');
   access.getRange(1, 13, 1, 2).setValues([FIRESTORE_ACCESS_HEADERS.slice(12)]);
-  const headers = regular.getRange(1, 1, 1, 26).getDisplayValues()[0];
-  if (headers[14] !== 'Tanggal' || headers[15] !== 'Status' || headers[16] !== 'Buyer Email' || headers[25] !== 'Ref') throw new Error('REGULAR_HEADERS_MISMATCH');
+
+  const schema = detectRegularSchema_(regular);
+  if (!schema) throw new Error('REGULAR_HEADERS_MISMATCH');
   return { access: access, regular: regular };
+}
+function detectRegularSchema_(sheet) {
+  const lastColumn = Math.max(sheet.getLastColumn(), 30);
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0].map(function(value) {
+    return String(value || '').trim().toLowerCase();
+  });
+
+  if (headers[14] === 'tanggal' && headers[15] === 'status' && headers[16] === 'buyer email' && headers[25] === 'ref') {
+    return { mode: 'lynk', refIndex: 25, emailIndex: 16, nameIndex: 17, dateIndex: 14, statusIndex: 15 };
+  }
+
+  const refIndex = headers.indexOf('order id');
+  const emailIndex = headers.indexOf('email');
+  const statusIndex = headers.indexOf('status');
+  const dateIndex = headers.indexOf('created at');
+  const nameIndex = headers.indexOf('name');
+
+  if (refIndex >= 0 && emailIndex >= 0 && statusIndex >= 0 && dateIndex >= 0) {
+    return { mode: 'legacy', refIndex: refIndex, emailIndex: emailIndex, nameIndex: nameIndex >= 0 ? nameIndex : emailIndex,
+      dateIndex: dateIndex, statusIndex: statusIndex };
+  }
+
+  return null;
 }
 function firestoreLock_(callback) {
   const lock = LockService.getScriptLock();
@@ -54,20 +88,157 @@ function doGet() {
 }
 function doPost(e) {
   try {
+    if (!e || !e.postData || !e.postData.contents) {
+      return firestoreJson_({ success: false, reason: 'EMPTY_POST_DATA' });
+    }
+
     const body = JSON.parse(e.postData.contents);
     const secret = PropertiesService.getScriptProperties().getProperty('API_SHARED_SECRET');
-    if (!secret || secret.length < 32 || body.serverSecret !== secret) return firestoreJson_({ success: false, reason: 'UNAUTHORIZED' });
-    if (body.action !== 'mirrorFirestorePurchase') return firestoreJson_({ success: false, reason: 'FIRESTORE_REPORT_ONLY' });
-    if (!body.purchase || !body.account || body.purchase.email !== body.account.email) return firestoreJson_({ success: false, reason: 'INVALID_REPORT' });
-    firestoreLock_(function() {
-      const sheets = firestoreSheets_();
-      mirrorFirestorePurchase_(sheets.regular, body.purchase);
-      mirrorFirestoreAccount_(sheets.access, body.account);
-    });
+    if (!secret || secret.length < 32 || body.serverSecret !== secret) {
+      return firestoreJson_({ success: false, reason: 'UNAUTHORIZED' });
+    }
+
+    const action = body.action;
+    if (action === 'healthCheck') {
+      return doGet();
+    }
+    if (action === 'validateAccess' || action === 'registerDevice') {
+      return firestoreLock_(function() {
+        return handleAccessCheck(body);
+      });
+    }
+    if (action === 'mirrorFirestorePurchase' || action === 'ingestPayment' || action === 'ingestLynkPurchase') {
+      return firestoreLock_(function() {
+        const sheets = firestoreSheets_();
+        if (body.purchase || body.transaction) {
+          const purchase = body.purchase || body.transaction || {};
+          if (purchase && Object.keys(purchase).length) {
+            mirrorFirestorePurchase_(sheets.regular, purchase);
+          }
+        }
+        if (body.account) {
+          mirrorFirestoreAccount_(sheets.access, body.account);
+        }
+        return firestoreJson_({ success: true, status: 'REPORT_SYNCED' });
+      });
+    }
+    if (body.action !== 'mirrorFirestorePurchase') {
+      return firestoreJson_({ success: false, reason: 'FIRESTORE_REPORT_ONLY' });
+    }
     return firestoreJson_({ success: true, status: 'REPORT_SYNCED' });
   } catch (error) {
-    return firestoreJson_({ success: false, reason: 'REPORT_FAILED' });
+    return firestoreJson_({ success: false, reason: 'REPORT_FAILED', message: error.toString() });
   }
+}
+function normalizeEmail(val) {
+  return String(val || '').trim().toLowerCase();
+}
+function getSheet(name) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(name);
+  if (!sheet) throw new Error('Sheet tab tidak ditemukan: ' + name);
+  return sheet;
+}
+function handleAccessCheck(body) {
+  const sheet = getSheet(FIRESTORE_STAGING.accessTab);
+  const data = sheet.getDataRange().getValues();
+  const email = normalizeEmail(body.email);
+  const deviceType = body.deviceType === 'mobile' ? 'mobile' : 'desktop';
+  const deviceId = String(body.deviceId || '').trim();
+  const deviceLabel = String(body.deviceLabel || '').trim();
+
+  let rowIndex = -1;
+  let row = null;
+
+  for (let i = 1; i < data.length; i++) {
+    if (normalizeEmail(data[i][0]) === email) {
+      rowIndex = i + 1;
+      row = data[i];
+      break;
+    }
+  }
+
+  if (!row) {
+    return firestoreJson_({
+      success: true,
+      accessGranted: false,
+      reason: 'BUYER_NOT_FOUND',
+      status: 'BUYER_NOT_FOUND',
+    });
+  }
+
+  const [buyerEmail, ref, buyerName, purchaseDate, expirationDate, statusAccount, devMobileLabel, devDesktopLabel, devMobileId, devDesktopId] = row;
+  if (String(statusAccount).toLowerCase() === 'inactive') {
+    return firestoreJson_({
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_INACTIVE',
+      status: 'ACCOUNT_INACTIVE',
+    });
+  }
+
+  const now = new Date();
+  const exp = new Date(expirationDate);
+  const isExpired = expirationDate && !isNaN(exp.getTime()) && exp.getTime() < now.getTime();
+
+  if (isExpired) {
+    return firestoreJson_({
+      success: true,
+      accessGranted: false,
+      reason: 'ACCOUNT_EXPIRED',
+      status: 'ACCOUNT_EXPIRED',
+    });
+  }
+
+  const registeredId = deviceType === 'mobile' ? devMobileId : devDesktopId;
+  if (!registeredId && body.action === 'registerDevice' && deviceId) {
+    if (deviceType === 'mobile') {
+      sheet.getRange(rowIndex, 7).setValue(deviceLabel || 'Mobile Device');
+      sheet.getRange(rowIndex, 9).setValue(deviceId);
+    } else {
+      sheet.getRange(rowIndex, 8).setValue(deviceLabel || 'Desktop Device');
+      sheet.getRange(rowIndex, 10).setValue(deviceId);
+    }
+    sheet.getRange(rowIndex, 14).setValue(new Date().toISOString());
+  } else if (registeredId && registeredId !== deviceId) {
+    return firestoreJson_({
+      success: true,
+      accessGranted: false,
+      reason: 'DEVICE_MISMATCH',
+      status: 'DEVICE_MISMATCH',
+      deviceType: deviceType,
+      registeredDevice: deviceType === 'mobile' ? devMobileLabel : devDesktopLabel,
+    });
+  }
+
+  return firestoreJson_({
+    success: true,
+    accessGranted: true,
+    reason: 'ACCESS_GRANTED',
+    status: 'ACCESS_GRANTED',
+    email: buyerEmail,
+    buyerName: buyerName,
+    purchaseDate: purchaseDate,
+    expirationDate: expirationDate,
+    deviceHandphone: devMobileLabel,
+    deviceLaptop: devDesktopLabel,
+  });
+}
+function handlePaymentSync(body) {
+  const purchase = body.purchase || body.transaction || {};
+  const account = body.account || {};
+  const email = normalizeEmail(purchase.email || account.email);
+  if (!email) return firestoreJson_({ success: false, reason: 'EMAIL_REQUIRED' });
+
+  const sheets = firestoreSheets_();
+  if (purchase && Object.keys(purchase).length) {
+    mirrorFirestorePurchase_(sheets.regular, purchase);
+  }
+  if (account && Object.keys(account).length) {
+    mirrorFirestoreAccount_(sheets.access, account);
+  }
+
+  return firestoreJson_({ success: true, status: 'REPORT_SYNCED' });
 }
 function sheetText_(value) {
   const text = String(value || '');
@@ -82,14 +253,39 @@ function sheetDate_(value, withTime) {
   const date = match[3] + '-' + match[2] + '-' + match[1];
   return withTime ? date + 'T' + (match[4] || '00') + ':' + (match[5] || '00') + ':00+07:00' : date;
 }
+function appendLegacyOrder_(sheet, purchase) {
+  const row = Array(Math.max(sheet.getLastColumn(), 8)).fill('');
+  row[0] = sheetText_(purchase.ref || purchase.orderId || 'ORD-' + Date.now());
+  row[1] = sheetText_(purchase.email || '');
+  row[2] = sheetText_(purchase.name || '');
+  row[3] = sheetText_(purchase.planId || purchase.plan || 'monthly');
+  row[4] = Number(purchase.amount || 0);
+  row[5] = sheetText_(purchase.source || purchase.paymentGateway || 'midtrans');
+  row[6] = 'SUCCESS';
+  row[7] = purchase.purchasedAt || new Date().toISOString();
+  sheet.getRange(sheet.getLastRow() + 1, 1, 1, row.length).setValues([row]);
+}
 function mirrorFirestorePurchase_(sheet, purchase) {
+  const schema = detectRegularSchema_(sheet);
+  const purchaseRef = String(purchase.ref || purchase.orderId || '').trim();
+  if (!purchaseRef) return;
+
   const count = Math.max(0, sheet.getLastRow() - 1);
-  const refs = count ? sheet.getRange(2, 26, count, 1).getDisplayValues() : [];
-  const matches = refs.filter(function(row) { return row[0] === purchase.ref; });
+  const rows = count ? sheet.getRange(2, 1, count, Math.max(sheet.getLastColumn(), 30)).getValues() : [];
+  const matches = rows.filter(function(row) {
+    const candidate = String(row[schema.refIndex] || '').trim();
+    return candidate === purchaseRef;
+  });
   if (matches.length > 1) throw new Error('DUPLICATE_REF');
   if (matches.length) return;
+
+  if (schema.mode === 'legacy') {
+    appendLegacyOrder_(sheet, purchase);
+    return;
+  }
+
   const row = Array(26).fill('');
-  row[14] = new Date(purchase.purchasedAt);
+  row[14] = new Date(purchase.purchasedAt || new Date().toISOString());
   row[15] = 'SUCCESS'; row[16] = sheetText_(purchase.email); row[17] = sheetText_(purchase.name);
   row[25] = sheetText_(purchase.ref);
   sheet.getRange(sheet.getLastRow() + 1, 1, 1, 26).setValues([row]);
@@ -101,7 +297,6 @@ function mirrorFirestoreAccount_(sheet, account) {
   const candidates = rows.map(function(row, i) { return { row: row, index: i }; }).filter(function(item) {
     return String(item.row[0]).trim().toLowerCase() === account.email;
   });
-  // Preserve historical rows, and always use the highest revision for current data.
   if (candidates.some(function(item) { return Number(item.row[12]) > account.revision; })) return;
   const target = index >= 0 ? index + 2 : candidates.length ? candidates[0].index + 2 : sheet.getLastRow() + 1;
   const today = Utilities.formatDate(new Date(), FIRESTORE_STAGING.timezone, 'yyyy-MM-dd');
@@ -157,7 +352,6 @@ function refreshFirestoreReportsIncremental() {
         until = result.until;
         cursor = result.cursor;
       } while (cursor);
-      // Advance only after every page has been successfully applied.
       properties.setProperty(key, until);
     });
   });

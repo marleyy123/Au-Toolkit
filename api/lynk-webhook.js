@@ -3,7 +3,7 @@ import { createAccessStore, getStagingDb } from '../lib/staging-access-store.js'
 import { configuredProducts } from '../lib/access-plans.js';
 
 const PROJECT_ID = 'au-toolkit-staging-20261005';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYAa1EU4HV022KhT5BiKnP4eRent0WSZSWlV9vbz-CshZr9ZmpApeX06G60EK_iXO4/exec';
 const MAX_BYTES = 65536;
 const text = (value, max = 200) => typeof value === 'string' && value.length <= max ? value.trim() : '';
 

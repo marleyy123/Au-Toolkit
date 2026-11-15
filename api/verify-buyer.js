@@ -3,7 +3,7 @@ import { handler as verifyBuyer } from '../netlify/functions/verify-buyer.mjs';
 import { accessView, createAccessStore, getStagingDb, normalizeEmail } from '../lib/staging-access-store.js';
 
 const PROJECT_ID = 'au-toolkit-staging-20261005';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYAa1EU4HV022KhT5BiKnP4eRent0WSZSWlV9vbz-CshZr9ZmpApeX06G60EK_iXO4/exec';
 const keys = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 export const tokenOptions = {
   issuer: `https://securetoken.google.com/${PROJECT_ID}`,

@@ -16,9 +16,9 @@ spreadsheets.
 
 | Role | Spreadsheet ID | Required tab |
 | --- | --- | --- |
-| Regular | `16NKN_XpFDeSR396xMHMC77rLlWZ7ZJ1SfPzp5TncK6k` | `AU Toolkit PRO` |
-| Fast Track | `1pnOVwfeAnuOJzcByPR18tlTaJdL4xgVmFjXyuy6gE6A` | `Fast Track` |
-| Access | `1ez3-ilO4rAXXWaXRBn2Dsl6IN6zXW5wb8JACIQbByTs` | `AU Access` |
+| Regular | `1KPw__EBmi0eWhiRjianOfthWF3s3ns5DHRPVPm8hXLo` | `AU Toolkit PRO` |
+| Fast Track | `1KPw__EBmi0eWhiRjianOfthWF3s3ns5DHRPVPm8hXLo` | `Fast Track` |
+| Access | `1KPw__EBmi0eWhiRjianOfthWF3s3ns5DHRPVPm8hXLo` | `AU Access` |
 
 Transaction sheets have 26 columns. O = Tanggal, P = Status, Q = Buyer Email,
 R = Buyer Name, Z = Ref. Other columns are explicitly reserved placeholders,
