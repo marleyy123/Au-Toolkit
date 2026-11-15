@@ -194,8 +194,16 @@ export function useWorkspaceCloudHydration({
         if (!cloudData || !isCurrentAccount()) return;
         latestSnapshot = cloudData;
         if (!initialSnapshotHandled) {
-          // Cached absence must never initialize a new workspace before the server replies.
-          if (cloudData.fromCache || initialRecoveryPending) return;
+          // If local cache already has complete workspace data, hydrate immediately without waiting for network!
+          if (cloudData.fromCache) {
+            if (cloudData.hasLoadedData && cloudData.status === 'loaded') {
+              console.log('[WorkspaceCloudHydration] Instant local cache hydration applied');
+              initialSnapshotHandled = true;
+              hydrateInitialWorkspace(cloudData);
+            }
+            return;
+          }
+          if (initialRecoveryPending) return;
           if (cloudData.needsRecovery) {
             initialRecoveryPending = true;
             loadUserWorkspaceFromFirestore(userEmailOrId)

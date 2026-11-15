@@ -60,8 +60,28 @@ const STORAGE_KEY_ENTITLEMENT_CACHE = 'au_buyer_entitlement_cache_';
  * Retrieves cached entitlement from localStorage if available.
  */
 export function getCachedEntitlement(email: string): EntitlementCheckResult | null {
-  // Browser-owned cache is never proof of a current server-side entitlement.
-  return null;
+  const cleanEmail = normalizeEmail(email);
+  if (!cleanEmail) return null;
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEY_ENTITLEMENT_CACHE}${cleanEmail}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return parsed as EntitlementCheckResult;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Clears cached entitlement from localStorage.
+ */
+export function clearCachedEntitlement(email: string): void {
+  const cleanEmail = normalizeEmail(email);
+  if (!cleanEmail) return;
+  try {
+    localStorage.removeItem(`${STORAGE_KEY_ENTITLEMENT_CACHE}${cleanEmail}`);
+  } catch {}
 }
 
 /**
