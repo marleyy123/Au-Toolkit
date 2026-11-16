@@ -116,10 +116,13 @@ export const NotesPreview: React.FC<Props> = ({ data, previewRef, onChange }) =>
 
   // Background and text color resolution
   const getColors = () => {
+    const resolvedBg = normalizeColor(customBgColor) || '#FFFFFF';
+    const resolvedText = normalizeColor(customTextColor) || '#18181B';
+
     if (customBgColor || customTextColor) {
       return {
-        bg: customBgColor || '#FFFFFF',
-        text: customTextColor || '#18181B',
+        bg: resolvedBg,
+        text: resolvedText,
       };
     }
 

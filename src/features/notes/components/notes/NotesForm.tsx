@@ -136,6 +136,11 @@ export const NotesForm: React.FC<Props> = ({
   const activeCropSessionRef = useRef<{ id: string; targetImageId: string } | null>(null);
 
   const updateField = <K extends keyof NotesData>(key: K, value: NotesData[K]) => {
+    if (key === 'customBgColor' || key === 'customTextColor') {
+      const normalized = typeof value === 'string' ? toHexForPicker(value, key === 'customBgColor' ? '#FFFFFF' : '#18181B') : value;
+      onChange({ ...data, [key]: normalized });
+      return;
+    }
     onChange({ ...data, [key]: value });
   };
 
@@ -535,7 +540,7 @@ export const NotesForm: React.FC<Props> = ({
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>{language === 'id' ? 'Hapus' : 'Delete'}</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
 
