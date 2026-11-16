@@ -134,7 +134,7 @@ const ProfileHeaderCard: React.FC<{
           isDark ? 'bg-neutral-800' : 'bg-slate-200'
         } flex items-center justify-center shrink-0`}>
           {data.avatar && data.avatar.trim() !== '' ? (
-            <img src={data.avatar} alt={displayName} className="w-full h-full object-cover" />
+            <img src={data.avatar} alt={displayName} className="w-full h-full object-cover block" />
           ) : (
             <div className="w-full h-full bg-gradient-to-tr from-neutral-700 to-neutral-800 flex items-center justify-center text-neutral-200 font-bold text-2xl">
               <IOSEmojiText text={(splitEmojiGraphemes(displayName)[0] || 'IG').toUpperCase()} />
@@ -258,7 +258,7 @@ const Header: React.FC<{ data: InstagramDMData; isDark: boolean }> = ({ data, is
               isDark ? 'bg-neutral-800' : 'bg-slate-200'
             } flex items-center justify-center`}>
               {data.avatar && data.avatar.trim() !== '' ? (
-                <img src={data.avatar} alt={displayName} className="w-full h-full object-cover" />
+                <img src={data.avatar} alt={displayName} className="w-full h-full object-cover block" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-tr from-neutral-700 to-neutral-800 flex items-center justify-center text-neutral-300 font-bold text-xs">
                   <IOSEmojiText
@@ -329,17 +329,17 @@ const MediaStack: React.FC<{
       <div className="relative w-[110px] h-[140px] shrink-0 my-1">
         {photos[2] && (
           <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-md transform -rotate-6 -translate-x-2 -translate-y-1 bg-neutral-800 border border-white/10 scale-95">
-            <img src={photos[2]} alt="" className="w-full h-full object-cover" />
+            <img src={photos[2]} alt="" className="w-full h-full object-cover block" />
           </div>
         )}
         {photos[1] && (
           <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-md transform rotate-4 translate-x-1.5 -translate-y-0.5 bg-neutral-800 border border-white/10 scale-98">
-            <img src={photos[1]} alt="" className="w-full h-full object-cover" />
+            <img src={photos[1]} alt="" className="w-full h-full object-cover block" />
           </div>
         )}
         {photos[0] && (
           <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-xl transform rotate-0 bg-neutral-800 border border-white/10">
-            <img src={photos[0]} alt="" className="w-full h-full object-cover" />
+            <img src={photos[0]} alt="" className="w-full h-full object-cover block" />
           </div>
         )}
       </div>
@@ -571,7 +571,7 @@ const MessageBubble: React.FC<{
               {!isNextSame ? (
                 <div className="w-7 h-7 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center">
                   {data.avatar && data.avatar.trim() !== '' ? (
-                    <img src={data.avatar} alt="" className="w-full h-full object-cover" />
+                    <img src={data.avatar} alt={senderNameText} className="w-full h-full object-cover block" />
                   ) : (
                     <div className="w-full h-full bg-neutral-700 flex items-center justify-center text-[10px] text-neutral-300 font-bold">
                       <IOSEmojiText text={(splitEmojiGraphemes(senderNameText)[0] || 'IG').toUpperCase()} />
@@ -641,7 +641,7 @@ const MessageBubble: React.FC<{
                 style={{ borderRadius: getBubbleBorderRadius() }}
                 className="mb-1 overflow-hidden max-w-[135px] border border-white/10 shadow-md"
               >
-                <img src={msg.imageUrl.trim()} alt="" className="w-full h-auto object-cover max-h-[160px]" />
+                <img src={msg.imageUrl.trim()} alt="" className="w-full h-auto object-cover block max-h-[160px]" />
               </div>
             )}
 
@@ -1179,7 +1179,7 @@ export const InstagramDMPreview = forwardRef<HTMLDivElement, Props>(
           ...getCanvasBackgroundStyle(),
           color: data.useCustomTheme && data.customTextColor ? data.customTextColor : undefined,
         }}
-        className={`w-[380px] min-w-[380px] max-w-[380px] shrink-0 ${getAspectRatioClass()} mx-auto overflow-hidden shadow-2xl border-none outline-none relative select-none flex flex-col justify-between transition-all duration-200 overflow-x-hidden`}
+        className={`w-[380px] max-w-full min-w-0 shrink-0 ${getAspectRatioClass()} mx-auto overflow-hidden shadow-2xl border-none outline-none relative select-none flex flex-col justify-between transition-all duration-200 overflow-x-hidden`}
       >
         {/* 1. Instagram iOS DM Header */}
         <Header data={data} isDark={isDark} />

@@ -59,12 +59,24 @@ function currentStoredUid(): string {
       ? sessionStorage.getItem('__au_local_media_uid_override')
       : '';
     if (developmentOverride) return developmentOverride;
-    const stored = localStorage.getItem('au_auth_user');
-    const parsed = stored ? JSON.parse(stored) : null;
-    return typeof parsed?.uid === 'string' ? parsed.uid : '';
+
+    const storageKeys = ['au_auth_user', 'au_account_user', 'au_firebase_auth_user'];
+    for (const key of storageKeys) {
+      const stored = localStorage.getItem(key);
+      if (!stored) continue;
+      const parsed = JSON.parse(stored);
+      if (typeof parsed?.uid === 'string' && parsed.uid.trim()) return parsed.uid.trim();
+    }
+
+    const authUserRaw = localStorage.getItem('au_auth_user') || localStorage.getItem('au_account_user') || localStorage.getItem('au_firebase_auth_user');
+    if (authUserRaw) {
+      const parsed = JSON.parse(authUserRaw);
+      if (typeof parsed?.uid === 'string' && parsed.uid.trim()) return parsed.uid.trim();
+    }
   } catch {
-    return '';
+    // Ignore malformed or unavailable auth payloads and fall back to an empty uid.
   }
+  return '';
 }
 
 export function getLocalMediaOwnerUid(): string {
@@ -85,12 +97,17 @@ function parseLocalMediaReference(ref: string): { uid: string; context: string; 
 
 function parseCloudMediaReference(ref: string): { uid: string; key: string } | null {
   if (!ref.startsWith(CLOUD_MEDIA_PREFIX)) return null;
-  const parts = ref.slice(CLOUD_MEDIA_PREFIX.length).split('/');
-  if (parts.length !== 2) return null;
+  const raw = ref.slice(CLOUD_MEDIA_PREFIX.length);
+  const slashIndex = raw.indexOf('/');
+  if (slashIndex <= 0) return null;
   try {
-    const [uid, key] = parts.map(part => decodeURIComponent(part));
-    return uid && key && key.startsWith(`${uid}/`) ? { uid, key } : null;
-  } catch { return null; }
+    const uid = decodeURIComponent(raw.slice(0, slashIndex));
+    const key = decodeURIComponent(raw.slice(slashIndex + 1));
+    if (!uid || !key || !key.startsWith(`${uid}/`)) return null;
+    return { uid, key };
+  } catch {
+    return null;
+  }
 }
 
 const cloudMediaEndpoint = () => String(import.meta.env.VITE_CLOUDFLARE_MEDIA_URL || '').replace(/\/$/, '');
