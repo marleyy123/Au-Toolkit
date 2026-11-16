@@ -41,36 +41,36 @@ export const TwitterLockIcon: React.FC<{ className?: string }> = ({ className = 
 );
 
 export const TwitterReplyIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 3.75c-4.97 0-9 3.694-9 8.25 0 2.16.98 4.12 2.58 5.53L4.25 20.25l3.62-1.08C9.28 19.66 10.6 20 12 20c4.97 0 9-3.694 9-8.25S16.97 3.75 12 3.75z" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="miter" className={className}>
+    <path d="M10 17.5C5.5 17.5 2.5 14.6 2.5 10.5C2.5 6.4 5.5 3.5 9.5 3.5H14.5C18.5 3.5 21.5 6.4 21.5 10.5C21.5 14.6 18.5 17.5 14.4 17.5L10 21Z" />
   </svg>
 );
 
 export const TwitterRetweetIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${className}`}>
-    <polyline points="3.5 6.5 6 4 8.5 6.5" />
-    <path d="M6 4v13a3 3 0 0 0 3 3h4.5" />
-    <polyline points="15.5 17.5 18 20 20.5 17.5" />
-    <path d="M18 20V7a3 3 0 0 0-3-3h-4.5" />
+    <path d="m2 9 3-3 3 3" />
+    <path d="M13 18H7a2 2 0 0 1-2-2V6" />
+    <path d="m22 15-3 3-3-3" />
+    <path d="M11 6h6a2 2 0 0 1 2 2v10" />
   </svg>
 );
 
 export const TwitterHeartIcon: React.FC<{ filled?: boolean; className?: string }> = ({ filled = false, className = "w-5 h-5" }) => (
-  <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke={filled ? "none" : "currentColor"} strokeWidth={filled ? "0" : "1.75"} strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={filled ? "1.1" : "1.75"} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 20.36C5.97 15.7 2.41 12.41 2.41 8.03C2.41 5.01 4.6 3.37 7.34 3.37C9.53 3.37 11.18 4.46 12 6.11C12.82 4.46 14.47 3.37 16.66 3.37C19.4 3.37 21.86 5.01 21.86 8.03C21.86 12.41 18.03 15.7 12 20.36Z" />
   </svg>
 );
 
 export const TwitterBookmarkIcon: React.FC<{ filled?: boolean; className?: string }> = ({ filled = false, className = "w-5 h-5" }) => (
-  <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke={filled ? "none" : "currentColor"} strokeWidth={filled ? "0" : "1.75"} strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M6 3.75h12v16.5l-6-4.25-6 4.25V3.75z" />
+  <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="butt" strokeLinejoin="miter" className={className}>
+    <path d="M5.25 3.36H18.75V20.64L12 14.7L5.25 20.64Z" />
   </svg>
 );
 
 export const TwitterShareIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M4.5 13.5v4A2 2 0 0 0 6.5 19.5h11a2 2 0 0 0 2-2v-4" />
-    <path d="M12 15V4.5" />
-    <path d="M7.5 8.5L12 4l4.5 4.5" />
+    <path d="M12 3v12" />
+    <path d="m17 8-5-5-5 5" />
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
   </svg>
 );
