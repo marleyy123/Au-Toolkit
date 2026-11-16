@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { NotesData, NotesImageItem, NotesImageLayout } from '../../../../types';
 import { renderIosEmojis } from '../../../../utils/emojiUtils';
+import { normalizeColor } from '../../../../utils/colorUtils';
 import { getFontFamilyCss, getFontWeightNumber } from '../../../../components/FontSelectorDropdown';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { Move } from 'lucide-react';
@@ -726,7 +727,7 @@ export const NotesPreview: React.FC<Props> = ({ data, previewRef, onChange }) =>
       ref={setCombinedRef}
       id="preview-target"
       onClick={() => setSelectedImageId(null)}
-      className={`w-[380px] min-w-[380px] max-w-[380px] shrink-0 ${getAspectClass()} mx-auto overflow-hidden shadow-xl relative select-none transition-all`}
+      className={`w-95 min-w-95 max-w-95 shrink-0 ${getAspectClass()} mx-auto overflow-hidden shadow-xl relative select-none transition-all`}
       style={{
         backgroundColor: colors.bg,
         color: colors.text,
@@ -760,7 +761,7 @@ export const NotesPreview: React.FC<Props> = ({ data, previewRef, onChange }) =>
         {/* The actual Note Body Text Paragraphs */}
         {lines.length > 0 && lines[0] !== '' ? (
           lines.map((line, idx) => (
-            <p key={idx} className="mb-2 min-h-[1.2em] whitespace-pre-wrap break-words">
+            <p key={idx} className="mb-2 min-h-[1.2em] whitespace-pre-wrap" style={{ overflowWrap: 'anywhere' }}>
               {renderFormattedNoteContent(line)}
             </p>
           ))

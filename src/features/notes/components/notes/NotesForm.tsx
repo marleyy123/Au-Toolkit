@@ -367,7 +367,7 @@ export const NotesForm: React.FC<Props> = ({
         </div>
 
         <div>
-          <label className="text-xs text-slate-700 font-semibold block mb-1 flex items-center justify-between">
+          <label className="text-xs text-slate-700 font-semibold mb-1 flex items-center justify-between">
             <span>{language === 'id' ? 'Tuliskan Pesan / Teks Catatan' : 'Write Note Content'}</span>
             <span className="text-[10px] text-slate-400 font-normal">
               Gunakan **tebal** atau *miring*
@@ -540,7 +540,7 @@ export const NotesForm: React.FC<Props> = ({
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>{language === 'id' ? 'Hapus' : 'Delete'}</span>
-                    </div>
+                    </button>
                   </div>
                 </div>
 
