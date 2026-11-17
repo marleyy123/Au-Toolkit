@@ -10,12 +10,14 @@ class Db {
   snapshot(path) { return { exists: this.rows.has(path), data: () => this.rows.get(path) }; }
   collection(name) { return { doc: id => { const path = name + '/' + id; return { path,
     get: async () => this.snapshot(path), set: async data => this.rows.set(path, data),
-    update: async data => this.rows.set(path, { ...this.rows.get(path), ...data }) }; } }; }
+    update: async data => this.rows.set(path, { ...this.rows.get(path), ...data }),
+    delete: async () => this.rows.delete(path) }; } }; }
   runTransaction(fn) {
     const operation = this.queue.then(async () => { const writes = []; let writing = false;
       const result = await fn({ get: async ref => { assert(!writing, 'Reads must precede writes'); return this.snapshot(ref.path); },
-        set: (ref, data) => { writing = true; writes.push([ref.path, data]); } });
-      writes.forEach(([path, data]) => this.rows.set(path, data)); return result;
+        set: (ref, data) => { writing = true; writes.push([ref.path, data]); },
+        delete: (ref) => { writing = true; writes.push([ref.path, null]); } });
+      writes.forEach(([path, data]) => data === null ? this.rows.delete(path) : this.rows.set(path, data)); return result;
     }); this.queue = operation.catch(() => {}); return operation;
   }
 }
@@ -55,7 +57,9 @@ assert.equal((await call({ action: 'create', email: 'buyer@example.com', planId:
 clock += 31000;
 const input = { action: 'create', email: 'BUYER@example.com', planId: 'monthly', amount: 1, accessDays: 99999, country: 'US' };
 const parallel = await Promise.all([call(input), call(input)]);
-assert.deepEqual(parallel.map(r => r.code).sort(), [200, 429]);
+assert.ok(parallel.every(r => r.code === 200), 'Duplicate create attempts should reuse the same active order while it remains valid');
+assert.ok(parallel.some(r => r.reused === true), 'The duplicate request should recognize the existing order as reused');
+assert.equal(parallel[0].orderId, parallel[1].orderId, 'Concurrent creates for the same email must retain the same order reference');
 const order = parallel.find(r => r.code === 200);
 assert.equal(order.amount, 15000);
 assert.equal(payload.transaction_details.gross_amount, 15000);

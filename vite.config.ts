@@ -51,7 +51,16 @@ const landingPricingPreview = () => ({
     server.middlewares.use('/api/regional-pricing', (request: any, response: any) => {
       // Bare Vite has no Vercel geo headers; this simulation exists only in dev.
       const handler = createRegionalPricingHandler({ env: {
+        ...process.env,
         VERCEL: '1',
+        VITE_FIREBASE_PROJECT_ID: process.env.VITE_FIREBASE_PROJECT_ID,
+        FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+        MIDTRANS_IS_PRODUCTION: process.env.MIDTRANS_IS_PRODUCTION ?? process.env.VITE_MIDTRANS_IS_PRODUCTION,
+        ACCESS_BACKEND: process.env.ACCESS_BACKEND,
+        FIREBASE_ADMIN_SERVICE_ACCOUNT: process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT,
+        MIDTRANS_SERVER_KEY: process.env.MIDTRANS_SERVER_KEY,
+        MIDTRANS_CLIENT_KEY: process.env.MIDTRANS_CLIENT_KEY,
+        VITE_MIDTRANS_CLIENT_KEY: process.env.VITE_MIDTRANS_CLIENT_KEY,
         LYNK_DOMESTIC_CHECKOUT_URL: process.env.LYNK_DOMESTIC_CHECKOUT_URL,
         LYNK_INTERNATIONAL_CHECKOUT_URL: process.env.LYNK_INTERNATIONAL_CHECKOUT_URL,
       } });

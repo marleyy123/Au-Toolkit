@@ -54,6 +54,7 @@ async function api(body: object) {
     signal: AbortSignal.timeout(20000),
   });
   const data = await response.json();
+  if (response.status === 202 && (data?.code === 'PAYMENT_STATUS_UNKNOWN' || data?.status === 'unknown')) return data;
   if (!response.ok || !data.success) throw new Error(data.reason || 'PAYMENT_SERVICE_UNAVAILABLE');
   return data;
 }
@@ -123,6 +124,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [paid, setPaid] = useState(false);
+  const [cancelBusy, setCancelBusy] = useState(false);
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -146,6 +148,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
       CHECKOUT_RATE_LIMIT: copy('Tunggu 30 detik sebelum membuat pembayaran baru.', 'Wait 30 seconds before starting another payment.'),
       REGION_UNAVAILABLE: copy('Region belum terdeteksi. Muat ulang lalu coba lagi.', 'Region unavailable. Reload and try again.'),
       SNAP_LOAD_FAILED: copy('Halaman pembayaran gagal dimuat. Coba lanjutkan pembayaran.', 'Payment page could not load. Try resuming the payment.'),
+      PAYMENT_STATUS_UNKNOWN: copy('Status pembuatan pembayaran sedang diverifikasi. Mohon tunggu sebelum membuat transaksi baru.', 'Payment creation status is being verified. Please wait before starting a new transaction.'),
     }[reason] || copy('Pembayaran belum dapat diproses. Coba lagi atau hubungi bantuan.', 'Unable to process the payment. Try again or contact support.'));
 
   async function check(current = order) {
@@ -271,6 +274,37 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
       if (mounted.current) setMessage(explain((e as Error).message));
     } finally {
       if (mounted.current) setBusy(false);
+    }
+  }
+
+  async function cancelPayment() {
+    if (!order) return;
+    const confirmed = typeof window !== 'undefined' ? window.confirm(copy('Batalkan transaksi pembayaran yang sedang aktif?', 'Cancel the active payment transaction?')) : true;
+    if (!confirmed) return;
+    setCancelBusy(true);
+    setMessage('');
+    try {
+      const result = await api({ action: 'cancel', orderId: order.orderId, statusToken: order.statusToken });
+      if (!mounted.current) return;
+      if (result.status === 'paid') {
+        setPaid(true);
+        setMessage(copy('Pembayaran sudah berhasil diverifikasi. Tidak ada pembatalan yang dilakukan.', 'Payment has already been verified. No cancellation was performed.'));
+        return;
+      }
+      if (result.cancelled === true) {
+        try { sessionStorage.removeItem(storage); } catch {}
+        setOrder(null);
+        setPaid(false);
+        setMessage(copy('Transaksi berhasil dibatalkan. Silakan pilih metode pembayaran lain.', 'Transaction cancelled successfully. Please choose a payment method again.'));
+        return;
+      }
+      setMessage(copy('Pembatalan belum dapat dipastikan. Status pembayaran masih perlu dicek.', 'Cancellation is still pending. Payment status should be checked again.'));
+    } catch (e) {
+      if (mounted.current) {
+        setMessage(explain((e as Error).message));
+      }
+    } finally {
+      if (mounted.current) setCancelBusy(false);
     }
   }
 
@@ -452,17 +486,12 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
               <button
                 type="button"
                 className="landing-button landing-button-secondary"
-                disabled={busy}
-                onClick={() => {
-                  try {
-                    sessionStorage.removeItem(storage);
-                  } catch {}
-                  setOrder(null);
-                  setPaid(false);
-                  setMessage('');
-                }}
+                disabled={busy || cancelBusy}
+                onClick={() => void cancelPayment()}
               >
-                {copy('Buat transaksi baru', 'Create a new order')}
+                {cancelBusy
+                  ? copy('Membatalkan…', 'Cancelling…')
+                  : copy('Batalkan pembayaran', 'Cancel payment')}
               </button>
             )}
           </form>
