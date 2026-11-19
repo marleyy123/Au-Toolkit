@@ -2,8 +2,10 @@ import chromium from '@sparticuz/chromium-min';
 import { chromium as playwrightChromium } from 'playwright-core';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
-const FIREBASE_PROJECT_ID = 'gen-lang-client-0839250297';
-const FIREBASE_ISSUER = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
+const FIREBASE_PROJECT_IDS = (process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'au-toolkit-production,gen-lang-client-0839250297')
+  .split(',')
+  .map(id => id.trim())
+  .filter(Boolean);
 const FIREBASE_JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com')
 );
@@ -55,15 +57,25 @@ function json(status, body) {
 async function verifyFirebaseToken(authorization) {
   if (!authorization?.startsWith('Bearer ')) throw new Error('AUTH_REQUIRED');
   const token = authorization.slice('Bearer '.length).trim();
-  const { payload } = await jwtVerify(token, FIREBASE_JWKS, {
-    issuer: FIREBASE_ISSUER,
-    audience: FIREBASE_PROJECT_ID,
-    algorithms: ['RS256'],
-  });
-  const uid = String(payload.user_id || payload.sub || '');
-  const email = String(payload.email || '').trim().toLowerCase();
-  if (!uid || !email) throw new Error('INVALID_FIREBASE_TOKEN');
-  return { uid, email };
+  let lastError = null;
+
+  for (const projectId of FIREBASE_PROJECT_IDS) {
+    try {
+      const { payload } = await jwtVerify(token, FIREBASE_JWKS, {
+        issuer: `https://securetoken.google.com/${projectId}`,
+        audience: projectId,
+        algorithms: ['RS256'],
+      });
+      const uid = String(payload.user_id || payload.sub || '');
+      const email = String(payload.email || '').trim().toLowerCase();
+      if (!uid || !email) throw new Error('INVALID_FIREBASE_TOKEN');
+      return { uid, email };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('INVALID_FIREBASE_TOKEN');
 }
 
 function validatePayload(payload) {

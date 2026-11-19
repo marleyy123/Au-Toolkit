@@ -1,124 +1,122 @@
-import fs from 'node:fs';
 
-const authPath = process.argv[2] || 'firebase-auth-users.json';
-const buyersPath = process.argv[3] || 'buyer-sheet.csv';
+import { readFile } from "node:fs/promises";
+import { cert, initializeApp, deleteApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 
-function parseCsv(input) {
-  const rows = [];
-  let row = [];
-  let value = '';
-  let quoted = false;
+const targets = [
+  {
+    name: "OLD_PRODUCTION",
+    file: "secrets/firebase-old-production-admin.json",
+    expectedProject: "gen-lang-client-0839250297",
+  },
+  {
+    name: "OLD_STAGING",
+    file: "secrets/firebase-staging-admin.json",
+    expectedProject: "au-toolkit-staging-20261005",
+  },
+  {
+    name: "NEW_PRODUCTION",
+    file: "secrets/firebase-new-admin.json",
+    expectedProject: "au-toolkit-production",
+  },
+];
 
-  for (let i = 0; i < input.length; i += 1) {
-    const char = input[i];
-    const next = input[i + 1];
+async function audit(target) {
+  const credentials = JSON.parse(
+    await readFile(target.file, "utf8"),
+  );
 
-    if (quoted) {
-      if (char === '"' && next === '"') {
-        value += '"';
-        i += 1;
-      } else if (char === '"') {
-        quoted = false;
-      } else {
-        value += char;
+  if (credentials.project_id !== target.expectedProject) {
+    throw new Error(
+      `Project mismatch pada ${target.name}: ${credentials.project_id}`,
+    );
+  }
+
+  const app = initializeApp(
+    {
+      credential: cert(credentials),
+      projectId: credentials.project_id,
+    },
+    `auth-audit-${target.name}`,
+  );
+
+  try {
+    const auth = getAuth(app);
+
+    const report = {
+      projectId: credentials.project_id,
+      totalUsers: 0,
+      disabled: 0,
+      enabled: 0,
+      emailVerified: 0,
+      emailNotVerified: 0,
+      withoutEmail: 0,
+      providers: {},
+      roleClaims: {},
+      usersWithoutRoleClaim: 0,
+    };
+
+    let pageToken;
+
+    do {
+      const result = await auth.listUsers(1000, pageToken);
+
+      for (const user of result.users) {
+        report.totalUsers++;
+
+        if (user.disabled) report.disabled++;
+        else report.enabled++;
+
+        if (user.email) {
+          if (user.emailVerified) report.emailVerified++;
+          else report.emailNotVerified++;
+        } else {
+          report.withoutEmail++;
+        }
+
+        const providerIds = new Set(
+          user.providerData.map((provider) => provider.providerId),
+        );
+
+        if (providerIds.size === 0) {
+          report.providers["no-provider"] =
+            (report.providers["no-provider"] || 0) + 1;
+        }
+
+        for (const provider of providerIds) {
+          report.providers[provider] =
+            (report.providers[provider] || 0) + 1;
+        }
+
+        const role = user.customClaims?.role;
+
+        if (typeof role === "string" && role.trim()) {
+          report.roleClaims[role] =
+            (report.roleClaims[role] || 0) + 1;
+        } else {
+          report.usersWithoutRoleClaim++;
+        }
       }
-      continue;
-    }
 
-    if (char === '"') {
-      quoted = true;
-    } else if (char === ',') {
-      row.push(value);
-      value = '';
-    } else if (char === '\n') {
-      row.push(value);
-      rows.push(row);
-      row = [];
-      value = '';
-    } else if (char !== '\r') {
-      value += char;
-    }
-  }
+      pageToken = result.pageToken;
+    } while (pageToken);
 
-  if (value || row.length) {
-    row.push(value);
-    rows.push(row);
-  }
-
-  return rows;
-}
-
-function normalizeEmail(value) {
-  return String(value || '').trim().toLowerCase();
-}
-
-const authUsers = JSON.parse(fs.readFileSync(authPath, 'utf8')).users || [];
-const rows = parseCsv(fs.readFileSync(buyersPath, 'utf8'));
-const header = rows[0] || [];
-const emailIndex = header.findIndex((name) => normalizeEmail(name) === 'buyer email');
-const statusIndex = header.findIndex((name) => normalizeEmail(name) === 'status');
-
-if (emailIndex === -1 || statusIndex === -1) {
-  throw new Error('buyer-sheet.csv must contain Buyer Email and Status columns.');
-}
-
-const allBuyerEmails = new Set();
-const successBuyerEmails = new Set();
-let successRows = 0;
-
-for (const row of rows.slice(1)) {
-  const email = normalizeEmail(row[emailIndex]);
-  const status = String(row[statusIndex] || '').trim().toUpperCase();
-  if (email) allBuyerEmails.add(email);
-  if (email && status === 'SUCCESS') {
-    successBuyerEmails.add(email);
-    successRows += 1;
+    return {
+      name: target.name,
+      ...report,
+    };
+  } finally {
+    await deleteApp(app);
   }
 }
 
-const keep = [];
-const deleteCandidates = [];
+const results = [];
 
-for (const user of authUsers) {
-  const email = normalizeEmail(user.email);
-  const record = {
-    email,
-    uid: user.localId,
-    createdAt: user.createdAt ? new Date(Number(user.createdAt)).toISOString() : '',
-    lastLoginAt: user.lastLoginAt ? new Date(Number(user.lastLoginAt)).toISOString() : '',
-    providers: (user.providerUserInfo || []).map((provider) => provider.providerId).join(',') || 'password',
-  };
-
-  if (successBuyerEmails.has(email)) {
-    keep.push(record);
-  } else {
-    deleteCandidates.push({
-      ...record,
-      reason: allBuyerEmails.has(email) ? 'EMAIL_IN_SHEET_NOT_SUCCESS' : 'EMAIL_NOT_IN_SUCCESS_BUYERS',
-    });
-  }
+for (const target of targets) {
+  console.log(`Auditing ${target.name}...`);
+  results.push(await audit(target));
 }
 
-const deleteReasons = deleteCandidates.reduce((acc, item) => {
-  acc[item.reason] = (acc[item.reason] || 0) + 1;
-  return acc;
-}, {});
-
-fs.writeFileSync('firebase-auth-keep.json', `${JSON.stringify(keep, null, 2)}\n`);
-fs.writeFileSync('firebase-auth-delete-candidates.json', `${JSON.stringify(deleteCandidates, null, 2)}\n`);
-fs.writeFileSync(
-  'firebase-auth-delete-uids.txt',
-  `${deleteCandidates.map((item) => item.uid).filter(Boolean).join('\n')}\n`,
-);
-
-console.log(JSON.stringify({
-  sheetRows: rows.length - 1,
-  uniqueSheetEmails: allBuyerEmails.size,
-  successRows,
-  uniqueSuccessEmails: successBuyerEmails.size,
-  authUsers: authUsers.length,
-  keepAuthUsers: keep.length,
-  deleteCandidates: deleteCandidates.length,
-  deleteReasons,
-  sampleDelete: deleteCandidates.slice(0, 10),
-}, null, 2));
+console.log("\n===== FIREBASE AUTH AUDIT =====");
+console.log(JSON.stringify(results, null, 2));
+console.log("\nAUDIT COMPLETE - READ ONLY");

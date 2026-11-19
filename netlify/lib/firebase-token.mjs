@@ -1,7 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 const keys = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
-const productionProjectId = 'gen-lang-client-0839250297';
+const productionProjectId = 'au-toolkit-production';
 
 export function firebaseTokenOptions(projectId) {
   return { issuer: `https://securetoken.google.com/${projectId}`, audience: projectId, algorithms: ['RS256'] };

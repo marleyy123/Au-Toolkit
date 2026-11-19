@@ -16,3 +16,6 @@ firebase-auth-delete-uids.txt
 
 # Generated Netlify Functions bundles
 netlify/functions-dist/
+
+secrets/
+migration-reports/
