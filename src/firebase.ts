@@ -549,7 +549,7 @@ export function getUserDocumentId(userOrKey?: string | { email?: string | null; 
   if (strKey.startsWith('user_')) {
     return strKey;
   }
-  return sanitizeUserKey(strKey);
+  return strKey;
 }
 
 // In-flight concurrency lock & promise chain queue to guarantee sequential execution without dropping writes
