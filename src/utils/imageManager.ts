@@ -232,6 +232,16 @@ export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): vo
 export async function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
   const cloud = parseCloudMediaReference(ref);
   if (cloud) {
+  const { auth } = await import('../firebase');
+  await auth.authStateReady();
+
+  console.table({
+    referenceUid: cloud.uid,
+    storedUid: uid,
+    firebaseUid: auth.currentUser?.uid,
+    uidMatches: cloud.uid === uid,
+    firebaseMatches: cloud.uid === auth.currentUser?.uid,
+  });
     if (!uid || cloud.uid !== uid) return '';
     const cached = persistentObjectUrlCache.get(ref);
     if (cached) return cached;
