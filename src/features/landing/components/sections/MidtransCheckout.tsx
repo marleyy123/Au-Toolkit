@@ -140,16 +140,16 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
   }, []);
 
   const explain = (reason: string) =>
-    ({
-      MIDTRANS_KEYS_REQUIRED: copy('Key Midtrans belum sesuai. Hubungi admin.', 'Midtrans keys need to be configured by the administrator.'),
-      MIDTRANS_AUTH_FAILED: copy('API Midtrans menolak key. Periksa key dan mode environment di dashboard Midtrans.', 'Midtrans rejected the key. Check the key and environment mode in the Midtrans dashboard.'),
-      FIRESTORE_ACCESS_REQUIRED: copy('Backend akses staging belum siap. Hubungi admin.', 'The staging access backend is not ready. Contact the administrator.'),
-      FIREBASE_ADMIN_CONFIG_REQUIRED: copy('Konfigurasi server akses staging belum lengkap.', 'The staging access server configuration is incomplete.'),
-      CHECKOUT_RATE_LIMIT: copy('Tunggu 30 detik sebelum membuat pembayaran baru.', 'Wait 30 seconds before starting another payment.'),
-      REGION_UNAVAILABLE: copy('Region belum terdeteksi. Muat ulang lalu coba lagi.', 'Region unavailable. Reload and try again.'),
-      SNAP_LOAD_FAILED: copy('Halaman pembayaran gagal dimuat. Coba lanjutkan pembayaran.', 'Payment page could not load. Try resuming the payment.'),
-      PAYMENT_STATUS_UNKNOWN: copy('Status pembuatan pembayaran sedang diverifikasi. Mohon tunggu sebelum membuat transaksi baru.', 'Payment creation status is being verified. Please wait before starting a new transaction.'),
-    }[reason] || copy('Pembayaran belum dapat diproses. Coba lagi atau hubungi bantuan.', 'Unable to process the payment. Try again or contact support.'));
+  ({
+    MIDTRANS_KEYS_REQUIRED: copy('Key Midtrans belum sesuai. Hubungi admin.', 'Midtrans keys need to be configured by the administrator.'),
+    MIDTRANS_AUTH_FAILED: copy('API Midtrans menolak key. Periksa key dan mode environment di dashboard Midtrans.', 'Midtrans rejected the key. Check the key and environment mode in the Midtrans dashboard.'),
+    FIRESTORE_ACCESS_REQUIRED: copy('Backend akses staging belum siap. Hubungi admin.', 'The staging access backend is not ready. Contact the administrator.'),
+    FIREBASE_ADMIN_CONFIG_REQUIRED: copy('Konfigurasi server akses staging belum lengkap.', 'The staging access server configuration is incomplete.'),
+    CHECKOUT_RATE_LIMIT: copy('Tunggu 30 detik sebelum membuat pembayaran baru.', 'Wait 30 seconds before starting another payment.'),
+    REGION_UNAVAILABLE: copy('Region belum terdeteksi. Muat ulang lalu coba lagi.', 'Region unavailable. Reload and try again.'),
+    SNAP_LOAD_FAILED: copy('Halaman pembayaran gagal dimuat. Coba lanjutkan pembayaran.', 'Payment page could not load. Try resuming the payment.'),
+    PAYMENT_STATUS_UNKNOWN: copy('Status pembuatan pembayaran sedang diverifikasi. Mohon tunggu sebelum membuat transaksi baru.', 'Payment creation status is being verified. Please wait before starting a new transaction.'),
+  }[reason] || copy('Pembayaran belum dapat diproses. Coba lagi atau hubungi bantuan.', 'Unable to process the payment. Try again or contact support.'));
 
   async function check(current = order) {
     if (!current) return;
@@ -161,17 +161,17 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
         setPaid(true);
         try {
           sessionStorage.removeItem(storage);
-        } catch {}
+        } catch { }
         setMessage(
           result.accessActivated === true
             ? copy(
-                'Pembayaran terverifikasi. Akses akun Anda sekarang aktif!',
-                'Payment verified. Your account access is now active!'
-              )
+              'Pembayaran terverifikasi. Akses akun Anda sekarang aktif!',
+              'Payment verified. Your account access is now active!'
+            )
             : copy(
-                'Pembayaran terverifikasi, tetapi akses akun belum aktif. Hubungi admin dengan nomor transaksi ini.',
-                'Payment verified, but account access is inactive. Contact the administrator with this order number.'
-              )
+              'Pembayaran terverifikasi, tetapi akses akun belum aktif. Hubungi admin dengan nomor transaksi ini.',
+              'Payment verified, but account access is inactive. Contact the administrator with this order number.'
+            )
         );
       } else if (result.status === 'pending') {
         setMessage(copy('Belum ada pembayaran terverifikasi. Selesaikan pembayaran lalu periksa lagi.', 'No verified payment yet. Complete the payment, then check again.'));
@@ -239,8 +239,8 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
       setOrder(null);
       try {
         sessionStorage.removeItem(storage);
-      } catch {}
-    } catch {} finally {
+      } catch { }
+    } catch { } finally {
       if (mounted.current) setBusy(false);
     }
   }
@@ -262,13 +262,17 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
           uid: currentUser.uid || undefined,
         }));
       if (!mounted.current) return;
-      if (typeof current.production !== 'boolean' || /^Mid-client-[A-Za-z0-9.~_-]+$/.test(current.clientKey || '') || !current.snapToken) {
+      if (
+        typeof current.production !== 'boolean' ||
+        !/^Mid-client-[A-Za-z0-9.~_-]+$/.test(current.clientKey || '') ||
+        !current.snapToken
+      ) {
         throw new Error('MIDTRANS_KEYS_REQUIRED');
       }
       setOrder(current);
       try {
         sessionStorage.setItem(storage, JSON.stringify({ ...current, planId: plan.id }));
-      } catch {}
+      } catch { }
       await pay(current);
     } catch (e) {
       if (mounted.current) setMessage(explain((e as Error).message));
@@ -292,7 +296,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
         return;
       }
       if (result.cancelled === true) {
-        try { sessionStorage.removeItem(storage); } catch {}
+        try { sessionStorage.removeItem(storage); } catch { }
         setOrder(null);
         setPaid(false);
         setMessage(copy('Transaksi berhasil dibatalkan. Silakan pilih metode pembayaran lain.', 'Transaction cancelled successfully. Please choose a payment method again.'));
@@ -467,8 +471,8 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
               {busy
                 ? copy('Memproses…', 'Processing…')
                 : order
-                ? copy('Lanjutkan pembayaran', 'Resume payment')
-                : copy('Pilih metode pembayaran', 'Choose payment method')}
+                  ? copy('Lanjutkan pembayaran', 'Resume payment')
+                  : copy('Pilih metode pembayaran', 'Choose payment method')}
             </button>
 
             {order && (
