@@ -487,8 +487,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               alt={displayLabel}
               className="w-full h-full object-cover"
               onError={(event) => {
-                // The shared resolver is still loading this reference from IndexedDB.
-                if (event.currentTarget.getAttribute('src')?.startsWith('au-local-media://')) return;
+                // The shared resolver is still loading this reference from Cloudflare R2 / IndexedDB.
+                const src = event.currentTarget.getAttribute('src') || '';
+                const ref = event.currentTarget.getAttribute('data-au-local-media-ref') || '';
+                if (
+                  src.startsWith('au-local-media://') ||
+                  src.startsWith('au-cloud-media://') ||
+                  ref.startsWith('au-cloud-media://') ||
+                  ref.startsWith('au-local-media://')
+                ) {
+                  return;
+                }
                 if (event.currentTarget.src !== DEFAULT_AVATAR) event.currentTarget.src = DEFAULT_AVATAR;
               }}
             />

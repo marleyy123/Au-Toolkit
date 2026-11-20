@@ -211,7 +211,9 @@ export const NotesForm: React.FC<Props> = ({
         || (localStorage.getItem(`au_active_folder_${uid}_${tab}`) || 'folder-1') !== folder) return;
       const current = getNormalizedImages();
       if (!current.some(img => img.id === id && img.url === sourceUrl)) return;
-      if (ref.startsWith('au-local-media://')) bindPersistentImageObjectUrl(ref, sourceUrl);
+      if (ref.startsWith('au-local-media://') || ref.startsWith('au-cloud-media://')) {
+        bindPersistentImageObjectUrl(ref, sourceUrl);
+      }
       registerTransientImageUrl(sourceUrl, ref);
       commitImagesUpdate(current.map(img => img.id === id ? { ...img, url: ref } : img));
     } catch (error) {

@@ -51,6 +51,7 @@ import { useWorkspaceUiSettings } from './features/workspace/hooks/useWorkspaceU
 import { useMobilePreviewNavigation } from './features/editor/hooks/useMobilePreviewNavigation';
 import { useTabFormDataRegistry } from './features/workspace/hooks/useTabFormDataRegistry';
 import { useWorkspaceCloudHydration } from './features/workspace/hooks/useWorkspaceCloudHydration';
+import { useWorkspaceAutoMigrator } from './features/workspace/hooks/useWorkspaceAutoMigrator';
 import { useWorkspaceLocalStateSync } from './features/workspace/hooks/useWorkspaceLocalStateSync';
 import { useAdminFeatureGate } from './features/admin/hooks/useAdminFeatureGate';
 import { useRegisteredPreviewHandlers } from './features/editor/hooks/useRegisteredPreviewHandlers';
@@ -623,6 +624,17 @@ export default function App() {
     setModuleFolders,
     setActiveFolderIds,
     loadTabFormData,
+  });
+  useWorkspaceAutoMigrator({
+    authUser,
+    userAccountKey,
+    isHydrated,
+    moduleFolders,
+    moduleFoldersRef,
+    activeFolderIdsRef,
+    loadTabFormData,
+    setModuleFolders,
+    forceCloudWorkspaceSyncNowRef,
   });
   const {
     updateActiveFolderData,

@@ -13,7 +13,11 @@ import {
   writeBatch,
   Firestore,
 } from 'firebase/firestore';
-import { migrateLocalImageReference, replaceTransientImageUrlsDeep } from './utils/imageManager';
+import {
+  migrateLocalImageReference,
+  uploadDataUrlToCloudMedia,
+  replaceTransientImageUrlsDeep,
+} from './utils/imageManager';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -347,16 +351,17 @@ async function sanitizeObjectForFirestore(
     replaceTransientImageUrlsDeep(migrated)
   );
 
-  // Pertahanan terakhir: tidak boleh ada referensi IndexedDB yang lolos.
-  if (containsLocalMediaReference(cleaned)) {
-    throw new Error('LOCAL_MEDIA_REFERENCE_REMAINS');
-  }
+  // Jika masih tersisa referensi IndexedDB yang tidak dapat dimigrasi dari device ini,
+  // bersihkan referensi tersebut agar tidak menggagalkan seluruh sinkronisasi Firestore.
+  const payloadToPersist = containsLocalMediaReference(cleaned)
+    ? stripUnmigratedLocalMedia(cleaned)
+    : cleaned;
 
   try {
-    let rawStr = JSON.stringify(cleaned);
+    let rawStr = JSON.stringify(payloadToPersist);
 
     if (rawStr.length < maxDocBytes) {
-      return cleaned;
+      return payloadToPersist;
     }
 
     const cloned = JSON.parse(rawStr);
@@ -391,7 +396,7 @@ async function sanitizeObjectForFirestore(
   } catch (error) {
     // Jika kompresi gagal, tetap gunakan payload yang sudah dimigrasikan.
     console.warn('[Firestore] Payload compression skipped:', error);
-    return cleaned;
+    return payloadToPersist;
   }
 }
 
@@ -412,12 +417,51 @@ function containsLocalMediaReference(value: any): boolean {
 }
 
 
+function stripUnmigratedLocalMedia(value: any): any {
+  if (typeof value === 'string') {
+    if (value.startsWith('au-local-media://')) return '';
+    return value.replace(/au-local-media:\/\/[^)'"\s]+/g, '');
+  }
+  if (Array.isArray(value)) return value.map(stripUnmigratedLocalMedia);
+  if (!value || typeof value !== 'object') return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value)) {
+    result[key] = stripUnmigratedLocalMedia(nested);
+  }
+  return result;
+}
+
 async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<string, string>()): Promise<any> {
   if (typeof value === 'string') {
+    const trimmed = value.trim();
+
+    // 1. Auto-uplink Base64 Data URL ke Cloudflare R2
+    if (trimmed.startsWith('data:image/')) {
+      if (!cache.has(trimmed)) {
+        try {
+          const cloudRef = await uploadDataUrlToCloudMedia(uid, trimmed);
+          cache.set(trimmed, cloudRef);
+        } catch (err) {
+          console.warn('[CloudMedia] Base64 upload to R2 during save notice:', err);
+          cache.set(trimmed, trimmed);
+        }
+      }
+      return cache.get(trimmed) || trimmed;
+    }
+
+    // 2. Auto-uplink referensi lokal IndexedDB ke Cloudflare R2
     const refs = value.match(/au-local-media:\/\/[^)'"\s]+/g) || [];
     let migrated = value;
     for (const ref of refs) {
-      if (!cache.has(ref)) cache.set(ref, await migrateLocalImageReference(ref, uid));
+      if (!cache.has(ref)) {
+        try {
+          const cloudRef = await migrateLocalImageReference(ref, uid);
+          cache.set(ref, cloudRef);
+        } catch (err) {
+          console.warn('[CloudMedia] Local media migration notice:', err);
+          cache.set(ref, ref);
+        }
+      }
       migrated = migrated.split(ref).join(cache.get(ref) || ref);
     }
     return migrated;

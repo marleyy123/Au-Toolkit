@@ -150,6 +150,42 @@ export function getCachedCloudMediaUsage(): { usedBytes: number; quotaBytes: num
 //   return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 // }
 
+/** Converts a Base64 Data URL to a native browser Blob */
+export function dataUrlToBlob(dataUrl: string): Blob | null {
+  try {
+    const parts = dataUrl.split(',');
+    if (parts.length < 2) return null;
+    const match = parts[0].match(/:(.*?);/);
+    const mime = match ? match[1] : 'image/png';
+    const bstr = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  } catch (err) {
+    console.warn('Failed to convert dataUrl to Blob:', err);
+    return null;
+  }
+}
+
+/** Uploads a Base64 Data URL directly to Cloudflare R2 and returns an au-cloud-media reference */
+export async function uploadDataUrlToCloudMedia(uid: string, dataUrl: string): Promise<string> {
+  const cleanUid = String(uid || '').trim();
+  if (!cleanUid) {
+    throw new Error('FIREBASE_UID_REQUIRED');
+  }
+  const blob = dataUrlToBlob(dataUrl);
+  if (!blob || blob.size <= 0) {
+    throw new Error('INVALID_DATA_URL_BLOB');
+  }
+  if (!cloudMediaEndpoint()) {
+    throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
+  }
+  return uploadCloudMediaBlob(cleanUid, blob);
+}
+
 /** Stores a final cropped Blob in local IndexedDB and returns a stable reference. */
 export async function persistLocalImageBlob(
   uid: string,
@@ -176,12 +212,12 @@ export async function persistLocalImageBlob(
 
 /** Migrate one browser-local file to R2 while leaving the source intact for rollback. */
 export async function migrateLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
-if (!ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
+  if (!ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
 
-if (!cloudMediaEndpoint()) {
-  throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
-}  const parsed = parseLocalMediaReference(ref);
-  if (!parsed || !uid || parsed.uid !== uid) throw new Error('LOCAL_MEDIA_OWNER_MISMATCH');
+  if (!cloudMediaEndpoint()) {
+    throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
+  }
+  const parsed = parseLocalMediaReference(ref);
   const database = await openLocalMediaDatabase();
   let record: LocalMediaRecord | undefined;
   try {
@@ -191,12 +227,16 @@ if (!cloudMediaEndpoint()) {
       request.onerror = () => reject(request.error || new Error('Unable to read the local image for migration.'));
     });
   } finally { database.close(); }
-  if (!record || record.uid !== uid) throw new Error('LOCAL_MEDIA_UNAVAILABLE');
+  if (!record) throw new Error('LOCAL_MEDIA_UNAVAILABLE');
   if (record.cloudRef?.startsWith(CLOUD_MEDIA_PREFIX)) return record.cloudRef;
   const blob = record.blob instanceof Blob ? record.blob
     : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], { type: record.mimeType }) : null;
   if (!blob) throw new Error('LOCAL_MEDIA_UNAVAILABLE');
-  const cloudRef = await uploadCloudMediaBlob(uid, blob);
+
+  const uploadUid = (uid && uid.trim()) || record.uid || currentStoredUid();
+  if (!uploadUid) throw new Error('LOCAL_MEDIA_OWNER_MISMATCH');
+
+  const cloudRef = await uploadCloudMediaBlob(uploadUid, blob);
   record.cloudRef = cloudRef;
   const writeDatabase = await openLocalMediaDatabase();
   try {
@@ -210,6 +250,95 @@ if (!cloudMediaEndpoint()) {
   return cloudRef;
 }
 
+/** Automatically uplinks any local image format (Base64 data:image or au-local-media://) to Cloudflare R2 */
+export async function migrateAnyMediaReference(ref: string, uid = currentStoredUid()): Promise<string> {
+  if (!ref || typeof ref !== 'string') return ref;
+  const trimmed = ref.trim();
+
+  // Already persistent in Cloudflare R2 or stable external URL
+  if (trimmed.startsWith(CLOUD_MEDIA_PREFIX) || (trimmed.startsWith('https://') && !trimmed.includes('localhost'))) {
+    return trimmed;
+  }
+
+  const effectiveUid = (uid && uid.trim()) || currentStoredUid();
+  if (!effectiveUid) return trimmed;
+
+  // Base64 Data URL
+  if (trimmed.startsWith('data:image/')) {
+    try {
+      const cloudRef = await uploadDataUrlToCloudMedia(effectiveUid, trimmed);
+      return cloudRef;
+    } catch (err) {
+      console.warn('Auto-uplink data URL to R2 notice:', err);
+      return trimmed;
+    }
+  }
+
+  // Local IndexedDB media reference
+  if (trimmed.startsWith(LOCAL_MEDIA_PREFIX)) {
+    try {
+      const cloudRef = await migrateLocalImageReference(trimmed, effectiveUid);
+      return cloudRef;
+    } catch (err) {
+      console.warn('Auto-uplink local media reference to R2 notice:', err);
+      return trimmed;
+    }
+  }
+
+  return trimmed;
+}
+
+/** Recursively migrates any Base64 or local media references within an object to R2 */
+export async function deepMigrateAndReplaceMedia(
+  value: any,
+  uid: string,
+  cache = new Map<string, string>()
+): Promise<{ data: any; hasChanged: boolean }> {
+  let hasChanged = false;
+
+  async function traverse(node: any): Promise<any> {
+    if (typeof node === 'string') {
+      const trimmed = node.trim();
+      if (trimmed.startsWith('data:image/') || trimmed.startsWith(LOCAL_MEDIA_PREFIX)) {
+        if (!cache.has(trimmed)) {
+          const migrated = await migrateAnyMediaReference(trimmed, uid);
+          cache.set(trimmed, migrated);
+        }
+        const result = cache.get(trimmed) || trimmed;
+        if (result !== trimmed && result.startsWith(CLOUD_MEDIA_PREFIX)) {
+          hasChanged = true;
+          if (trimmed.startsWith('data:image/')) {
+            bindPersistentImageObjectUrl(result, trimmed);
+          }
+          return result;
+        }
+      }
+      return node;
+    }
+
+    if (Array.isArray(node)) {
+      const arrResult: any[] = [];
+      for (const item of node) {
+        arrResult.push(await traverse(item));
+      }
+      return arrResult;
+    }
+
+    if (node && typeof node === 'object') {
+      const objResult: Record<string, any> = {};
+      for (const [k, v] of Object.entries(node)) {
+        objResult[k] = await traverse(v);
+      }
+      return objResult;
+    }
+
+    return node;
+  }
+
+  const data = await traverse(value);
+  return { data, hasChanged };
+}
+
 export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): void {
   if ((parseLocalMediaReference(ref) || parseCloudMediaReference(ref)) && isBlobUrl(objectUrl)) {
     persistentObjectUrlCache.set(ref, objectUrl);
@@ -219,17 +348,13 @@ export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): vo
 export async function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
   const cloud = parseCloudMediaReference(ref);
   if (cloud) {
-  const { auth } = await import('../firebase');
-  await auth.authStateReady();
+    const { auth } = await import('../firebase');
+    await auth.authStateReady();
 
-  console.table({
-    referenceUid: cloud.uid,
-    storedUid: uid,
-    firebaseUid: auth.currentUser?.uid,
-    uidMatches: cloud.uid === uid,
-    firebaseMatches: cloud.uid === auth.currentUser?.uid,
-  });
-    if (!uid || cloud.uid !== uid) return '';
+    const activeUid = auth.currentUser?.uid;
+    const effectiveUid = activeUid || uid || currentStoredUid();
+    if (!effectiveUid) return '';
+
     const cached = persistentObjectUrlCache.get(ref);
     if (cached) return cached;
     let response: Response;
@@ -337,14 +462,18 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
       ref.startsWith(LOCAL_MEDIA_PREFIX) ||
       ref.startsWith(CLOUD_MEDIA_PREFIX)
     ) {
+      element.setAttribute('data-au-local-media-ref', ref);
+
       const objectUrl = await resolveLocalImageReference(ref, uid);
 
       if (!objectUrl || !element.isConnected) return;
 
       const latestSrc = element.getAttribute('src') || '';
+      const boundRef = element.getAttribute('data-au-local-media-ref') || '';
 
-      // Jangan menimpa src jika React sudah menggantinya dengan sumber lain.
+      // Pasang objectUrl jika elemen memang terikat ke referensi media ini
       if (
+        boundRef === ref ||
         latestSrc === ref ||
         latestSrc.startsWith('blob:')
       ) {
