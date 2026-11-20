@@ -143,57 +143,44 @@ export function getCachedCloudMediaUsage(): { usedBytes: number; quotaBytes: num
   return null;
 }
 
-function createMediaId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
-}
+// function createMediaId(): string {
+//   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+//     return crypto.randomUUID();
+//   }
+//   return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+// }
 
 /** Stores a final cropped Blob in local IndexedDB and returns a stable reference. */
-export async function persistLocalImageBlob(uid: string, blob: Blob, context: string): Promise<string> {
+export async function persistLocalImageBlob(
+  uid: string,
+  blob: Blob,
+  context: string
+): Promise<string> {
   const cleanUid = String(uid || '').trim();
-  const cleanContext = String(context || 'workspace').trim() || 'workspace';
-  if (!cleanUid) throw new Error('A Firebase UID is required for local image persistence.');
-  if (!(blob instanceof Blob) || blob.size <= 0) throw new Error('A valid image Blob is required.');
 
-  if (cloudMediaEndpoint()) {
-    return uploadCloudMediaBlob(cleanUid, blob);
+  if (!cleanUid) {
+    throw new Error('FIREBASE_UID_REQUIRED');
   }
 
-  const mediaId = createMediaId();
-  const ref = `${LOCAL_MEDIA_PREFIX}${encodeURIComponent(cleanUid)}/${encodeURIComponent(cleanContext)}/${encodeURIComponent(mediaId)}`;
-  const record: LocalMediaRecord = {
-    ref,
-    uid: cleanUid,
-    context: cleanContext,
-    mediaId,
-    // Binary buffers avoid browser-specific failures serializing Blob handles.
-    bytes: await blob.arrayBuffer(),
-    mimeType: blob.type || 'application/octet-stream',
-    size: blob.size,
-    updatedAt: new Date().toISOString(),
-  };
-  const database = await openLocalMediaDatabase();
-  try {
-    await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(LOCAL_MEDIA_STORE, 'readwrite');
-      const request = transaction.objectStore(LOCAL_MEDIA_STORE).put(record);
-      request.onerror = () => reject(request.error || new Error('Unable to persist the local image.'));
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error || new Error('Unable to persist the local image.'));
-      transaction.onabort = () => reject(transaction.error || new Error('Local image persistence was aborted.'));
-    });
-  } finally {
-    database.close();
+  if (!(blob instanceof Blob) || blob.size <= 0) {
+    throw new Error('INVALID_MEDIA_BLOB');
   }
-  return ref;
+
+  if (!cloudMediaEndpoint()) {
+    throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
+  }
+
+  return uploadCloudMediaBlob(cleanUid, blob);
 }
+
 
 /** Migrate one browser-local file to R2 while leaving the source intact for rollback. */
 export async function migrateLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
-  if (!cloudMediaEndpoint() || !ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
-  const parsed = parseLocalMediaReference(ref);
+if (!ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
+
+if (!cloudMediaEndpoint()) {
+  throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
+}  const parsed = parseLocalMediaReference(ref);
   if (!parsed || !uid || parsed.uid !== uid) throw new Error('LOCAL_MEDIA_OWNER_MISMATCH');
   const database = await openLocalMediaDatabase();
   let record: LocalMediaRecord | undefined;
@@ -335,7 +322,6 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
     const ref = element.getAttribute('src') || element.getAttribute('data-au-local-media-ref') || '';
     if (ref.startsWith(LOCAL_MEDIA_PREFIX) || ref.startsWith(CLOUD_MEDIA_PREFIX)) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
-      // A newer upload may have changed src while IndexedDB was being read.
       if (objectUrl && element.isConnected && element.getAttribute('src') === ref) {
         element.setAttribute('data-au-local-media-ref', ref);
         element.setAttribute('src', objectUrl);

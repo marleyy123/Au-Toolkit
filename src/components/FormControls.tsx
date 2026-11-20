@@ -15,11 +15,11 @@ import {
   createSafeObjectURL,
   revokeSafeObjectURL,
   isBlobUrl,
-  registerTransientImageUrl,
-  resolvePersistentImageUrl,
+  // registerTransientImageUrl,
+  // resolvePersistentImageUrl,
   persistLocalImageBlob,
   bindPersistentImageObjectUrl,
-  deleteLocalImageReference,
+  // deleteLocalImageReference,
   getLocalMediaOwnerUid,
 } from '../utils/imageManager';
 import { registerOriginalImage } from '../utils/imageRegistry';
@@ -29,7 +29,7 @@ import { auth, getStoredAuthUser } from '../firebase';
 
 // Quick AU Characters / Folder Preset Selector Component
 export interface CharacterSelectorProps {
-  characters?: Array<{ id: string; name?: string; [key: string]: any }>;
+  characters?: Array<{ id: string; name?: string;[key: string]: any }>;
   activeCharacterId?: string;
   onSelect?: (folder: any) => void;
   onSelectCharacter?: (folder: any) => void;
@@ -198,12 +198,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const derivedCropShape: 'round' | 'rect' =
     cropShape ||
     (isAvatarUpload ||
-    lowerLabel.includes('album art') ||
-    lowerLabel.includes('music disc') ||
-    lowerLabel.includes('disc') ||
-    lowerLabel.includes('sound cover') ||
-    lowerLabel.includes('soundcover') ||
-    lowerLabel.includes('piringan')
+      lowerLabel.includes('album art') ||
+      lowerLabel.includes('music disc') ||
+      lowerLabel.includes('disc') ||
+      lowerLabel.includes('sound cover') ||
+      lowerLabel.includes('soundcover') ||
+      lowerLabel.includes('piringan')
       ? 'round'
       : 'rect');
 
@@ -330,19 +330,22 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
+
   const handleApplyCrop = async (croppedUrl: string, sessionId?: string) => {
-    // ASYNC RACE CONDITION SAFETY:
-    // Only commit if the session is still active and matches the current session
-    if (!activeSessionRef.current || (sessionId && activeSessionRef.current.id !== sessionId)) {
+    if (
+      !activeSessionRef.current ||
+      (sessionId && activeSessionRef.current.id !== sessionId)
+    ) {
       return;
     }
 
-    // Show the crop immediately, then replace its URL with a stable local reference.
     setUploadError('');
+    setUploadNotice('');
 
-    // Revoke the original draft object URL after the cropper has produced its
-    // independent output.
-    if (activeSessionRef.current.tempBlobUrl && isBlobUrl(activeSessionRef.current.tempBlobUrl)) {
+    if (
+      activeSessionRef.current.tempBlobUrl &&
+      isBlobUrl(activeSessionRef.current.tempBlobUrl)
+    ) {
       revokeSafeObjectURL(activeSessionRef.current.tempBlobUrl);
     }
 
@@ -353,57 +356,106 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       fileInputRef.current.value = '';
     }
 
+    let localPreviewUrl = '';
+
     try {
+      setIsUploading(true);
+
       const response = await fetch(croppedUrl);
-      if (!response.ok) throw new Error('The cropped image could not be prepared.');
+      if (!response.ok) {
+        throw new Error('CROPPED_IMAGE_PREPARATION_FAILED');
+      }
+
       const croppedBlob = await response.blob();
+
       if (!uploadMounted.current) return;
+
       const validationError = validateImage(croppedBlob);
       if (validationError) throw new Error(validationError);
-      const localPreviewUrl = createSafeObjectURL(croppedBlob);
-      if (!localPreviewUrl) throw new Error('The local image preview could not be created.');
 
-      registerTransientImageUrl(localPreviewUrl, resolvePersistentImageUrl(currentValue));
+      localPreviewUrl = createSafeObjectURL(croppedBlob);
+      if (!localPreviewUrl) {
+        throw new Error('IMAGE_PREVIEW_CREATION_FAILED');
+      }
+
       registerOriginalImage(localPreviewUrl, croppedBlob);
       setPendingPreviewUrl(localPreviewUrl);
-      latestUpload.current.onChange?.(localPreviewUrl);
-      latestUpload.current.onImageChange?.(localPreviewUrl);
 
-      const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
-      if (!uid) throw new Error(language === 'id' ? 'UID akun belum tersedia.' : 'The account UID is unavailable.');
-      const activeTab = localStorage.getItem('au_last_active_tab') || 'workspace';
-      const activeFolder = localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1';
+      const uid =
+        getLocalMediaOwnerUid() ||
+        auth.currentUser?.uid ||
+        getStoredAuthUser()?.uid ||
+        '';
+
+      if (!uid) {
+        throw new Error('FIREBASE_UID_REQUIRED');
+      }
+
+      const activeTab =
+        localStorage.getItem('au_last_active_tab') || 'workspace';
+
+      const activeFolder =
+        localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) ||
+        'folder-1';
+
       const context = `${activeTab}:${activeFolder}:${displayLabel}`;
-      const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
+
+      // Upload must succeed before updating the form state.
+      const persistentRef = await persistLocalImageBlob(
+        uid,
+        croppedBlob,
+        context
+      );
+
+      if (!uploadMounted.current) return;
+
+      if (!persistentRef.startsWith('au-cloud-media://')) {
+        throw new Error('INVALID_CLOUD_MEDIA_REFERENCE');
+      }
+
       bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
       registerOriginalImage(persistentRef, croppedBlob);
-      if (uploadMounted.current && latestUpload.current.currentValue === localPreviewUrl) {
-        latestUpload.current.onChange?.(persistentRef);
-        latestUpload.current.onImageChange?.(persistentRef);
-      }
+
+      latestUpload.current.onChange?.(persistentRef);
+      latestUpload.current.onImageChange?.(persistentRef);
+
       setPendingPreviewUrl('');
       setUploadNotice(
         language === 'id'
-          ? persistentRef.startsWith('au-cloud-media://')
-            ? 'Gambar tersimpan di cloud storage dan bisa dibuka dari perangkat lain.'
-            : 'Gambar tersimpan lokal di browser ini; upload cloud belum dikonfigurasi.'
-          : persistentRef.startsWith('au-cloud-media://')
-            ? 'Image saved to cloud storage and available on your other devices.'
-            : 'Image is saved in this browser; cloud uploads are not configured.'
+          ? 'Gambar berhasil disimpan di Cloudflare.'
+          : 'Image successfully saved to Cloudflare.'
       );
     } catch (error) {
-      console.error('Local image preview failed:', error);
-      const detail = error instanceof Error ? error.message : (language === 'id' ? 'Kesalahan tidak diketahui.' : 'Unknown error.');
-      setUploadError(
-        language === 'id'
-          ? `Preview gambar gagal. Gambar sebelumnya tetap dipertahankan. ${detail}`
-          : `Image preview failed. The previous image was kept. ${detail}`
-      );
+      console.error('Cloud media upload failed:', error);
+
+      if (localPreviewUrl && isBlobUrl(localPreviewUrl)) {
+        revokeSafeObjectURL(localPreviewUrl);
+      }
+
+      if (uploadMounted.current) {
+        setPendingPreviewUrl('');
+
+        const detail =
+          error instanceof Error
+            ? error.message
+            : 'UNKNOWN_UPLOAD_ERROR';
+
+        setUploadError(
+          language === 'id'
+            ? `Upload gagal. Gambar sebelumnya tetap dipertahankan. ${detail}`
+            : `Upload failed. The previous image was preserved. ${detail}`
+        );
+      }
+    } finally {
+      if (uploadMounted.current) {
+        setIsUploading(false);
+      }
     }
   };
 
+
   const handleClear = () => {
-    void deleteLocalImageReference(currentValue);
+    // void deleteLocalImageReference(currentValue);
     if (isBlobUrl(currentValue)) {
       revokeSafeObjectURL(currentValue);
     }
@@ -421,9 +473,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       <div className="flex items-center space-x-2">
         <div
           onClick={handleThumbnailClick}
-          className={`relative group w-9 h-9 rounded-lg overflow-hidden border ${
-            isDark ? 'border-slate-600 bg-slate-700/80 shadow-xs' : 'border-slate-200 bg-slate-100'
-          } shrink-0 cursor-pointer`}
+          className={`relative group w-9 h-9 rounded-lg overflow-hidden border ${isDark ? 'border-slate-600 bg-slate-700/80 shadow-xs' : 'border-slate-200 bg-slate-100'
+            } shrink-0 cursor-pointer`}
           title={
             displayedImage && displayedImage.trim() !== ''
               ? (language === 'id' ? 'Klik untuk Sesuaikan Posisi / Crop' : 'Click to Adjust Position / Crop')
@@ -488,23 +539,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           )}
         </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onClick={(e) => {
-            (e.target as HTMLInputElement).value = '';
-          }}
-          onChange={handleFileChange}
-          className="hidden"
-        />
       </div>
 
       {uploadError && (
-        <p role="alert" className="text-[11px] leading-snug text-rose-600 dark:text-rose-400">
+        <p
+        role="alert"
+        className="text-[11px] leading-snug text-rose-600 dark:text-rose-400"
+        >
           {uploadError}
         </p>
       )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onClick={(e) => {
+          (e.target as HTMLInputElement).value = '';
+        }}
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
       {uploadNotice && (
         <p role="status" className="text-[11px] leading-snug text-amber-600 dark:text-amber-400">
@@ -562,6 +617,7 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     src: string;
     queue: string[];
   } | null>(null);
+  const [uploadError, setUploadError] = useState('');
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const latestImages = useRef({ images, onChange });
@@ -667,7 +723,7 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
 
   const handleRemove = (idx: number) => {
     const targetUrl = images[idx];
-    void deleteLocalImageReference(targetUrl);
+    // void deleteLocalImageReference(targetUrl);
     if (isBlobUrl(targetUrl)) {
       revokeSafeObjectURL(targetUrl);
     }
@@ -690,89 +746,162 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     // Main template images array is completely untouched!
   };
 
+
   const handleCropComplete = async (croppedUrl: string, sessionId?: string) => {
     const session = activeSessionRef.current;
+
     if (!session || (sessionId && session.id !== sessionId)) {
       return;
     }
 
     let croppedBlob: Blob;
-    let localPreviewUrl: string;
+    let localPreviewUrl = '';
+
     try {
       const response = await fetch(croppedUrl);
-      if (!response.ok) throw new Error('The cropped image could not be prepared.');
+
+      if (!response.ok) {
+        throw new Error('CROPPED_IMAGE_PREPARATION_FAILED');
+      }
+
       croppedBlob = await response.blob();
+      if (!croppedBlob.type.startsWith('image/')) {
+  throw new Error('INVALID_IMAGE_FORMAT');
+}
+
+if (croppedBlob.size <= 0) {
+  throw new Error('EMPTY_IMAGE_FILE');
+}
+
+if (croppedBlob.size > 15 * 1024 * 1024) {
+  throw new Error('IMAGE_TOO_LARGE_MAX_15MB');
+}
+
       if (!uploadMounted.current) return;
-      localPreviewUrl = createSafeObjectURL(croppedBlob);
-      if (!localPreviewUrl) throw new Error('The local image preview could not be created.');
-      registerOriginalImage(localPreviewUrl, croppedBlob);
-    } catch (error) {
-      console.error('Local media preview failed:', error);
-      return;
-    }
 
-    const uid = getLocalMediaOwnerUid() || auth.currentUser?.uid || getStoredAuthUser()?.uid || '';
-    const activeTab = localStorage.getItem('au_last_active_tab') || 'workspace';
-    const activeFolder = uid
-      ? (localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) || 'folder-1')
-      : 'folder-1';
-    const context = `${activeTab}:${activeFolder}:${label}:multi`;
+      // Release the original temporary source after cropping.
+      if (session.isNewUpload && cropperModalState?.src) {
+        const sourceUrl = cropperModalState.src;
 
-    if (!session.isNewUpload) {
-      // Editing existing image
-      const idx = session.targetIndex;
-      if (idx >= 0 && idx < images.length) {
-        const oldUrl = images[idx];
-        const updated = [...latestImages.current.images];
-        updated[idx] = localPreviewUrl;
-        commitImages(updated);
-        try {
-          if (!uid) throw new Error('The account UID is unavailable.');
-          const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
-          bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
-          registerTransientImageUrl(localPreviewUrl, persistentRef);
-          registerOriginalImage(persistentRef, croppedBlob);
-          const persisted = latestImages.current.images.map((image) => image === localPreviewUrl ? persistentRef : image);
-          commitImages(persisted);
-          void deleteLocalImageReference(oldUrl, uid);
-          if (isBlobUrl(oldUrl)) revokeSafeObjectURL(oldUrl);
-        } catch (error) {
-          console.error('Local media persistence failed:', error);
+        if (isBlobUrl(sourceUrl)) {
+          revokeSafeObjectURL(sourceUrl);
         }
       }
-      activeSessionRef.current = null;
-      setCropperModalState(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+
+      localPreviewUrl = createSafeObjectURL(croppedBlob);
+
+      if (!localPreviewUrl) {
+        throw new Error('IMAGE_PREVIEW_CREATION_FAILED');
       }
+
+      registerOriginalImage(localPreviewUrl, croppedBlob);
+    } catch (error) {
+      console.error('Media preparation failed:', error);
+
+      setUploadError(
+        language === 'id'
+          ? 'Gagal memproses gambar.'
+          : 'Failed to prepare image.'
+      );
+
       return;
     }
 
-    // New upload flow: commit immediately for preview, then replace it with
-    // an account-scoped stable IndexedDB reference for autosave/rehydration.
-    const currentSrc = cropperModalState?.src;
-    if (currentSrc && isBlobUrl(currentSrc)) {
-      revokeSafeObjectURL(currentSrc);
-    }
+    const uid =
+      getLocalMediaOwnerUid() ||
+      auth.currentUser?.uid ||
+      getStoredAuthUser()?.uid ||
+      '';
 
-    const updated = [...latestImages.current.images, localPreviewUrl];
-    commitImages(updated);
+    const activeTab =
+      localStorage.getItem('au_last_active_tab') || 'workspace';
+
+    const activeFolder = uid
+      ? localStorage.getItem(`au_active_folder_${uid}_${activeTab}`) ||
+      'folder-1'
+      : 'folder-1';
+
+    const context = `${activeTab}:${activeFolder}:${label}:multi`;
+
+    setUploadError('');
+
     try {
-      if (!uid) throw new Error('The account UID is unavailable.');
-      const persistentRef = await persistLocalImageBlob(uid, croppedBlob, context);
+      if (!uid) {
+        throw new Error('FIREBASE_UID_REQUIRED');
+      }
+
+      const persistentRef = await persistLocalImageBlob(
+        uid,
+        croppedBlob,
+        context
+      );
+
+      if (!uploadMounted.current) return;
+
+      if (!persistentRef.startsWith('au-cloud-media://')) {
+        throw new Error('INVALID_CLOUD_MEDIA_REFERENCE');
+      }
+
       bindPersistentImageObjectUrl(persistentRef, localPreviewUrl);
-      registerTransientImageUrl(localPreviewUrl, persistentRef);
       registerOriginalImage(persistentRef, croppedBlob);
-      commitImages(latestImages.current.images.map((image) => image === localPreviewUrl ? persistentRef : image));
+
+      if (session.isNewUpload) {
+        commitImages([
+          ...latestImages.current.images,
+          persistentRef,
+        ]);
+      } else {
+        const idx = session.targetIndex;
+        const oldUrl = latestImages.current.images[idx];
+
+        if (idx < 0 || idx >= latestImages.current.images.length) {
+          throw new Error('IMAGE_TARGET_NOT_FOUND');
+        }
+
+        const updated = [...latestImages.current.images];
+        updated[idx] = persistentRef;
+
+        commitImages(updated);
+
+        // Delete old media only after the replacement is uploaded
+        // and committed to the form state.
+        if (oldUrl && oldUrl !== persistentRef) {
+          // void deleteLocalImageReference(oldUrl, uid);
+          if (isBlobUrl(oldUrl)) {
+            revokeSafeObjectURL(oldUrl);
+          }
+        }
+      }
     } catch (error) {
-      console.error('Local media persistence failed:', error);
+      console.error('Cloud media upload failed:', error);
+
+      if (localPreviewUrl && isBlobUrl(localPreviewUrl)) {
+        revokeSafeObjectURL(localPreviewUrl);
+      }
+
+      if (uploadMounted.current) {
+        const detail =
+          error instanceof Error
+            ? error.message
+            : 'UNKNOWN_UPLOAD_ERROR';
+
+        setUploadError(
+          language === 'id'
+            ? `Upload gagal. Media sebelumnya tetap dipertahankan. ${detail}`
+            : `Upload failed. Previous media was preserved. ${detail}`
+        );
+      }
     }
 
-    // If there are more images in queue, proceed to the next one
+    // Continue processing the next queued image.
+    if (!uploadMounted.current) return;
+
     if (cropperModalState && cropperModalState.queue.length > 0) {
       const nextSrc = cropperModalState.queue[0];
       const nextQueue = cropperModalState.queue.slice(1);
-      const nextSessionId = 'multi_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
+      const nextSessionId =
+        'multi_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
       activeSessionRef.current = {
         id: nextSessionId,
@@ -789,11 +918,13 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     } else {
       activeSessionRef.current = null;
       setCropperModalState(null);
+
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
+
 
   return (
     <div className="space-y-2">
@@ -849,6 +980,15 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
         )}
       </div>
 
+       {uploadError && (
+        <p
+          role="alert"
+          className="text-[11px] leading-snug text-rose-600 dark:text-rose-400"
+        >
+          {uploadError}
+        </p>
+      )}
+
       <input
         ref={fileInputRef}
         type="file"
@@ -903,13 +1043,12 @@ export const VerifiedSelector: React.FC<VerifiedSelectorProps> = ({
         <button
           type="button"
           onClick={() => onChange('none')}
-          className={`px-2.5 py-1 text-xs rounded-lg border transition-all ${
-            value === 'none'
+          className={`px-2.5 py-1 text-xs rounded-lg border transition-all ${value === 'none'
               ? 'bg-purple-600 border-purple-600 text-white font-bold shadow-xs'
               : isDark
-              ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
-              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-          }`}
+                ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
         >
           {language === 'id' ? 'Tanpa Lencana' : 'No Badge'}
         </button>
@@ -917,13 +1056,12 @@ export const VerifiedSelector: React.FC<VerifiedSelectorProps> = ({
         <button
           type="button"
           onClick={() => onChange(allowIg ? 'ig-blue' : 'blue')}
-          className={`px-2.5 py-1 text-xs rounded-lg border transition-all flex items-center space-x-1.5 cursor-pointer ${
-            isBlue
+          className={`px-2.5 py-1 text-xs rounded-lg border transition-all flex items-center space-x-1.5 cursor-pointer ${isBlue
               ? 'bg-purple-600 border-purple-600 text-white font-bold shadow-xs'
               : isDark
-              ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
-              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-          }`}
+                ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
         >
           <span className="w-2 h-2 rounded-full bg-[#1d9bf0] shrink-0" />
           <span>{language === 'id' ? 'Centang Biru' : 'Blue Verified'}</span>

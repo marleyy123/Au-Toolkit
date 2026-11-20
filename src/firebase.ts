@@ -324,44 +324,93 @@ export function removeUndefinedDeep<T = any>(value: T): T {
 // Safely sanitizes any payload before sending to Firestore to guarantee
 // 1. All `undefined` values are completely stripped (preventing Firestore WriteBatch errors)
 // 2. It remains well below the hard 1MB (1,048,576 byte) document limit.
-async function sanitizeObjectForFirestore(obj: any, maxDocBytes = 750_000): Promise<any> {
+
+async function sanitizeObjectForFirestore(
+  obj: any,
+  maxDocBytes = 750_000
+): Promise<any> {
   if (!obj) return obj;
+
   const uid = auth.currentUser?.uid;
-  const migrated = uid ? await migrateLocalMediaDeep(obj, uid) : obj;
+
+  // Jangan izinkan referensi lokal masuk Firestore tanpa identitas pemilik.
+  if (!uid && containsLocalMediaReference(obj)) {
+    throw new Error('LOCAL_MEDIA_MIGRATION_AUTH_REQUIRED');
+  }
+
+  // Migrasi dilakukan di luar try agar kegagalan migrasi selalu membatalkan write.
+  const migrated = uid
+    ? await migrateLocalMediaDeep(obj, uid)
+    : obj;
+
+  const cleaned = removeUndefinedDeep(
+    replaceTransientImageUrlsDeep(migrated)
+  );
+
+  // Pertahanan terakhir: tidak boleh ada referensi IndexedDB yang lolos.
+  if (containsLocalMediaReference(cleaned)) {
+    throw new Error('LOCAL_MEDIA_REFERENCE_REMAINS');
+  }
+
   try {
-    // Local preview references are valid only in the current browser session.
-    // Restore their last stable value before any Firestore fingerprint/write.
-    const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(migrated));
     let rawStr = JSON.stringify(cleaned);
+
     if (rawStr.length < maxDocBytes) {
       return cleaned;
     }
 
     const cloned = JSON.parse(rawStr);
     const targetSizes = [75_000, 45_000, 25_000, 15_000];
+
     for (const targetSize of targetSizes) {
       const sanitizeDeep = async (node: any) => {
         if (!node || typeof node !== 'object') return;
-        for (const k of Object.keys(node)) {
-          const val = node[k];
-          if (typeof val === 'string' && val.startsWith('data:image/') && val.length > targetSize) {
-            node[k] = await ensureDataUrlUnderSize(val, targetSize);
-          } else if (typeof val === 'object') {
-            await sanitizeDeep(val);
+
+        for (const key of Object.keys(node)) {
+          const value = node[key];
+
+          if (
+            typeof value === 'string' &&
+            value.startsWith('data:image/') &&
+            value.length > targetSize
+          ) {
+            node[key] = await ensureDataUrlUnderSize(value, targetSize);
+          } else if (value && typeof value === 'object') {
+            await sanitizeDeep(value);
           }
         }
       };
+
       await sanitizeDeep(cloned);
       rawStr = JSON.stringify(cloned);
-      if (rawStr.length < maxDocBytes) {
-        break;
-      }
+
+      if (rawStr.length < maxDocBytes) break;
     }
+
     return removeUndefinedDeep(cloned);
-  } catch {
-    return removeUndefinedDeep(obj);
+  } catch (error) {
+    // Jika kompresi gagal, tetap gunakan payload yang sudah dimigrasikan.
+    console.warn('[Firestore] Payload compression skipped:', error);
+    return cleaned;
   }
 }
+
+function containsLocalMediaReference(value: any): boolean {
+  if (typeof value === 'string') {
+    return value.includes('au-local-media://');
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(containsLocalMediaReference);
+  }
+
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  return Object.values(value).some(containsLocalMediaReference);
+}
+
 
 async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<string, string>()): Promise<any> {
   if (typeof value === 'string') {
@@ -1338,8 +1387,14 @@ export async function syncFolderToFirestore(
       typeof folderData.order === 'number' ? folderData.order : 1
     )));
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `users/${cleanUser}/folders/${folderId}`);
-  }
+  handleFirestoreError(
+    error,
+    OperationType.UPDATE,
+    `users/${cleanUser}/folders/${folderId}`
+  );
+
+  throw error;
+}
 }
 
 // Delete a folder permanently from user's private subcollection in Firestore
