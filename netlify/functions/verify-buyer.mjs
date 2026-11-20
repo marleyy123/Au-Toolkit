@@ -1,4 +1,10 @@
 import { verifyFirebaseAuthorization } from '../lib/firebase-token.mjs';
+import {
+  createAccessStore,
+  getStagingDb,
+  accessView,
+  normalizeEmail,
+} from '../../lib/staging-access-store.js';
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -124,6 +130,37 @@ function commonAccessData(upstream, email, deviceType, deviceLabel, expirationDa
   };
 }
 
+function getFirestoreAccessStore() {
+  if (process.env.ACCESS_BACKEND !== 'firestore') {
+    throw Object.assign(new Error('FIRESTORE_BACKEND_NOT_ENABLED'), {
+      reason: 'FIRESTORE_BACKEND_NOT_ENABLED',
+    });
+  }
+
+  return createAccessStore(getStagingDb());
+}
+
+function firestoreError(error, cors) {
+  const reason = error?.reason || 'FIRESTORE_BACKEND_ERROR';
+
+  const statusCode =
+    reason === 'ACCOUNT_IDENTITY_MISMATCH' ? 403 :
+    reason === 'FIREBASE_ADMIN_CONFIG_REQUIRED' ||
+    reason === 'FIREBASE_PROJECT_MISMATCH' ||
+    reason === 'STAGING_CONFIG_REQUIRED' ? 500 : 500;
+
+  return json(statusCode, {
+    success: false,
+    accessGranted: false,
+    isValid: false,
+    reason,
+    status: reason,
+    message: reason === 'ACCOUNT_IDENTITY_MISMATCH'
+      ? 'Identitas akun tidak cocok dengan data akses.'
+      : 'Server verifikasi akses sedang bermasalah.',
+  }, cors);
+}
+
 export function createHandler({ verifyAuthorization = verifyFirebaseAuthorization } = {}) {
  return async function handler(event) {
   const origin = String(event.headers?.origin || event.headers?.Origin || '').replace(/\/$/, '');
@@ -231,6 +268,54 @@ export function createHandler({ verifyAuthorization = verifyFirebaseAuthorizatio
   }
 
   if (requestedAction === 'checkBuyerEmail') {
+      if (process.env.ACCESS_BACKEND === 'firestore') {
+    try {
+      const email = normalizeEmail(
+        body.email || body.buyer_email || body.user_email
+      );
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return json(400, {
+          success: false,
+          accessGranted: false,
+          reason: 'EMAIL_REQUIRED',
+          status: 'EMAIL_REQUIRED',
+          message: 'Format email pembelian tidak valid.',
+        }, cors);
+      }
+
+      const store = getFirestoreAccessStore();
+      const account = await store.getAccount(email);
+      const result = accessView(account);
+
+      if (result.reason === 'BUYER_NOT_FOUND') {
+        return json(200, {
+          ...result,
+          email,
+          message: 'Email ini tidak ditemukan dalam data pembelian.',
+        }, cors);
+      }
+
+      if (!result.accessGranted) {
+        return json(200, {
+          ...result,
+          email,
+          message: result.message,
+        }, cors);
+      }
+
+      return json(200, {
+        ...result,
+        accessGranted: true,
+        isValid: true,
+        reason: 'BUYER_EMAIL_OK',
+        status: 'BUYER_EMAIL_OK',
+        message: 'Email pembelian valid.',
+      }, cors);
+    } catch (error) {
+      return firestoreError(error, cors);
+    }
+  }
     const email = String(body.email || body.buyer_email || body.user_email || '').trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return json(400, {
@@ -380,15 +465,55 @@ export function createHandler({ verifyAuthorization = verifyFirebaseAuthorizatio
     }, cors);
   }
 
-  if (!scriptUrl) {
-    return json(500, {
-      success: false,
-      accessGranted: false,
-      reason: 'APPS_SCRIPT_CONFIG_ERROR',
-      status: 'APPS_SCRIPT_CONFIG_ERROR',
-      message: 'Konfigurasi server spreadsheet akses belum disetel dengan benar.',
+const deviceType =
+  String(body.deviceType || body.device_type || body.deviceSlot || '').toLowerCase() === 'mobile'
+    ? 'mobile'
+    : 'desktop';
+
+const deviceLabel =
+  String(body.deviceLabel || body.device_label || body.deviceModel || '').trim() ||
+  (deviceType === 'mobile' ? 'Mobile Device' : 'Desktop Device');
+
+// FIRESTORE BACKEND
+if (process.env.ACCESS_BACKEND === 'firestore') {
+  try {
+    const store = getFirestoreAccessStore();
+
+    const result = await store.validate(
+      email,
+      { uid: firebaseUser.uid },
+      {
+        type: deviceType,
+        id: deviceId,
+        label: deviceLabel,
+      }
+    );
+
+    return json(200, {
+      ...result,
+      email,
+      deviceType,
+      deviceModel: deviceLabel,
+      registeredDevice: result.registeredDevice || null,
+      message: result.message || (
+        result.accessGranted ? 'Akses aktif.' : 'Akses tidak diberikan.'
+      ),
     }, cors);
+  } catch (error) {
+    return firestoreError(error, cors);
   }
+}
+
+// APPS SCRIPT BACKEND
+if (!scriptUrl) {
+  return json(500, {
+    success: false,
+    accessGranted: false,
+    reason: 'APPS_SCRIPT_CONFIG_ERROR',
+    status: 'APPS_SCRIPT_CONFIG_ERROR',
+    message: 'Konfigurasi server spreadsheet akses belum disetel dengan benar.',
+  }, cors);
+}
 
   if (!sharedSecret) {
     return json(500, {
@@ -400,8 +525,6 @@ export function createHandler({ verifyAuthorization = verifyFirebaseAuthorizatio
     }, cors);
   }
 
-  const deviceType = String(body.deviceType || body.device_type || body.deviceSlot || '').toLowerCase() === 'mobile' ? 'mobile' : 'desktop';
-  const deviceLabel = String(body.deviceLabel || body.device_label || body.deviceModel || '').trim() || (deviceType === 'mobile' ? 'Mobile Device' : 'Desktop Device');
   const stableDeviceId = extractStableDeviceSignature(deviceId) || deviceId;
   const payload = {
     action: requestedAction === 'registerDevice' ? 'registerDevice' : 'validateAccess',
