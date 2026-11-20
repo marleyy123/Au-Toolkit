@@ -32,7 +32,7 @@ export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDa
     : isInactive ? copy('Akun sedang nonaktif', 'Your account is inactive')
     : isInvalidPurchase ? copy('Data pembelian perlu diperiksa', 'Purchase details need checking')
     : isExpired ? copy('Waktunya melanjutkan cerita', 'Time for your next chapter') : copy('Akses belum terverifikasi', 'Access not verified');
-  const description = customMessage || (isDeviceMismatch ? copy('Setiap akun dapat digunakan pada 1 laptop dan 1 HP. Slot perangkat ini sudah dipakai. Masuk dari perangkat yang terdaftar atau hubungi admin untuk reset slot perangkat. Masa aksesmu tetap aktif sesuai tanggal berakhir.', 'Each account supports 1 laptop and 1 phone. This device slot is already in use. Sign in from your registered device or contact the administrator to reset the slot. Your subscription keeps its existing expiry date.')
+  const description = customMessage || (isDeviceMismatch ? copy('Setiap akun dapat digunakan pada maksimal 4 perangkat aktif (HP, Tab, atau Laptop). Masuk dari perangkat yang sudah terdaftar atau hubungi admin untuk reset slot perangkat. Masa aksesmu tetap aktif sesuai tanggal berakhir.', 'Each account supports up to 4 active devices (phones, tablets, or laptops). Sign in from a registered device or contact the administrator to reset your devices. Your subscription keeps its existing expiry date.')
     : isOrderNotSuccess ? copy('Akses akan tersedia setelah pembayaran Lynk.id terverifikasi sukses.', 'Access becomes available once your Lynk.id payment is verified as successful.')
     : isInactive ? copy('Hubungi administrator untuk memeriksa status akunmu.', 'Contact the administrator to check your account status.')
     : isInvalidPurchase ? copy('Tanggal pembelian belum valid. Hubungi bantuan dengan invoice pembelianmu.', 'The purchase date is invalid. Contact support with your purchase invoice.')
@@ -51,7 +51,7 @@ export function AccessGuard({ email, purchaseDate, accessExpiresAt, expirationDa
       <div className="au-auth-heading"><h1 id="au-access-title">{title}</h1><p>{description}</p></div>
       <dl className="au-access-details">
         <div><dt>{copy('Email akun', 'Account email')}</dt><dd>{email}</dd></div>
-        {isDeviceMismatch && <div><dt>{copy('Batas perangkat', 'Device limit')}</dt><dd>{copy('1 laptop + 1 HP', '1 laptop + 1 phone')}</dd></div>}
+        {isDeviceMismatch && <div><dt>{copy('Batas perangkat', 'Device limit')}</dt><dd>{copy('Maksimal 4 perangkat', 'Up to 4 devices')}</dd></div>}
         <div><dt>{copy('Status akun', 'Account status')}</dt><dd>{displayStatus}</dd></div>
         {purchaseDate && <div><dt>{copy('Tanggal pembelian', 'Purchase date')}</dt><dd>{formatDate(purchaseDate)}</dd></div>}
         {expiry && <div><dt>{copy('Tanggal berakhir', 'Expiry date')}</dt><dd>{formatDate(expiry)}</dd></div>}

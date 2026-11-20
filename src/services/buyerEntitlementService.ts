@@ -469,7 +469,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'APPS_SCRIPT_UNAVAILABLE',
-      message: 'Server verifikasi spreadsheet sedang tidak dapat dijangkau. Silakan coba lagi.',
+      message: 'Server verifikasi sedang tidak dapat dijangkau. Silakan coba lagi.',
       data: resData,
     };
   }
@@ -499,7 +499,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'BUYER_NOT_FOUND',
-      message: 'Email ini tidak ditemukan dalam data pembelian.',
+      message: 'Email ini belum terdaftar sebagai pembeli AU Toolkit. Silakan lakukan pembelian paket terlebih dahulu untuk mengaktifkan akses.',
       data: resData,
     };
   }
@@ -549,7 +549,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
     return {
       allowed: false,
       status: 'DEVICE_MISMATCH',
-      message: resData.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah 1 laptop dan 1 HP. Gunakan perangkat terdaftar atau hubungi admin untuk reset perangkat.',
+      message: resData.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah maksimal 4 perangkat aktif. Gunakan salah satu perangkat terdaftar atau hubungi admin untuk reset perangkat.',
       data: resData,
     };
   }
@@ -652,7 +652,7 @@ export async function checkBuyerEntitlement(
       email: cleanEmail,
       deviceSlot: slot,
       deviceModel: detectedDeviceLabel,
-      message: 'Server verifikasi spreadsheet sedang tidak dapat dijangkau. Silakan coba lagi.',
+      message: 'Server verifikasi sedang tidak dapat dijangkau. Silakan coba lagi.',
     };
   }
 
@@ -723,7 +723,7 @@ export async function checkBuyerEntitlement(
       email: cleanEmail,
       deviceSlot: slot,
       deviceModel: detectedDeviceLabel,
-      message: 'Email ini tidak ditemukan dalam data pembelian.',
+      message: 'Email ini belum terdaftar sebagai pembeli AU Toolkit. Silakan lakukan pembelian paket terlebih dahulu untuk mengakses editor.',
     };
   }
 

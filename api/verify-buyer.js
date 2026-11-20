@@ -5,6 +5,7 @@ import {
   createAccessStore,
   getStagingDb,
   normalizeEmail,
+  ALLOWED_PROJECT_IDS,
 } from "../lib/staging-access-store.js";
 
 const PROJECT_ID =
@@ -83,21 +84,15 @@ export function createHandler({
     const action = String(body.action || "validateAccess").trim();
     if (!["validateAccess", "checkBuyerEmail", "healthCheck"].includes(action))
       return fail(res, 400, "INVALID_ACTION");
-    const backend = process.env.ACCESS_BACKEND || "sheets";
+    const backend = process.env.ACCESS_BACKEND || "firestore";
     if (!["sheets", "firestore"].includes(backend))
       return fail(res, 500, "INVALID_ACCESS_BACKEND");
     if (
-      process.env.VITE_FIREBASE_PROJECT_ID !== PROJECT_ID ||
-      (backend === "sheets" &&
-        process.env.GOOGLE_SHEETS_SCRIPT_URL?.trim() !== SCRIPT_URL)
+      !ALLOWED_PROJECT_IDS.includes(process.env.VITE_FIREBASE_PROJECT_ID) &&
+      process.env.VITE_FIREBASE_PROJECT_ID !== PROJECT_ID
     ) {
       return fail(res, 500, "STAGING_CONFIG_ERROR");
     }
-    if (
-      backend === "sheets" &&
-      String(process.env.APPS_SCRIPT_SHARED_SECRET || "").trim().length < 32
-    )
-      return fail(res, 500, "APPS_SCRIPT_CONFIG_ERROR");
     let identity;
     if (action === "validateAccess") {
       const authorization = String(req.headers.authorization || "");
@@ -173,39 +168,7 @@ export function createHandler({
         res.statusCode = 200;
         return res.end(JSON.stringify({ ...result, backend }));
       }
-      if (action === "healthCheck") {
-        const response = await fetchImpl(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action,
-            serverSecret: process.env.APPS_SCRIPT_SHARED_SECRET.trim(),
-          }),
-          signal: AbortSignal.timeout(25000),
-          redirect: "follow",
-        });
-        const upstream = await response.json();
-        if (!response.ok || upstream.success !== true)
-          return fail(res, 502, "APPS_SCRIPT_HEALTH_FAILED");
-        res.statusCode = 200;
-        return res.end(
-          JSON.stringify({
-            success: true,
-            environment: "staging",
-            status: "HEALTH_CHECK",
-            upstreamVersion: upstream.version || null,
-          }),
-        );
-      }
-      const result = await delegate({
-        httpMethod: req.method,
-        headers: req.headers,
-        body: JSON.stringify({ ...body, action }),
-      });
-      res.statusCode = result.statusCode;
-      for (const [key, value] of Object.entries(result.headers || {}))
-        res.setHeader(key, value);
-      return res.end(result.body);
+      return fail(res, 503, "FIRESTORE_MODE_REQUIRED");
     
     } catch (error) {
       const reason = error?.reason || error?.message;

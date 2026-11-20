@@ -143,10 +143,11 @@ async function startServer() {
     app.all('/api/midtrans', express.json({ limit: '16kb' }), createMidtransHandler());
     app.all('/api/midtrans-webhook', express.json({ limit: '16kb' }), createMidtransHandler({ webhook: true }));
     app.all('/api/regional-pricing', pricingHandler());
-    if (process.env.ACCESS_BACKEND === 'firestore') {
-      const { createHandler: verifyHandler } = await import('./api/verify-buyer.js');
-      app.all('/api/verify-buyer', express.json({ limit: '16kb' }), verifyHandler());
-    }
+    const { createHandler: verifyHandler } = await import('./api/verify-buyer.js');
+    const { createHandler: sheetAdminHandler } = await import('./api/sheet-admin.js');
+    app.all('/api/verify-buyer', express.json({ limit: '16kb' }), verifyHandler());
+    app.all('/api/verify-code', express.json({ limit: '16kb' }), verifyHandler());
+    app.all('/api/sheet-admin', express.json({ limit: '64kb' }), sheetAdminHandler());
   }
 
   // CORS configuration
@@ -665,14 +666,7 @@ async function startServer() {
     String(process.env.GOOGLE_SHEETS_SCRIPT_URL || '').trim()
   );
 
-  // Staging uses its deployed verifier; legacy development uses the proxy
-  // only when local Apps Script configuration is absent.
-  const useStagingVerificationProxy = process.env.NODE_ENV !== 'production' &&
-    process.env.VITE_FIREBASE_PROJECT_ID === 'au-toolkit-staging-20261005';
-  if (!useStagingVerificationProxy && (process.env.NODE_ENV === 'production' || hasLocalBuyerVerificationConfig)) {
-    app.post('/api/verify-buyer', jsonParser, optionalFirebaseToken, handleBuyerVerification);
-  }
-  app.post('/api/verify-code', jsonParser, optionalFirebaseToken, handleBuyerVerification);
+  // All verification is strictly authoritative via Firestore backend (no Google Apps Script calls)
 
   // API endpoint to fetch and parse Google Drive public folder contents
   app.get('/api/gdrive-folder', optionalFirebaseToken, async (req, res) => {

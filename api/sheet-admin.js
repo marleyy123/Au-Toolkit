@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
-import { createAccessStore, getStagingDb, normalizeEmail, PROJECT_ID, validDate } from '../lib/staging-access-store.js';
+import { createAccessStore, getStagingDb, normalizeEmail, ALLOWED_PROJECT_IDS, validDate } from '../lib/staging-access-store.js';
 
 export function createHandler({ env = process.env, getStore = () => createAccessStore(getStagingDb(env)) } = {}) {
   return async (req, res) => {
@@ -7,7 +7,7 @@ export function createHandler({ env = process.env, getStore = () => createAccess
     res.setHeader('Cache-Control', 'no-store');
     const reply = (status, body) => { res.statusCode = status; res.end(JSON.stringify(body)); };
     if (req.method !== 'POST') return reply(405, { success: false, reason: 'METHOD_NOT_ALLOWED' });
-    if (env.VITE_FIREBASE_PROJECT_ID !== PROJECT_ID || env.ACCESS_BACKEND !== 'firestore') return reply(503, { success: false, reason: 'FIRESTORE_MODE_REQUIRED' });
+    if (!ALLOWED_PROJECT_IDS.includes(env.VITE_FIREBASE_PROJECT_ID) || env.ACCESS_BACKEND !== 'firestore') return reply(503, { success: false, reason: 'FIRESTORE_MODE_REQUIRED' });
     const expected = String(env.APPS_SCRIPT_SHARED_SECRET || '').trim();
     const supplied = String(req.headers.authorization || '').replace(/^Bearer /, '');
     const expectedBytes = Buffer.from(expected);

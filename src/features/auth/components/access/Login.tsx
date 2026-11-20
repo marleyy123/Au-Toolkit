@@ -7,6 +7,7 @@ import {
   Loader2,
   AlertCircle,
   ArrowRight,
+  ArrowUpRight,
   CheckCircle2,
   Eye,
   EyeOff,
@@ -19,6 +20,7 @@ import {
   requestPasswordReset,
 } from '../../../../firebase';
 import { checkBuyerEntitlement, normalizeEmail, EntitlementCheckResult } from '../../../../services/buyerEntitlementService';
+import { landingLinks } from '../../../landing/data/landingContent';
 
 interface LoginProps {
   onLoginSuccess: (email: string, user: any, entitlement?: EntitlementCheckResult) => void;
@@ -48,6 +50,7 @@ export const Login: React.FC<LoginProps> = ({
   const [authMode, setAuthMode] = useState<'google' | 'email'>('google');
   const [errorMessage, setErrorMessage] = useState<string | null>(initialErrorMessage || null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [isUnregisteredBuyer, setIsUnregisteredBuyer] = useState(false);
 
   useEffect(() => {
     if (initialErrorMessage) {
@@ -60,7 +63,7 @@ export const Login: React.FC<LoginProps> = ({
     entitlement: EntitlementCheckResult
   ): Promise<boolean> => {
     if (entitlement.status === 'APPS_SCRIPT_UNAVAILABLE') {
-      setErrorMessage('Server verifikasi spreadsheet sedang tidak dapat dijangkau. Silakan coba lagi.');
+      setErrorMessage('Server verifikasi sedang tidak dapat dijangkau. Silakan coba lagi.');
       return false;
     }
 
@@ -88,7 +91,11 @@ export const Login: React.FC<LoginProps> = ({
       try {
         await signOutUser();
       } catch {}
-      setErrorMessage('Email ini tidak ditemukan dalam data pembelian.');
+      setIsUnregisteredBuyer(true);
+      setErrorMessage(
+        entitlement.message ||
+          `Email (${targetEmail}) belum terdaftar sebagai pembeli AU Toolkit. Silakan beli paket akses terlebih dahulu untuk menggunakan editor.`
+      );
       return false;
     }
 
@@ -107,7 +114,7 @@ export const Login: React.FC<LoginProps> = ({
         await signOutUser();
       } catch {}
       setErrorMessage(
-        entitlement.message || 'Data tanggal pembelian tidak valid atau kosong di spreadsheet pembelian.'
+        entitlement.message || 'Data tanggal pembelian tidak valid atau kosong di database pembelian.'
       );
       return false;
     }
@@ -140,7 +147,7 @@ export const Login: React.FC<LoginProps> = ({
         await signOutUser();
       } catch {}
       if (onAccessExpired) onAccessExpired(targetEmail, entitlement);
-      else setErrorMessage(entitlement.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah 1 laptop dan 1 HP. Hubungi admin untuk reset perangkat.');
+      else setErrorMessage(entitlement.message || 'Akun ini sudah terdaftar di perangkat lain. Batas akses adalah maksimal 4 perangkat. Hubungi admin untuk reset perangkat.');
       return false;
     }
 
@@ -178,6 +185,7 @@ export const Login: React.FC<LoginProps> = ({
     setIsLoading(true);
     setErrorMessage(null);
     setInfoMessage(null);
+    setIsUnregisteredBuyer(false);
 
     try {
       if (!password) {
@@ -196,11 +204,26 @@ export const Login: React.FC<LoginProps> = ({
         ]);
       } catch (authError: any) {
         setIsLoading(false);
+
+        // Jika login auth gagal, cek apakah email sebenarnya sudah terdaftar sebagai pembeli
+        const buyerCheck = await entitlementPromise.catch(() => null);
+        if (buyerCheck && (buyerCheck.status === 'NOT_REGISTERED' || !buyerCheck.isRegisteredBuyer)) {
+          setIsUnregisteredBuyer(true);
+          setErrorMessage(
+            buyerCheck.message ||
+              `Email (${cleanEmail}) belum terdaftar sebagai pembeli AU Toolkit. Silakan beli paket akses terlebih dahulu untuk menggunakan editor.`
+          );
+          return;
+        }
+
         const code = String(authError?.code || '').trim();
         setErrorMessage(
-          code === 'auth/email-not-verified' ? authError.message : code
-            ? `Login Email/Password gagal (${code}). Periksa email dan password Anda.`
-            : 'Login Email/Password gagal. Periksa email dan password Anda.'
+          code === 'auth/email-not-verified' ? authError.message :
+          code === 'auth/invalid-credential' || code === 'auth/user-not-found' || code === 'auth/wrong-password'
+            ? 'Password salah atau akun belum diaktifkan. Periksa email dan password atau gunakan tombol Lupa Password.'
+            : code
+              ? `Login Email/Password gagal (${code}). Periksa email dan password Anda.`
+              : 'Login Email/Password gagal. Periksa email dan password Anda.'
         );
         return;
       }
@@ -259,6 +282,7 @@ export const Login: React.FC<LoginProps> = ({
     setIsGoogleLoading(true);
     setErrorMessage(null);
     setInfoMessage(null);
+    setIsUnregisteredBuyer(false);
 
     let googleAuthenticated = false;
     try {
@@ -414,9 +438,33 @@ export const Login: React.FC<LoginProps> = ({
 
         {/* Error Notification Alert */}
         {errorMessage && (
-          <div className="flex items-start gap-3 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs font-semibold leading-relaxed animate-fadeIn">
-            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-            <div className="flex-1">{errorMessage}</div>
+          <div className="flex flex-col gap-2.5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs font-semibold leading-relaxed animate-fadeIn">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <div className="flex-1">{errorMessage}</div>
+            </div>
+            {isUnregisteredBuyer && (
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-rose-200/70">
+                <a
+                  href="/#pilihan-paket"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-all shadow-xs"
+                >
+                  <span>Beli Paket Akses</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+                {landingLinks.support && (
+                  <a
+                    href={landingLinks.support}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-rose-700 hover:bg-rose-100 transition-all border border-rose-300"
+                  >
+                    <span>Bantuan WhatsApp</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -575,7 +623,7 @@ export const Login: React.FC<LoginProps> = ({
         {/* Multi-Device Cloud Sync Notice */}
         <div className="pt-2 text-center border-t border-slate-100">
           <p className="text-[11.5px] font-medium text-slate-500 leading-relaxed">
-            Data workspace Anda disinkronkan secara otomatis antar HP & Laptop.
+            Data workspace Anda disinkronkan secara otomatis antar HP, Tablet, dan Laptop (hingga 4 perangkat aktif).
           </p>
         </div>
       </div>

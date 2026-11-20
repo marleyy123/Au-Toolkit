@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createAccessStore, accountId, getStagingDb, accessView } from '../lib/staging-access-store.js';
+import { createAccessStore, accountId, getStagingDb, accessView, SCRIPT_URL } from '../lib/staging-access-store.js';
 import { createHandler as webhook } from '../api/lynk-webhook.js';
 import { createHandler as verifyBuyer } from '../api/verify-buyer.js';
 import { createHandler as sheetAdmin } from '../api/sheet-admin.js';
@@ -72,28 +72,40 @@ assert.equal([...db.rows.keys()].filter(key => key.startsWith('billingPurchases/
 await assert.rejects(store.ingest({ ...purchase, email: 'other@example.com' }), /TRANSACTION_CONFLICT/);
 await assert.rejects(store.ingest({ ...purchase, amount: 15000 }), /TRANSACTION_CONFLICT/);
 const identity = { uid: 'buyer-uid' };
-const desktop = { id: 'dev_desktop_hw_aabbccdd', type: 'desktop', label: 'Windows Laptop' };
-const mobile = { id: 'dev_mobile_hw_aabbccdd', type: 'mobile', label: 'Android' };
-const loginRace = await Promise.all([store.validate(purchase.email, identity, desktop),
-  store.validate(purchase.email, identity, { ...desktop, id: 'dev_desktop_hw_11223344' })]);
-assert.equal(loginRace[0].reason, 'ACCESS_GRANTED');
-assert.equal(loginRace[1].reason, 'DEVICE_MISMATCH', 'Concurrent second laptop must not replace the registered slot');
-assert.equal((await store.validate(purchase.email, identity, mobile)).reason, 'ACCESS_GRANTED');
+const desktop = { id: 'dev_desktop_hw_11111111', type: 'desktop', label: 'Windows Laptop' };
+const desktop2 = { id: 'dev_desktop_hw_22222222', type: 'desktop', label: 'Laptop Kantor' };
+const mobile = { id: 'dev_mobile_hw_33333333', type: 'mobile', label: 'Android' };
+const tablet = { id: 'dev_tablet_hw_44444444', type: 'tablet', label: 'iPad (iOS)' };
+const fifthDevice = { id: 'dev_desktop_hw_55555555', type: 'desktop', label: 'PC Rumah' };
+
+// Up to 4 devices (any mix of laptop, phone, tablet) can be registered
+const d1 = await store.validate(purchase.email, identity, desktop);
+assert.equal(d1.reason, 'ACCESS_GRANTED');
+const d2 = await store.validate(purchase.email, identity, desktop2);
+assert.equal(d2.reason, 'ACCESS_GRANTED', 'Second laptop is allowed within 4-device limit');
+const d3 = await store.validate(purchase.email, identity, mobile);
+assert.equal(d3.reason, 'ACCESS_GRANTED', 'Phone is allowed within 4-device limit');
+const d4 = await store.validate(purchase.email, identity, tablet);
+assert.equal(d4.reason, 'ACCESS_GRANTED', 'Tablet is allowed within 4-device limit');
+
 assert.equal((await store.validate(purchase.email, identity)).reason, 'DEVICE_MISMATCH', 'Device metadata is required');
-assert.equal((await store.validate(purchase.email, identity, desktop)).reason, 'ACCESS_GRANTED');
-assert.equal((await store.validate(purchase.email, identity, { ...mobile, id: 'dev_mobile_hw_11223344' })).reason, 'DEVICE_MISMATCH');
+assert.equal((await store.validate(purchase.email, identity, desktop)).reason, 'ACCESS_GRANTED', 'Existing registered device re-logins succeed');
+
+// 5th device exceeds the 4-device limit
+const d5 = await store.validate(purchase.email, identity, fifthDevice);
+assert.equal(d5.reason, 'DEVICE_MISMATCH', '5th device must be rejected when limit is 4');
+assert.match(d5.message, /4 perangkat/);
+
 assert.equal(db.rows.get('workspaceAccess/buyer-uid').expiresAtMs, Date.parse('2026-11-08T17:00:00Z'));
 assert.equal(db.rows.get('workspaceAccess/buyer-uid').active, true);
 await assert.rejects(store.validate(purchase.email, { uid: 'another-uid' }, desktop), /ACCOUNT_IDENTITY_MISMATCH/);
 let account = await store.getAccount(purchase.email);
-assert.equal(account.revision, 3, 'Identity binding and each new device slot update the revision once');
+assert.equal(account.revision, 5, 'Identity binding and each of the 4 device slots update revision');
 await store.validate(purchase.email, identity, desktop);
 await store.validate(purchase.email, identity, { ...desktop, id: desktop.id + '_browser_suffix' });
-assert.equal((await store.getAccount(purchase.email)).revision, 3, 'Registered devices do not rewrite billing records on every login');
-assert.equal(account.devices.desktop.id, desktop.id, 'First device claims its category slot');
-// Existing registered devices continue to enforce the same slot limits.
-db.rows.set(`billingAccounts/${accountId(purchase.email)}`, { ...account, devices: { desktop, mobile } });
-assert.equal((await store.validate(purchase.email, identity, { ...desktop, id: 'dev_desktop_hw_99887766' })).reason, 'DEVICE_MISMATCH');
+assert.equal((await store.getAccount(purchase.email)).revision, 5, 'Registered devices do not rewrite billing records on every login');
+assert.equal(account.devices.desktop.id, desktop.id, 'First device claims its slot');
+assert.equal((await store.validate(purchase.email, identity, fifthDevice)).reason, 'DEVICE_MISMATCH');
 const command = { email: purchase.email, expectedRevision: account.revision, commandId: 'admin-1',
   statusAccount: 'Inactive', expirationDate: account.expirationDate, resetDevice: null };
 account = await store.administer(command);
@@ -131,7 +143,7 @@ async function invoke(handler, body, headers = {}, method = 'POST') {
 }
 const env = { VITE_FIREBASE_PROJECT_ID: 'au-toolkit-staging-20261005', ACCESS_BACKEND: 'firestore',
   LYNK_MERCHANT_KEY: 'test-only-key', LYNK_WEBHOOK_MODE: 'activate', LYNK_TEST_PRODUCT_UUID: purchase.productId,
-  APPS_SCRIPT_SHARED_SECRET: 's'.repeat(64), GOOGLE_SHEETS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw4xs8YHS0r0jSXpqD8z0eg6jN25gTtziNOg18ILcy0bdBGR_NNIS_Vub4obYop__vd/exec' };
+  APPS_SCRIPT_SHARED_SECRET: 's'.repeat(64), GOOGLE_SHEETS_SCRIPT_URL: SCRIPT_URL };
 const payload = { event: 'payment.received', data: { message_action: 'SUCCESS', message_code: '0', message_id: 'message-1',
   message_data: { refId: 'webhook-free-order', createdAt: purchase.purchasedAt, totals: { grandTotal: 0 },
     customer: { email: 'new-buyer@example.com', name: 'Buyer' }, items: [{ uuid: purchase.productId, title: 'TEST', qty: 1 }] } } };
@@ -185,11 +197,13 @@ assert.equal(precheck.isValid, true);
 assert.equal(precheck.laptopDeviceId, undefined, 'Public precheck must not disclose device IDs');
 assert.equal((await invoke(verify, { deviceId: desktop.id, deviceType: 'desktop' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED');
 assert.equal((await invoke(verify, {}, { authorization: 'Bearer valid' })).reason, 'DEVICE_MISMATCH', 'Verified email cannot bypass device checks');
-assert.equal((await invoke(verify, { deviceId: 'different', deviceType: 'tablet' }, { authorization: 'Bearer valid' })).reason, 'DEVICE_MISMATCH', 'Unknown device categories are rejected');
+assert.equal((await invoke(verify, { deviceId: 'inv!@#$', deviceType: 'unknown_category' }, { authorization: 'Bearer valid' })).reason, 'DEVICE_MISMATCH', 'Invalid device IDs or unknown categories are rejected');
 assert.equal((await invoke(verify, { deviceId: mobile.id, deviceType: 'mobile', deviceLabel: 'Android' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED');
+assert.equal((await invoke(verify, { deviceId: tablet.id, deviceType: 'tablet', deviceLabel: 'iPad' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED');
+assert.equal((await invoke(verify, { deviceId: desktop2.id, deviceType: 'desktop', deviceLabel: 'Laptop 2' }, { authorization: 'Bearer valid' })).reason, 'ACCESS_GRANTED');
 const deniedLaptop = await invoke(verify, { deviceId: 'dev_desktop_hw_99887766', deviceType: 'desktop' }, { authorization: 'Bearer valid' });
 assert.equal(deniedLaptop.reason, 'DEVICE_MISMATCH');
-assert.match(deniedLaptop.message, /1 laptop dan 1 HP/);
+assert.match(deniedLaptop.message, /4 perangkat/);
 assert.match(deniedLaptop.message, /reset/);
 assert.equal((await invoke(verify, { action: 'healthCheck' })).backend, 'firestore');
 const noDatabaseHealth = verifyBuyer({ getStore: () => { throw new Error('Health must not open Firestore'); } });

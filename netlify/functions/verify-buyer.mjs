@@ -465,17 +465,15 @@ export function createHandler({ verifyAuthorization = verifyFirebaseAuthorizatio
     }, cors);
   }
 
-const deviceType =
-  String(body.deviceType || body.device_type || body.deviceSlot || '').toLowerCase() === 'mobile'
-    ? 'mobile'
-    : 'desktop';
+const rawType = String(body.deviceType || body.device_type || body.deviceSlot || '').toLowerCase();
+const deviceType = ['mobile', 'desktop', 'tablet'].includes(rawType) ? rawType : 'desktop';
 
 const deviceLabel =
   String(body.deviceLabel || body.device_label || body.deviceModel || '').trim() ||
-  (deviceType === 'mobile' ? 'Mobile Device' : 'Desktop Device');
+  (deviceType === 'mobile' ? 'Mobile Device' : deviceType === 'tablet' ? 'Tablet Device' : 'Desktop Device');
 
-// FIRESTORE BACKEND
-if (process.env.ACCESS_BACKEND === 'firestore') {
+// FIRESTORE BACKEND (Authoritative)
+if (process.env.ACCESS_BACKEND !== 'sheets') {
   try {
     const store = getFirestoreAccessStore();
 

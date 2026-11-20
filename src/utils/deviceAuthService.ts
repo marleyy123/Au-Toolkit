@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db, getUserDocumentId, isFirestoreQuotaExhausted } from '../firebase';
 
-export type DeviceSlot = 'mobile' | 'desktop';
+export type DeviceSlot = 'mobile' | 'desktop' | 'tablet';
 
 export interface DeviceInfo {
   deviceId: string;
@@ -18,11 +18,12 @@ export interface DeviceRegistryDoc {
   email: string;
   mobile?: DeviceInfo | null;
   desktop?: DeviceInfo | null;
+  tablet?: DeviceInfo | null;
   updatedAt: string;
 }
 
 /**
- * Detect whether current client is a mobile (handphone) or desktop (laptop/PC).
+ * Detect whether current client is a mobile (handphone), tablet, or desktop (laptop/PC).
  */
 export function detectDeviceSlot(): DeviceSlot {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
@@ -30,7 +31,15 @@ export function detectDeviceSlot(): DeviceSlot {
   }
 
   const ua = navigator.userAgent || '';
-  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isTablet =
+    /iPad|Tablet|(Android(?!.*Mobile))/i.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (isTablet) {
+    return 'tablet';
+  }
+
+  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
   const isSmallScreen = window.innerWidth <= 768;
   const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -99,7 +108,19 @@ export function getStableDeviceModel(slot?: DeviceSlot): string {
   const ua = navigator.userAgent || '';
   let detectedModel = '';
 
-  if (currentSlot === 'mobile') {
+  if (currentSlot === 'tablet') {
+    if (/iPad/i.test(ua) || (typeof navigator !== 'undefined' && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      detectedModel = 'iPad (iOS)';
+    } else if (/Android/i.test(ua)) {
+      if (/Samsung|SM-[A-Z0-9]/i.test(ua)) {
+        detectedModel = 'Samsung Android Tablet';
+      } else {
+        detectedModel = 'Android Tablet';
+      }
+    } else {
+      detectedModel = 'Tablet Device';
+    }
+  } else if (currentSlot === 'mobile') {
     if (/iPhone/i.test(ua)) {
       detectedModel = 'iPhone (iOS)';
     } else if (/iPad/i.test(ua)) {
@@ -170,8 +191,9 @@ export function extractStableDeviceSignature(rawId: string | null | undefined): 
   // Look for hardware hash pattern: hw_<hex>
   const hwMatch = id.match(/hw_([a-f0-9]{6,16})/);
   if (hwMatch) {
+    const isTablet = id.includes('tablet') || id.includes('ipad');
     const isMobile = id.includes('mobile') || id.includes('handphone');
-    const slot: DeviceSlot = isMobile ? 'mobile' : 'desktop';
+    const slot: DeviceSlot = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
     return `dev_${slot}_hw_${hwMatch[1]}`;
   }
 
@@ -355,8 +377,11 @@ export function subscribeDeviceSlotSession(
   userOrId: string | { email?: string | null; uid?: string | null },
   onReplaced: (newDeviceLabel: string) => void
 ): () => void {
-  // Staging subscriptions are email-based; another device must not revoke a session.
-  if (auth.app.options.projectId === 'au-toolkit-staging-20261005') return () => {};
+  // Multi-device accounts (up to 4 devices) in Staging and Production must not revoke each other's sessions.
+  if (
+    auth.app.options.projectId === 'au-toolkit-staging-20261005' ||
+    auth.app.options.projectId === 'au-toolkit-production'
+  ) return () => {};
   const userDocId = getUserDocumentId(userOrId);
   const slot = detectDeviceSlot();
   const currentDeviceId = getOrCreateDeviceId();
