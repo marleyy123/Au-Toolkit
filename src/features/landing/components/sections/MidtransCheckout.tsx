@@ -146,6 +146,8 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
     FIRESTORE_ACCESS_REQUIRED: copy('Backend akses staging belum siap. Hubungi admin.', 'The staging access backend is not ready. Contact the administrator.'),
     FIREBASE_ADMIN_CONFIG_REQUIRED: copy('Konfigurasi server akses staging belum lengkap.', 'The staging access server configuration is incomplete.'),
     CHECKOUT_RATE_LIMIT: copy('Tunggu 30 detik sebelum membuat pembayaran baru.', 'Wait 30 seconds before starting another payment.'),
+    CHECKOUT_LOCK_HELD: copy('Sesi pembayaran sebelumnya sedang diproses. Mohon tunggu beberapa detik lalu coba lagi.', 'A previous checkout session is being processed. Please wait a few moments and try again.'),
+    CHECKOUT_RESERVATION_HELD: copy('Reservasi checkout sedang berjalan. Mohon tunggu sebentar lalu coba lagi.', 'A checkout reservation is currently active. Please wait a moment and try again.'),
     REGION_UNAVAILABLE: copy('Region belum terdeteksi. Muat ulang lalu coba lagi.', 'Region unavailable. Reload and try again.'),
     SNAP_LOAD_FAILED: copy('Halaman pembayaran gagal dimuat. Coba lanjutkan pembayaran.', 'Payment page could not load. Try resuming the payment.'),
     PAYMENT_STATUS_UNKNOWN: copy('Status pembuatan pembayaran sedang diverifikasi. Mohon tunggu sebelum membuat transaksi baru.', 'Payment creation status is being verified. Please wait before starting a new transaction.'),
@@ -246,6 +248,7 @@ export function MidtransCheckout({ quote, plan }: { quote: Quote; plan: PlanQuot
   }
 
   async function start() {
+    if (busy || cancelBusy) return;
     if (!currentUser?.email) {
       setAuthError(copy('Silakan masuk dengan akun Google terlebih dahulu.', 'Please sign in with your Google account first.'));
       return;
