@@ -7,6 +7,7 @@ import {
   InstagramFeedData,
   InstagramLiveData,
   InstagramNotesData,
+  InstagramOwnProfileData,
   InstagramProfileData,
   InstagramStoryData,
   InstagramStoryReplyData,
@@ -19,6 +20,7 @@ type InstagramTab =
   | 'instagram-story-reply'
   | 'instagram-story-viewers'
   | 'instagram-profile'
+  | 'instagram-own-profile'
   | 'instagram-live'
   | 'instagram-notes'
   | 'instagram-activity'
@@ -32,6 +34,7 @@ interface UseInstagramFormHandlersArgs {
   setInstagramStoryReplyData: Dispatch<SetStateAction<InstagramStoryReplyData>>;
   setInstagramStoryViewersData: Dispatch<SetStateAction<InstagramStoryViewersData>>;
   setInstagramProfileData: Dispatch<SetStateAction<InstagramProfileData>>;
+  setInstagramOwnProfileData: Dispatch<SetStateAction<InstagramOwnProfileData>>;
   setInstagramLiveData: Dispatch<SetStateAction<InstagramLiveData>>;
   setInstagramNotesData: Dispatch<SetStateAction<InstagramNotesData>>;
   setInstagramActivityData: Dispatch<SetStateAction<InstagramActivityData>>;
@@ -47,6 +50,7 @@ export const useInstagramFormHandlers = ({
   setInstagramStoryReplyData,
   setInstagramStoryViewersData,
   setInstagramProfileData,
+  setInstagramOwnProfileData,
   setInstagramLiveData,
   setInstagramNotesData,
   setInstagramActivityData,
@@ -79,6 +83,11 @@ export const useInstagramFormHandlers = ({
     setInstagramProfileData(updated);
     updateActiveFolderData('instagram-profile', updated);
   }, [setInstagramProfileData, updateActiveFolderData]);
+
+  const handleInstagramOwnProfileDataChange = useCallback((updated: InstagramOwnProfileData) => {
+    setInstagramOwnProfileData(updated);
+    updateActiveFolderData('instagram-own-profile', updated);
+  }, [setInstagramOwnProfileData, updateActiveFolderData]);
 
   const handleInstagramLiveDataChange = useCallback((updated: InstagramLiveData) => {
     setInstagramLiveData(updated);
@@ -129,6 +138,7 @@ export const useInstagramFormHandlers = ({
     handleInstagramStoryReplyDataChange,
     handleInstagramStoryViewersDataChange,
     handleInstagramProfileDataChange,
+    handleInstagramOwnProfileDataChange,
     handleInstagramLiveDataChange,
     handleInstagramNotesDataChange,
     handleInstagramActivityDataChange,

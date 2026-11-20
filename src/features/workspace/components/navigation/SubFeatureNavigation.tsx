@@ -44,6 +44,7 @@ const SUB_FEATURES: Record<PlatformGroup, SubFeatureItem[]> = {
     },
     { tab: 'instagram-story-viewers', category: 'instagram', label: (language) => language === 'id' ? 'Penonton Story' : 'Story Viewers' },
     { tab: 'instagram-profile', category: 'instagram', label: (language) => language === 'id' ? 'Profil' : 'Profile' },
+    { tab: 'instagram-own-profile', category: 'instagram', label: (language) => language === 'id' ? 'Profil Saya' : 'Own Profile' },
     { tab: 'instagram-live', category: 'instagram', label: () => 'Live' },
     { tab: 'instagram-notes', category: 'instagram', label: () => 'Notes' },
     { tab: 'instagram-activity', category: 'instagram', label: (language) => language === 'id' ? 'Aktivitas' : 'Activity' },

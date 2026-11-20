@@ -7,6 +7,7 @@ import { InstagramStoryForm } from '../features/instagram/components/story/Insta
 import { InstagramStoryReplyForm } from '../features/instagram/components/storyReply/InstagramStoryReplyForm';
 import { InstagramStoryViewersForm } from '../features/instagram/components/storyViewers/InstagramStoryViewersForm';
 import { InstagramProfileForm } from '../features/instagram/components/profile/InstagramProfileForm';
+import { InstagramOwnProfileForm } from '../components/InstagramOwnProfileForm';
 import { InstagramLiveForm } from '../features/instagram/components/live/InstagramLiveForm';
 import { InstagramNotesForm } from '../features/instagram/components/notes/InstagramNotesForm';
 import { InstagramActivityForm } from '../features/instagram/components/activity/InstagramActivityForm';
@@ -50,6 +51,7 @@ export const FormRegistry: React.FC<Props> = ({ activeTab, ...rest }) => {
     case 'instagram-story-reply': return <InstagramStoryReplyForm key={compKey} {...rest} />;
     case 'instagram-story-viewers': return <InstagramStoryViewersForm key={compKey} {...rest} />;
     case 'instagram-profile': return <InstagramProfileForm key={compKey} {...rest} />;
+    case 'instagram-own-profile': return <InstagramOwnProfileForm key={compKey} {...rest} />;
     case 'instagram-live': return <InstagramLiveForm key={compKey} {...rest} />;
     case 'instagram-notes': return <InstagramNotesForm key={compKey} {...rest} />;
     case 'instagram-activity': return <InstagramActivityForm key={compKey} {...rest} />;

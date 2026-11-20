@@ -231,6 +231,7 @@ export default function App() {
     instagramFeedData,
     instagramStoryData,
     instagramProfileData,
+    instagramOwnProfileData,
     instagramLiveData,
     instagramNotesData,
     instagramActivityData,
@@ -256,6 +257,7 @@ export default function App() {
     setInstagramFeedData,
     setInstagramStoryData,
     setInstagramProfileData,
+    setInstagramOwnProfileData,
     setInstagramLiveData,
     setInstagramNotesData,
     setInstagramActivityData,
@@ -343,6 +345,7 @@ export default function App() {
     instagramStoryReplyData,
     instagramStoryViewersData,
     instagramProfileData,
+    instagramOwnProfileData,
     instagramLiveData,
     instagramNotesData,
     instagramActivityData,
@@ -368,6 +371,7 @@ export default function App() {
     setInstagramStoryReplyData,
     setInstagramStoryViewersData,
     setInstagramProfileData,
+    setInstagramOwnProfileData,
     setInstagramLiveData,
     setInstagramNotesData,
     setInstagramActivityData,
@@ -407,6 +411,7 @@ export default function App() {
     setInstagramStoryReplyData,
     setInstagramStoryViewersData,
     setInstagramProfileData,
+    setInstagramOwnProfileData,
     setInstagramLiveData,
     setInstagramNotesData,
     setInstagramActivityData,
@@ -456,6 +461,7 @@ export default function App() {
     instagramStoryReplyData,
     instagramStoryViewersData,
     instagramProfileData,
+    instagramOwnProfileData,
     instagramLiveData,
     instagramNotesData,
     instagramActivityData,
@@ -673,6 +679,7 @@ export default function App() {
     handleInstagramStoryReplyDataChange,
     handleInstagramStoryViewersDataChange,
     handleInstagramProfileDataChange,
+    handleInstagramOwnProfileDataChange,
     handleInstagramLiveDataChange,
     handleInstagramNotesDataChange,
     handleInstagramActivityDataChange,
@@ -686,6 +693,7 @@ export default function App() {
     setInstagramStoryReplyData,
     setInstagramStoryViewersData,
     setInstagramProfileData,
+    setInstagramOwnProfileData,
     setInstagramLiveData,
     setInstagramNotesData,
     setInstagramActivityData,
@@ -949,6 +957,7 @@ export default function App() {
               case 'instagram-story-reply': return handleInstagramStoryReplyDataChange(updated);
               case 'instagram-story-viewers': return handleInstagramStoryViewersDataChange(updated);
               case 'instagram-profile': return handleInstagramProfileDataChange(updated);
+              case 'instagram-own-profile': return handleInstagramOwnProfileDataChange(updated);
               case 'instagram-live': return handleInstagramLiveDataChange(updated);
               case 'instagram-notes': return handleInstagramNotesDataChange(updated);
               case 'instagram-activity': return handleInstagramActivityDataChange(updated);

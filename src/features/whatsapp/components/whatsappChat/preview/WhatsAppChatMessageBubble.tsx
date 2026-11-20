@@ -267,6 +267,17 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
   }
 
   // 3. Regular Bubble (Text, Media, Voice, Contact, Recalled)
+  const isGroupChat = Boolean(data.isGroupChat);
+  const hasForwardedHeader = Boolean(
+    (msg.isForwarded || msg.isForwardedManyTimes) &&
+    !msg.isRecalled &&
+    msg.status !== 'recalled' &&
+    msgType !== 'recalled'
+  );
+  const forwardedMinWidth = hasForwardedHeader
+    ? (msg.isForwardedManyTimes ? (language === 'id' ? 180 : 170) : 120)
+    : undefined;
+
   return (
     <div className="relative group flex items-end max-w-[358px]" style={{ maxWidth: `${bubbleWidthPercent}%` }}>
       <ChatBubbleShiftControls
@@ -296,6 +307,7 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
           ...(msgType === 'voice_note' ? { width: 268 } : {}),
           textAlign: 'left',
           ...(msgType === 'image' && msg.photoWidth !== undefined ? { width: `${photoWidth + 8}px` } : {}),
+          ...(forwardedMinWidth ? { minWidth: `${forwardedMinWidth}px` } : {}),
         }}
         className={`relative z-10 w-fit max-w-full shadow-2xs ${
           msgType === 'image'
@@ -316,6 +328,57 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
             {renderIosEmojis(msg.senderName || (language === 'id' ? 'Pengguna' : 'User'))}
           </div>
         )}
+
+        {/* Forwarded Message Header */}
+        {hasForwardedHeader && (() => {
+          const isManyTimes = Boolean(msg.isForwardedManyTimes);
+          const hasQuoteBox = Boolean(
+            msg.showReplyQuote || msg.replyToText || msg.replyToSender || msg.replyType === 'status' || msg.statusReplyName || msg.statusReplyCaption
+          );
+          const hasSenderTop = Boolean((isGroupChat || msg.senderName) && !isOutgoing);
+          const paddingClass = msgType === 'image'
+            ? 'px-1.5 pt-0.5 pb-1'
+            : msgType === 'contact'
+              ? (hasQuoteBox ? 'px-2 pt-0.5 pb-1' : (hasSenderTop ? 'px-3 pt-0.5 -mb-1.5' : 'px-3 pt-2 -mb-1.5'))
+              : msgType === 'voice_note'
+                ? (hasQuoteBox ? 'px-1.5 pt-0.5 mb-1' : 'px-1 pt-0.5 -mb-0.5')
+                : (hasQuoteBox ? 'px-1.5 pt-0.5 mb-1' : 'mb-0.5');
+
+          return (
+            <div
+              style={{ color: getMessageTimestampColor(isOutgoing) }}
+              className={`flex items-center gap-1 text-[11.5px] italic font-normal leading-tight tracking-tight whitespace-nowrap select-none ${paddingClass} ${
+                !useCustomColors && (isOutgoing ? (isSenderBubbleDark ? 'text-white/75' : 'text-slate-600/85') : (isReceiverBubbleDark ? 'text-slate-400' : 'text-[#667781]'))
+              }`}
+            >
+              {isManyTimes ? (
+                /* Ikon Panah Ganda (Double Forward Arrow) */
+                <svg
+                  viewBox="0 0 20 14"
+                  className="w-[16.5px] h-[11.5px] fill-current shrink-0 opacity-90"
+                  aria-hidden="true"
+                >
+                  <path d="M13.6 6.1L9.2 1.7C8.7 1.2 7.9 1.55 7.9 2.25V4.65C3.6 5.15 1.4 8.3 0.7 12.9C0.6 13.5 1.35 13.85 1.75 13.35C3.5 11.1 5.45 9.85 7.9 9.6V11.95C7.9 12.65 8.7 13.0 9.2 12.5L13.6 8.1C14.15 7.55 14.15 6.65 13.6 6.1Z" />
+                  <path d="M14.2 1.85L19.1 6.75C19.3 6.95 19.3 7.25 19.1 7.45L14.2 12.35C13.85 12.7 13.25 12.7 12.9 12.35C12.55 12.0 12.55 11.4 12.9 11.05L16.85 7.1L12.9 3.15C12.55 2.8 12.55 2.2 12.9 1.85C13.25 1.5 13.85 1.5 14.2 1.85Z" />
+                </svg>
+              ) : (
+                /* Ikon Panah Tunggal (Single Forward Arrow) */
+                <svg
+                  viewBox="0 0 16 14"
+                  className="w-[13px] h-[11.5px] fill-current shrink-0 opacity-90"
+                  aria-hidden="true"
+                >
+                  <path d="M15.4 6.1L10.8 1.5C10.3 1 9.5 1.35 9.5 2.05V4.6C4.7 5.1 2 8.4 1.2 13.1C1.1 13.7 1.85 14.05 2.25 13.55C4.15 11.15 6.45 9.85 9.5 9.6V12.15C9.5 12.85 10.3 13.2 10.8 12.7L15.4 8.1C15.95 7.55 15.95 6.65 15.4 6.1Z" />
+                </svg>
+              )}
+              <span>
+                {isManyTimes
+                  ? (language === 'id' ? 'Diteruskan berkali-kali' : 'Forwarded many times')
+                  : (language === 'id' ? 'Diteruskan' : 'Forwarded')}
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Quoted / Reply Box */}
         {hasWhatsAppReplyQuote(msg) && (() => {
@@ -512,6 +575,19 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
             ? (msg.text || (language === 'id' ? 'Pesan masuk' : 'Received message'))
             : (msg.text || 'Read a message');
           const textMetrics = analyzeWhatsAppBubbleText(rawDisplayText);
+          const hasQuote = hasWhatsAppReplyQuote(msg);
+          const hasSenderHeader = Boolean(showSenderName && msg.senderName);
+          const hasHeaderOrQuote = hasQuote || hasSenderHeader || hasForwardedHeader;
+          const isShortSingleLine = textMetrics.lineCount === 1 && textMetrics.maxLineLen < 23 && !hasHeaderOrQuote;
+          const forwardedVisualLen = hasForwardedHeader ? (msg.isForwardedManyTimes ? (language === 'id' ? 20 : 19) : 11) : 0;
+          const headerVisualLen = hasSenderHeader ? (msg.senderName?.length || 0) : 0;
+          const quoteVisualLen = hasQuote ? Math.max(msg.replyToSender?.length || 0, msg.replyToText?.length || 0) : 0;
+          const effectiveBubbleWidthChars = Math.max(
+            textMetrics.maxLineLen,
+            headerVisualLen,
+            forwardedVisualLen,
+            quoteVisualLen
+          );
 
           return (
             <div

@@ -12,6 +12,7 @@ import type {
   InstagramFeedData,
   InstagramLiveData,
   InstagramNotesData,
+  InstagramOwnProfileData,
   InstagramProfileData,
   InstagramStoryData,
   InstagramStoryReplyData,
@@ -54,6 +55,7 @@ type UseWorkspacePayloadArgs = {
   instagramStoryReplyData: InstagramStoryReplyData;
   instagramStoryViewersData: InstagramStoryViewersData;
   instagramProfileData: InstagramProfileData;
+  instagramOwnProfileData: InstagramOwnProfileData;
   instagramLiveData: InstagramLiveData;
   instagramNotesData: InstagramNotesData;
   instagramActivityData: InstagramActivityData;
@@ -96,6 +98,7 @@ export function useWorkspacePayload({
   instagramStoryReplyData,
   instagramStoryViewersData,
   instagramProfileData,
+  instagramOwnProfileData,
   instagramLiveData,
   instagramNotesData,
   instagramActivityData,
@@ -125,6 +128,7 @@ export function useWorkspacePayload({
       'instagram-story-reply': instagramStoryReplyData,
       'instagram-story-viewers': instagramStoryViewersData,
       'instagram-profile': instagramProfileData,
+      'instagram-own-profile': instagramOwnProfileData,
       'instagram-live': instagramLiveData,
       'instagram-notes': instagramNotesData,
       'instagram-activity': instagramActivityData,

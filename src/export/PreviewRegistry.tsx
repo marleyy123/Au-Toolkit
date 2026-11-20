@@ -6,6 +6,7 @@ import { InstagramStoryPreview } from '../features/instagram/components/story/In
 import { InstagramStoryReplyPreview } from '../features/instagram/components/storyReply/InstagramStoryReplyPreview';
 import { InstagramStoryViewersPreview } from '../features/instagram/components/storyViewers/InstagramStoryViewersPreview';
 import { InstagramProfilePreview } from '../features/instagram/components/profile/InstagramProfilePreview';
+import { InstagramOwnProfilePreview } from '../components/InstagramOwnProfilePreview';
 import { InstagramLivePreview } from '../features/instagram/components/live/InstagramLivePreview';
 import { InstagramNotesPreview } from '../features/instagram/components/notes/InstagramNotesPreview';
 import { InstagramActivityPreview } from '../features/instagram/components/activity/InstagramActivityPreview';
@@ -70,6 +71,8 @@ export function PreviewRegistry({
       return <InstagramStoryViewersPreview {...shared} />;
     case 'instagram-profile':
       return <InstagramProfilePreview {...shared} />;
+    case 'instagram-own-profile':
+      return <InstagramOwnProfilePreview {...shared} />;
     case 'instagram-live':
       return <InstagramLivePreview {...shared} />;
     case 'instagram-notes':

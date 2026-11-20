@@ -4,6 +4,7 @@ import {
   INITIAL_INSTAGRAM_FEED_DATA,
   INITIAL_INSTAGRAM_STORY_DATA,
   INITIAL_INSTAGRAM_PROFILE_DATA,
+  INITIAL_INSTAGRAM_OWN_PROFILE_DATA,
   INITIAL_INSTAGRAM_LIVE_DATA,
   INITIAL_INSTAGRAM_NOTES_DATA,
   INITIAL_INSTAGRAM_ACTIVITY_DATA,
@@ -46,6 +47,8 @@ export const getPlatformAndSubFeature = (tab: PlatformTab): { platform: string; 
       return { platform: 'instagram', subFeature: 'story-viewers' };
     case 'instagram-profile':
       return { platform: 'instagram', subFeature: 'profile' };
+    case 'instagram-own-profile':
+      return { platform: 'instagram', subFeature: 'own-profile' };
     case 'instagram-live':
       return { platform: 'instagram', subFeature: 'live' };
     case 'instagram-notes':
@@ -92,6 +95,8 @@ export const getFloatingPreviewTitle = (tab: PlatformTab): string => ({
   'instagram-dm': 'Instagram DM',
   'instagram-feed': 'Instagram Feed',
   'instagram-story': 'Instagram Story',
+  'instagram-profile': 'Instagram Profile',
+  'instagram-own-profile': 'Instagram Profile Saya',
   'whatsapp-chat': 'WhatsApp Chat',
   'line-chat': 'LINE Chat',
   notes: 'Notes',
@@ -181,6 +186,7 @@ export const getInitialTabData = (tab: PlatformTab): any => {
     case 'instagram-story-reply': base = INITIAL_INSTAGRAM_STORY_REPLY_DATA; break;
     case 'instagram-story-viewers': base = INITIAL_INSTAGRAM_STORY_VIEWERS_DATA; break;
     case 'instagram-profile': base = INITIAL_INSTAGRAM_PROFILE_DATA; break;
+    case 'instagram-own-profile': base = INITIAL_INSTAGRAM_OWN_PROFILE_DATA; break;
     case 'instagram-live': base = INITIAL_INSTAGRAM_LIVE_DATA; break;
     case 'instagram-notes': base = INITIAL_INSTAGRAM_NOTES_DATA; break;
     case 'instagram-activity': base = INITIAL_INSTAGRAM_ACTIVITY_DATA; break;
@@ -213,6 +219,7 @@ export const ALL_PLATFORM_TABS: PlatformTab[] = [
   'instagram-story-reply',
   'instagram-story-viewers',
   'instagram-profile',
+  'instagram-own-profile',
   'instagram-live',
   'instagram-notes',
   'instagram-activity',

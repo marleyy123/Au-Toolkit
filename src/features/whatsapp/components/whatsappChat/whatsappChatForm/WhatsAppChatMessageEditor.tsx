@@ -234,6 +234,51 @@ export const WhatsAppChatMessageEditor: React.FC<Props> = ({ data, onChange, msg
             <Plus className="w-3 h-3 -mr-0.5" />
             <span>Reply Quote Box</span>
           </label>
+
+          {!msg.isRecalled && msg.status !== 'recalled' && (
+            <>
+              {/* Checkbox Forwarded / Diteruskan */}
+              <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-600 dark:text-purple-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={Boolean(msg.isForwarded || msg.isForwardedManyTimes)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    handleUpdateMessage(index, {
+                      isForwarded: checked,
+                      ...(checked ? {} : { isForwardedManyTimes: false }),
+                    });
+                  }}
+                  className="rounded text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer w-3.5 h-3.5"
+                />
+                <svg viewBox="0 0 16 14" className="w-3 h-3 -mr-0.5 fill-current shrink-0" aria-hidden="true">
+                  <path d="M15.4 6.1L10.8 1.5C10.3 1 9.5 1.35 9.5 2.05V4.6C4.7 5.1 2 8.4 1.2 13.1C1.1 13.7 1.85 14.05 2.25 13.55C4.15 11.15 6.45 9.85 9.5 9.6V12.15C9.5 12.85 10.3 13.2 10.8 12.7L15.4 8.1C15.95 7.55 15.95 6.65 15.4 6.1Z" />
+                </svg>
+                <span>{isId ? 'Diteruskan' : 'Forwarded'}</span>
+              </label>
+
+              {/* Checkbox Forwarded Many Times / Kirim berkali-kali */}
+              <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-600 dark:text-purple-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={Boolean(msg.isForwardedManyTimes)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    handleUpdateMessage(index, {
+                      isForwarded: checked ? true : msg.isForwarded,
+                      isForwardedManyTimes: checked,
+                    });
+                  }}
+                  className="rounded text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer w-3.5 h-3.5"
+                />
+                <svg viewBox="0 0 20 14" className="w-4 h-3 -mr-0.5 fill-current shrink-0" aria-hidden="true">
+                  <path d="M13.6 6.1L9.2 1.7C8.7 1.2 7.9 1.55 7.9 2.25V4.65C3.6 5.15 1.4 8.3 0.7 12.9C0.6 13.5 1.35 13.85 1.75 13.35C3.5 11.1 5.45 9.85 7.9 9.6V11.95C7.9 12.65 8.7 13.0 9.2 12.5L13.6 8.1C14.15 7.55 14.15 6.65 13.6 6.1Z" />
+                  <path d="M14.2 1.85L19.1 6.75C19.3 6.95 19.3 7.25 19.1 7.45L14.2 12.35C13.85 12.7 13.25 12.7 12.9 12.35C12.55 12.0 12.55 11.4 12.9 11.05L16.85 7.1L12.9 3.15C12.55 2.8 12.55 2.2 12.9 1.85C13.25 1.5 13.85 1.5 14.2 1.85Z" />
+                </svg>
+                <span>{isId ? 'Kirim berkali-kali' : 'Forwarded many times'}</span>
+              </label>
+            </>
+          )}
         </div>
 
         {/* SENDER NAME & COLOR (Only visible when enabled) */}

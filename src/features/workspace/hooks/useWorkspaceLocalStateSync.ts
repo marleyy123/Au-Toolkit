@@ -8,6 +8,7 @@ import {
   InstagramFeedData,
   InstagramLiveData,
   InstagramNotesData,
+  InstagramOwnProfileData,
   InstagramProfileData,
   InstagramStoryData,
   InstagramStoryReplyData,
@@ -36,6 +37,7 @@ import {
   INITIAL_INSTAGRAM_FEED_DATA,
   INITIAL_INSTAGRAM_LIVE_DATA,
   INITIAL_INSTAGRAM_NOTES_DATA,
+  INITIAL_INSTAGRAM_OWN_PROFILE_DATA,
   INITIAL_INSTAGRAM_PROFILE_DATA,
   INITIAL_INSTAGRAM_STORY_DATA,
   INITIAL_INSTAGRAM_STORY_REPLY_DATA,
@@ -85,6 +87,7 @@ interface UseWorkspaceLocalStateSyncArgs {
   setInstagramStoryReplyData: Setter<InstagramStoryReplyData>;
   setInstagramStoryViewersData: Setter<InstagramStoryViewersData>;
   setInstagramProfileData: Setter<InstagramProfileData>;
+  setInstagramOwnProfileData: Setter<InstagramOwnProfileData>;
   setInstagramLiveData: Setter<InstagramLiveData>;
   setInstagramNotesData: Setter<InstagramNotesData>;
   setInstagramActivityData: Setter<InstagramActivityData>;
@@ -124,6 +127,7 @@ export function useWorkspaceLocalStateSync({
   setInstagramStoryReplyData,
   setInstagramStoryViewersData,
   setInstagramProfileData,
+  setInstagramOwnProfileData,
   setInstagramLiveData,
   setInstagramNotesData,
   setInstagramActivityData,
@@ -169,6 +173,7 @@ export function useWorkspaceLocalStateSync({
     setInstagramStoryReplyData(loadForm('instagram-story-reply', INITIAL_INSTAGRAM_STORY_REPLY_DATA));
     setInstagramStoryViewersData(loadForm('instagram-story-viewers', INITIAL_INSTAGRAM_STORY_VIEWERS_DATA));
     setInstagramProfileData(loadForm('instagram-profile', INITIAL_INSTAGRAM_PROFILE_DATA));
+    setInstagramOwnProfileData(loadForm('instagram-own-profile', INITIAL_INSTAGRAM_OWN_PROFILE_DATA));
     setInstagramLiveData(loadForm('instagram-live', INITIAL_INSTAGRAM_LIVE_DATA));
     setInstagramNotesData(loadForm('instagram-notes', INITIAL_INSTAGRAM_NOTES_DATA));
     setInstagramActivityData(loadForm('instagram-activity', INITIAL_INSTAGRAM_ACTIVITY_DATA));

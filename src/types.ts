@@ -6,6 +6,7 @@ export type PlatformTab =
   | 'instagram-story-reply'
   | 'instagram-story-viewers'
   | 'instagram-profile'
+  | 'instagram-own-profile'
   | 'instagram-live'
   | 'instagram-notes'
   | 'instagram-activity'
@@ -263,6 +264,67 @@ export interface InstagramGridPost {
   image: string;
   isPinned?: boolean;
   isCarousel?: boolean;
+  isVideo?: boolean;
+  showViewers?: boolean;
+  viewersCount?: string;
+}
+
+export interface InstagramOwnProfileData {
+  theme: InstagramTheme;
+  statusBarTime?: string;
+  showStatusBar?: boolean;
+  // Header
+  username: string;
+  showNotificationDot?: boolean;
+  showDropdownArrow?: boolean;
+  showCreateButton?: boolean;
+  showThreadsIcon?: boolean;
+  showMenuButton?: boolean;
+  isPrivate?: boolean;
+  // Profile Information
+  name: string;
+  avatar: string;
+  hasStoryRing?: boolean;
+  showAddAvatarBadge?: boolean;
+  verified: VerifiedType;
+  postsCount: string;
+  followersCount: string;
+  followingCount: string;
+  bio: string;
+  website?: string;
+  // Notes on Profile Picture
+  showNotes?: boolean;
+  notesText?: string;
+  notesBgColor?: string;
+  notesTextColor?: string;
+  // Music
+  showMusic?: boolean;
+  musicTitle?: string;
+  musicArtist?: string;
+  // Professional Dashboard
+  showDashboard?: boolean;
+  dashboardTitle?: string;
+  dashboardViews?: string;
+  dashboardGrowth?: string;
+  // Action Buttons
+  showEditProfile?: boolean;
+  editProfileText?: string;
+  showShareProfile?: boolean;
+  shareProfileText?: string;
+  showAddPerson?: boolean;
+  // Story Highlights
+  showHighlights?: boolean;
+  highlights: InstagramHighlight[];
+  showNewHighlightButton?: boolean;
+  // Post Grid
+  activeTab?: 'grid' | 'reels' | 'tagged';
+  gridAspectRatio?: '4:5' | '1:1';
+  gridPosts: InstagramGridPost[];
+  reelsPosts?: InstagramGridPost[];
+  taggedPosts?: InstagramGridPost[];
+  // Bottom Navigation
+  showBottomNav?: boolean;
+  bottomNavActiveTab?: 'home' | 'reels' | 'dm' | 'search' | 'profile';
 }
 
 export interface InstagramProfileData {
@@ -404,6 +466,8 @@ export interface WhatsAppChatMessage {
   isRead?: boolean;
   status?: 'sent' | 'delivered' | 'read' | 'recalled';
   isRecalled?: boolean;
+  isForwarded?: boolean;
+  isForwardedManyTimes?: boolean;
   deletedForMe?: boolean;
   senderName?: string;
   showSenderName?: boolean;

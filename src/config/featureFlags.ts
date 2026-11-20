@@ -183,6 +183,14 @@ export const DEFAULT_FEATURE_FLAGS: Record<string, FeatureFlagDefinition> = {
     status: 'LIVE',
     type: 'tab',
   },
+  'tab_instagram-own-profile': {
+    key: 'tab_instagram-own-profile',
+    name: 'Own Profile',
+    description: 'Instagram own personal profile page editor with highlights and grid tabs',
+    category: 'instagram',
+    status: 'LIVE',
+    type: 'tab',
+  },
   'tab_instagram-live': {
     key: 'tab_instagram-live',
     name: 'Live Stream',
@@ -390,6 +398,7 @@ export const CATEGORY_TABS_MAP: Record<PlatformGroup, PlatformTab[]> = {
     'instagram-story-reply',
     'instagram-story-viewers',
     'instagram-profile',
+    'instagram-own-profile',
     'instagram-live',
     'instagram-notes',
     'instagram-activity',

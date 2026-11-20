@@ -7,6 +7,7 @@ import {
   InstagramFeedData,
   InstagramLiveData,
   InstagramNotesData,
+  InstagramOwnProfileData,
   InstagramProfileData,
   InstagramStoryData,
   InstagramStoryReplyData,
@@ -34,6 +35,7 @@ import {
   INITIAL_INSTAGRAM_FEED_DATA,
   INITIAL_INSTAGRAM_LIVE_DATA,
   INITIAL_INSTAGRAM_NOTES_DATA,
+  INITIAL_INSTAGRAM_OWN_PROFILE_DATA,
   INITIAL_INSTAGRAM_PROFILE_DATA,
   INITIAL_INSTAGRAM_STORY_DATA,
   INITIAL_INSTAGRAM_STORY_REPLY_DATA,
@@ -60,6 +62,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
   const [instagramFeedData, setInstagramFeedData] = useState<InstagramFeedData>(() => loadStoredFormState(userAccountKey, 'instagram-feed', INITIAL_INSTAGRAM_FEED_DATA));
   const [instagramStoryData, setInstagramStoryData] = useState<InstagramStoryData>(() => loadStoredFormState(userAccountKey, 'instagram-story', INITIAL_INSTAGRAM_STORY_DATA));
   const [instagramProfileData, setInstagramProfileData] = useState<InstagramProfileData>(() => loadStoredFormState(userAccountKey, 'instagram-profile', INITIAL_INSTAGRAM_PROFILE_DATA));
+  const [instagramOwnProfileData, setInstagramOwnProfileData] = useState<InstagramOwnProfileData>(() => loadStoredFormState(userAccountKey, 'instagram-own-profile', INITIAL_INSTAGRAM_OWN_PROFILE_DATA));
   const [instagramLiveData, setInstagramLiveData] = useState<InstagramLiveData>(() => loadStoredFormState(userAccountKey, 'instagram-live', INITIAL_INSTAGRAM_LIVE_DATA));
   const [instagramNotesData, setInstagramNotesData] = useState<InstagramNotesData>(() => loadStoredFormState(userAccountKey, 'instagram-notes', INITIAL_INSTAGRAM_NOTES_DATA));
   const [instagramActivityData, setInstagramActivityData] = useState<InstagramActivityData>(() => loadStoredFormState(userAccountKey, 'instagram-activity', INITIAL_INSTAGRAM_ACTIVITY_DATA));
@@ -87,6 +90,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
     instagramFeedData,
     instagramStoryData,
     instagramProfileData,
+    instagramOwnProfileData,
     instagramLiveData,
     instagramNotesData,
     instagramActivityData,
@@ -112,6 +116,7 @@ export function useGeneratorFormStates(userAccountKey: string) {
     setInstagramFeedData,
     setInstagramStoryData,
     setInstagramProfileData,
+    setInstagramOwnProfileData,
     setInstagramLiveData,
     setInstagramNotesData,
     setInstagramActivityData,

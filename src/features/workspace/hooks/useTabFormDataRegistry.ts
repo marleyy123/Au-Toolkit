@@ -11,6 +11,7 @@ type UseTabFormDataRegistryArgs = {
   instagramStoryReplyData: any;
   instagramStoryViewersData: any;
   instagramProfileData: any;
+  instagramOwnProfileData: any;
   instagramLiveData: any;
   instagramNotesData: any;
   instagramActivityData: any;
@@ -36,6 +37,7 @@ type UseTabFormDataRegistryArgs = {
   setInstagramStoryReplyData: Setter;
   setInstagramStoryViewersData: Setter;
   setInstagramProfileData: Setter;
+  setInstagramOwnProfileData: Setter;
   setInstagramLiveData: Setter;
   setInstagramNotesData: Setter;
   setInstagramActivityData: Setter;
@@ -101,6 +103,14 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
       }));
     } else if (tab === 'instagram-profile') {
       args.setInstagramProfileData((prev: any) => ({
+        ...prev,
+        name: name !== undefined ? name : prev.name,
+        username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
+        avatar: avatar !== undefined ? avatar : prev.avatar,
+        verified: verified !== undefined ? (verified === 'none' ? 'none' : 'ig-blue') : prev.verified,
+      }));
+    } else if (tab === 'instagram-own-profile') {
+      args.setInstagramOwnProfileData((prev: any) => ({
         ...prev,
         name: name !== undefined ? name : prev.name,
         username: handle !== undefined ? handle : (name !== undefined ? name : prev.username),
@@ -216,6 +226,7 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
       case 'instagram-story-reply': return args.instagramStoryReplyData;
       case 'instagram-story-viewers': return args.instagramStoryViewersData;
       case 'instagram-profile': return args.instagramProfileData;
+      case 'instagram-own-profile': return args.instagramOwnProfileData;
       case 'instagram-live': return args.instagramLiveData;
       case 'instagram-notes': return args.instagramNotesData;
       case 'instagram-activity': return args.instagramActivityData;
@@ -247,6 +258,7 @@ export function useTabFormDataRegistry(args: UseTabFormDataRegistryArgs) {
     else if (tab === 'instagram-story-reply') args.setInstagramStoryReplyData(cloned);
     else if (tab === 'instagram-story-viewers') args.setInstagramStoryViewersData(cloned);
     else if (tab === 'instagram-profile') args.setInstagramProfileData(cloned);
+    else if (tab === 'instagram-own-profile') args.setInstagramOwnProfileData(cloned);
     else if (tab === 'instagram-live') args.setInstagramLiveData(cloned);
     else if (tab === 'instagram-notes') args.setInstagramNotesData(cloned);
     else if (tab === 'instagram-activity') args.setInstagramActivityData(cloned);
