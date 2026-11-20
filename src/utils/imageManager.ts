@@ -315,33 +315,63 @@ export async function deleteLocalImageReference(ref: string, uid = currentStored
 
 
 async function resolveElementLocalMedia(element: Element): Promise<void> {
-  const uid = currentStoredUid();
+  // Gunakan Firebase Auth sebagai sumber UID utama.
+  const { auth } = await import('../firebase');
+  await auth.authStateReady();
+
+  const uid = auth.currentUser?.uid;
   if (!uid) return;
 
   if (element instanceof HTMLImageElement || element instanceof HTMLSourceElement) {
-    const ref = element.getAttribute('src') || element.getAttribute('data-au-local-media-ref') || '';
-    if (ref.startsWith(LOCAL_MEDIA_PREFIX) || ref.startsWith(CLOUD_MEDIA_PREFIX)) {
+    const currentSrc = element.getAttribute('src') || '';
+    const storedRef = element.getAttribute('data-au-local-media-ref') || '';
+
+    // Prioritaskan src jika masih berupa referensi media.
+    // Jika src sudah blob:, gunakan referensi stabil yang disimpan di data attribute.
+    const ref = currentSrc.startsWith(LOCAL_MEDIA_PREFIX) ||
+      currentSrc.startsWith(CLOUD_MEDIA_PREFIX)
+      ? currentSrc
+      : storedRef;
+
+    if (
+      ref.startsWith(LOCAL_MEDIA_PREFIX) ||
+      ref.startsWith(CLOUD_MEDIA_PREFIX)
+    ) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
-      if (objectUrl && element.isConnected && element.getAttribute('src') === ref) {
+
+      if (!objectUrl || !element.isConnected) return;
+
+      const latestSrc = element.getAttribute('src') || '';
+
+      // Jangan menimpa src jika React sudah menggantinya dengan sumber lain.
+      if (
+        latestSrc === ref ||
+        latestSrc.startsWith('blob:')
+      ) {
         element.setAttribute('data-au-local-media-ref', ref);
         element.setAttribute('src', objectUrl);
-        console.log('[MEDIA ELEMENT DETECTED]', {
-  tag: element.tagName,
-  src: element.getAttribute('src'),
-});
       }
     }
   }
 
   const style = element.getAttribute('style') || '';
   const refs = style.match(/au-(?:local|cloud)-media:\/\/[^)'"\s]+/g) || [];
+
   if (refs.length > 0) {
     let resolvedStyle = style;
+
     for (const ref of refs) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
-      if (objectUrl) resolvedStyle = resolvedStyle.split(ref).join(objectUrl);
+      if (objectUrl) {
+        resolvedStyle = resolvedStyle.split(ref).join(objectUrl);
+      }
     }
-    if (resolvedStyle !== style && element.isConnected && element.getAttribute('style') === style) {
+
+    if (
+      resolvedStyle !== style &&
+      element.isConnected &&
+      element.getAttribute('style') === style
+    ) {
       element.setAttribute('style', resolvedStyle);
     }
   }
