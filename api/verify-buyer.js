@@ -206,13 +206,30 @@ export function createHandler({
       for (const [key, value] of Object.entries(result.headers || {}))
         res.setHeader(key, value);
       return res.end(result.body);
+    
     } catch (error) {
+      const reason = error?.reason || error?.message;
+
       console.error("[VERIFY BUYER ERROR]", {
         message: error?.message,
         reason: error?.reason,
         code: error?.code,
         stack: error?.stack,
       });
+
+      const knownErrors = {
+        ACCOUNT_IDENTITY_MISMATCH: 403,
+        BUYER_NOT_FOUND: 404,
+        INVALID_PURCHASE_DATA: 400,
+        INVALID_PURCHASE: 400,
+        FIREBASE_PROJECT_MISMATCH: 500,
+        FIREBASE_ADMIN_CONFIG_REQUIRED: 500,
+        STAGING_CONFIG_REQUIRED: 500,
+      };
+
+      if (knownErrors[reason]) {
+        return fail(res, knownErrors[reason], reason);
+      }
 
       return fail(
         res,
@@ -222,6 +239,7 @@ export function createHandler({
           : "APPS_SCRIPT_UNAVAILABLE",
       );
     }
+
   };
 }
 
