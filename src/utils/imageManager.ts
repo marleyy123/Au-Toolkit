@@ -245,8 +245,28 @@ export async function resolveLocalImageReference(ref: string, uid = currentStore
     if (!uid || cloud.uid !== uid) return '';
     const cached = persistentObjectUrlCache.get(ref);
     if (cached) return cached;
-    const response = await cloudMediaRequest(`/media?key=${encodeURIComponent(cloud.key)}`);
-    if (!response.ok) return '';
+    let response: Response;
+
+try {
+  response = await cloudMediaRequest(
+    `/media?key=${encodeURIComponent(cloud.key)}`
+  );
+
+  console.log('[CLOUD MEDIA RESOLVE]', {
+    referenceUid: cloud.uid,
+    status: response.status,
+    ok: response.ok,
+    url: response.url,
+  });
+} catch (error) {
+  console.error('[CLOUD MEDIA REQUEST ERROR]', error);
+  return '';
+}
+
+if (!response.ok) {
+  console.error('[CLOUD MEDIA RESPONSE ERROR]', await response.clone().text());
+  return '';
+}
     const objectUrl = createSafeObjectURL(await response.blob());
     if (objectUrl) persistentObjectUrlCache.set(ref, objectUrl);
     return objectUrl;
@@ -306,6 +326,7 @@ export async function deleteLocalImageReference(ref: string, uid = currentStored
   persistentObjectUrlCache.delete(ref);
 }
 
+
 async function resolveElementLocalMedia(element: Element): Promise<void> {
   const uid = currentStoredUid();
   if (!uid) return;
@@ -318,6 +339,10 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
       if (objectUrl && element.isConnected && element.getAttribute('src') === ref) {
         element.setAttribute('data-au-local-media-ref', ref);
         element.setAttribute('src', objectUrl);
+        console.log('[MEDIA ELEMENT DETECTED]', {
+  tag: element.tagName,
+  src: element.getAttribute('src'),
+});
       }
     }
   }
