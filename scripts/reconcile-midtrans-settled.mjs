@@ -20,7 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const store = createAccessStore(db);
 
-const key = "Mid-server-80TRJan_FR8d7I_mxB~jCU3J";
+const key = process.env.MIDTRANS_SERVER_KEY || (() => { throw new Error("MIDTRANS_SERVER_KEY env var is required"); })();
 const basicAuth = Buffer.from(key + ":").toString("base64");
 
 async function main() {
