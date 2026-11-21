@@ -208,8 +208,29 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       : 'rect');
 
   const validateImage = (image: Blob): string | null => {
-    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
-    if (!allowedTypes.has(image.type)) {
+    let type = (image.type || '').toLowerCase();
+    const name = 'name' in image ? String((image as File).name || '').toLowerCase() : '';
+
+    if (!type && name) {
+      if (/\.(jpe?g)$/i.test(name)) type = 'image/jpeg';
+      else if (/\.png$/i.test(name)) type = 'image/png';
+      else if (/\.webp$/i.test(name)) type = 'image/webp';
+      else if (/\.gif$/i.test(name)) type = 'image/gif';
+      else if (/\.(heic|heif)$/i.test(name)) type = 'image/heic';
+    }
+
+    const allowedTypes = new Set([
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/heic',
+      'image/heif',
+      'image/avif',
+      '' // allow empty/unspecified type on mobile so cropper/canvas can decode it
+    ]);
+
+    if (type && !allowedTypes.has(type)) {
       return language === 'id'
         ? 'Format gambar tidak didukung. Gunakan JPG, PNG, WebP, atau GIF.'
         : 'Unsupported image format. Use JPG, PNG, WebP, or GIF.';
@@ -217,10 +238,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (image.size <= 0) {
       return language === 'id' ? 'File gambar kosong.' : 'The image file is empty.';
     }
-    if (image.size > 15 * 1024 * 1024) {
+    if (image.size > 25 * 1024 * 1024) {
       return language === 'id'
-        ? 'Ukuran gambar maksimal 15 MB.'
-        : 'The maximum image size is 15 MB.';
+        ? 'Ukuran gambar maksimal 25 MB.'
+        : 'The maximum image size is 25 MB.';
     }
     return null;
   };

@@ -940,7 +940,7 @@ export default function App() {
         setIsResetConfirmOpen={setIsResetConfirmOpen}
       />
 
-      <main className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 lg:px-6 py-4 lg:py-5 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch lg:overflow-hidden">
+      <main className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 lg:px-6 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:py-5 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch lg:overflow-hidden">
         <EditorFormPanel
           uiTheme={uiTheme}
           language={language}

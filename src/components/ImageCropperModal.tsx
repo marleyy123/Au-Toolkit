@@ -236,7 +236,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     setIsApplying(true);
 
     try {
+      const maxDim = maxOutputDimension && maxOutputDimension > 0 ? maxOutputDimension : 2048;
       const croppedCanvas = cropperRef.current.getCroppedCanvas({
+        maxWidth: maxDim,
+        maxHeight: maxDim,
         imageSmoothingEnabled: true,
         imageSmoothingQuality: 'high',
       });

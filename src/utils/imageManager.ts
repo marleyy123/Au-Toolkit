@@ -126,10 +126,31 @@ async function cloudMediaRequest(path: string, init: RequestInit = {}): Promise<
 
 async function uploadCloudMediaBlob(uid: string, blob: Blob): Promise<string> {
   const { auth } = await import('../firebase');
-  if (auth.currentUser?.uid !== uid) throw new Error('AUTH_REQUIRED');
+  if (auth.authStateReady) {
+    try {
+      await auth.authStateReady();
+    } catch {}
+  }
+  const currentUid = auth.currentUser?.uid;
+  if (!currentUid || currentUid !== uid) throw new Error('AUTH_REQUIRED');
+
+  let contentType = (blob.type || '').split(';')[0].trim().toLowerCase();
+  const allowed = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/avif',
+    'video/mp4',
+    'video/webm',
+  ]);
+  if (!allowed.has(contentType)) {
+    contentType = 'image/jpeg';
+  }
+
   const response = await cloudMediaRequest('/media', {
     method: 'PUT',
-    headers: { 'Content-Type': blob.type || 'application/octet-stream' },
+    headers: { 'Content-Type': contentType },
     body: blob,
   });
   const result = await response.json().catch(() => ({}));
