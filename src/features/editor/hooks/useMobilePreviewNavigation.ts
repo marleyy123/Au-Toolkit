@@ -29,13 +29,6 @@ export function useMobilePreviewNavigation() {
       if (window.innerWidth >= 1024) return;
       if (e.touches.length !== 1) return;
 
-      const clientX = e.touches[0].clientX;
-      // Ignore native iOS Safari edge swipe navigation gestures (back/forward)
-      if (clientX < 25 || clientX > window.innerWidth - 25) {
-        isIgnoredTarget = true;
-        return;
-      }
-
       const target = e.target as HTMLElement | null;
       if (
         target?.closest(
@@ -47,7 +40,7 @@ export function useMobilePreviewNavigation() {
       }
 
       isIgnoredTarget = false;
-      touchStartX = clientX;
+      touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
       touchStartTime = Date.now();
     };
@@ -64,8 +57,7 @@ export function useMobilePreviewNavigation() {
       const absY = Math.abs(diffY);
       const duration = Date.now() - touchStartTime;
 
-      // Require deliberate swipe: at least 80px horizontal movement, clearly horizontal, under 500ms
-      if (absX >= 80 && absX > absY * 1.8 && duration < 500) {
+      if (absX >= 45 && absX > absY * 1.5 && duration < 600) {
         if (diffX > 0) {
           setMobileView((prev) => (prev === 'editor' ? 'preview' : 'editor'));
         } else {

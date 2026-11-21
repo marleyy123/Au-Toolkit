@@ -104,7 +104,7 @@ export const PreviewExportPanel: React.FC<PreviewExportPanelProps> = ({
 }) => (
   <section
     id="preview-panel"
-    className={`preview-column-panel dual-scroll-panel no-scrollbar scrollbar-none lg:overscroll-y-contain lg:col-span-6 xl:col-span-7 space-y-6 lg:h-full lg:overflow-y-auto lg:pl-1 lg:pr-2 lg:pb-4 transition-all ${
+    className={`preview-column-panel dual-scroll-panel no-scrollbar scrollbar-none overscroll-y-contain lg:col-span-6 xl:col-span-7 space-y-6 lg:h-full lg:overflow-y-auto lg:pl-1 lg:pr-2 lg:pb-4 transition-all ${
       mobileView === 'editor' ? 'hidden lg:block' : 'block animate-in fade-in-50 duration-200'
     }`}
     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
