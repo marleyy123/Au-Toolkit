@@ -104,7 +104,9 @@ button,
 a,
 input[type="button"],
 input[type="submit"],
-.cursor-pointer {
+.cursor-pointer,
+.au-select-trigger,
+.au-select-item {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -113,7 +115,9 @@ input[type="submit"],
 @media (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   select,
-  textarea {
+  textarea,
+  .au-select-trigger,
+  .au-select-value {
     font-size: 16px !important;
   }
 }
