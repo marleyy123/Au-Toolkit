@@ -22,6 +22,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -122,6 +123,18 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
     } else {
       googleProvider.setCustomParameters({ prompt: 'select_account' });
     }
+
+    // Safari iOS blocks signInWithPopup with custom authDomain due to ITP (cross-origin cookie restriction).
+    // Detect Safari iOS and fall back to signInWithRedirect which does not rely on third-party cookies.
+    const isSafariIOS = /iP(hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS|FxiOS|OPiOS|mercury/.test(navigator.userAgent);
+
+    if (isSafariIOS) {
+      // signInWithRedirect: navigates away and returns. Result is retrieved via getRedirectResult on page load.
+      const { signInWithRedirect } = await import('firebase/auth');
+      await signInWithRedirect(auth, googleProvider);
+      return null; // Page will redirect; result handled by getRedirectResult listener
+    }
+
     const result = await signInWithPopup(auth, googleProvider);
     if (result?.user) {
       setStoredAuthUser({
@@ -142,6 +155,14 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
       error?.message?.includes('cancelled-popup-request')
     ) {
       // User closed or cancelled the popup window
+      return null;
+    }
+
+    // Fallback: if popup fails with unauthorized-domain on Safari, try redirect
+    if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-supported-in-this-environment') {
+      console.warn('[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...');
+      const { signInWithRedirect } = await import('firebase/auth');
+      await signInWithRedirect(auth, googleProvider);
       return null;
     }
 
@@ -259,6 +280,28 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
       callback(initialUser);
     } catch (e) {}
   }
+
+  // Handle redirect result from signInWithRedirect (Safari iOS fallback).
+  // This runs once on page load after user is redirected back from Google.
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result?.user) {
+        const userPayload = {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        };
+        setStoredAuthUser(userPayload);
+        try { callback(result.user); } catch (e) {}
+      }
+    })
+    .catch((err) => {
+      // Silently ignore — redirect result errors (e.g. no pending redirect) are non-critical
+      if (err?.code !== 'auth/no-current-user') {
+        console.warn('[Auth] getRedirectResult error (non-critical):', err?.code);
+      }
+    });
 
   const unsubscribeFirebase = onAuthStateChanged(
     auth,
