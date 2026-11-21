@@ -334,7 +334,11 @@ export const Login: React.FC<LoginProps> = ({
       const code = String((err as any)?.code || 'auth/unknown').trim();
       const message = String((err as any)?.message || 'Google Sign-In gagal.').trim();
       console.error('Google sign-in error:', { code, message });
-      setErrorMessage(`Google Sign-In gagal (${code}): ${message}`);
+      if (code === 'auth/popup-blocked') {
+        setErrorMessage('Jendela login Google terblokir. Jika membuka lewat aplikasi (Instagram/TikTok/Twitter), buka di browser Safari atau Chrome (ketuk titik tiga di pojok -> Buka di Browser).');
+      } else {
+        setErrorMessage(`Google Sign-In gagal (${code}): ${message}`);
+      }
     } finally {
       // Every popup, verification, timeout, and workspace transition path must
       // release the Google loading state.
