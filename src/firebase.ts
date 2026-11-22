@@ -22,6 +22,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithCredential,
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -332,39 +333,77 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
   // On iOS, we use a secondary auth instance with the default firebaseapp.com authDomain
   // to avoid iOS storage partitioning errors with custom authDomain (auth.autoolkit.com).
   // Check which auth instance was used for the redirect via localStorage flag.
-  const handleRedirectResult = (authInstance: Auth) => {
-    getRedirectResult(authInstance)
-      .then((result) => {
-        if (result?.user) {
-          const userPayload = {
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          };
-          try {
-            if (result.user.email) {
-              localStorage.setItem('au_user_email', result.user.email.trim().toLowerCase());
-            }
-            localStorage.removeItem(IOS_REDIRECT_FLAG);
-          } catch {}
-          setStoredAuthUser(userPayload);
-          try { callback(result.user); } catch (e) {}
+  
+  const handleRedirectResult = async (authInstance: Auth) => {
+    try {
+      const result = await getRedirectResult(authInstance);
 
-          // Fire a custom event so useEntitlementLifecycle can re-run entitlement check
-          // even if initialBootExecutedRef already fired before redirect result resolved.
-          try {
-            window.dispatchEvent(new CustomEvent('au:auth:redirect-resolved', { detail: { user: userPayload } }));
-          } catch {}
+      if (!result?.user) return;
+
+      let authenticatedUser = result.user;
+
+      // iOS uses a secondary Firebase Auth instance.
+      // Transfer its Google credential to the primary Auth instance.
+      if (authInstance !== auth) {
+        console.log('[Auth] Transferring iOS Google credential to primary Auth...');
+
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+
+        if (!credential) {
+          throw new Error('Google credential tidak ditemukan dari hasil redirect iOS.');
         }
-      })
-      .catch((err) => {
-        // Silently ignore — redirect result errors (e.g. no pending redirect) are non-critical
-        if (err?.code !== 'auth/no-current-user') {
-          console.warn('[Auth] getRedirectResult error (non-critical):', err?.code, 'instance:', authInstance.app.name);
+
+        const primaryResult = await signInWithCredential(auth, credential);
+        authenticatedUser = primaryResult.user;
+
+        console.log('[Auth] iOS credential successfully transferred to primary Auth.');
+      }
+
+      const userPayload = {
+        uid: authenticatedUser.uid,
+        email: authenticatedUser.email,
+        displayName: authenticatedUser.displayName,
+        photoURL: authenticatedUser.photoURL,
+      };
+
+      try {
+        if (authenticatedUser.email) {
+          localStorage.setItem(
+            'au_user_email',
+            authenticatedUser.email.trim().toLowerCase()
+          );
         }
-      });
+
+        localStorage.removeItem(IOS_REDIRECT_FLAG);
+      } catch {}
+
+      setStoredAuthUser(userPayload);
+
+      // Notify the application only after primary Auth is ready.
+      try {
+        callback(authenticatedUser);
+      } catch (e) {}
+
+      // Trigger entitlement verification after primary Auth is established.
+      try {
+        window.dispatchEvent(
+          new CustomEvent('au:auth:redirect-resolved', {
+            detail: { user: userPayload },
+          })
+        );
+      } catch {}
+
+    } catch (err: any) {
+      console.error(
+        '[Auth] Redirect result processing failed:',
+        err?.code,
+        err?.message,
+        'instance:',
+        authInstance.app.name
+      );
+    }
   };
+
 
   // If the iOS redirect flag is set, check the iOS auth instance first, then the main auth.
   const usedIOSRedirect = (() => { try { return localStorage.getItem(IOS_REDIRECT_FLAG) === '1'; } catch { return false; } })();

@@ -1,0 +1,121 @@
+[1mdiff --git a/src/firebase.ts b/src/firebase.ts[m
+[1mindex 7e38dcc..bb9eadc 100644[m
+[1m--- a/src/firebase.ts[m
+[1m+++ b/src/firebase.ts[m
+[36m@@ -22,6 +22,7 @@[m [mimport {[m
+   getAuth,[m
+   GoogleAuthProvider,[m
+   signInWithPopup,[m
+[32m+[m[32m  signInWithCredential,[m
+   getRedirectResult,[m
+   signInWithEmailAndPassword,[m
+   createUserWithEmailAndPassword,[m
+[36m@@ -332,40 +333,78 @@[m [mexport function onAuthUserChanged(callback: (user: any) => void): () => void {[m
+   // On iOS, we use a secondary auth instance with the default firebaseapp.com authDomain[m
+   // to avoid iOS storage partitioning errors with custom authDomain (auth.autoolkit.com).[m
+   // Check which auth instance was used for the redirect via localStorage flag.[m
+[31m-  const handleRedirectResult = (authInstance: Auth) => {[m
+[31m-    getRedirectResult(authInstance)[m
+[31m-      .then((result) => {[m
+[31m-        if (result?.user) {[m
+[31m-          const userPayload = {[m
+[31m-            uid: result.user.uid,[m
+[31m-            email: result.user.email,[m
+[31m-            displayName: result.user.displayName,[m
+[31m-            photoURL: result.user.photoURL,[m
+[31m-          };[m
+[31m-          try {[m
+[31m-            if (result.user.email) {[m
+[31m-              localStorage.setItem('au_user_email', result.user.email.trim().toLowerCase());[m
+[31m-            }[m
+[31m-            localStorage.removeItem(IOS_REDIRECT_FLAG);[m
+[31m-          } catch {}[m
+[31m-          setStoredAuthUser(userPayload);[m
+[31m-          try { callback(result.user); } catch (e) {}[m
+[31m-[m
+[31m-          // Fire a custom event so useEntitlementLifecycle can re-run entitlement check[m
+[31m-          // even if initialBootExecutedRef already fired before redirect result resolved.[m
+[31m-          try {[m
+[31m-            window.dispatchEvent(new CustomEvent('au:auth:redirect-resolved', { detail: { user: userPayload } }));[m
+[31m-          } catch {}[m
+[32m+[m[41m  [m
+[32m+[m[32m  const handleRedirectResult = async (authInstance: Auth) => {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      const result = await getRedirectResult(authInstance);[m
+[32m+[m
+[32m+[m[32m      if (!result?.user) return;[m
+[32m+[m
+[32m+[m[32m      let authenticatedUser = result.user;[m
+[32m+[m
+[32m+[m[32m      // iOS uses a secondary Firebase Auth instance.[m
+[32m+[m[32m      // Transfer its Google credential to the primary Auth instance.[m
+[32m+[m[32m      if (authInstance !== auth) {[m
+[32m+[m[32m        console.log('[Auth] Transferring iOS Google credential to primary Auth...');[m
+[32m+[m
+[32m+[m[32m        const credential = GoogleAuthProvider.credentialFromResult(result);[m
+[32m+[m
+[32m+[m[32m        if (!credential) {[m
+[32m+[m[32m          throw new Error('Google credential tidak ditemukan dari hasil redirect iOS.');[m
+         }[m
+[31m-      })[m
+[31m-      .catch((err) => {[m
+[31m-        // Silently ignore — redirect result errors (e.g. no pending redirect) are non-critical[m
+[31m-        if (err?.code !== 'auth/no-current-user') {[m
+[31m-          console.warn('[Auth] getRedirectResult error (non-critical):', err?.code, 'instance:', authInstance.app.name);[m
+[32m+[m
+[32m+[m[32m        const primaryResult = await signInWithCredential(auth, credential);[m
+[32m+[m[32m        authenticatedUser = primaryResult.user;[m
+[32m+[m
+[32m+[m[32m        console.log('[Auth] iOS credential successfully transferred to primary Auth.');[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      const userPayload = {[m
+[32m+[m[32m        uid: authenticatedUser.uid,[m
+[32m+[m[32m        email: authenticatedUser.email,[m
+[32m+[m[32m        displayName: authenticatedUser.displayName,[m
+[32m+[m[32m        photoURL: authenticatedUser.photoURL,[m
+[32m+[m[32m      };[m
+[32m+[m
+[32m+[m[32m      try {[m
+[32m+[m[32m        if (authenticatedUser.email) {[m
+[32m+[m[32m          localStorage.setItem([m
+[32m+[m[32m            'au_user_email',[m
+[32m+[m[32m            authenticatedUser.email.trim().toLowerCase()[m
+[32m+[m[32m          );[m
+         }[m
+[31m-      });[m
+[32m+[m
+[32m+[m[32m        localStorage.removeItem(IOS_REDIRECT_FLAG);[m
+[32m+[m[32m      } catch {}[m
+[32m+[m
+[32m+[m[32m      setStoredAuthUser(userPayload);[m
+[32m+[m
+[32m+[m[32m      // Notify the application only after primary Auth is ready.[m
+[32m+[m[32m      try {[m
+[32m+[m[32m        callback(authenticatedUser);[m
+[32m+[m[32m      } catch (e) {}[m
+[32m+[m
+[32m+[m[32m      // Trigger entitlement verification after primary Auth is established.[m
+[32m+[m[32m      try {[m
+[32m+[m[32m        window.dispatchEvent([m
+[32m+[m[32m          new CustomEvent('au:auth:redirect-resolved', {[m
+[32m+[m[32m            detail: { user: userPayload },[m
+[32m+[m[32m          })[m
+[32m+[m[32m        );[m
+[32m+[m[32m      } catch {}[m
+[32m+[m
+[32m+[m[32m    } catch (err: any) {[m
+[32m+[m[32m      console.error([m
+[32m+[m[32m        '[Auth] Redirect result processing failed:',[m
+[32m+[m[32m        err?.code,[m
+[32m+[m[32m        err?.message,[m
+[32m+[m[32m        'instance:',[m
+[32m+[m[32m        authInstance.app.name[m
+[32m+[m[32m      );[m
+[32m+[m[32m    }[m
+   };[m
+ [m
+[32m+[m
+   // If the iOS redirect flag is set, check the iOS auth instance first, then the main auth.[m
+   const usedIOSRedirect = (() => { try { return localStorage.getItem(IOS_REDIRECT_FLAG) === '1'; } catch { return false; } })();[m
+   if (usedIOSRedirect) {[m
