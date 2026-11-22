@@ -124,6 +124,28 @@ export const isIOSDevice = (): boolean => {
   );
 };
 
+// iOS storage partitioning fix:
+// When using signInWithRedirect with a custom authDomain (e.g. auth.autoolkit.com),
+// iOS WebKit clears the sessionStorage of the auth domain when the page navigates away to Google.
+// Firebase can't find its "initial state" on return → error: "storage-partitioned browser environment".
+//
+// Fix: Use a secondary Firebase app instance with the DEFAULT firebaseapp.com authDomain.
+// Firebase's own domain has special handling for iOS storage partitioning.
+//
+// The flag 'au_ios_redirect_app' in localStorage tells getRedirectResult which auth instance to use.
+const IOS_REDIRECT_APP_NAME = '__au_ios_redirect__';
+const IOS_REDIRECT_FLAG = 'au_ios_redirect_app';
+
+function getIOSRedirectAuth(): Auth {
+  const defaultAuthDomain = `${resolvedProjectId}.firebaseapp.com`;
+  const existingApp = getApps().find(a => a.name === IOS_REDIRECT_APP_NAME);
+  const iosApp = existingApp ?? initializeApp(
+    { ...firebaseConfig, authDomain: defaultAuthDomain },
+    IOS_REDIRECT_APP_NAME
+  );
+  return getAuth(iosApp);
+}
+
 // Call directly from user interaction, before awaiting access verification.
 export async function signInWithGoogle(loginHint?: string): Promise<User | null> {
   try {
@@ -133,18 +155,17 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
       googleProvider.setCustomParameters({ prompt: 'select_account' });
     }
 
-    // All iOS browsers (Safari, Chrome iOS, in-app WebViews) use WebKit with strict ITP.
-    // WebKit blocks cross-origin cookies between custom authDomain and main domain in signInWithPopup.
-    // Detect all iOS devices and use signInWithRedirect instead.
+    // All iOS browsers (Safari, Chrome iOS, in-app WebViews) share the same WebKit engine
+    // and are all subject to iOS storage partitioning. Use signInWithRedirect (not popup).
     const isIOS = isIOSDevice();
 
     if (isIOS) {
-      try {
-        sessionStorage.setItem('au_auth_redirect_pending', 'true');
-      } catch {}
+      // Use secondary auth instance with firebaseapp.com domain to avoid iOS storage-partitioned error.
+      const iosAuth = getIOSRedirectAuth();
+      try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {}
       const { signInWithRedirect } = await import('firebase/auth');
-      await signInWithRedirect(auth, googleProvider);
-      return null; // Page will redirect; result handled on page reload
+      await signInWithRedirect(iosAuth, googleProvider);
+      return null; // Page will redirect; result handled on page reload via getRedirectResult
     }
 
     const result = await signInWithPopup(auth, googleProvider);
@@ -166,32 +187,29 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
       error?.message?.includes('popup-closed-by-user') ||
       error?.message?.includes('cancelled-popup-request')
     ) {
-      // If on mobile or iOS and popup was closed prematurely due to browser restrictions,
-      // fallback to redirect sign-in.
       if (isIOSDevice()) {
         console.warn('[Auth] iOS popup closed/blocked, falling back to redirect...');
-        try {
-          sessionStorage.setItem('au_auth_redirect_pending', 'true');
-        } catch {}
+        const iosAuth = getIOSRedirectAuth();
+        try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {}
         const { signInWithRedirect } = await import('firebase/auth');
-        await signInWithRedirect(auth, googleProvider);
+        await signInWithRedirect(iosAuth, googleProvider);
         return null;
       }
       return null;
     }
 
-    // Fallback: if popup fails with unauthorized-domain, popup-blocked, or unsupported environment, try redirect
+    // Fallback: popup blocked or unsupported → try redirect
     if (
       code === 'auth/popup-blocked' ||
       code === 'auth/unauthorized-domain' ||
       code === 'auth/operation-not-supported-in-this-environment'
     ) {
       console.warn('[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...');
-      try {
-        sessionStorage.setItem('au_auth_redirect_pending', 'true');
-      } catch {}
+      const isIOS = isIOSDevice();
+      const targetAuth = isIOS ? getIOSRedirectAuth() : auth;
+      if (isIOS) { try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {} }
       const { signInWithRedirect } = await import('firebase/auth');
-      await signInWithRedirect(auth, googleProvider);
+      await signInWithRedirect(targetAuth, googleProvider);
       return null;
     }
 
@@ -310,40 +328,51 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
     } catch (e) {}
   }
 
-  // Handle redirect result from signInWithRedirect (iOS / in-app WebView fallback).
-  // This runs once on page load after user is redirected back from Google.
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result?.user) {
-        const userPayload = {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-        };
-        // Persist email so entitlement lifecycle can find it even before authStateChanged fires
-        try {
-          if (result.user.email) {
-            localStorage.setItem('au_user_email', result.user.email.trim().toLowerCase());
-          }
-          sessionStorage.removeItem('au_auth_redirect_pending');
-        } catch {}
-        setStoredAuthUser(userPayload);
-        try { callback(result.user); } catch (e) {}
+  // Handle redirect result from signInWithRedirect (iOS fallback).
+  // On iOS, we use a secondary auth instance with the default firebaseapp.com authDomain
+  // to avoid iOS storage partitioning errors with custom authDomain (auth.autoolkit.com).
+  // Check which auth instance was used for the redirect via localStorage flag.
+  const handleRedirectResult = (authInstance: Auth) => {
+    getRedirectResult(authInstance)
+      .then((result) => {
+        if (result?.user) {
+          const userPayload = {
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          };
+          try {
+            if (result.user.email) {
+              localStorage.setItem('au_user_email', result.user.email.trim().toLowerCase());
+            }
+            localStorage.removeItem(IOS_REDIRECT_FLAG);
+          } catch {}
+          setStoredAuthUser(userPayload);
+          try { callback(result.user); } catch (e) {}
 
-        // Fire a custom event so useEntitlementLifecycle can re-run entitlement check
-        // even if initialBootExecutedRef already fired before redirect result resolved.
-        try {
-          window.dispatchEvent(new CustomEvent('au:auth:redirect-resolved', { detail: { user: userPayload } }));
-        } catch {}
-      }
-    })
-    .catch((err) => {
-      // Silently ignore — redirect result errors (e.g. no pending redirect) are non-critical
-      if (err?.code !== 'auth/no-current-user') {
-        console.warn('[Auth] getRedirectResult error (non-critical):', err?.code);
-      }
-    });
+          // Fire a custom event so useEntitlementLifecycle can re-run entitlement check
+          // even if initialBootExecutedRef already fired before redirect result resolved.
+          try {
+            window.dispatchEvent(new CustomEvent('au:auth:redirect-resolved', { detail: { user: userPayload } }));
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        // Silently ignore — redirect result errors (e.g. no pending redirect) are non-critical
+        if (err?.code !== 'auth/no-current-user') {
+          console.warn('[Auth] getRedirectResult error (non-critical):', err?.code, 'instance:', authInstance.app.name);
+        }
+      });
+  };
+
+  // If the iOS redirect flag is set, check the iOS auth instance first, then the main auth.
+  const usedIOSRedirect = (() => { try { return localStorage.getItem(IOS_REDIRECT_FLAG) === '1'; } catch { return false; } })();
+  if (usedIOSRedirect) {
+    handleRedirectResult(getIOSRedirectAuth());
+  } else {
+    handleRedirectResult(auth);
+  }
 
   const unsubscribeFirebase = onAuthStateChanged(
     auth,
