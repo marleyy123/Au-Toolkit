@@ -150,6 +150,37 @@ export const isIOSDevice = (): boolean => {
 const IOS_REDIRECT_APP_NAME = "__au_ios_redirect__";
 const IOS_REDIRECT_FLAG = "au_ios_redirect_app";
 
+function sendIOSAuthDebug(
+  event: string,
+  details: {
+    stage?: string;
+    authApp?: string;
+    authDomain?: string;
+    errorCode?: string;
+    redirectFlag?: boolean;
+    hasUser?: boolean;
+  } = {},
+): void {
+  if (typeof window === "undefined") return;
+
+  const payload = {
+    event,
+    session: "ios-auth-debug",
+    ...details,
+  };
+
+  void fetch("/api/ios-auth-debug", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch((error) => {
+    console.warn("[Auth Debug] Failed to send diagnostic log:", error);
+  });
+}
+
 function getIOSRedirectAuth(): Auth {
   const defaultAuthDomain = `${resolvedProjectId}.firebaseapp.com`;
   const existingApp = getApps().find((a) => a.name === IOS_REDIRECT_APP_NAME);
@@ -185,6 +216,12 @@ export async function signInWithGoogle(
       const iosAuth = getIOSRedirectAuth();
       try {
         localStorage.setItem(IOS_REDIRECT_FLAG, "1");
+        sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
+          stage: "before_sign_in_redirect",
+          authApp: iosAuth.app.name,
+          authDomain: iosAuth.config.authDomain,
+          redirectFlag: true,
+        });
       } catch {}
       const { signInWithRedirect } = await import("firebase/auth");
       await signInWithRedirect(iosAuth, googleProvider);
@@ -388,14 +425,26 @@ async function processPendingRedirectResult(): Promise<void> {
       );
       console.log("[Auth Debug] Auth app:", authInstance.app.name);
       console.log("[Auth Debug] Auth domain:", authInstance.config.authDomain);
-      console.log("[Auth Debug] Current URL:", window.location.href);
 
       const result = await getRedirectResult(authInstance);
 
-      console.log("[Auth Debug] Redirect result:", result);
-      console.log("[Auth Debug] Redirect user:", result?.user?.email ?? null);
+      sendIOSAuthDebug("REDIRECT_RESULT_RECEIVED", {
+        stage: "get_redirect_result_completed",
+        authApp: authInstance.app.name,
+        authDomain: authInstance.config.authDomain,
+        redirectFlag: usedIOSRedirect,
+        hasUser: Boolean(result?.user),
+      });
 
       if (!result?.user) {
+        sendIOSAuthDebug("REDIRECT_RESULT_EMPTY", {
+          stage: "redirect_result_has_no_user",
+          authApp: authInstance.app.name,
+          authDomain: authInstance.config.authDomain,
+          redirectFlag: usedIOSRedirect,
+          hasUser: false,
+        });
+
         console.warn("[Auth Debug] Redirect result kosong!");
         return;
       }
@@ -403,23 +452,50 @@ async function processPendingRedirectResult(): Promise<void> {
       let authenticatedUser = result.user;
 
       if (authInstance !== auth) {
-        console.log(
-          "[Auth] Transferring iOS Google credential to primary Auth...",
-        );
+        sendIOSAuthDebug("CREDENTIAL_TRANSFER_STARTED", {
+          stage: "before_primary_auth_transfer",
+          authApp: authInstance.app.name,
+          authDomain: authInstance.config.authDomain,
+          hasUser: true,
+        });
 
-        const credential = GoogleAuthProvider.credentialFromResult(result);
+        try {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
 
-        if (!credential) {
-          throw new Error(
-            "Google credential tidak ditemukan dari hasil redirect iOS.",
+          if (!credential) {
+            throw new Error(
+              "Google credential tidak ditemukan dari hasil redirect iOS.",
+            );
+          }
+
+          const primaryResult = await signInWithCredential(auth, credential);
+          authenticatedUser = primaryResult.user;
+
+          sendIOSAuthDebug("CREDENTIAL_TRANSFER_SUCCESS", {
+            stage: "primary_auth_transfer_completed",
+            authApp: auth.app.name,
+            authDomain: auth.config.authDomain,
+            hasUser: Boolean(auth.currentUser),
+          });
+        } catch (err: any) {
+          sendIOSAuthDebug("REDIRECT_PROCESSING_FAILED", {
+            stage: "process_pending_redirect_result",
+            authApp: authInstance.app.name,
+            authDomain: authInstance.config.authDomain,
+            errorCode: err?.code || "unknown",
+            redirectFlag: localStorage.getItem(IOS_REDIRECT_FLAG) === "1",
+          });
+
+          console.error(
+            "[Auth] Redirect result processing failed:",
+            err?.code,
+            err?.message,
+            "instance:",
+            authInstance.app.name,
           );
+
+          redirectResultProcessing = null;
         }
-
-        const primaryResult = await signInWithCredential(auth, credential);
-        console.log("[Auth Debug] Primary Auth user:", auth.currentUser?.email);
-        authenticatedUser = primaryResult.user;
-
-        console.log("[Auth] iOS credential transferred to primary Auth.");
       }
 
       if (!authenticatedUser.email) {
