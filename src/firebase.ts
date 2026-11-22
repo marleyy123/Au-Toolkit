@@ -369,7 +369,6 @@ export async function signOutUser(): Promise<void> {
   }
 }
 
-
 async function processPendingRedirectResult(): Promise<void> {
   if (redirectResultProcessing) {
     return redirectResultProcessing;
@@ -379,16 +378,27 @@ async function processPendingRedirectResult(): Promise<void> {
     let authInstance: Auth = auth;
 
     try {
-      const usedIOSRedirect =
-        localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
+      const usedIOSRedirect = localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
 
-      authInstance = usedIOSRedirect
-        ? getIOSRedirectAuth()
-        : auth;
+      authInstance = usedIOSRedirect ? getIOSRedirectAuth() : auth;
+
+      console.log(
+        "[Auth Debug] Redirect flag:",
+        localStorage.getItem(IOS_REDIRECT_FLAG),
+      );
+      console.log("[Auth Debug] Auth app:", authInstance.app.name);
+      console.log("[Auth Debug] Auth domain:", authInstance.config.authDomain);
+      console.log("[Auth Debug] Current URL:", window.location.href);
 
       const result = await getRedirectResult(authInstance);
 
-      if (!result?.user) return;
+      console.log("[Auth Debug] Redirect result:", result);
+      console.log("[Auth Debug] Redirect user:", result?.user?.email ?? null);
+
+      if (!result?.user) {
+        console.warn("[Auth Debug] Redirect result kosong!");
+        return;
+      }
 
       let authenticatedUser = result.user;
 
@@ -397,8 +407,7 @@ async function processPendingRedirectResult(): Promise<void> {
           "[Auth] Transferring iOS Google credential to primary Auth...",
         );
 
-        const credential =
-          GoogleAuthProvider.credentialFromResult(result);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
 
         if (!credential) {
           throw new Error(
@@ -407,6 +416,7 @@ async function processPendingRedirectResult(): Promise<void> {
         }
 
         const primaryResult = await signInWithCredential(auth, credential);
+        console.log("[Auth Debug] Primary Auth user:", auth.currentUser?.email);
         authenticatedUser = primaryResult.user;
 
         console.log("[Auth] iOS credential transferred to primary Auth.");
@@ -452,7 +462,6 @@ async function processPendingRedirectResult(): Promise<void> {
 
   return redirectResultProcessing;
 }
-
 
 // Listen to Auth State
 export function onAuthUserChanged(callback: (user: any) => void): () => void {
