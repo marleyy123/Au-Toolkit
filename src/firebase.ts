@@ -22,6 +22,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -38,10 +39,12 @@ import {
 import { ensureDataUrlUnderSize } from "./utils/imageCompressor";
 
 // The config is injected via Vite environment variables
+const DEFAULT_AUTH_DOMAIN = "auth.autoolkit.com";
 const resolvedProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || "";
+// Semua platform (iOS, Android, Desktop) memakai satu authDomain yang sama.
+// Nilai dari env diprioritaskan; fallback ke custom auth domain production.
 const resolvedAuthDomain =
-  import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
-  (resolvedProjectId ? `${resolvedProjectId}.firebaseapp.com` : "");
+  import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_AUTH_DOMAIN;
 const resolvedDatabaseId =
   import.meta.env.VITE_FIREBASE_DATABASE_ID || "(default)";
 const resolvedApiKey = import.meta.env.VITE_FIREBASE_API_KEY || "";
@@ -139,6 +142,14 @@ export const isIOSDevice = (): boolean => {
   );
 };
 
+// Platform untuk keperluan logging/diagnostik. Tidak mengubah alur login.
+export const getAuthPlatform = (): "ios" | "android" | "desktop" => {
+  if (typeof navigator === "undefined") return "desktop";
+  if (isIOSDevice()) return "ios";
+  if (/Android/i.test(navigator.userAgent)) return "android";
+  return "desktop";
+};
+
 // iOS redirect state flag
 const IOS_REDIRECT_FLAG = "au_ios_redirect_app";
 
@@ -170,6 +181,7 @@ function sendIOSAuthDebug(
     errorCode?: string;
     redirectFlag?: boolean;
     hasUser?: boolean;
+    platform?: string;
   } = {},
 ): void {
   if (typeof window === "undefined") return;
@@ -192,12 +204,60 @@ function sendIOSAuthDebug(
   });
 }
 
+// Guard agar klik ganda tidak memicu login/redirect ganda.
+let googleSignInInFlight = false;
+
+// Memulai Google Sign-In Redirect memakai Firebase Auth instance utama.
+// Browser akan navigasi keluar; hasilnya diproses di processPendingRedirectResult().
+async function startGoogleRedirect(stage: string): Promise<null> {
+  const platform = getAuthPlatform();
+  const isIOS = platform === "ios";
+  let flagSaved = false;
+
+  // Flag ini khusus konteks redirect iOS; fallback Android/Desktop tidak menyetelnya.
+  if (isIOS) {
+    try {
+      localStorage.setItem(IOS_REDIRECT_FLAG, "1");
+      flagSaved = true;
+    } catch (storageError) {
+      // Kegagalan storage tidak boleh menghentikan proses login.
+      console.warn("[Auth] Could not save redirect flag:", storageError);
+    }
+  }
+
+  sendIOSAuthDebug(
+    isIOS ? "IOS_REDIRECT_STARTED" : "REDIRECT_FALLBACK_STARTED",
+    {
+      stage,
+      platform,
+      authApp: auth.app.name,
+      authDomain: auth.config.authDomain,
+      redirectFlag: flagSaved,
+    },
+  );
+
+  try {
+    await signInWithRedirect(auth, googleProvider);
+  } catch (redirectError) {
+    // Redirect gagal dimulai, jadi tidak ada hasil yang akan diproses saat kembali.
+    if (isIOS) clearIOSRedirectFlag();
+    throw redirectError;
+  }
+
+  // The browser will navigate away.
+  // Authentication result will be processed after returning.
+  return null;
+}
+
 // Google Sign-in
 // iOS: Redirect using the primary Firebase Auth instance.
 // Android/Desktop: Keep the existing Popup behavior.
 export async function signInWithGoogle(
   loginHint?: string,
 ): Promise<User | null> {
+  if (googleSignInInFlight) return null;
+  googleSignInInFlight = true;
+
   try {
     if (loginHint?.trim()) {
       googleProvider.setCustomParameters({
@@ -210,30 +270,9 @@ export async function signInWithGoogle(
       });
     }
 
-    const isIOS = isIOSDevice();
-
     // iOS uses redirect with the SAME primary Firebase Auth instance.
-    if (isIOS) {
-      try {
-        localStorage.setItem(IOS_REDIRECT_FLAG, "1");
-      } catch (storageError) {
-        console.warn("[Auth] Could not save iOS redirect flag:", storageError);
-      }
-
-      sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
-        stage: "before_sign_in_redirect",
-        authApp: auth.app.name,
-        authDomain: auth.config.authDomain,
-        redirectFlag: true,
-      });
-
-      const { signInWithRedirect } = await import("firebase/auth");
-
-      await signInWithRedirect(auth, googleProvider);
-
-      // The browser will navigate away.
-      // Authentication result will be processed after returning.
-      return null;
+    if (isIOSDevice()) {
+      return await startGoogleRedirect("before_sign_in_redirect");
     }
 
     // Android/Desktop: Keep Popup authentication.
@@ -265,43 +304,56 @@ export async function signInWithGoogle(
         console.warn(
           "[Auth] iOS popup closed/blocked, falling back to redirect...",
         );
-
-        try {
-          localStorage.setItem(IOS_REDIRECT_FLAG, "1");
-        } catch {}
-
-        sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
-          stage: "popup_fallback",
-          authApp: auth.app.name,
-          authDomain: auth.config.authDomain,
-          redirectFlag: true,
-        });
-
-        const { signInWithRedirect } = await import("firebase/auth");
-
-        await signInWithRedirect(auth, googleProvider);
-
-        return null;
+        return await startGoogleRedirect("popup_fallback");
       }
 
       return null;
     }
 
+    // Domain belum diizinkan di Firebase: redirect tidak akan menyelesaikannya,
+    // jadi jangan fallback. Log jelas lalu teruskan error ke pemanggil.
+    if (code === "auth/unauthorized-domain") {
+      const platform = getAuthPlatform();
+      console.error(
+        "[Auth] auth/unauthorized-domain: domain aplikasi belum ada di Firebase Console > Authentication > Settings > Authorized domains.",
+        {
+          currentHost:
+            typeof window !== "undefined" ? window.location.hostname : "",
+          authDomain: auth.config.authDomain,
+          platform,
+        },
+      );
+      sendIOSAuthDebug("AUTH_UNAUTHORIZED_DOMAIN", {
+        stage: "google_sign_in",
+        platform,
+        authApp: auth.app.name,
+        authDomain: auth.config.authDomain,
+        errorCode: code,
+        redirectFlag: isIOSRedirectPending(),
+      });
+      throw error;
+    }
+
     // Fallback when popup is blocked or unsupported.
     if (
       code === "auth/popup-blocked" ||
-      code === "auth/unauthorized-domain" ||
       code === "auth/operation-not-supported-in-this-environment"
     ) {
       console.warn(
         "[Auth] Popup blocked/unsupported, falling back to redirect...",
       );
 
-      return null;
+      return await startGoogleRedirect(
+        code === "auth/popup-blocked"
+          ? "popup_blocked_fallback"
+          : "popup_unsupported_fallback",
+      );
     }
 
-    console.error("[Auth] Google sign-in error:", error);
+    console.error("[Auth] Google sign-in error:", code || error);
     throw error;
+  } finally {
+    googleSignInInFlight = false;
   }
 }
 
@@ -447,20 +499,28 @@ async function processPendingRedirectResult(): Promise<void> {
         authDomain: authInstance.config.authDomain,
         redirectFlag: usedIOSRedirect,
         hasUser: Boolean(result?.user),
+        platform: getAuthPlatform(),
       });
 
       if (!result?.user) {
+        const hasSession = Boolean(authInstance.currentUser);
+
         sendIOSAuthDebug("REDIRECT_RESULT_EMPTY", {
           stage: "redirect_result_has_no_user",
           authApp: authInstance.app.name,
           authDomain: authInstance.config.authDomain,
           redirectFlag: usedIOSRedirect,
-          hasUser: false,
+          hasUser: hasSession,
+          platform: getAuthPlatform(),
         });
 
-        console.warn("[Auth Debug] Redirect result kosong!");
+        console.warn("[Auth Debug] Redirect result kosong!", { hasSession });
 
-        clearIOSRedirectFlag();
+        // Flag hanya dibersihkan jika hasil kosong DAN tidak ada user terautentikasi.
+        // Jika sesi sudah ada, flag dipertahankan sebagai konteks debugging.
+        if (!hasSession) {
+          clearIOSRedirectFlag();
+        }
         return;
       }
 
@@ -477,22 +537,32 @@ async function processPendingRedirectResult(): Promise<void> {
         photoURL: authenticatedUser.photoURL,
       };
 
-      localStorage.setItem(
-        "au_user_email",
-        authenticatedUser.email.trim().toLowerCase(),
-      );
+      // Kegagalan localStorage (mis. mode private iOS) tidak boleh
+      // membatalkan autentikasi yang sebenarnya sudah berhasil.
+      try {
+        localStorage.setItem(
+          "au_user_email",
+          authenticatedUser.email.trim().toLowerCase(),
+        );
+      } catch (storageError) {
+        console.warn("[Auth] Could not persist au_user_email:", storageError);
+      }
 
       clearIOSRedirectFlag();
 
       setStoredAuthUser(userPayload);
 
-      window.dispatchEvent(
-        new CustomEvent("au:auth:redirect-resolved", {
-          detail: {
-            user: userPayload,
-          },
-        }),
-      );
+      try {
+        window.dispatchEvent(
+          new CustomEvent("au:auth:redirect-resolved", {
+            detail: {
+              user: userPayload,
+            },
+          }),
+        );
+      } catch (eventError) {
+        console.warn("[Auth] Could not dispatch redirect event:", eventError);
+      }
 
       console.log("[Auth] Redirect authentication completed.", {
         uid: authenticatedUser.uid,
@@ -506,6 +576,7 @@ async function processPendingRedirectResult(): Promise<void> {
         errorCode: err?.code || "unknown",
         redirectFlag: isIOSRedirectPending(),
         hasUser: Boolean(auth.currentUser),
+        platform: getAuthPlatform(),
       });
 
       console.error(
@@ -515,6 +586,10 @@ async function processPendingRedirectResult(): Promise<void> {
         "instance:",
         auth.app.name,
       );
+
+      // Flag redirect sengaja TIDAK dihapus saat error agar konteks redirect
+      // tetap tersedia untuk debugging. Flag dibersihkan saat redirect berhasil
+      // diproses, hasilnya kosong tanpa user, atau sign-in berikutnya dimulai.
 
       // Allow another attempt if processing failed.
       redirectResultProcessing = null;
@@ -551,8 +626,23 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
         setStoredAuthUser(userPayload);
         callback(firebaseUser);
       } else {
-        const stored = getStoredAuthUser();
-        callback(stored || null);
+        // Jangan kirim "belum login" sebelum redirect result selesai diproses,
+        // supaya aplikasi tidak menampilkan halaman login terlalu cepat.
+        void (redirectResultProcessing ?? Promise.resolve()).then(() => {
+          // Jika user sudah terisi, onAuthStateChanged akan memanggil callback sendiri.
+          if (auth.currentUser) return;
+
+          sendIOSAuthDebug("AUTH_STATE_NULL", {
+            stage: "after_redirect_processing",
+            authApp: auth.app.name,
+            authDomain: auth.config.authDomain,
+            redirectFlag: isIOSRedirectPending(),
+            hasUser: false,
+          });
+
+          const stored = getStoredAuthUser();
+          callback(stored || null);
+        });
       }
     },
     (error) => {
@@ -571,6 +661,35 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
       unsubscribeFirebase();
     } catch (e) {}
   };
+}
+
+// Menunggu Firebase selesai memulihkan sesi, termasuk hasil redirect iOS.
+// Dipakai oleh boot aplikasi agar tidak memeriksa akses sebelum auth.currentUser siap.
+export async function waitForAuthReady(timeoutMs = 10000): Promise<void> {
+  await Promise.race([
+    new Promise<void>((resolve) => {
+      let done = false;
+      let unsub: (() => void) | null = null;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        try {
+          unsub?.();
+        } catch {}
+        resolve();
+      };
+      unsub = onAuthStateChanged(auth, finish, finish);
+      if (done) {
+        try {
+          unsub();
+        } catch {}
+      }
+    }),
+    new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
+  ]);
+
+  // Pastikan hasil redirect (jika ada) sudah selesai diproses.
+  await processPendingRedirectResult();
 }
 
 // Sanitize email or ID to safe Firestore doc id

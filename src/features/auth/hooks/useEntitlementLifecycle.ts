@@ -10,6 +10,7 @@ import {
   getStoredAuthUser,
   setStoredAuthUser,
   signOutUser,
+  waitForAuthReady,
 } from "../../../firebase";
 import {
   checkBuyerEntitlement,
@@ -19,6 +20,9 @@ import {
 } from "../../../services/buyerEntitlementService";
 import { verifyAndRegisterDevice } from "../../../utils/deviceAuthService";
 import { AuthLifecycleStage } from "../components/access/AppLoadingScreen";
+
+// Harus sama dengan IOS_REDIRECT_FLAG di src/firebase.ts
+const IOS_REDIRECT_FLAG_KEY = "au_ios_redirect_app";
 
 interface UseEntitlementLifecycleArgs {
   authUser: any;
@@ -62,6 +66,21 @@ export function useEntitlementLifecycle({
 
   const revalidateEntitlement = useCallback(
     async (isInitial = false) => {
+      // Boot awal HARUS menunggu Firebase selesai memulihkan sesi (termasuk hasil
+      // redirect iOS). Tanpa ini, auth.currentUser masih null saat akses diperiksa
+      // sehingga hasilnya AUTH_REQUIRED / "Google Sign-In required" dan aplikasi
+      // memantul kembali ke halaman login.
+      // Catatan: tidak ada await antara pengecekan isRevalidatingRef di bawah dan
+      // penyetelannya menjadi true, jadi pemanggil ganda tetap aman.
+      if (isInitial) {
+        try {
+          if (localStorage.getItem(IOS_REDIRECT_FLAG_KEY) === "1") {
+            setAuthLifecycleStage("AUTH_LOADING");
+          }
+        } catch {}
+        await waitForAuthReady();
+      }
+
       if (isRevalidatingRef.current) {
         console.log("[Entitlement] Revalidation already in-flight, skipping.");
         return;
@@ -69,7 +88,9 @@ export function useEntitlementLifecycle({
 
       const stored = getStoredAuthUser();
       const localEmail = localStorage.getItem("au_user_email");
+      // Sesi Firebase yang aktif adalah sumber kebenaran; email tersimpan hanya fallback.
       const emailToCheck = (
+        auth.currentUser?.email ||
         stored?.email ||
         localEmail ||
         authUserRef.current?.email ||
@@ -83,6 +104,7 @@ export function useEntitlementLifecycle({
           "[Entitlement] No email found to check. Setting UNAUTHENTICATED.",
         );
         if (isInitial) {
+          console.log("[Entitlement] reset @ no-email");
           setIsAuthenticated(false);
           setAuthLifecycleStage("UNAUTHENTICATED");
         }
@@ -209,6 +231,7 @@ export function useEntitlementLifecycle({
             entitlement.status,
           );
           if (isInitial) {
+            console.log("[Entitlement] reset @ auth-required");
             setIsAuthenticated(false);
             setAuthLifecycleStage("UNAUTHENTICATED");
           }
@@ -235,6 +258,7 @@ export function useEntitlementLifecycle({
             entitlement.statusAccount,
           );
           clearCachedEntitlement(emailToCheck);
+          console.log("[Entitlement] reset @ expired-or-locked");
           setIsAuthenticated(false);
           setBuyerEntitlement(entitlement);
           setAuthLifecycleStage("ACCESS_EXPIRED");
@@ -304,6 +328,7 @@ export function useEntitlementLifecycle({
               buyerEmail,
             });
             await signOutUser();
+            console.log("[Entitlement] reset @ email-mismatch");
             setIsAuthenticated(false);
             setAuthLifecycleStage("UNAUTHENTICATED");
             setLoadingErrorMessage(
@@ -319,6 +344,7 @@ export function useEntitlementLifecycle({
             "[Auth] Google Sign-In required for verified buyer:",
             emailToCheck,
           );
+          console.log("[Entitlement] reset @ no-firebase-user");
           setIsAuthenticated(false);
           setAuthLifecycleStage("UNAUTHENTICATED");
           return;
@@ -384,9 +410,9 @@ export function useEntitlementLifecycle({
     revalidateEntitlement(true);
   }, [revalidateEntitlement]);
 
-  // iOS redirect sign-in: after signInWithRedirect returns the user, the initial boot
-  // may have already run with no email (currentUser not yet resolved). Re-run here.
   // iOS redirect sign-in: re-run entitlement after Firebase redirect resolves.
+  // Jika boot awal masih berjalan, pemanggilan ini dilewati (boot awal kini sudah
+  // menunggu auth siap, jadi hasilnya sama).
   useEffect(() => {
     const handleRedirectResolved = (e: Event) => {
       const user = (e as CustomEvent).detail?.user;
