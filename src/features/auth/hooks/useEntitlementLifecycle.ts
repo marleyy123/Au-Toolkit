@@ -291,6 +291,21 @@ export function useEntitlementLifecycle({
     revalidateEntitlement(true);
   }, [revalidateEntitlement]);
 
+  // iOS redirect sign-in: after signInWithRedirect returns the user, the initial boot
+  // may have already run with no email (currentUser not yet resolved). Re-run here.
+  useEffect(() => {
+    const handleRedirectResolved = (e: Event) => {
+      const user = (e as CustomEvent).detail?.user;
+      if (!user?.email) return;
+      console.log('[Lifecycle] iOS redirect resolved, re-running entitlement for:', user.email);
+      // Allow revalidation even if initial boot already ran without a valid email
+      isRevalidatingRef.current = false;
+      revalidateEntitlement(true);
+    };
+    window.addEventListener('au:auth:redirect-resolved', handleRedirectResolved);
+    return () => window.removeEventListener('au:auth:redirect-resolved', handleRedirectResolved);
+  }, [revalidateEntitlement]);
+
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && isAuthenticated && authLifecycleStageRef.current === 'READY') {

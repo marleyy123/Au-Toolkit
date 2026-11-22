@@ -115,6 +115,15 @@ export function setStoredAuthUser(user: any) {
   } catch (e) {}
 }
 
+// Detect any iOS / iPadOS device across all browsers (Safari, Chrome iOS, in-app WebViews)
+export const isIOSDevice = (): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    /iP(hone|ad|od)/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+};
+
 // Call directly from user interaction, before awaiting access verification.
 export async function signInWithGoogle(loginHint?: string): Promise<User | null> {
   try {
@@ -124,15 +133,18 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
       googleProvider.setCustomParameters({ prompt: 'select_account' });
     }
 
-    // Safari iOS blocks signInWithPopup with custom authDomain due to ITP (cross-origin cookie restriction).
-    // Detect Safari iOS and fall back to signInWithRedirect which does not rely on third-party cookies.
-    const isSafariIOS = /iP(hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS|FxiOS|OPiOS|mercury/.test(navigator.userAgent);
+    // All iOS browsers (Safari, Chrome iOS, in-app WebViews) use WebKit with strict ITP.
+    // WebKit blocks cross-origin cookies between custom authDomain and main domain in signInWithPopup.
+    // Detect all iOS devices and use signInWithRedirect instead.
+    const isIOS = isIOSDevice();
 
-    if (isSafariIOS) {
-      // signInWithRedirect: navigates away and returns. Result is retrieved via getRedirectResult on page load.
+    if (isIOS) {
+      try {
+        sessionStorage.setItem('au_auth_redirect_pending', 'true');
+      } catch {}
       const { signInWithRedirect } = await import('firebase/auth');
       await signInWithRedirect(auth, googleProvider);
-      return null; // Page will redirect; result handled by getRedirectResult listener
+      return null; // Page will redirect; result handled on page reload
     }
 
     const result = await signInWithPopup(auth, googleProvider);
@@ -154,13 +166,30 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
       error?.message?.includes('popup-closed-by-user') ||
       error?.message?.includes('cancelled-popup-request')
     ) {
-      // User closed or cancelled the popup window
+      // If on mobile or iOS and popup was closed prematurely due to browser restrictions,
+      // fallback to redirect sign-in.
+      if (isIOSDevice()) {
+        console.warn('[Auth] iOS popup closed/blocked, falling back to redirect...');
+        try {
+          sessionStorage.setItem('au_auth_redirect_pending', 'true');
+        } catch {}
+        const { signInWithRedirect } = await import('firebase/auth');
+        await signInWithRedirect(auth, googleProvider);
+        return null;
+      }
       return null;
     }
 
-    // Fallback: if popup fails with unauthorized-domain on Safari, try redirect
-    if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-supported-in-this-environment') {
+    // Fallback: if popup fails with unauthorized-domain, popup-blocked, or unsupported environment, try redirect
+    if (
+      code === 'auth/popup-blocked' ||
+      code === 'auth/unauthorized-domain' ||
+      code === 'auth/operation-not-supported-in-this-environment'
+    ) {
       console.warn('[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...');
+      try {
+        sessionStorage.setItem('au_auth_redirect_pending', 'true');
+      } catch {}
       const { signInWithRedirect } = await import('firebase/auth');
       await signInWithRedirect(auth, googleProvider);
       return null;
@@ -281,7 +310,7 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
     } catch (e) {}
   }
 
-  // Handle redirect result from signInWithRedirect (Safari iOS fallback).
+  // Handle redirect result from signInWithRedirect (iOS / in-app WebView fallback).
   // This runs once on page load after user is redirected back from Google.
   getRedirectResult(auth)
     .then((result) => {
@@ -292,8 +321,21 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
           displayName: result.user.displayName,
           photoURL: result.user.photoURL,
         };
+        // Persist email so entitlement lifecycle can find it even before authStateChanged fires
+        try {
+          if (result.user.email) {
+            localStorage.setItem('au_user_email', result.user.email.trim().toLowerCase());
+          }
+          sessionStorage.removeItem('au_auth_redirect_pending');
+        } catch {}
         setStoredAuthUser(userPayload);
         try { callback(result.user); } catch (e) {}
+
+        // Fire a custom event so useEntitlementLifecycle can re-run entitlement check
+        // even if initialBootExecutedRef already fired before redirect result resolved.
+        try {
+          window.dispatchEvent(new CustomEvent('au:auth:redirect-resolved', { detail: { user: userPayload } }));
+        } catch {}
       }
     })
     .catch((err) => {
