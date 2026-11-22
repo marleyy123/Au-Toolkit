@@ -22,7 +22,6 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithCredential,
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -129,27 +128,39 @@ export function setStoredAuthUser(user: any) {
   } catch (e) {}
 }
 
-// Detect any iOS / iPadOS device across all browsers (Safari, Chrome iOS, in-app WebViews)
+// Detect any iOS / iPadOS device across all browsers
+// Safari, Chrome iOS, and in-app WebViews.
 export const isIOSDevice = (): boolean => {
   if (typeof navigator === "undefined") return false;
+
   return (
     /iP(hone|ad|od)/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
   );
 };
 
-// iOS storage partitioning fix:
-// When using signInWithRedirect with a custom authDomain (e.g. auth.autoolkit.com),
-// iOS WebKit clears the sessionStorage of the auth domain when the page navigates away to Google.
-// Firebase can't find its "initial state" on return → error: "storage-partitioned browser environment".
-//
-// Fix: Use a secondary Firebase app instance with the DEFAULT firebaseapp.com authDomain.
-// Firebase's own domain has special handling for iOS storage partitioning.
-//
-// The flag 'au_ios_redirect_app' in localStorage tells getRedirectResult which auth instance to use.
-const IOS_REDIRECT_APP_NAME = "__au_ios_redirect__";
+// iOS redirect state flag
 const IOS_REDIRECT_FLAG = "au_ios_redirect_app";
 
+// Safely read redirect flag
+function isIOSRedirectPending(): boolean {
+  try {
+    return localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+// Safely clear redirect flag
+function clearIOSRedirectFlag(): void {
+  try {
+    localStorage.removeItem(IOS_REDIRECT_FLAG);
+  } catch {
+    // Ignore unavailable localStorage
+  }
+}
+
+// Send sanitized iOS authentication diagnostics to Vercel
 function sendIOSAuthDebug(
   event: string,
   details: {
@@ -181,19 +192,9 @@ function sendIOSAuthDebug(
   });
 }
 
-function getIOSRedirectAuth(): Auth {
-  const defaultAuthDomain = `${resolvedProjectId}.firebaseapp.com`;
-  const existingApp = getApps().find((a) => a.name === IOS_REDIRECT_APP_NAME);
-  const iosApp =
-    existingApp ??
-    initializeApp(
-      { ...firebaseConfig, authDomain: defaultAuthDomain },
-      IOS_REDIRECT_APP_NAME,
-    );
-  return getAuth(iosApp);
-}
-
-// Call directly from user interaction, before awaiting access verification.
+// Google Sign-in
+// iOS: Redirect using the primary Firebase Auth instance.
+// Android/Desktop: Keep the existing Popup behavior.
 export async function signInWithGoogle(
   loginHint?: string,
 ): Promise<User | null> {
@@ -204,31 +205,40 @@ export async function signInWithGoogle(
         login_hint: loginHint.trim().toLowerCase(),
       });
     } else {
-      googleProvider.setCustomParameters({ prompt: "select_account" });
+      googleProvider.setCustomParameters({
+        prompt: "select_account",
+      });
     }
 
-    // All iOS browsers (Safari, Chrome iOS, in-app WebViews) share the same WebKit engine
-    // and are all subject to iOS storage partitioning. Use signInWithRedirect (not popup).
     const isIOS = isIOSDevice();
 
+    // iOS uses redirect with the SAME primary Firebase Auth instance.
     if (isIOS) {
-      // Use secondary auth instance with firebaseapp.com domain to avoid iOS storage-partitioned error.
-      const iosAuth = getIOSRedirectAuth();
       try {
         localStorage.setItem(IOS_REDIRECT_FLAG, "1");
-        sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
-          stage: "before_sign_in_redirect",
-          authApp: iosAuth.app.name,
-          authDomain: iosAuth.config.authDomain,
-          redirectFlag: true,
-        });
-      } catch {}
+      } catch (storageError) {
+        console.warn("[Auth] Could not save iOS redirect flag:", storageError);
+      }
+
+      sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
+        stage: "before_sign_in_redirect",
+        authApp: auth.app.name,
+        authDomain: auth.config.authDomain,
+        redirectFlag: true,
+      });
+
       const { signInWithRedirect } = await import("firebase/auth");
-      await signInWithRedirect(iosAuth, googleProvider);
-      return null; // Page will redirect; result handled on page reload via getRedirectResult
+
+      await signInWithRedirect(auth, googleProvider);
+
+      // The browser will navigate away.
+      // Authentication result will be processed after returning.
+      return null;
     }
 
+    // Android/Desktop: Keep Popup authentication.
     const result = await signInWithPopup(auth, googleProvider);
+
     if (result?.user) {
       setStoredAuthUser({
         uid: result.user.uid,
@@ -236,11 +246,15 @@ export async function signInWithGoogle(
         displayName: result.user.displayName,
         photoURL: result.user.photoURL,
       });
+
       return result.user;
     }
+
     return null;
   } catch (error: any) {
     const code = error?.code || "";
+
+    // User closed popup or browser blocked popup.
     if (
       code === "auth/popup-closed-by-user" ||
       code === "auth/cancelled-popup-request" ||
@@ -251,39 +265,42 @@ export async function signInWithGoogle(
         console.warn(
           "[Auth] iOS popup closed/blocked, falling back to redirect...",
         );
-        const iosAuth = getIOSRedirectAuth();
+
         try {
           localStorage.setItem(IOS_REDIRECT_FLAG, "1");
         } catch {}
+
+        sendIOSAuthDebug("IOS_REDIRECT_STARTED", {
+          stage: "popup_fallback",
+          authApp: auth.app.name,
+          authDomain: auth.config.authDomain,
+          redirectFlag: true,
+        });
+
         const { signInWithRedirect } = await import("firebase/auth");
-        await signInWithRedirect(iosAuth, googleProvider);
+
+        await signInWithRedirect(auth, googleProvider);
+
         return null;
       }
+
       return null;
     }
 
-    // Fallback: popup blocked or unsupported → try redirect
+    // Fallback when popup is blocked or unsupported.
     if (
       code === "auth/popup-blocked" ||
       code === "auth/unauthorized-domain" ||
       code === "auth/operation-not-supported-in-this-environment"
     ) {
       console.warn(
-        "[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...",
+        "[Auth] Popup blocked/unsupported, falling back to redirect...",
       );
-      const isIOS = isIOSDevice();
-      const targetAuth = isIOS ? getIOSRedirectAuth() : auth;
-      if (isIOS) {
-        try {
-          localStorage.setItem(IOS_REDIRECT_FLAG, "1");
-        } catch {}
-      }
-      const { signInWithRedirect } = await import("firebase/auth");
-      await signInWithRedirect(targetAuth, googleProvider);
+
       return null;
     }
 
-    console.error("Google sign-in error:", error);
+    console.error("[Auth] Google sign-in error:", error);
     throw error;
   }
 }
@@ -412,35 +429,15 @@ async function processPendingRedirectResult(): Promise<void> {
   }
 
   redirectResultProcessing = (async () => {
-    let authInstance: Auth = auth;
+    const usedIOSRedirect = isIOSRedirectPending();
 
     try {
-      const usedIOSRedirect = localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
+      // Always use the primary Firebase Auth instance.
+      const authInstance = auth;
 
-      authInstance = usedIOSRedirect ? getIOSRedirectAuth() : auth;
-
-      console.log(
-        "[Auth Debug] Redirect flag:",
-        localStorage.getItem(IOS_REDIRECT_FLAG),
-      );
+      console.log("[Auth Debug] Redirect flag:", usedIOSRedirect);
       console.log("[Auth Debug] Auth app:", authInstance.app.name);
       console.log("[Auth Debug] Auth domain:", authInstance.config.authDomain);
-
-      sendIOSAuthDebug("REDIRECT_HANDLER_STARTED", {
-        stage: "before_get_redirect_result",
-        authApp: authInstance.app.name,
-        authDomain: authInstance.config.authDomain,
-        redirectFlag: usedIOSRedirect,
-        hasUser: Boolean(authInstance.currentUser),
-      });
-
-      sendIOSAuthDebug("REDIRECT_RESULT_RECEIVED", {
-        stage: "before_get_redirect_result",
-        authApp: authInstance.app.name,
-        authDomain: authInstance.config.authDomain,
-        redirectFlag: usedIOSRedirect,
-        hasUser: Boolean(authInstance.currentUser),
-      });
 
       const result = await getRedirectResult(authInstance);
 
@@ -462,57 +459,12 @@ async function processPendingRedirectResult(): Promise<void> {
         });
 
         console.warn("[Auth Debug] Redirect result kosong!");
+
+        clearIOSRedirectFlag();
         return;
       }
 
-      let authenticatedUser = result.user;
-
-      if (authInstance !== auth) {
-        sendIOSAuthDebug("CREDENTIAL_TRANSFER_STARTED", {
-          stage: "before_primary_auth_transfer",
-          authApp: authInstance.app.name,
-          authDomain: authInstance.config.authDomain,
-          hasUser: true,
-        });
-
-        try {
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-
-          if (!credential) {
-            throw new Error(
-              "Google credential tidak ditemukan dari hasil redirect iOS.",
-            );
-          }
-
-          const primaryResult = await signInWithCredential(auth, credential);
-          authenticatedUser = primaryResult.user;
-
-          sendIOSAuthDebug("CREDENTIAL_TRANSFER_SUCCESS", {
-            stage: "primary_auth_transfer_completed",
-            authApp: auth.app.name,
-            authDomain: auth.config.authDomain,
-            hasUser: Boolean(auth.currentUser),
-          });
-        } catch (err: any) {
-          sendIOSAuthDebug("REDIRECT_PROCESSING_FAILED", {
-            stage: "process_pending_redirect_result",
-            authApp: authInstance.app.name,
-            authDomain: authInstance.config.authDomain,
-            errorCode: err?.code || "unknown",
-            redirectFlag: localStorage.getItem(IOS_REDIRECT_FLAG) === "1",
-          });
-
-          console.error(
-            "[Auth] Redirect result processing failed:",
-            err?.code,
-            err?.message,
-            "instance:",
-            authInstance.app.name,
-          );
-
-          redirectResultProcessing = null;
-        }
-      }
+      const authenticatedUser = result.user;
 
       if (!authenticatedUser.email) {
         throw new Error("Email Google tidak ditemukan.");
@@ -530,24 +482,41 @@ async function processPendingRedirectResult(): Promise<void> {
         authenticatedUser.email.trim().toLowerCase(),
       );
 
-      localStorage.removeItem(IOS_REDIRECT_FLAG);
+      clearIOSRedirectFlag();
 
       setStoredAuthUser(userPayload);
 
       window.dispatchEvent(
         new CustomEvent("au:auth:redirect-resolved", {
-          detail: { user: userPayload },
+          detail: {
+            user: userPayload,
+          },
         }),
       );
+
+      console.log("[Auth] Redirect authentication completed.", {
+        uid: authenticatedUser.uid,
+        email: authenticatedUser.email,
+      });
     } catch (err: any) {
+      sendIOSAuthDebug("REDIRECT_PROCESSING_FAILED", {
+        stage: "process_pending_redirect_result",
+        authApp: auth.app.name,
+        authDomain: auth.config.authDomain,
+        errorCode: err?.code || "unknown",
+        redirectFlag: isIOSRedirectPending(),
+        hasUser: Boolean(auth.currentUser),
+      });
+
       console.error(
         "[Auth] Redirect result processing failed:",
         err?.code,
         err?.message,
         "instance:",
-        authInstance.app.name,
+        auth.app.name,
       );
 
+      // Allow another attempt if processing failed.
       redirectResultProcessing = null;
     }
   })();
