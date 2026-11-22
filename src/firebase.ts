@@ -426,6 +426,22 @@ async function processPendingRedirectResult(): Promise<void> {
       console.log("[Auth Debug] Auth app:", authInstance.app.name);
       console.log("[Auth Debug] Auth domain:", authInstance.config.authDomain);
 
+      sendIOSAuthDebug("REDIRECT_HANDLER_STARTED", {
+        stage: "before_get_redirect_result",
+        authApp: authInstance.app.name,
+        authDomain: authInstance.config.authDomain,
+        redirectFlag: usedIOSRedirect,
+        hasUser: Boolean(authInstance.currentUser),
+      });
+
+      sendIOSAuthDebug("REDIRECT_RESULT_RECEIVED", {
+        stage: "before_get_redirect_result",
+        authApp: authInstance.app.name,
+        authDomain: authInstance.config.authDomain,
+        redirectFlag: usedIOSRedirect,
+        hasUser: Boolean(authInstance.currentUser),
+      });
+
       const result = await getRedirectResult(authInstance);
 
       sendIOSAuthDebug("REDIRECT_RESULT_RECEIVED", {
