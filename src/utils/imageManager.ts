@@ -366,7 +366,11 @@ export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): vo
   }
 }
 
+const unresolvableMediaCache = new Set<string>();
+
 export async function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
+  if (unresolvableMediaCache.has(ref)) return '';
+
   const cloud = parseCloudMediaReference(ref);
   if (cloud) {
     const { auth } = await import('../firebase');
@@ -393,11 +397,13 @@ try {
   });
 } catch (error) {
   console.error('[CLOUD MEDIA REQUEST ERROR]', error);
+  unresolvableMediaCache.add(ref);
   return '';
 }
 
 if (!response.ok) {
   console.error('[CLOUD MEDIA RESPONSE ERROR]', await response.clone().text());
+  unresolvableMediaCache.add(ref);
   return '';
 }
     const objectUrl = createSafeObjectURL(await response.blob());
@@ -405,7 +411,10 @@ if (!response.ok) {
     return objectUrl;
   }
   const parsed = parseLocalMediaReference(ref);
-  if (!parsed || !uid || parsed.uid !== uid) return '';
+  if (!parsed || !uid || parsed.uid !== uid) {
+    unresolvableMediaCache.add(ref);
+    return '';
+  }
   const cached = persistentObjectUrlCache.get(ref);
   if (cached) return cached;
 
@@ -417,13 +426,22 @@ if (!response.ok) {
       request.onsuccess = () => resolve(request.result as LocalMediaRecord | undefined);
       request.onerror = () => reject(request.error || new Error('Unable to restore the local image.'));
     });
-    if (!record || record.uid !== uid) return '';
+    if (!record || record.uid !== uid) {
+      unresolvableMediaCache.add(ref);
+      return '';
+    }
     const blob = record.blob instanceof Blob ? record.blob
       : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], {type: record.mimeType}) : null;
-    if (!blob) return '';
+    if (!blob) {
+      unresolvableMediaCache.add(ref);
+      return '';
+    }
     const objectUrl = createSafeObjectURL(blob);
     if (objectUrl) persistentObjectUrlCache.set(ref, objectUrl);
     return objectUrl;
+  } catch {
+    unresolvableMediaCache.add(ref);
+    return '';
   } finally {
     database.close();
   }
@@ -487,7 +505,16 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 
       const objectUrl = await resolveLocalImageReference(ref, uid);
 
-      if (!objectUrl || !element.isConnected) return;
+      if (!objectUrl) {
+        element.setAttribute('data-au-media-failed', 'true');
+        const latestSrc = element.getAttribute('src') || '';
+        if (latestSrc.startsWith(LOCAL_MEDIA_PREFIX)) {
+          element.setAttribute('src', 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E');
+        }
+        return;
+      }
+
+      if (!element.isConnected) return;
 
       const latestSrc = element.getAttribute('src') || '';
       const boundRef = element.getAttribute('data-au-local-media-ref') || '';
@@ -529,8 +556,8 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 
 function scanLocalMedia(root: ParentNode): void {
   const elements: Element[] = [];
-  if (root instanceof Element) elements.push(root);
-  elements.push(...Array.from(root.querySelectorAll('img[src^="au-local-media://"], source[src^="au-local-media://"], img[src^="au-cloud-media://"], source[src^="au-cloud-media://"], [style*="au-local-media://"], [style*="au-cloud-media://"]')));
+  if (root instanceof Element && !root.hasAttribute('data-au-media-failed')) elements.push(root);
+  elements.push(...Array.from(root.querySelectorAll('img[src^="au-local-media://"]:not([data-au-media-failed]), source[src^="au-local-media://"]:not([data-au-media-failed]), img[src^="au-cloud-media://"]:not([data-au-media-failed]), source[src^="au-cloud-media://"]:not([data-au-media-failed]), [style*="au-local-media://"], [style*="au-cloud-media://"]')));
   elements.forEach((element) => void resolveElementLocalMedia(element));
 }
 
@@ -740,7 +767,7 @@ export async function blobUrlToDataUrl(blobUrl: string): Promise<string> {
  */
 export async function createCircularCropDataUrl(
   sourceCanvas: HTMLCanvasElement,
-  maxDiameter = 1080
+  maxDiameter = 800
 ): Promise<string> {
   const diameter = Math.min(maxDiameter, sourceCanvas.width, sourceCanvas.height);
   const circleCanvas = document.createElement('canvas');
@@ -749,7 +776,7 @@ export async function createCircularCropDataUrl(
 
   const ctx = circleCanvas.getContext('2d', { alpha: true });
   if (!ctx) {
-    return canvasToDataUrlAsync(sourceCanvas, 'image/png', 1.0);
+    return canvasToDataUrlAsync(sourceCanvas, 'image/webp', 0.88);
   }
 
   ctx.imageSmoothingEnabled = true;
@@ -772,5 +799,10 @@ export async function createCircularCropDataUrl(
     diameter
   );
 
-  return canvasToDataUrlAsync(circleCanvas, 'image/png', 1.0);
+  try {
+    const webpUrl = await canvasToDataUrlAsync(circleCanvas, 'image/webp', 0.88);
+    if (webpUrl && webpUrl.startsWith('data:image/webp')) return webpUrl;
+  } catch {}
+
+  return canvasToDataUrlAsync(circleCanvas, 'image/png', 0.88);
 }

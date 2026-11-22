@@ -236,7 +236,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     setIsApplying(true);
 
     try {
-      const maxDim = maxOutputDimension && maxOutputDimension > 0 ? maxOutputDimension : 2048;
+      const maxDim = maxOutputDimension && maxOutputDimension > 0 ? maxOutputDimension : 1440;
       const croppedCanvas = cropperRef.current.getCroppedCanvas({
         maxWidth: maxDim,
         maxHeight: maxDim,
@@ -252,9 +252,17 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       if (shape === 'round') {
         // High-definition circular crop with smooth antialiased clipping
         const diameter = Math.min(croppedCanvas.width, croppedCanvas.height);
-        finalDataUrl = await createCircularCropDataUrl(croppedCanvas, diameter);
+        finalDataUrl = await createCircularCropDataUrl(croppedCanvas, Math.min(diameter, 800));
       } else {
-        finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/png', 1);
+        const q = quality !== undefined ? quality : 0.85;
+        try {
+          finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/webp', q);
+          if (!finalDataUrl || !finalDataUrl.startsWith('data:image/webp')) {
+            finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/jpeg', q);
+          }
+        } catch {
+          finalDataUrl = await canvasToDataUrlAsync(croppedCanvas, 'image/jpeg', q);
+        }
       }
 
       if (!finalDataUrl || finalDataUrl === 'data:,') throw new Error('Empty cropped image');

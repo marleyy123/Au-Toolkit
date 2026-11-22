@@ -42,11 +42,15 @@ export const formatWhatsAppTime = (timeStr?: string): string => {
 
 export const renderIosEmojis = renderFormattedTextWithAppleEmojis;
 
+let sharedGraphemeSegmenter: any = null;
+
 export const splitWhatsAppGraphemes = (value: string): string[] => {
   if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
     try {
-      const segmenter = new (Intl as any).Segmenter(undefined, { granularity: 'grapheme' });
-      return Array.from(segmenter.segment(value), (entry: any) => entry.segment);
+      if (!sharedGraphemeSegmenter) {
+        sharedGraphemeSegmenter = new (Intl as any).Segmenter(undefined, { granularity: 'grapheme' });
+      }
+      return Array.from(sharedGraphemeSegmenter.segment(value), (entry: any) => entry.segment);
     } catch {
       return Array.from(value);
     }

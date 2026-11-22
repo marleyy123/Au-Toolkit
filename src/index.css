@@ -71,7 +71,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #f8fafc;
-  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
@@ -82,11 +82,41 @@ body {
 
 @media (min-width: 1024px) {
   html,
+  body {
+    overscroll-behavior: none;
+  }
+
+  html,
   body,
   #root {
     height: 100%;
     max-height: 100vh;
     overflow: hidden;
+  }
+}
+
+/* ==========================================================================
+   MOBILE & TOUCH ENHANCEMENTS: TAP RESPONSIVENESS & SCROLL RELIABILITY
+   ========================================================================== */
+button,
+[role="button"],
+a,
+input[type="button"],
+input[type="submit"],
+.cursor-pointer,
+.au-select-trigger,
+.au-select-item {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea,
+  .au-select-trigger,
+  .au-select-value {
+    font-size: 16px !important;
   }
 }
 

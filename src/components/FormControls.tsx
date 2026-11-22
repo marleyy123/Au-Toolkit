@@ -4,7 +4,7 @@ import { User, Upload, Plus, Trash2, Image as ImageIcon, X, Crop, Loader2, Folde
 import { DEFAULT_AVATAR } from '../data/defaultTemplates';
 import { ImageCropperModal } from './ImageCropperModal';
 import { UniversalFolderItem } from '../features/workspace/components/folders/UniversalFolderItem';
-import { compressAndReadAsDataURL } from '../utils/imageCompressor';
+import { compressAndReadAsDataURL, compressImageFile } from '../utils/imageCompressor';
 import {
   fileToBase64,
   readAndOptimizeImageFile,
@@ -292,7 +292,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     // Always reset input value so re-selecting the exact same file fires change event
     e.target.value = '';
@@ -310,10 +310,25 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       revokeSafeObjectURL(activeSessionRef.current.tempBlobUrl);
     }
 
+    // Pre-compress oversized photos or HEIC/HEIF to save memory on mobile browsers
+    let fileToUse = file;
+    const isHeic = /\.(heic|heif)$/i.test(file.name) || (file.type && /heic|heif/i.test(file.type));
+    if (file.size > 2 * 1024 * 1024 || isHeic) {
+      try {
+        fileToUse = await compressImageFile(file, {
+          maxSizeMB: 1.5,
+          maxWidthOrHeight: 2048,
+          useWebWorker: true,
+        });
+      } catch (err) {
+        console.warn('Pre-compression failed, using raw file:', err);
+      }
+    }
+
     // 1. Instant 0ms browser-native Object URL for immediate preview and cropper display
-    const instantUrl = createSafeObjectURL(file);
+    const instantUrl = createSafeObjectURL(fileToUse);
     if (!instantUrl) return;
-    registerOriginalImage(instantUrl, file);
+    registerOriginalImage(instantUrl, fileToUse);
 
     const newSessionId = 'crop_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     activeSessionRef.current = { id: newSessionId, tempBlobUrl: instantUrl };
@@ -680,7 +695,7 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     }
   };
 
-  const handleAddFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files: File[] = e.target.files ? Array.from(e.target.files) : [];
     e.target.value = '';
     if (files.length === 0) return;
@@ -691,13 +706,26 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     const toProcess = files.slice(0, remainingSlots);
     // Instant 0ms browser-native Object URLs for all chosen images
     const instantUrls: string[] = [];
-    toProcess.forEach((file) => {
-      const u = createSafeObjectURL(file);
+    for (const file of toProcess) {
+      let fileToUse = file;
+      const isHeic = /\.(heic|heif)$/i.test(file.name) || (file.type && /heic|heif/i.test(file.type));
+      if (file.size > 2 * 1024 * 1024 || isHeic) {
+        try {
+          fileToUse = await compressImageFile(file, {
+            maxSizeMB: 1.5,
+            maxWidthOrHeight: 2048,
+            useWebWorker: true,
+          });
+        } catch {
+          fileToUse = file;
+        }
+      }
+      const u = createSafeObjectURL(fileToUse);
       if (u) {
-        registerOriginalImage(u, file);
+        registerOriginalImage(u, fileToUse);
         instantUrls.push(u);
       }
-    });
+    }
     if (instantUrls.length === 0) return;
 
     // Invalidate any previous session and cleanup its URLs

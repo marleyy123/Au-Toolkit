@@ -55,7 +55,7 @@ interface Props {
   setEditingTimeId?: (val: string | null) => void;
 }
 
-export const WhatsAppChatMessageBubble: React.FC<Props> = ({
+const WhatsAppChatMessageBubbleComponent: React.FC<Props> = ({
   msg,
   index,
   data,
@@ -651,3 +651,5 @@ export const WhatsAppChatMessageBubble: React.FC<Props> = ({
     </div>
   );
 };
+
+export const WhatsAppChatMessageBubble = React.memo(WhatsAppChatMessageBubbleComponent);
