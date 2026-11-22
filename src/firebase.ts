@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getFirestore,
   setLogLevel,
@@ -12,12 +12,12 @@ import {
   onSnapshot,
   writeBatch,
   Firestore,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 import {
   migrateLocalImageReference,
   uploadDataUrlToCloudMedia,
   replaceTransientImageUrlsDeep,
-} from './utils/imageManager';
+} from "./utils/imageManager";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -34,22 +34,30 @@ import {
   signOut,
   onAuthStateChanged,
   User,
-  Auth
-} from 'firebase/auth';
-import { ensureDataUrlUnderSize } from './utils/imageCompressor';
+  Auth,
+} from "firebase/auth";
+import { ensureDataUrlUnderSize } from "./utils/imageCompressor";
 
 // The config is injected via Vite environment variables
-const resolvedProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || '';
-const resolvedAuthDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || (resolvedProjectId ? `${resolvedProjectId}.firebaseapp.com` : '');
-const resolvedDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || '(default)';
-const resolvedApiKey = import.meta.env.VITE_FIREBASE_API_KEY || '';
-const resolvedAppId = import.meta.env.VITE_FIREBASE_APP_ID || '';
+const resolvedProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || "";
+const resolvedAuthDomain =
+  import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+  (resolvedProjectId ? `${resolvedProjectId}.firebaseapp.com` : "");
+const resolvedDatabaseId =
+  import.meta.env.VITE_FIREBASE_DATABASE_ID || "(default)";
+const resolvedApiKey = import.meta.env.VITE_FIREBASE_API_KEY || "";
+const resolvedAppId = import.meta.env.VITE_FIREBASE_APP_ID || "";
+let redirectResultProcessing: Promise<void> | null = null;
 
 if (!resolvedProjectId) {
-  throw new Error('[Firebase Config Error] Missing Firebase Project ID in configuration.');
+  throw new Error(
+    "[Firebase Config Error] Missing Firebase Project ID in configuration.",
+  );
 }
 if (!resolvedApiKey) {
-  throw new Error('[Firebase Config Error] Missing API Key in Firebase configuration.');
+  throw new Error(
+    "[Firebase Config Error] Missing API Key in Firebase configuration.",
+  );
 }
 
 export const firebaseConfig = {
@@ -58,34 +66,39 @@ export const firebaseConfig = {
   apiKey: resolvedApiKey,
   authDomain: resolvedAuthDomain,
   firestoreDatabaseId: resolvedDatabaseId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${resolvedProjectId}.firebasestorage.app`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+    `${resolvedProjectId}.firebasestorage.app`,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
-export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+export const app =
+  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Silence non-critical backend connection warnings (e.g. offline fallback warnings)
 try {
-  setLogLevel('silent');
+  setLogLevel("silent");
 } catch {
   // Ignore in environments where setLogLevel is restricted
 }
 
-export const db: Firestore = (!firebaseConfig.firestoreDatabaseId || firebaseConfig.firestoreDatabaseId === '(default)')
-  ? getFirestore(app)
-  : getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const db: Firestore =
+  !firebaseConfig.firestoreDatabaseId ||
+  firebaseConfig.firestoreDatabaseId === "(default)"
+    ? getFirestore(app)
+    : getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth: Auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
-console.log('[Firestore] Initializing Firestore instance...', {
+console.log("[Firestore] Initializing Firestore instance...", {
   projectId: firebaseConfig.projectId,
-  databaseId: firebaseConfig.firestoreDatabaseId || '(default)',
+  databaseId: firebaseConfig.firestoreDatabaseId || "(default)",
 });
 
 // Local Auth Mock State & Persistence helpers
-const LOCAL_AUTH_STORAGE_KEY = 'au_auth_user';
+const LOCAL_AUTH_STORAGE_KEY = "au_auth_user";
 const authListeners: Array<(user: any) => void> = [];
 
 export function getStoredAuthUser(): any {
@@ -95,7 +108,7 @@ export function getStoredAuthUser(): any {
       return JSON.parse(saved);
     }
   } catch (e) {
-    console.warn('Error reading stored auth user:', e);
+    console.warn("Error reading stored auth user:", e);
   }
   return null;
 }
@@ -118,10 +131,10 @@ export function setStoredAuthUser(user: any) {
 
 // Detect any iOS / iPadOS device across all browsers (Safari, Chrome iOS, in-app WebViews)
 export const isIOSDevice = (): boolean => {
-  if (typeof navigator === 'undefined') return false;
+  if (typeof navigator === "undefined") return false;
   return (
     /iP(hone|ad|od)/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
   );
 };
 
@@ -134,26 +147,33 @@ export const isIOSDevice = (): boolean => {
 // Firebase's own domain has special handling for iOS storage partitioning.
 //
 // The flag 'au_ios_redirect_app' in localStorage tells getRedirectResult which auth instance to use.
-const IOS_REDIRECT_APP_NAME = '__au_ios_redirect__';
-const IOS_REDIRECT_FLAG = 'au_ios_redirect_app';
+const IOS_REDIRECT_APP_NAME = "__au_ios_redirect__";
+const IOS_REDIRECT_FLAG = "au_ios_redirect_app";
 
 function getIOSRedirectAuth(): Auth {
   const defaultAuthDomain = `${resolvedProjectId}.firebaseapp.com`;
-  const existingApp = getApps().find(a => a.name === IOS_REDIRECT_APP_NAME);
-  const iosApp = existingApp ?? initializeApp(
-    { ...firebaseConfig, authDomain: defaultAuthDomain },
-    IOS_REDIRECT_APP_NAME
-  );
+  const existingApp = getApps().find((a) => a.name === IOS_REDIRECT_APP_NAME);
+  const iosApp =
+    existingApp ??
+    initializeApp(
+      { ...firebaseConfig, authDomain: defaultAuthDomain },
+      IOS_REDIRECT_APP_NAME,
+    );
   return getAuth(iosApp);
 }
 
 // Call directly from user interaction, before awaiting access verification.
-export async function signInWithGoogle(loginHint?: string): Promise<User | null> {
+export async function signInWithGoogle(
+  loginHint?: string,
+): Promise<User | null> {
   try {
     if (loginHint?.trim()) {
-      googleProvider.setCustomParameters({ prompt: 'select_account', login_hint: loginHint.trim().toLowerCase() });
+      googleProvider.setCustomParameters({
+        prompt: "select_account",
+        login_hint: loginHint.trim().toLowerCase(),
+      });
     } else {
-      googleProvider.setCustomParameters({ prompt: 'select_account' });
+      googleProvider.setCustomParameters({ prompt: "select_account" });
     }
 
     // All iOS browsers (Safari, Chrome iOS, in-app WebViews) share the same WebKit engine
@@ -163,8 +183,10 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
     if (isIOS) {
       // Use secondary auth instance with firebaseapp.com domain to avoid iOS storage-partitioned error.
       const iosAuth = getIOSRedirectAuth();
-      try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {}
-      const { signInWithRedirect } = await import('firebase/auth');
+      try {
+        localStorage.setItem(IOS_REDIRECT_FLAG, "1");
+      } catch {}
+      const { signInWithRedirect } = await import("firebase/auth");
       await signInWithRedirect(iosAuth, googleProvider);
       return null; // Page will redirect; result handled on page reload via getRedirectResult
     }
@@ -181,18 +203,22 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
     }
     return null;
   } catch (error: any) {
-    const code = error?.code || '';
+    const code = error?.code || "";
     if (
-      code === 'auth/popup-closed-by-user' ||
-      code === 'auth/cancelled-popup-request' ||
-      error?.message?.includes('popup-closed-by-user') ||
-      error?.message?.includes('cancelled-popup-request')
+      code === "auth/popup-closed-by-user" ||
+      code === "auth/cancelled-popup-request" ||
+      error?.message?.includes("popup-closed-by-user") ||
+      error?.message?.includes("cancelled-popup-request")
     ) {
       if (isIOSDevice()) {
-        console.warn('[Auth] iOS popup closed/blocked, falling back to redirect...');
+        console.warn(
+          "[Auth] iOS popup closed/blocked, falling back to redirect...",
+        );
         const iosAuth = getIOSRedirectAuth();
-        try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {}
-        const { signInWithRedirect } = await import('firebase/auth');
+        try {
+          localStorage.setItem(IOS_REDIRECT_FLAG, "1");
+        } catch {}
+        const { signInWithRedirect } = await import("firebase/auth");
         await signInWithRedirect(iosAuth, googleProvider);
         return null;
       }
@@ -201,20 +227,26 @@ export async function signInWithGoogle(loginHint?: string): Promise<User | null>
 
     // Fallback: popup blocked or unsupported → try redirect
     if (
-      code === 'auth/popup-blocked' ||
-      code === 'auth/unauthorized-domain' ||
-      code === 'auth/operation-not-supported-in-this-environment'
+      code === "auth/popup-blocked" ||
+      code === "auth/unauthorized-domain" ||
+      code === "auth/operation-not-supported-in-this-environment"
     ) {
-      console.warn('[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...');
+      console.warn(
+        "[Auth] Popup blocked/unauthorized, falling back to redirect sign-in...",
+      );
       const isIOS = isIOSDevice();
       const targetAuth = isIOS ? getIOSRedirectAuth() : auth;
-      if (isIOS) { try { localStorage.setItem(IOS_REDIRECT_FLAG, '1'); } catch {} }
-      const { signInWithRedirect } = await import('firebase/auth');
+      if (isIOS) {
+        try {
+          localStorage.setItem(IOS_REDIRECT_FLAG, "1");
+        } catch {}
+      }
+      const { signInWithRedirect } = await import("firebase/auth");
       await signInWithRedirect(targetAuth, googleProvider);
       return null;
     }
 
-    console.error('Google sign-in error:', error);
+    console.error("Google sign-in error:", error);
     throw error;
   }
 }
@@ -237,16 +269,27 @@ async function requireVerifiedEmail(user: User): Promise<void> {
     await sendEmailVerification(user);
     sent = true;
   } catch (error) {
-    console.warn('Email verification delivery failed:', (error as { code?: string }).code || 'unknown');
+    console.warn(
+      "Email verification delivery failed:",
+      (error as { code?: string }).code || "unknown",
+    );
   } finally {
     await signOutUser();
   }
-  throw Object.assign(new Error(sent
-    ? 'Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali.'
-    : 'Email belum terverifikasi. Coba masuk kembali nanti untuk mengirim tautan verifikasi.'), { code: 'auth/email-not-verified' });
+  throw Object.assign(
+    new Error(
+      sent
+        ? "Email verifikasi telah dikirim. Buka tautan di inbox/spam, lalu masuk kembali."
+        : "Email belum terverifikasi. Coba masuk kembali nanti untuk mengirim tautan verifikasi.",
+    ),
+    { code: "auth/email-not-verified" },
+  );
 }
 
-export async function signInWithEmail(email: string, pass: string): Promise<User> {
+export async function signInWithEmail(
+  email: string,
+  pass: string,
+): Promise<User> {
   const cleanEmail = email.trim();
   const res = await signInWithEmailAndPassword(auth, cleanEmail, pass);
   if (res?.user) {
@@ -254,13 +297,13 @@ export async function signInWithEmail(email: string, pass: string): Promise<User
     const userPayload = {
       uid: res.user.uid,
       email: res.user.email,
-      displayName: res.user.displayName || cleanEmail.split('@')[0],
+      displayName: res.user.displayName || cleanEmail.split("@")[0],
       photoURL: res.user.photoURL,
     };
     setStoredAuthUser(userPayload);
     return res.user;
   }
-  throw new Error('Gagal masuk. Periksa kembali email dan password.');
+  throw new Error("Gagal masuk. Periksa kembali email dan password.");
 }
 
 // Firebase owns password-reset delivery. The app never receives or persists a
@@ -268,27 +311,36 @@ export async function signInWithEmail(email: string, pass: string): Promise<User
 export async function requestPasswordReset(email: string): Promise<void> {
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail) {
-    throw new Error('auth/missing-email');
+    throw new Error("auth/missing-email");
   }
   await sendPasswordResetEmail(auth, cleanEmail);
 }
 
 // Update only the currently authenticated Firebase user's credential. Password
 // values are deliberately not copied into app state persistence or Firestore.
-export async function updateCurrentUserPassword(newPassword: string): Promise<void> {
+export async function updateCurrentUserPassword(
+  newPassword: string,
+): Promise<void> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
-    const error = new Error('User must be signed in before changing password.') as Error & { code?: string };
-    error.code = 'auth/requires-authentication';
+    const error = new Error(
+      "User must be signed in before changing password.",
+    ) as Error & { code?: string };
+    error.code = "auth/requires-authentication";
     throw error;
   }
   await updatePassword(currentUser, newPassword);
 }
 
 // Email/Password Sign-up helper
-export async function signUpWithEmail(email: string, pass: string, displayName?: string): Promise<User> {
+export async function signUpWithEmail(
+  email: string,
+  pass: string,
+  displayName?: string,
+): Promise<User> {
   const cleanEmail = email.trim();
-  const cleanName = displayName?.trim() || cleanEmail.split('@')[0] || 'AU Member';
+  const cleanName =
+    displayName?.trim() || cleanEmail.split("@")[0] || "AU Member";
   const res = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
   if (res?.user) {
     if (cleanName) {
@@ -304,7 +356,7 @@ export async function signUpWithEmail(email: string, pass: string, displayName?:
     setStoredAuthUser(userPayload);
     return res.user;
   }
-  throw new Error('Gagal mendaftar akun baru.');
+  throw new Error("Gagal mendaftar akun baru.");
 }
 
 // Sign-out helper
@@ -313,50 +365,55 @@ export async function signOutUser(): Promise<void> {
   try {
     await signOut(auth);
   } catch (error) {
-    console.warn('Sign-out error:', error);
+    console.warn("Sign-out error:", error);
   }
 }
 
-// Listen to Auth State
-export function onAuthUserChanged(callback: (user: any) => void): () => void {
-  authListeners.push(callback);
 
-  // Immediately notify listener with stored user or firebase current user
-  const initialUser = auth.currentUser || getStoredAuthUser();
-  if (initialUser) {
-    try {
-      callback(initialUser);
-    } catch (e) {}
+async function processPendingRedirectResult(): Promise<void> {
+  if (redirectResultProcessing) {
+    return redirectResultProcessing;
   }
 
-  // Handle redirect result from signInWithRedirect (iOS fallback).
-  // On iOS, we use a secondary auth instance with the default firebaseapp.com authDomain
-  // to avoid iOS storage partitioning errors with custom authDomain (auth.autoolkit.com).
-  // Check which auth instance was used for the redirect via localStorage flag.
-  
-  const handleRedirectResult = async (authInstance: Auth) => {
+  redirectResultProcessing = (async () => {
+    let authInstance: Auth = auth;
+
     try {
+      const usedIOSRedirect =
+        localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
+
+      authInstance = usedIOSRedirect
+        ? getIOSRedirectAuth()
+        : auth;
+
       const result = await getRedirectResult(authInstance);
 
       if (!result?.user) return;
 
       let authenticatedUser = result.user;
 
-      // iOS uses a secondary Firebase Auth instance.
-      // Transfer its Google credential to the primary Auth instance.
       if (authInstance !== auth) {
-        console.log('[Auth] Transferring iOS Google credential to primary Auth...');
+        console.log(
+          "[Auth] Transferring iOS Google credential to primary Auth...",
+        );
 
-        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const credential =
+          GoogleAuthProvider.credentialFromResult(result);
 
         if (!credential) {
-          throw new Error('Google credential tidak ditemukan dari hasil redirect iOS.');
+          throw new Error(
+            "Google credential tidak ditemukan dari hasil redirect iOS.",
+          );
         }
 
         const primaryResult = await signInWithCredential(auth, credential);
         authenticatedUser = primaryResult.user;
 
-        console.log('[Auth] iOS credential successfully transferred to primary Auth.');
+        console.log("[Auth] iOS credential transferred to primary Auth.");
+      }
+
+      if (!authenticatedUser.email) {
+        throw new Error("Email Google tidak ditemukan.");
       }
 
       const userPayload = {
@@ -366,51 +423,49 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
         photoURL: authenticatedUser.photoURL,
       };
 
-      try {
-        if (authenticatedUser.email) {
-          localStorage.setItem(
-            'au_user_email',
-            authenticatedUser.email.trim().toLowerCase()
-          );
-        }
+      localStorage.setItem(
+        "au_user_email",
+        authenticatedUser.email.trim().toLowerCase(),
+      );
 
-        localStorage.removeItem(IOS_REDIRECT_FLAG);
-      } catch {}
+      localStorage.removeItem(IOS_REDIRECT_FLAG);
 
       setStoredAuthUser(userPayload);
 
-      // Notify the application only after primary Auth is ready.
-      try {
-        callback(authenticatedUser);
-      } catch (e) {}
-
-      // Trigger entitlement verification after primary Auth is established.
-      try {
-        window.dispatchEvent(
-          new CustomEvent('au:auth:redirect-resolved', {
-            detail: { user: userPayload },
-          })
-        );
-      } catch {}
-
+      window.dispatchEvent(
+        new CustomEvent("au:auth:redirect-resolved", {
+          detail: { user: userPayload },
+        }),
+      );
     } catch (err: any) {
       console.error(
-        '[Auth] Redirect result processing failed:',
+        "[Auth] Redirect result processing failed:",
         err?.code,
         err?.message,
-        'instance:',
-        authInstance.app.name
+        "instance:",
+        authInstance.app.name,
       );
+
+      redirectResultProcessing = null;
     }
-  };
+  })();
+
+  return redirectResultProcessing;
+}
 
 
-  // If the iOS redirect flag is set, check the iOS auth instance first, then the main auth.
-  const usedIOSRedirect = (() => { try { return localStorage.getItem(IOS_REDIRECT_FLAG) === '1'; } catch { return false; } })();
-  if (usedIOSRedirect) {
-    handleRedirectResult(getIOSRedirectAuth());
-  } else {
-    handleRedirectResult(auth);
+// Listen to Auth State
+export function onAuthUserChanged(callback: (user: any) => void): () => void {
+  authListeners.push(callback);
+
+  void processPendingRedirectResult();
+
+  // Immediately notify listener with stored user or firebase current user
+  const initialUser = auth.currentUser || getStoredAuthUser();
+  if (initialUser) {
+    try {
+      callback(initialUser);
+    } catch (e) {}
   }
 
   const unsubscribeFirebase = onAuthStateChanged(
@@ -431,10 +486,10 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
       }
     },
     (error) => {
-      console.warn('Firebase onAuthStateChanged error handled safely:', error);
+      console.warn("Firebase onAuthStateChanged error handled safely:", error);
       const stored = getStoredAuthUser();
       callback(stored || null);
-    }
+    },
   );
 
   return () => {
@@ -450,8 +505,8 @@ export function onAuthUserChanged(callback: (user: any) => void): () => void {
 
 // Sanitize email or ID to safe Firestore doc id
 export function sanitizeUserKey(emailOrId: string): string {
-  if (!emailOrId) return 'anonymous_user';
-  return emailOrId.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  if (!emailOrId) return "anonymous_user";
+  return emailOrId.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
 }
 
 /**
@@ -463,11 +518,13 @@ export function removeUndefinedDeep<T = any>(value: T): T {
   if (value === undefined) {
     return null as any;
   }
-  if (value === null || typeof value !== 'object') {
+  if (value === null || typeof value !== "object") {
     return value;
   }
   if (Array.isArray(value)) {
-    return value.map((item) => (item === undefined ? null : removeUndefinedDeep(item))) as any;
+    return value.map((item) =>
+      item === undefined ? null : removeUndefinedDeep(item),
+    ) as any;
   }
   const cleanObj: Record<string, any> = {};
   for (const [k, v] of Object.entries(value)) {
@@ -484,7 +541,7 @@ export function removeUndefinedDeep<T = any>(value: T): T {
 
 async function sanitizeObjectForFirestore(
   obj: any,
-  maxDocBytes = 750_000
+  maxDocBytes = 750_000,
 ): Promise<any> {
   if (!obj) return obj;
 
@@ -492,17 +549,13 @@ async function sanitizeObjectForFirestore(
 
   // Jangan izinkan referensi lokal masuk Firestore tanpa identitas pemilik.
   if (!uid && containsLocalMediaReference(obj)) {
-    throw new Error('LOCAL_MEDIA_MIGRATION_AUTH_REQUIRED');
+    throw new Error("LOCAL_MEDIA_MIGRATION_AUTH_REQUIRED");
   }
 
   // Migrasi dilakukan di luar try agar kegagalan migrasi selalu membatalkan write.
-  const migrated = uid
-    ? await migrateLocalMediaDeep(obj, uid)
-    : obj;
+  const migrated = uid ? await migrateLocalMediaDeep(obj, uid) : obj;
 
-  const cleaned = removeUndefinedDeep(
-    replaceTransientImageUrlsDeep(migrated)
-  );
+  const cleaned = removeUndefinedDeep(replaceTransientImageUrlsDeep(migrated));
 
   // Jika masih tersisa referensi IndexedDB yang tidak dapat dimigrasi dari device ini,
   // bersihkan referensi tersebut agar tidak menggagalkan seluruh sinkronisasi Firestore.
@@ -522,18 +575,18 @@ async function sanitizeObjectForFirestore(
 
     for (const targetSize of targetSizes) {
       const sanitizeDeep = async (node: any) => {
-        if (!node || typeof node !== 'object') return;
+        if (!node || typeof node !== "object") return;
 
         for (const key of Object.keys(node)) {
           const value = node[key];
 
           if (
-            typeof value === 'string' &&
-            value.startsWith('data:image/') &&
+            typeof value === "string" &&
+            value.startsWith("data:image/") &&
             value.length > targetSize
           ) {
             node[key] = await ensureDataUrlUnderSize(value, targetSize);
-          } else if (value && typeof value === 'object') {
+          } else if (value && typeof value === "object") {
             await sanitizeDeep(value);
           }
         }
@@ -548,35 +601,34 @@ async function sanitizeObjectForFirestore(
     return removeUndefinedDeep(cloned);
   } catch (error) {
     // Jika kompresi gagal, tetap gunakan payload yang sudah dimigrasikan.
-    console.warn('[Firestore] Payload compression skipped:', error);
+    console.warn("[Firestore] Payload compression skipped:", error);
     return payloadToPersist;
   }
 }
 
 function containsLocalMediaReference(value: any): boolean {
-  if (typeof value === 'string') {
-    return value.includes('au-local-media://');
+  if (typeof value === "string") {
+    return value.includes("au-local-media://");
   }
 
   if (Array.isArray(value)) {
     return value.some(containsLocalMediaReference);
   }
 
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== "object") {
     return false;
   }
 
   return Object.values(value).some(containsLocalMediaReference);
 }
 
-
 function stripUnmigratedLocalMedia(value: any): any {
-  if (typeof value === 'string') {
-    if (value.startsWith('au-local-media://')) return '';
-    return value.replace(/au-local-media:\/\/[^)'"\s]+/g, '');
+  if (typeof value === "string") {
+    if (value.startsWith("au-local-media://")) return "";
+    return value.replace(/au-local-media:\/\/[^)'"\s]+/g, "");
   }
   if (Array.isArray(value)) return value.map(stripUnmigratedLocalMedia);
-  if (!value || typeof value !== 'object') return value;
+  if (!value || typeof value !== "object") return value;
   const result: Record<string, unknown> = {};
   for (const [key, nested] of Object.entries(value)) {
     result[key] = stripUnmigratedLocalMedia(nested);
@@ -584,18 +636,25 @@ function stripUnmigratedLocalMedia(value: any): any {
   return result;
 }
 
-async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<string, string>()): Promise<any> {
-  if (typeof value === 'string') {
+async function migrateLocalMediaDeep(
+  value: any,
+  uid: string,
+  cache = new Map<string, string>(),
+): Promise<any> {
+  if (typeof value === "string") {
     const trimmed = value.trim();
 
     // 1. Auto-uplink Base64 Data URL ke Cloudflare R2
-    if (trimmed.startsWith('data:image/')) {
+    if (trimmed.startsWith("data:image/")) {
       if (!cache.has(trimmed)) {
         try {
           const cloudRef = await uploadDataUrlToCloudMedia(uid, trimmed);
           cache.set(trimmed, cloudRef);
         } catch (err) {
-          console.warn('[CloudMedia] Base64 upload to R2 during save notice:', err);
+          console.warn(
+            "[CloudMedia] Base64 upload to R2 during save notice:",
+            err,
+          );
           cache.set(trimmed, trimmed);
         }
       }
@@ -611,7 +670,7 @@ async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<st
           const cloudRef = await migrateLocalImageReference(ref, uid);
           cache.set(ref, cloudRef);
         } catch (err) {
-          console.warn('[CloudMedia] Local media migration notice:', err);
+          console.warn("[CloudMedia] Local media migration notice:", err);
           cache.set(ref, ref);
         }
       }
@@ -619,10 +678,14 @@ async function migrateLocalMediaDeep(value: any, uid: string, cache = new Map<st
     }
     return migrated;
   }
-  if (Array.isArray(value)) return Promise.all(value.map(item => migrateLocalMediaDeep(item, uid, cache)));
-  if (!value || typeof value !== 'object') return value;
+  if (Array.isArray(value))
+    return Promise.all(
+      value.map((item) => migrateLocalMediaDeep(item, uid, cache)),
+    );
+  if (!value || typeof value !== "object") return value;
   const result: Record<string, unknown> = {};
-  for (const [key, nested] of Object.entries(value)) result[key] = await migrateLocalMediaDeep(nested, uid, cache);
+  for (const [key, nested] of Object.entries(value))
+    result[key] = await migrateLocalMediaDeep(nested, uid, cache);
   return result;
 }
 
@@ -643,20 +706,24 @@ function computeFingerprint(data: any): string {
 
 function getRootWorkspaceComparable(workspaceData: any): any {
   return {
-    lastActiveTab: workspaceData?.lastActiveTab || 'twitter',
-    lastActiveCategory: workspaceData?.lastActiveCategory || 'social-feed',
+    lastActiveTab: workspaceData?.lastActiveTab || "twitter",
+    lastActiveCategory: workspaceData?.lastActiveCategory || "social-feed",
     preferences: workspaceData?.preferences || {},
     activeFolderIds: workspaceData?.activeFolderIds || {},
     userAssets: workspaceData?.userAssets || {},
   };
 }
 
-function getFolderComparable(folder: any, tabKey: string, fallbackOrder: number): any {
+function getFolderComparable(
+  folder: any,
+  tabKey: string,
+  fallbackOrder: number,
+): any {
   return removeUndefinedDeep({
-    id: folder?.id || '',
+    id: folder?.id || "",
     name: folder?.name || `Folder ${fallbackOrder}`,
     data: folder?.data || folder?.profileData || null,
-    order: typeof folder?.order === 'number' ? folder.order : fallbackOrder,
+    order: typeof folder?.order === "number" ? folder.order : fallbackOrder,
     tabKey,
   });
 }
@@ -665,32 +732,35 @@ function getFolderComparable(folder: any, tabKey: string, fallbackOrder: number)
 const savedTabFingerprints = new Map<string, string>();
 const savedFolderFingerprints = new Map<string, string>();
 const savedWorkspaceFingerprints = new Map<string, string>();
-let savedRootFingerprint = '';
+let savedRootFingerprint = "";
 
 export function clearWorkspaceFingerprintCache(): void {
   savedTabFingerprints.clear();
   savedFolderFingerprints.clear();
   savedWorkspaceFingerprints.clear();
-  savedRootFingerprint = '';
+  savedRootFingerprint = "";
 }
 
 // ---------------------------------------------------------------------------
 // Firestore Free Daily Quota Circuit Breaker
 // Prevents continuous write retries and backoff loops when quota is exceeded
 // ---------------------------------------------------------------------------
-const QUOTA_EXHAUSTED_KEY = 'autoolkit_firestore_quota_exhausted_until';
+const QUOTA_EXHAUSTED_KEY = "autoolkit_firestore_quota_exhausted_until";
 
 export function isFirestoreQuotaExhaustedError(err: any): boolean {
   if (!err) return false;
-  const code = typeof err === 'object' && err !== null && 'code' in err ? String(err.code) : '';
+  const code =
+    typeof err === "object" && err !== null && "code" in err
+      ? String(err.code)
+      : "";
   const msg = err instanceof Error ? err.message : String(err);
   return (
-    code === 'resource-exhausted' ||
-    msg.includes('resource-exhausted') ||
-    msg.includes('Quota limit exceeded') ||
-    msg.includes('Free daily write units') ||
-    msg.includes('quota metric') ||
-    msg.includes('maximum backoff delay')
+    code === "resource-exhausted" ||
+    msg.includes("resource-exhausted") ||
+    msg.includes("Quota limit exceeded") ||
+    msg.includes("Free daily write units") ||
+    msg.includes("quota metric") ||
+    msg.includes("maximum backoff delay")
   );
 }
 
@@ -711,7 +781,9 @@ export function isFirestoreQuotaExhausted(): boolean {
 
 const quotaListeners = new Set<(isExhausted: boolean) => void>();
 
-export function onQuotaStatusChange(listener: (isExhausted: boolean) => void): () => void {
+export function onQuotaStatusChange(
+  listener: (isExhausted: boolean) => void,
+): () => void {
   quotaListeners.add(listener);
   try {
     listener(isFirestoreQuotaExhausted());
@@ -729,7 +801,9 @@ function notifyQuotaListeners(isExhausted: boolean) {
   });
 }
 
-export function markFirestoreQuotaExhausted(cooldownMinutes: number = 60): void {
+export function markFirestoreQuotaExhausted(
+  cooldownMinutes: number = 60,
+): void {
   try {
     const until = Date.now() + cooldownMinutes * 60 * 1000;
     sessionStorage.setItem(QUOTA_EXHAUSTED_KEY, String(until));
@@ -746,53 +820,76 @@ export function resetFirestoreQuotaCircuitBreaker(): void {
 
 // Canonical helper to derive the stable internal user ID for any normalized buyer email
 export function getStableUserIdFromEmail(email: string): string {
-  const clean = (email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
-  return clean ? `user_${clean}` : 'anonymous_user';
+  const clean = (email || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_");
+  return clean ? `user_${clean}` : "anonymous_user";
 }
 
-export type FirebaseUserIdentity = string | { email?: string | null; uid?: string | null };
+export type FirebaseUserIdentity =
+  | string
+  | { email?: string | null; uid?: string | null };
 
 function getIdentityEmail(userOrKey?: FirebaseUserIdentity | null): string {
-  if (typeof userOrKey === 'object' && userOrKey?.email) return userOrKey.email.trim().toLowerCase();
-  if (typeof userOrKey === 'string' && userOrKey.includes('@')) return userOrKey.trim().toLowerCase();
+  if (typeof userOrKey === "object" && userOrKey?.email)
+    return userOrKey.email.trim().toLowerCase();
+  if (typeof userOrKey === "string" && userOrKey.includes("@"))
+    return userOrKey.trim().toLowerCase();
   const docId = getUserDocumentId(userOrKey);
-  if (auth.currentUser?.uid === docId && auth.currentUser.email) return auth.currentUser.email.toLowerCase();
-  return '';
+  if (auth.currentUser?.uid === docId && auth.currentUser.email)
+    return auth.currentUser.email.toLowerCase();
+  return "";
 }
 
 // Canonical helper to resolve a consistent user document ID across all operations
-export function getUserDocumentId(userOrKey?: string | { email?: string | null; uid?: string | null } | null): string {
+export function getUserDocumentId(
+  userOrKey?: string | { email?: string | null; uid?: string | null } | null,
+): string {
   if (!userOrKey) {
     if (auth.currentUser?.uid) return auth.currentUser.uid;
-    return 'anonymous_user';
+    return "anonymous_user";
   }
-  if (typeof userOrKey === 'object') {
+  if (typeof userOrKey === "object") {
     // Firebase Auth UID is the only canonical /users document ID. This matches Firestore rules.
-    if (userOrKey.uid && typeof userOrKey.uid === 'string' && userOrKey.uid.trim()) {
+    if (
+      userOrKey.uid &&
+      typeof userOrKey.uid === "string" &&
+      userOrKey.uid.trim()
+    ) {
       return userOrKey.uid.trim();
     }
     if (
       auth.currentUser?.uid &&
-      (!userOrKey.email || auth.currentUser.email?.toLowerCase() === userOrKey.email.toLowerCase())
+      (!userOrKey.email ||
+        auth.currentUser.email?.toLowerCase() === userOrKey.email.toLowerCase())
     ) {
       return auth.currentUser.uid;
     }
     // Stable email IDs are retained only for unauthenticated legacy lookup/migration.
-    if (userOrKey.email && typeof userOrKey.email === 'string' && userOrKey.email.includes('@')) {
+    if (
+      userOrKey.email &&
+      typeof userOrKey.email === "string" &&
+      userOrKey.email.includes("@")
+    ) {
       return getStableUserIdFromEmail(userOrKey.email);
     }
-    return 'anonymous_user';
+    return "anonymous_user";
   }
   const strKey = String(userOrKey).trim();
   if (auth.currentUser?.uid) {
-    if (strKey === auth.currentUser.uid || (auth.currentUser.email && strKey.toLowerCase() === auth.currentUser.email.toLowerCase())) {
+    if (
+      strKey === auth.currentUser.uid ||
+      (auth.currentUser.email &&
+        strKey.toLowerCase() === auth.currentUser.email.toLowerCase())
+    ) {
       return auth.currentUser.uid;
     }
   }
-  if (strKey.includes('@')) {
+  if (strKey.includes("@")) {
     return getStableUserIdFromEmail(strKey);
   }
-  if (strKey.startsWith('user_')) {
+  if (strKey.startsWith("user_")) {
     return strKey;
   }
   return strKey;
@@ -807,16 +904,19 @@ export async function flushPendingWorkspaceSaves(): Promise<void> {
   await savePromiseChain;
 }
 
-async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, workspaceData: any): Promise<void> {
+async function executeSaveUserWorkspace(
+  userIdentity: FirebaseUserIdentity,
+  workspaceData: any,
+): Promise<void> {
   // If quota is exhausted, exit immediately without contacting Firestore
   if (isFirestoreQuotaExhausted()) {
-    throw new Error('Firestore quota exhausted; workspace remains pending.');
+    throw new Error("Firestore quota exhausted; workspace remains pending.");
   }
 
   const docId = getUserDocumentId(userIdentity);
   const userEmail = getIdentityEmail(userIdentity);
   if (!auth.currentUser?.uid || auth.currentUser.uid !== docId) {
-    throw new Error('Workspace owner is no longer signed in.');
+    throw new Error("Workspace owner is no longer signed in.");
   }
 
   try {
@@ -831,19 +931,22 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     const rootFingerprint = computeFingerprint(rootComparable);
 
     if (rootFingerprint !== savedRootFingerprint) {
-      const rootRef = doc(db, 'users', docId);
+      const rootRef = doc(db, "users", docId);
       const rootPayload = removeUndefinedDeep({
         userId: docId,
         userEmail,
-        lastActiveTab: workspaceData.lastActiveTab || 'twitter',
-        lastActiveCategory: workspaceData.lastActiveCategory || 'social-feed',
+        lastActiveTab: workspaceData.lastActiveTab || "twitter",
+        lastActiveCategory: workspaceData.lastActiveCategory || "social-feed",
         preferences: workspaceData.preferences || {},
         activeFolderIds: workspaceData.activeFolderIds || null,
         userAssets: workspaceData.userAssets || null,
-        updatedBy: workspaceData.updatedBy || '',
+        updatedBy: workspaceData.updatedBy || "",
         updatedAt: new Date().toISOString(),
       });
-      const safeRootPayload = await sanitizeObjectForFirestore(rootPayload, 500_000);
+      const safeRootPayload = await sanitizeObjectForFirestore(
+        rootPayload,
+        500_000,
+      );
       operations.push({ ref: rootRef, data: safeRootPayload });
     }
 
@@ -854,29 +957,43 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     const moduleFolders = workspaceData.moduleFolders || {};
 
     const allTabs = Array.from(
-      new Set([
-        ...Object.keys(formStates),
-        ...Object.keys(characters),
-        ...Object.keys(moduleFolders),
-        workspaceData.lastActiveTab,
-      ].filter(Boolean))
+      new Set(
+        [
+          ...Object.keys(formStates),
+          ...Object.keys(characters),
+          ...Object.keys(moduleFolders),
+          workspaceData.lastActiveTab,
+        ].filter(Boolean),
+      ),
     );
 
-    const pendingFingerprintUpdates: Array<{ tabKey: string; fingerprint: string }> = [];
-    const pendingFolderFingerprintUpdates: Array<{ folderKey: string; fingerprint: string }> = [];
+    const pendingFingerprintUpdates: Array<{
+      tabKey: string;
+      fingerprint: string;
+    }> = [];
+    const pendingFolderFingerprintUpdates: Array<{
+      folderKey: string;
+      fingerprint: string;
+    }> = [];
 
     for (const tabKey of allTabs) {
       // Extract isolated folders pertaining to this tab
       const tabFolders: Record<string, any> = {};
-      if (folderStates && typeof folderStates === 'object') {
+      if (folderStates && typeof folderStates === "object") {
         Object.entries(folderStates).forEach(([fKey, fVal]) => {
-          if (fKey.includes(`_${tabKey}_`) || fKey.startsWith(`folder_${tabKey}_`)) {
+          if (
+            fKey.includes(`_${tabKey}_`) ||
+            fKey.startsWith(`folder_${tabKey}_`)
+          ) {
             tabFolders[fKey] = fVal;
           }
         });
       }
 
-      const tabFoldersList = (workspaceData.moduleFolders && workspaceData.moduleFolders[tabKey]) || characters[tabKey] || [];
+      const tabFoldersList =
+        (workspaceData.moduleFolders && workspaceData.moduleFolders[tabKey]) ||
+        characters[tabKey] ||
+        [];
       const rawTabDoc = {
         tabKey,
         characters: tabFoldersList,
@@ -891,10 +1008,10 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         continue;
       }
 
-      const tabRef = doc(db, 'users', docId, 'tabs', tabKey);
+      const tabRef = doc(db, "users", docId, "tabs", tabKey);
       const docWithMeta = {
         ...rawTabDoc,
-        updatedBy: workspaceData.updatedBy || '',
+        updatedBy: workspaceData.updatedBy || "",
         updatedAt: new Date().toISOString(),
       };
 
@@ -907,13 +1024,26 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
         const folder = tabFoldersList[idx];
         if (!folder || !folder.id) continue;
         const cleanFolderId = folder.id;
-        const folderComparable = getFolderComparable({ ...folder, id: cleanFolderId }, tabKey, idx + 1);
+        const folderComparable = getFolderComparable(
+          { ...folder, id: cleanFolderId },
+          tabKey,
+          idx + 1,
+        );
         const folderFingerprint = computeFingerprint(folderComparable);
         const folderFingerprintKey = `${tabKey}_${cleanFolderId}`;
-        if (savedFolderFingerprints.get(folderFingerprintKey) === folderFingerprint) {
+        if (
+          savedFolderFingerprints.get(folderFingerprintKey) ===
+          folderFingerprint
+        ) {
           continue;
         }
-        const folderDocRef = doc(db, 'users', docId, 'folders', `${tabKey}_${cleanFolderId}`);
+        const folderDocRef = doc(
+          db,
+          "users",
+          docId,
+          "folders",
+          `${tabKey}_${cleanFolderId}`,
+        );
         const folderPayload = removeUndefinedDeep({
           ...folderComparable,
           tabKey,
@@ -921,9 +1051,15 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
           userEmail,
           updatedAt: folder.updatedAt || new Date().toISOString(),
         });
-        const safeFolderPayload = await sanitizeObjectForFirestore(folderPayload, 400_000);
+        const safeFolderPayload = await sanitizeObjectForFirestore(
+          folderPayload,
+          400_000,
+        );
         operations.push({ ref: folderDocRef, data: safeFolderPayload });
-        pendingFolderFingerprintUpdates.push({ folderKey: folderFingerprintKey, fingerprint: folderFingerprint });
+        pendingFolderFingerprintUpdates.push({
+          folderKey: folderFingerprintKey,
+          fingerprint: folderFingerprint,
+        });
       }
     }
 
@@ -948,11 +1084,12 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
     try {
       await commitOperations(operations);
     } catch (firstErr: any) {
-      const errMsg = firstErr instanceof Error ? firstErr.message : String(firstErr);
+      const errMsg =
+        firstErr instanceof Error ? firstErr.message : String(firstErr);
       if (
-        errMsg.includes('Missing or insufficient permissions') ||
-        errMsg.includes('permission-denied') ||
-        errMsg.includes('unavailable')
+        errMsg.includes("Missing or insufficient permissions") ||
+        errMsg.includes("permission-denied") ||
+        errMsg.includes("unavailable")
       ) {
         // Wait 1.5 seconds and retry once with a fresh WriteBatch instance
         await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -973,12 +1110,14 @@ async function executeSaveUserWorkspace(userIdentity: FirebaseUserIdentity, work
   } catch (error) {
     if (isFirestoreQuotaExhaustedError(error)) {
       markFirestoreQuotaExhausted();
-      console.warn('Daily Firestore write quota reached. Cloud sync is safely paused; changes remain completely preserved in local storage.');
+      console.warn(
+        "Daily Firestore write quota reached. Cloud sync is safely paused; changes remain completely preserved in local storage.",
+      );
       throw error;
     }
 
     handleFirestoreError(error, OperationType.UPDATE, `users/${docId}`);
-    console.warn('Could not save workspace to Firestore:', error);
+    console.warn("Could not save workspace to Firestore:", error);
     throw error;
   }
 }
@@ -992,19 +1131,29 @@ function getWorkspaceSaveFingerprint(workspaceData: any): string {
   return computeFingerprint(comparable);
 }
 
-const getWorkspaceResetKey = (ownerId: string) => `au_workspace_reset_pending_${ownerId}`;
+const getWorkspaceResetKey = (ownerId: string) =>
+  `au_workspace_reset_pending_${ownerId}`;
 
-export function markWorkspaceResetPending(userIdentity: FirebaseUserIdentity): void {
-  localStorage.setItem(getWorkspaceResetKey(getUserDocumentId(userIdentity)), crypto.randomUUID());
+export function markWorkspaceResetPending(
+  userIdentity: FirebaseUserIdentity,
+): void {
+  localStorage.setItem(
+    getWorkspaceResetKey(getUserDocumentId(userIdentity)),
+    crypto.randomUUID(),
+  );
 }
 
 // Persist complete user workspace partitioned across subcollections using a promise queue to prevent race conditions
-export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIdentity, workspaceData: any): Promise<void> {
-  if (!userIdentity || getUserDocumentId(userIdentity) === 'anonymous_user') return;
+export async function saveUserWorkspaceToFirestore(
+  userIdentity: FirebaseUserIdentity,
+  workspaceData: any,
+): Promise<void> {
+  if (!userIdentity || getUserDocumentId(userIdentity) === "anonymous_user")
+    return;
 
   // Circuit breaker: do not invoke Firestore if daily free quota limit is currently exhausted
   if (isFirestoreQuotaExhausted()) {
-    throw new Error('Firestore quota exhausted; workspace remains pending.');
+    throw new Error("Firestore quota exhausted; workspace remains pending.");
   }
 
   const ownerId = getUserDocumentId(userIdentity);
@@ -1013,35 +1162,45 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
   const snapshot = JSON.parse(JSON.stringify(workspaceData));
   const workspaceFingerprint = getWorkspaceSaveFingerprint(snapshot);
 
-  const queuedSave = savePromiseChain
-    .then(async () => {
-      // Capture reset intent when queued: an older autosave must never consume
-      // a reset requested after it. Failed resets remain retryable after reload.
-      const shouldReset = Boolean(resetRevision && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision);
-      if (!shouldReset && savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint) return;
-      isExecutingSave = true;
-      try {
-        if (shouldReset) {
-          if (auth.currentUser?.uid !== ownerId) throw new Error('Workspace owner is no longer signed in.');
-          await clearAllFirebaseData(userIdentity);
-          clearWorkspaceFingerprintCache();
-        }
-        await executeSaveUserWorkspace(userIdentity, snapshot);
-        savedWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
-        if (shouldReset && localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision) {
-          localStorage.removeItem(getWorkspaceResetKey(ownerId));
-        }
-      } finally {
-        isExecutingSave = false;
+  const queuedSave = savePromiseChain.then(async () => {
+    // Capture reset intent when queued: an older autosave must never consume
+    // a reset requested after it. Failed resets remain retryable after reload.
+    const shouldReset = Boolean(
+      resetRevision &&
+      localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision,
+    );
+    if (
+      !shouldReset &&
+      savedWorkspaceFingerprints.get(ownerId) === workspaceFingerprint
+    )
+      return;
+    isExecutingSave = true;
+    try {
+      if (shouldReset) {
+        if (auth.currentUser?.uid !== ownerId)
+          throw new Error("Workspace owner is no longer signed in.");
+        await clearAllFirebaseData(userIdentity);
+        clearWorkspaceFingerprintCache();
       }
-    });
+      await executeSaveUserWorkspace(userIdentity, snapshot);
+      savedWorkspaceFingerprints.set(ownerId, workspaceFingerprint);
+      if (
+        shouldReset &&
+        localStorage.getItem(getWorkspaceResetKey(ownerId)) === resetRevision
+      ) {
+        localStorage.removeItem(getWorkspaceResetKey(ownerId));
+      }
+    } finally {
+      isExecutingSave = false;
+    }
+  });
 
   // Keep the internal queue usable after a failed write, while returning the real
   // operation promise so callers do not mark unsaved local data as synchronized.
   savePromiseChain = queuedSave.catch((err) => {
-      console.warn('saveUserWorkspaceToFirestore chain notice:', err);
-      isExecutingSave = false;
-    });
+    console.warn("saveUserWorkspaceToFirestore chain notice:", err);
+    isExecutingSave = false;
+  });
 
   return queuedSave;
 }
@@ -1050,7 +1209,7 @@ export async function saveUserWorkspaceToFirestore(userIdentity: FirebaseUserIde
 export function subscribeUserWorkspaceFromFirestore(
   userOrKey: string | { email?: string | null; uid?: string | null } | null,
   onData: (data: any) => void,
-  onError?: (error: any) => void
+  onError?: (error: any) => void,
 ): () => void {
   if (!userOrKey) return () => {};
   const docId = getUserDocumentId(userOrKey);
@@ -1088,18 +1247,22 @@ export function subscribeUserWorkspaceFromFirestore(
       const tabFolders = Array.isArray(tData.folders)
         ? tData.folders
         : Array.isArray(tData.characters)
-        ? tData.characters
-        : null;
+          ? tData.characters
+          : null;
 
       if (tabFolders) {
         // A tab document is the authoritative folder membership list. Replacing instead of
         // union-merging prevents deleted redundant folder documents from resurrecting.
-        composite.moduleFolders[tabKey] = tabFolders.map((f: any) => ({ ...f }));
+        composite.moduleFolders[tabKey] = tabFolders.map((f: any) => ({
+          ...f,
+        }));
       }
-      if (tData.folderStates && typeof tData.folderStates === 'object') {
+      if (tData.folderStates && typeof tData.folderStates === "object") {
         Object.assign(composite.folderStates, tData.folderStates);
       }
-      if (getUpdatedAtMs(tData.updatedAt) > getUpdatedAtMs(composite.updatedAt)) {
+      if (
+        getUpdatedAtMs(tData.updatedAt) > getUpdatedAtMs(composite.updatedAt)
+      ) {
         composite.updatedAt = tData.updatedAt;
         if (tData.updatedBy) {
           composite.updatedBy = tData.updatedBy;
@@ -1114,35 +1277,49 @@ export function subscribeUserWorkspaceFromFirestore(
       if (!composite.moduleFolders[tabKey]) {
         composite.moduleFolders[tabKey] = [];
       }
-      const rawId = fDoc.id || '';
+      const rawId = fDoc.id || "";
       let cleanId = rawId;
-      if (cleanId.includes('_') && cleanId.startsWith(`${tabKey}_`)) {
+      if (cleanId.includes("_") && cleanId.startsWith(`${tabKey}_`)) {
         cleanId = cleanId.slice(`${tabKey}_`.length);
       }
       const tabData = currentTabsData[tabKey];
       const authoritativeTabFolders = tabData
-        ? (Array.isArray(tabData.characters) ? tabData.characters : (Array.isArray(tabData.folders) ? tabData.folders : null))
+        ? Array.isArray(tabData.characters)
+          ? tabData.characters
+          : Array.isArray(tabData.folders)
+            ? tabData.folders
+            : null
         : null;
-      if (authoritativeTabFolders && !authoritativeTabFolders.some((item: any) => item?.id === cleanId)) {
+      if (
+        authoritativeTabFolders &&
+        !authoritativeTabFolders.some((item: any) => item?.id === cleanId)
+      ) {
         return;
       }
-      const existingIdx = composite.moduleFolders[tabKey].findIndex((item: any) => item.id === cleanId);
+      const existingIdx = composite.moduleFolders[tabKey].findIndex(
+        (item: any) => item.id === cleanId,
+      );
       if (existingIdx !== -1) {
         const existing = composite.moduleFolders[tabKey][existingIdx];
-        if (getUpdatedAtMs(fDoc.updatedAt) < getUpdatedAtMs(existing.updatedAt)) return;
+        if (getUpdatedAtMs(fDoc.updatedAt) < getUpdatedAtMs(existing.updatedAt))
+          return;
         composite.moduleFolders[tabKey][existingIdx] = {
           ...existing,
           name: fDoc.name || existing.name,
           data: fDoc.data || existing.data,
-          order: typeof fDoc.order === 'number' ? fDoc.order : existing.order,
+          order: typeof fDoc.order === "number" ? fDoc.order : existing.order,
           updatedAt: fDoc.updatedAt || existing.updatedAt,
         };
       } else {
         composite.moduleFolders[tabKey].push({
           id: cleanId,
-          name: fDoc.name || `Folder ${composite.moduleFolders[tabKey].length + 1}`,
+          name:
+            fDoc.name || `Folder ${composite.moduleFolders[tabKey].length + 1}`,
           data: fDoc.data || null,
-          order: typeof fDoc.order === 'number' ? fDoc.order : composite.moduleFolders[tabKey].length,
+          order:
+            typeof fDoc.order === "number"
+              ? fDoc.order
+              : composite.moduleFolders[tabKey].length,
           updatedAt: fDoc.updatedAt || null,
         });
       }
@@ -1153,11 +1330,17 @@ export function subscribeUserWorkspaceFromFirestore(
       const list = composite.moduleFolders[tab];
       if (Array.isArray(list)) {
         list.sort((a: any, b: any) => {
-          if (typeof a.order === 'number' && typeof b.order === 'number') {
+          if (typeof a.order === "number" && typeof b.order === "number") {
             return a.order - b.order;
           }
-          const numA = parseInt(String(a.id || a.name || '').replace(/\D+/g, '') || '0', 10);
-          const numB = parseInt(String(b.id || b.name || '').replace(/\D+/g, '') || '0', 10);
+          const numA = parseInt(
+            String(a.id || a.name || "").replace(/\D+/g, "") || "0",
+            10,
+          );
+          const numB = parseInt(
+            String(b.id || b.name || "").replace(/\D+/g, "") || "0",
+            10,
+          );
           if (numA !== numB) return numA - numB;
           return String(a.id).localeCompare(String(b.id));
         });
@@ -1168,18 +1351,21 @@ export function subscribeUserWorkspaceFromFirestore(
     const hasLoadedData = rootExists || Object.keys(currentTabsData).length > 0;
     onData({
       ...composite,
-      status: hasLoadedData ? 'loaded' : 'new_user',
+      status: hasLoadedData ? "loaded" : "new_user",
       hasLoadedData,
       isNewUser: !hasLoadedData,
       fromCache: rootFromCache || tabsFromCache,
-      needsRecovery: Object.keys(currentTabsData).length === 0 || Object.values(currentTabsData).some(
-        (data) => !Array.isArray(data.folders) && !Array.isArray(data.characters)
-      ),
+      needsRecovery:
+        Object.keys(currentTabsData).length === 0 ||
+        Object.values(currentTabsData).some(
+          (data) =>
+            !Array.isArray(data.folders) && !Array.isArray(data.characters),
+        ),
     });
   };
 
   const unsubRoot = onSnapshot(
-    doc(db, 'users', docId),
+    doc(db, "users", docId),
     { includeMetadataChanges: true },
     (snap) => {
       // Ignore local writes that have not yet reached the server
@@ -1189,10 +1375,15 @@ export function subscribeUserWorkspaceFromFirestore(
       rootFromCache = snap.metadata.fromCache;
       if (snap.exists()) {
         currentRootData = snap.data();
-        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+        if (
+          !snap.metadata.fromCache &&
+          !isExecutingSave &&
+          auth.currentUser?.uid === docId
+        ) {
           savedRootFingerprint = computeFingerprint({
-            lastActiveTab: currentRootData.lastActiveTab || 'twitter',
-            lastActiveCategory: currentRootData.lastActiveCategory || 'social-feed',
+            lastActiveTab: currentRootData.lastActiveTab || "twitter",
+            lastActiveCategory:
+              currentRootData.lastActiveCategory || "social-feed",
             preferences: currentRootData.preferences || {},
             activeFolderIds: currentRootData.activeFolderIds || {},
             userAssets: currentRootData.userAssets || {},
@@ -1207,11 +1398,11 @@ export function subscribeUserWorkspaceFromFirestore(
     (err) => {
       handleFirestoreError(err, OperationType.READ, `users/${docId}`);
       if (onError) onError(err);
-    }
+    },
   );
 
   const unsubTabs = onSnapshot(
-    collection(db, 'users', docId, 'tabs'),
+    collection(db, "users", docId, "tabs"),
     { includeMetadataChanges: true },
     (snap) => {
       // Ignore local writes that have not yet reached the server
@@ -1220,39 +1411,55 @@ export function subscribeUserWorkspaceFromFirestore(
       snap.docChanges({ includeMetadataChanges: true }).forEach((change) => {
         if (change.doc.metadata.hasPendingWrites) return;
         const tabKey = change.doc.id;
-        if (change.type === 'removed') {
+        if (change.type === "removed") {
           delete currentTabsData[tabKey];
         } else {
           currentTabsData[tabKey] = change.doc.data();
         }
         // Only server-confirmed data can become the baseline for differential writes.
         // A local batch acknowledgement must not replace fingerprints mid-save.
-        if (!snap.metadata.fromCache && !isExecutingSave && auth.currentUser?.uid === docId) {
+        if (
+          !snap.metadata.fromCache &&
+          !isExecutingSave &&
+          auth.currentUser?.uid === docId
+        ) {
           savedWorkspaceFingerprints.delete(docId);
-          if (change.type === 'removed') {
+          if (change.type === "removed") {
             savedTabFingerprints.delete(tabKey);
             for (const key of savedFolderFingerprints.keys()) {
-              if (key.startsWith(`${tabKey}_`)) savedFolderFingerprints.delete(key);
+              if (key.startsWith(`${tabKey}_`))
+                savedFolderFingerprints.delete(key);
             }
           } else {
             const data = currentTabsData[tabKey];
-            savedTabFingerprints.set(tabKey, computeFingerprint({
+            savedTabFingerprints.set(
               tabKey,
-              characters: data.characters || [],
-              folders: data.folders || [],
-              formState: data.formState || null,
-              folderStates: data.folderStates || {},
-            }));
+              computeFingerprint({
+                tabKey,
+                characters: data.characters || [],
+                folders: data.folders || [],
+                formState: data.formState || null,
+                folderStates: data.folderStates || {},
+              }),
+            );
             const folders = data.folders || data.characters || [];
             folders.forEach((folder: any, index: number) => {
               if (!folder?.id) return;
-              savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(removeUndefinedDeep({
-                id: folder.id,
-                name: folder.name || `Folder ${index + 1}`,
-                data: folder.data || null,
-                order: typeof folder.order === 'number' ? folder.order : index + 1,
-                tabKey,
-              })));
+              savedFolderFingerprints.set(
+                `${tabKey}_${folder.id}`,
+                computeFingerprint(
+                  removeUndefinedDeep({
+                    id: folder.id,
+                    name: folder.name || `Folder ${index + 1}`,
+                    data: folder.data || null,
+                    order:
+                      typeof folder.order === "number"
+                        ? folder.order
+                        : index + 1,
+                    tabKey,
+                  }),
+                ),
+              );
             });
           }
         }
@@ -1263,7 +1470,7 @@ export function subscribeUserWorkspaceFromFirestore(
     (err) => {
       handleFirestoreError(err, OperationType.LIST, `users/${docId}/tabs`);
       if (onError) onError(err);
-    }
+    },
   );
 
   return () => {
@@ -1273,22 +1480,25 @@ export function subscribeUserWorkspaceFromFirestore(
 }
 
 // Retrieve complete user workspace by aggregating root metadata and partitioned tabs
-export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email?: string | null; uid?: string | null } | null): Promise<any | null> {
+export async function loadUserWorkspaceFromFirestore(
+  userOrKey: string | { email?: string | null; uid?: string | null } | null,
+): Promise<any | null> {
   if (!userOrKey) return null;
   const docId = getUserDocumentId(userOrKey);
 
   try {
     // 1. Primary: load from user-isolated path /users/{docId} with transient retry guard
-    let rootRef = doc(db, 'users', docId);
+    let rootRef = doc(db, "users", docId);
     let rootSnap: any;
     try {
       rootSnap = await getDoc(rootRef);
     } catch (primaryErr: any) {
-      const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+      const errMsg =
+        primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       if (
-        errMsg.includes('Missing or insufficient permissions') ||
-        errMsg.includes('permission-denied') ||
-        errMsg.includes('unavailable')
+        errMsg.includes("Missing or insufficient permissions") ||
+        errMsg.includes("permission-denied") ||
+        errMsg.includes("unavailable")
       ) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         rootSnap = await getDoc(rootRef);
@@ -1301,7 +1511,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
     // Seamless backward compatibility: if not in /users/{docId}, check legacy /workspaces/{docId}
     if (!rootSnap.exists()) {
       try {
-        const legacyRef = doc(db, 'workspaces', docId);
+        const legacyRef = doc(db, "workspaces", docId);
         const legacySnap = await getDoc(legacyRef);
         if (legacySnap.exists()) {
           rootRef = legacyRef;
@@ -1315,26 +1525,32 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     // Seamless backward compatibility: check alternative candidate IDs (UID, stable email ID, sanitized email)
     if (!rootSnap.exists()) {
-      const email = typeof userOrKey === 'string' && userOrKey.includes('@')
-        ? userOrKey
-        : (typeof userOrKey === 'object' && userOrKey?.email ? userOrKey.email : auth.currentUser?.email);
-      const uid = typeof userOrKey === 'object' && userOrKey?.uid
-        ? userOrKey.uid
-        : auth.currentUser?.uid;
+      const email =
+        typeof userOrKey === "string" && userOrKey.includes("@")
+          ? userOrKey
+          : typeof userOrKey === "object" && userOrKey?.email
+            ? userOrKey.email
+            : auth.currentUser?.email;
+      const uid =
+        typeof userOrKey === "object" && userOrKey?.uid
+          ? userOrKey.uid
+          : auth.currentUser?.uid;
 
       const candidateIds: string[] = [];
       if (uid && uid !== docId) candidateIds.push(uid);
       if (email) {
         const stableId = getStableUserIdFromEmail(email);
         const cleanId = sanitizeUserKey(email);
-        if (stableId !== docId && !candidateIds.includes(stableId)) candidateIds.push(stableId);
-        if (cleanId !== docId && !candidateIds.includes(cleanId)) candidateIds.push(cleanId);
+        if (stableId !== docId && !candidateIds.includes(stableId))
+          candidateIds.push(stableId);
+        if (cleanId !== docId && !candidateIds.includes(cleanId))
+          candidateIds.push(cleanId);
       }
 
       for (const candId of candidateIds) {
         if (rootSnap.exists()) break;
         try {
-          const candUsersRef = doc(db, 'users', candId);
+          const candUsersRef = doc(db, "users", candId);
           // A missing legacy users document may be denied; still check its
           // independently owner-protected workspaces counterpart.
           const candUsersSnap = await getDoc(candUsersRef).catch(() => null);
@@ -1343,7 +1559,7 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
             rootSnap = candUsersSnap;
             break;
           }
-          const candWorkspacesRef = doc(db, 'workspaces', candId);
+          const candWorkspacesRef = doc(db, "workspaces", candId);
           const candWorkspacesSnap = await getDoc(candWorkspacesRef);
           if (candWorkspacesSnap.exists()) {
             rootRef = candWorkspacesRef;
@@ -1376,8 +1592,8 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
     // Hydrate tab partitions from user subcollection
     try {
       const tabsCol = isLegacyPath
-        ? collection(db, 'workspaces', rootRef.id, 'tabs')
-        : collection(db, 'users', rootRef.id, 'tabs');
+        ? collection(db, "workspaces", rootRef.id, "tabs")
+        : collection(db, "users", rootRef.id, "tabs");
       const tabsSnap = await getDocs(tabsCol);
       needsFolderRecovery = tabsSnap.empty;
 
@@ -1387,7 +1603,11 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
       tabsSnap.forEach((docSnap) => {
         const tabData = docSnap.data();
-        if (!Array.isArray(tabData.folders) && !Array.isArray(tabData.characters)) needsFolderRecovery = true;
+        if (
+          !Array.isArray(tabData.folders) &&
+          !Array.isArray(tabData.characters)
+        )
+          needsFolderRecovery = true;
         const tabKey = tabData.tabKey || docSnap.id;
 
         if (tabData.formState) {
@@ -1396,8 +1616,8 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         const tabFolders = Array.isArray(tabData.folders)
           ? tabData.folders
           : Array.isArray(tabData.characters)
-          ? tabData.characters
-          : null;
+            ? tabData.characters
+            : null;
 
         if (tabFolders) {
           authoritativeFolderTabs.add(tabKey);
@@ -1405,14 +1625,21 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
           composite.moduleFolders[tabKey] = tabFolders;
           tabFolders.forEach((folder: any, idx: number) => {
             if (!folder?.id) return;
-            savedFolderFingerprints.set(`${tabKey}_${folder.id}`, computeFingerprint(getFolderComparable(folder, tabKey, idx + 1)));
+            savedFolderFingerprints.set(
+              `${tabKey}_${folder.id}`,
+              computeFingerprint(getFolderComparable(folder, tabKey, idx + 1)),
+            );
           });
         }
-        if (tabData.folderStates && typeof tabData.folderStates === 'object') {
+        if (tabData.folderStates && typeof tabData.folderStates === "object") {
           Object.assign(composite.folderStates, tabData.folderStates);
         }
-        const tabUpdatedAt = tabData.updatedAt ? new Date(tabData.updatedAt).getTime() : 0;
-        const compositeUpdatedAt = composite.updatedAt ? new Date(composite.updatedAt).getTime() : 0;
+        const tabUpdatedAt = tabData.updatedAt
+          ? new Date(tabData.updatedAt).getTime()
+          : 0;
+        const compositeUpdatedAt = composite.updatedAt
+          ? new Date(composite.updatedAt).getTime()
+          : 0;
         if (tabUpdatedAt > compositeUpdatedAt) {
           composite.updatedAt = tabData.updatedAt;
         }
@@ -1432,42 +1659,60 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
       const rootComparable = getRootWorkspaceComparable(rootData);
       savedRootFingerprint = computeFingerprint(rootComparable);
     } catch (tabsErr) {
-      console.warn('Could not load workspace tabs:', tabsErr);
+      console.warn("Could not load workspace tabs:", tabsErr);
       throw tabsErr;
     }
 
     // Hydrate user-isolated folders from `/users/{docId}/folders`
     try {
-      const userFolders = needsFolderRecovery ? await loadFoldersFromFirestore(docId) : [];
+      const userFolders = needsFolderRecovery
+        ? await loadFoldersFromFirestore(docId)
+        : [];
       if (userFolders && userFolders.length > 0) {
         hasLoadedData = true;
         userFolders.forEach((fDoc) => {
           const tab = fDoc.tabKey || fDoc.platform || fDoc.subFeature;
           if (tab) {
-            const fallbackOrder = typeof fDoc.order === 'number' ? fDoc.order : 1;
-            savedFolderFingerprints.set(`${tab}_${fDoc.id}`, computeFingerprint(getFolderComparable(fDoc, tab, fallbackOrder)));
+            const fallbackOrder =
+              typeof fDoc.order === "number" ? fDoc.order : 1;
+            savedFolderFingerprints.set(
+              `${tab}_${fDoc.id}`,
+              computeFingerprint(getFolderComparable(fDoc, tab, fallbackOrder)),
+            );
             if (!composite.moduleFolders[tab]) {
               composite.moduleFolders[tab] = [];
             }
-            const existingIdx = composite.moduleFolders[tab].findIndex((existing: any) => existing.id === fDoc.id);
+            const existingIdx = composite.moduleFolders[tab].findIndex(
+              (existing: any) => existing.id === fDoc.id,
+            );
             if (existingIdx !== -1) {
               const existing = composite.moduleFolders[tab][existingIdx];
-              const existingUpdatedAt = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
-              const folderDocUpdatedAt = fDoc.updatedAt ? new Date(fDoc.updatedAt).getTime() : 0;
+              const existingUpdatedAt = existing.updatedAt
+                ? new Date(existing.updatedAt).getTime()
+                : 0;
+              const folderDocUpdatedAt = fDoc.updatedAt
+                ? new Date(fDoc.updatedAt).getTime()
+                : 0;
               if (folderDocUpdatedAt < existingUpdatedAt) return;
               composite.moduleFolders[tab][existingIdx] = {
                 ...existing,
                 name: fDoc.name || existing.name,
                 data: fDoc.data || existing.data,
-                order: typeof fDoc.order === 'number' ? fDoc.order : existing.order,
+                order:
+                  typeof fDoc.order === "number" ? fDoc.order : existing.order,
                 updatedAt: fDoc.updatedAt || existing.updatedAt,
               };
             } else if (!authoritativeFolderTabs.has(tab)) {
               composite.moduleFolders[tab].push({
                 id: fDoc.id,
-                name: fDoc.name || `Folder ${composite.moduleFolders[tab].length + 1}`,
+                name:
+                  fDoc.name ||
+                  `Folder ${composite.moduleFolders[tab].length + 1}`,
                 data: fDoc.data || fDoc.profileData || null,
-                order: typeof fDoc.order === 'number' ? fDoc.order : composite.moduleFolders[tab].length,
+                order:
+                  typeof fDoc.order === "number"
+                    ? fDoc.order
+                    : composite.moduleFolders[tab].length,
                 updatedAt: fDoc.updatedAt || null,
               });
             }
@@ -1475,14 +1720,14 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
         });
       }
     } catch (fErr) {
-      console.warn('Could not load workspace folders:', fErr);
+      console.warn("Could not load workspace folders:", fErr);
       throw fErr;
     }
 
     // If new user with zero prior documents, return clean new_user marker
     if (!hasLoadedData) {
       return {
-        status: 'new_user',
+        status: "new_user",
         isNewUser: true,
         moduleFolders: null,
       };
@@ -1493,11 +1738,17 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
       const list = composite.moduleFolders[tab];
       if (Array.isArray(list)) {
         list.sort((a: any, b: any) => {
-          if (typeof a.order === 'number' && typeof b.order === 'number') {
+          if (typeof a.order === "number" && typeof b.order === "number") {
             return a.order - b.order;
           }
-          const numA = parseInt(String(a.id || a.name || '').replace(/\D+/g, '') || '0', 10);
-          const numB = parseInt(String(b.id || b.name || '').replace(/\D+/g, '') || '0', 10);
+          const numA = parseInt(
+            String(a.id || a.name || "").replace(/\D+/g, "") || "0",
+            10,
+          );
+          const numB = parseInt(
+            String(b.id || b.name || "").replace(/\D+/g, "") || "0",
+            10,
+          );
           if (numA !== numB) return numA - numB;
           return String(a.id).localeCompare(String(b.id));
         });
@@ -1507,30 +1758,41 @@ export async function loadUserWorkspaceFromFirestore(userOrKey: string | { email
 
     // Seamless one-time data migration:
     // If data was loaded from a legacy path or legacy email doc ID, migrate it to canonical /users/{canonicalUid}
-    const canonicalUid = auth.currentUser?.uid || (typeof userOrKey === 'object' ? userOrKey?.uid : null);
-    if (hasLoadedData && canonicalUid && (isLegacyPath || rootRef.id !== canonicalUid)) {
-      console.log(`[Migration] Migrating legacy user data from ${rootRef.path} to canonical /users/${canonicalUid}`);
+    const canonicalUid =
+      auth.currentUser?.uid ||
+      (typeof userOrKey === "object" ? userOrKey?.uid : null);
+    if (
+      hasLoadedData &&
+      canonicalUid &&
+      (isLegacyPath || rootRef.id !== canonicalUid)
+    ) {
+      console.log(
+        `[Migration] Migrating legacy user data from ${rootRef.path} to canonical /users/${canonicalUid}`,
+      );
       try {
         await executeSaveUserWorkspace(
           { uid: canonicalUid, email: auth.currentUser?.email || null },
-          composite
+          composite,
         );
       } catch (migErr) {
-        console.warn('[Migration] Automatic workspace migration notice:', migErr);
+        console.warn(
+          "[Migration] Automatic workspace migration notice:",
+          migErr,
+        );
       }
     }
 
     return {
       ...composite,
-      status: 'loaded',
+      status: "loaded",
       isLoaded: true,
       hasLoadedData: true,
     };
   } catch (error) {
     handleFirestoreError(error, OperationType.GET, `users/${docId}`);
-    console.warn('Could not load workspace from Firestore:', error);
+    console.warn("Could not load workspace from Firestore:", error);
     return {
-      status: 'error',
+      status: "error",
       isError: true,
       error,
       hasLoadedData: false,
@@ -1543,10 +1805,10 @@ export async function syncFolderToFirestore(
   folderId: string,
   folderData: any,
   userEmailOrId?: FirebaseUserIdentity,
-  tabKey?: string
+  tabKey?: string,
 ): Promise<void> {
-  const cleanUser = getUserDocumentId(userEmailOrId || '');
-  if (!cleanUser || cleanUser === 'anonymous_user') {
+  const cleanUser = getUserDocumentId(userEmailOrId || "");
+  if (!cleanUser || cleanUser === "anonymous_user") {
     // Unauthenticated/anonymous: do not write to shared global collection
     return;
   }
@@ -1554,13 +1816,15 @@ export async function syncFolderToFirestore(
 
   try {
     const cleanFolderId = folderId || `folder_${Date.now()}`;
-    const compositeDocId = tabKey ? `${tabKey}_${cleanFolderId}` : cleanFolderId;
+    const compositeDocId = tabKey
+      ? `${tabKey}_${cleanFolderId}`
+      : cleanFolderId;
     const payload = removeUndefinedDeep({
       ...folderData,
       id: cleanFolderId,
-      name: folderData.name || 'Folder',
-      order: typeof folderData.order === 'number' ? folderData.order : null,
-      tabKey: tabKey || '',
+      name: folderData.name || "Folder",
+      order: typeof folderData.order === "number" ? folderData.order : null,
+      tabKey: tabKey || "",
       userId: cleanUser,
       userEmail: getIdentityEmail(userEmailOrId),
       updatedAt: new Date().toISOString(),
@@ -1568,59 +1832,88 @@ export async function syncFolderToFirestore(
     const safePayload = await sanitizeObjectForFirestore(payload, 750_000);
     // Strict Account-Level Isolation: write directly into users/{userId}/folders/{tabKey}_{folderId}
     try {
-      await setDoc(doc(db, 'users', cleanUser, 'folders', compositeDocId), safePayload, { merge: true });
+      await setDoc(
+        doc(db, "users", cleanUser, "folders", compositeDocId),
+        safePayload,
+        { merge: true },
+      );
     } catch (firstErr: any) {
-      const errMsg = firstErr instanceof Error ? firstErr.message : String(firstErr);
-      if (errMsg.includes('Missing or insufficient permissions') || errMsg.includes('permission-denied')) {
+      const errMsg =
+        firstErr instanceof Error ? firstErr.message : String(firstErr);
+      if (
+        errMsg.includes("Missing or insufficient permissions") ||
+        errMsg.includes("permission-denied")
+      ) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        await setDoc(doc(db, 'users', cleanUser, 'folders', compositeDocId), safePayload, { merge: true });
+        await setDoc(
+          doc(db, "users", cleanUser, "folders", compositeDocId),
+          safePayload,
+          { merge: true },
+        );
       } else {
         throw firstErr;
       }
     }
-    savedFolderFingerprints.set(compositeDocId, computeFingerprint(getFolderComparable(
-      { ...folderData, id: cleanFolderId, name: folderData.name || 'Folder' },
-      tabKey || '',
-      typeof folderData.order === 'number' ? folderData.order : 1
-    )));
+    savedFolderFingerprints.set(
+      compositeDocId,
+      computeFingerprint(
+        getFolderComparable(
+          {
+            ...folderData,
+            id: cleanFolderId,
+            name: folderData.name || "Folder",
+          },
+          tabKey || "",
+          typeof folderData.order === "number" ? folderData.order : 1,
+        ),
+      ),
+    );
   } catch (error) {
-  handleFirestoreError(
-    error,
-    OperationType.UPDATE,
-    `users/${cleanUser}/folders/${folderId}`
-  );
+    handleFirestoreError(
+      error,
+      OperationType.UPDATE,
+      `users/${cleanUser}/folders/${folderId}`,
+    );
 
-  throw error;
-}
+    throw error;
+  }
 }
 
 // Delete a folder permanently from user's private subcollection in Firestore
 export async function deleteFolderFromFirestore(
   folderId: string,
   userEmailOrId?: FirebaseUserIdentity,
-  tabKey?: string
+  tabKey?: string,
 ): Promise<void> {
-  const cleanUser = getUserDocumentId(userEmailOrId || '');
-  if (!cleanUser || cleanUser === 'anonymous_user') {
+  const cleanUser = getUserDocumentId(userEmailOrId || "");
+  if (!cleanUser || cleanUser === "anonymous_user") {
     return;
   }
   if (auth.currentUser?.uid !== cleanUser) return;
 
   try {
     const compositeDocId = tabKey ? `${tabKey}_${folderId}` : folderId;
-    await deleteDoc(doc(db, 'users', cleanUser, 'folders', compositeDocId));
+    await deleteDoc(doc(db, "users", cleanUser, "folders", compositeDocId));
     if (tabKey) {
-      await deleteDoc(doc(db, 'users', cleanUser, 'folders', folderId)).catch(() => {});
+      await deleteDoc(doc(db, "users", cleanUser, "folders", folderId)).catch(
+        () => {},
+      );
     }
   } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `users/${cleanUser}/folders/${folderId}`);
+    handleFirestoreError(
+      error,
+      OperationType.DELETE,
+      `users/${cleanUser}/folders/${folderId}`,
+    );
   }
 }
 
 // Load folders strictly from authenticated user's private subcollection
-export async function loadFoldersFromFirestore(userId?: FirebaseUserIdentity): Promise<any[]> {
-  const cleanUser = getUserDocumentId(userId || '');
-  if (!cleanUser || cleanUser === 'anonymous_user') {
+export async function loadFoldersFromFirestore(
+  userId?: FirebaseUserIdentity,
+): Promise<any[]> {
+  const cleanUser = getUserDocumentId(userId || "");
+  if (!cleanUser || cleanUser === "anonymous_user") {
     // Strict Account Isolation: anonymous or unauthenticated users get a clean empty list
     return [];
   }
@@ -1628,7 +1921,7 @@ export async function loadFoldersFromFirestore(userId?: FirebaseUserIdentity): P
 
   try {
     // Strict Account-Level Isolation: read strictly from users/{userId}/folders
-    const foldersCol = collection(db, 'users', cleanUser, 'folders');
+    const foldersCol = collection(db, "users", cleanUser, "folders");
     const snapshot = await getDocs(foldersCol);
     const results: any[] = [];
     snapshot.forEach((docSnap) => {
@@ -1644,7 +1937,11 @@ export async function loadFoldersFromFirestore(userId?: FirebaseUserIdentity): P
     });
     return results;
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, `users/${cleanUser}/folders`);
+    handleFirestoreError(
+      error,
+      OperationType.LIST,
+      `users/${cleanUser}/folders`,
+    );
     throw error;
   }
 }
@@ -1652,45 +1949,52 @@ export async function loadFoldersFromFirestore(userId?: FirebaseUserIdentity): P
 // Validate Firestore Connection on boot
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, 'test', 'health_check'));
+    await getDocFromServer(doc(db, "test", "health_check"));
     return true;
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firestore client is offline. Local state fallback active.');
+    if (
+      error instanceof Error &&
+      error.message.includes("the client is offline")
+    ) {
+      console.warn("Firestore client is offline. Local state fallback active.");
     }
     return false;
   }
 }
 
 // Clear user folders or tab data strictly for this account
-export async function clearAllFirebaseData(userId?: FirebaseUserIdentity): Promise<void> {
-  const cleanUser = getUserDocumentId(userId || '');
-  if (!cleanUser || cleanUser === 'anonymous_user') {
+export async function clearAllFirebaseData(
+  userId?: FirebaseUserIdentity,
+): Promise<void> {
+  const cleanUser = getUserDocumentId(userId || "");
+  if (!cleanUser || cleanUser === "anonymous_user") {
     return;
   }
   if (auth.currentUser?.uid !== cleanUser) return;
 
   try {
-    const foldersCol = collection(db, 'users', cleanUser, 'folders');
+    const foldersCol = collection(db, "users", cleanUser, "folders");
     const snapshot = await getDocs(foldersCol);
-    const deletePromises = snapshot.docs.map((d) => deleteDoc(doc(db, 'users', cleanUser, 'folders', d.id)));
+    const deletePromises = snapshot.docs.map((d) =>
+      deleteDoc(doc(db, "users", cleanUser, "folders", d.id)),
+    );
     await Promise.all(deletePromises);
     console.log(`User ${cleanUser} private folders cleared successfully.`);
   } catch (error) {
-    console.warn('Could not clear Firebase user collections:', error);
+    console.warn("Could not clear Firebase user collections:", error);
     throw error;
   }
 }
 
 // Global Firestore Error Handler
 export enum OperationType {
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
+  CREATE = "create",
+  READ = "read",
+  UPDATE = "update",
+  DELETE = "delete",
+  LIST = "list",
+  GET = "get",
+  WRITE = "write",
 }
 
 export interface FirestoreErrorInfo {
@@ -1710,13 +2014,20 @@ export interface FirestoreErrorInfo {
   };
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): void {
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null,
+): void {
   if (isFirestoreQuotaExhaustedError(error)) {
     markFirestoreQuotaExhausted();
     return;
   }
   const msg = error instanceof Error ? error.message : String(error);
-  if (msg.includes('resource-exhausted') || msg.includes('maximum backoff delay')) {
+  if (
+    msg.includes("resource-exhausted") ||
+    msg.includes("maximum backoff delay")
+  ) {
     markFirestoreQuotaExhausted();
     return;
   }
@@ -1730,11 +2041,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
       emailVerified: auth.currentUser?.emailVerified,
       isAnonymous: auth.currentUser?.isAnonymous,
       tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map((provider) => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || [],
+      providerInfo:
+        auth.currentUser?.providerData?.map((provider) => ({
+          providerId: provider.providerId,
+          email: provider.email,
+        })) || [],
     },
   };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  console.error("Firestore Error: ", JSON.stringify(errInfo));
 }
