@@ -327,9 +327,12 @@ export async function checkBuyerEmailBeforeGoogle(rawEmail: string): Promise<Ent
  */
 export async function validateLoginAccess(email?: string): Promise<ValidateAccessResponse> {
   // Ensure Firebase client auth state has loaded
-  if (auth.authStateReady) {
+    if (auth.authStateReady) {
     try {
-      await auth.authStateReady();
+      await Promise.race([
+        auth.authStateReady(),
+        new Promise<void>((resolve) => setTimeout(resolve, 8000)),
+      ]);
     } catch {}
   }
 
@@ -338,9 +341,15 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   if (currentUser) {
     try {
       idToken = await currentUser.getIdToken();
-    } catch {}
+    } catch (err: any) {
+      console.warn('[Entitlement] getIdToken failed:', err?.code || err);
+    }
   }
-
+  console.log('[Entitlement] auth before verify:', {
+    hasUser: Boolean(currentUser),
+    hasToken: Boolean(idToken),
+  });
+  
   const cleanEmail = normalizeEmail(email || currentUser?.email || '');
   if (!cleanEmail) {
     return {
@@ -430,6 +439,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   const reasonCode = String(resData?.reason || resData?.status || '').trim();
+    console.log('[Entitlement] verify-buyer response:', { httpStatus, reasonCode });
 
   // 1. AUTH_REQUIRED
   if (httpStatus === 401 && (reasonCode === 'AUTH_REQUIRED' || !reasonCode)) {

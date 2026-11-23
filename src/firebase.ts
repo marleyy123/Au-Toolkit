@@ -207,6 +207,23 @@ function sendIOSAuthDebug(
 // Guard agar klik ganda tidak memicu login/redirect ganda.
 let googleSignInInFlight = false;
 
+function saveIOSFlagTrace(stage: string, details: Record<string, unknown>) {
+  try {
+    const key = "au_ios_flag_trace";
+    const existing = JSON.parse(sessionStorage.getItem(key) || "[]");
+
+    existing.push({
+      time: new Date().toISOString(),
+      stage,
+      ...details,
+    });
+
+    sessionStorage.setItem(key, JSON.stringify(existing));
+  } catch (error) {
+    console.error("[IOS FLAG TRACE] Failed to save:", error);
+  }
+}
+
 // Memulai Google Sign-In Redirect memakai Firebase Auth instance utama.
 // Browser akan navigasi keluar; hasilnya diproses di processPendingRedirectResult().
 
@@ -255,6 +272,21 @@ async function startGoogleRedirect(stage: string): Promise<null> {
     })(),
     authDomain: auth.config.authDomain,
   });
+
+  saveIOSFlagTrace("AFTER_SAVE", {
+  platform,
+  isIOS,
+  flagSaved,
+  storedValue: localStorage.getItem(IOS_REDIRECT_FLAG),
+  authDomain: auth.config.authDomain,
+});
+saveIOSFlagTrace("AFTER_SAVE", {
+  platform,
+  isIOS,
+  flagSaved,
+  storedValue: localStorage.getItem(IOS_REDIRECT_FLAG),
+  authDomain: auth.config.authDomain,
+});
 
   sendIOSAuthDebug(
     isIOS ? "IOS_REDIRECT_STARTED" : "REDIRECT_FALLBACK_STARTED",

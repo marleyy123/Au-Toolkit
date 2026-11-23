@@ -10,19 +10,29 @@ import { MaintenancePage } from './components/MaintenancePage';
 import './index.css';
 
 // Mobile DevTools - Vercel Preview only
+// Mobile DevTools: Vercel testing, atau jika diminta lewat ?debug=1 (matikan dengan ?debug=0)
+const isDebugRequested = (() => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const q = new URLSearchParams(window.location.search).get('debug');
+    if (q === '1') localStorage.setItem('au_debug', '1');
+    if (q === '0') localStorage.removeItem('au_debug');
+    return localStorage.getItem('au_debug') === '1';
+  } catch {
+    return false;
+  }
+})();
+
 if (
   typeof window !== 'undefined' &&
-  window.location.hostname === 'au-toolkit-testing.vercel.app' &&
-  import.meta.env.DEV === false
+  import.meta.env.DEV === false &&
+  (window.location.hostname === 'au-toolkit-testing.vercel.app' || isDebugRequested)
 ) {
   import('eruda').then(({ default: eruda }) => {
     eruda.init({
       tool: ['console', 'network', 'elements', 'resources', 'info'],
     });
-
     console.log('[DEBUG] Eruda initialized');
-    console.log('[DEBUG] Current URL:', window.location.href);
-    console.log('[DEBUG] User Agent:', navigator.userAgent);
   });
 }
 
