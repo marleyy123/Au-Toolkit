@@ -67,12 +67,6 @@ function currentStoredUid(): string {
       const parsed = JSON.parse(stored);
       if (typeof parsed?.uid === 'string' && parsed.uid.trim()) return parsed.uid.trim();
     }
-
-    const authUserRaw = localStorage.getItem('au_auth_user') || localStorage.getItem('au_account_user') || localStorage.getItem('au_firebase_auth_user');
-    if (authUserRaw) {
-      const parsed = JSON.parse(authUserRaw);
-      if (typeof parsed?.uid === 'string' && parsed.uid.trim()) return parsed.uid.trim();
-    }
   } catch {
     // Ignore malformed or unavailable auth payloads and fall back to an empty uid.
   }
@@ -111,10 +105,15 @@ function parseCloudMediaReference(ref: string): { uid: string; key: string } | n
 }
 
 const cloudMediaEndpoint = () => String(import.meta.env.VITE_CLOUDFLARE_MEDIA_URL || '').replace(/\/$/, '');
+
+// Cache the module import only (never the uid), so we don't re-import per element.
+let firebaseModulePromise: Promise<typeof import('../firebase')> | null = null;
+const loadFirebase = () => (firebaseModulePromise ??= import('../firebase'));
+
 async function cloudMediaRequest(path: string, init: RequestInit = {}): Promise<Response> {
   const endpoint = cloudMediaEndpoint();
   if (!endpoint) throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
-  const { auth } = await import('../firebase');
+  const { auth } = await loadFirebase();
   await auth.authStateReady();
   const user = auth.currentUser;
   if (!user) throw new Error('AUTH_REQUIRED');
@@ -125,7 +124,7 @@ async function cloudMediaRequest(path: string, init: RequestInit = {}): Promise<
 }
 
 async function uploadCloudMediaBlob(uid: string, blob: Blob): Promise<string> {
-  const { auth } = await import('../firebase');
+  const { auth } = await loadFirebase();
   if (auth.authStateReady) {
     try {
       await auth.authStateReady();
@@ -164,13 +163,6 @@ export function getCachedCloudMediaUsage(): { usedBytes: number; quotaBytes: num
   return null;
 }
 
-// function createMediaId(): string {
-//   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-//     return crypto.randomUUID();
-//   }
-//   return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
-// }
-
 /** Converts a Base64 Data URL to a native browser Blob */
 export function dataUrlToBlob(dataUrl: string): Blob | null {
   try {
@@ -207,11 +199,11 @@ export async function uploadDataUrlToCloudMedia(uid: string, dataUrl: string): P
   return uploadCloudMediaBlob(cleanUid, blob);
 }
 
-/** Stores a final cropped Blob in local IndexedDB and returns a stable reference. */
+/** Uploads a final cropped Blob to cloud media and returns a stable reference. */
 export async function persistLocalImageBlob(
   uid: string,
   blob: Blob,
-  context: string
+  _context: string
 ): Promise<string> {
   const cleanUid = String(uid || '').trim();
 
@@ -230,7 +222,6 @@ export async function persistLocalImageBlob(
   return uploadCloudMediaBlob(cleanUid, blob);
 }
 
-
 /** Migrate one browser-local file to R2 while leaving the source intact for rollback. */
 export async function migrateLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
   if (!ref.startsWith(LOCAL_MEDIA_PREFIX)) return ref;
@@ -238,7 +229,6 @@ export async function migrateLocalImageReference(ref: string, uid = currentStore
   if (!cloudMediaEndpoint()) {
     throw new Error('CLOUD_MEDIA_NOT_CONFIGURED');
   }
-  const parsed = parseLocalMediaReference(ref);
   const database = await openLocalMediaDatabase();
   let record: LocalMediaRecord | undefined;
   try {
@@ -287,8 +277,7 @@ export async function migrateAnyMediaReference(ref: string, uid = currentStoredU
   // Base64 Data URL
   if (trimmed.startsWith('data:image/')) {
     try {
-      const cloudRef = await uploadDataUrlToCloudMedia(effectiveUid, trimmed);
-      return cloudRef;
+      return await uploadDataUrlToCloudMedia(effectiveUid, trimmed);
     } catch (err) {
       console.warn('Auto-uplink data URL to R2 notice:', err);
       return trimmed;
@@ -298,8 +287,7 @@ export async function migrateAnyMediaReference(ref: string, uid = currentStoredU
   // Local IndexedDB media reference
   if (trimmed.startsWith(LOCAL_MEDIA_PREFIX)) {
     try {
-      const cloudRef = await migrateLocalImageReference(trimmed, effectiveUid);
-      return cloudRef;
+      return await migrateLocalImageReference(trimmed, effectiveUid);
     } catch (err) {
       console.warn('Auto-uplink local media reference to R2 notice:', err);
       return trimmed;
@@ -367,13 +355,28 @@ export function bindPersistentImageObjectUrl(ref: string, objectUrl: string): vo
 }
 
 const unresolvableMediaCache = new Set<string>();
+// De-duplicates concurrent resolves of the same ref (one fetch per ref).
+const inflightResolves = new Map<string, Promise<string>>();
 
-export async function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
-  if (unresolvableMediaCache.has(ref)) return '';
+export function resolveLocalImageReference(ref: string, uid = currentStoredUid()): Promise<string> {
+  if (unresolvableMediaCache.has(ref)) return Promise.resolve('');
+  const cachedUrl = persistentObjectUrlCache.get(ref);
+  if (cachedUrl) return Promise.resolve(cachedUrl);
 
+  const existing = inflightResolves.get(ref);
+  if (existing) return existing;
+
+  const promise = resolveLocalImageReferenceInternal(ref, uid).finally(() => {
+    inflightResolves.delete(ref);
+  });
+  inflightResolves.set(ref, promise);
+  return promise;
+}
+
+async function resolveLocalImageReferenceInternal(ref: string, uid: string): Promise<string> {
   const cloud = parseCloudMediaReference(ref);
   if (cloud) {
-    const { auth } = await import('../firebase');
+    const { auth } = await loadFirebase();
     await auth.authStateReady();
 
     const activeUid = auth.currentUser?.uid;
@@ -382,34 +385,26 @@ export async function resolveLocalImageReference(ref: string, uid = currentStore
 
     const cached = persistentObjectUrlCache.get(ref);
     if (cached) return cached;
+
     let response: Response;
+    try {
+      response = await cloudMediaRequest(`/media?key=${encodeURIComponent(cloud.key)}`);
+    } catch (error) {
+      console.error('[CLOUD MEDIA REQUEST ERROR]', error);
+      unresolvableMediaCache.add(ref);
+      return '';
+    }
 
-try {
-  response = await cloudMediaRequest(
-    `/media?key=${encodeURIComponent(cloud.key)}`
-  );
-
-  console.log('[CLOUD MEDIA RESOLVE]', {
-    referenceUid: cloud.uid,
-    status: response.status,
-    ok: response.ok,
-    url: response.url,
-  });
-} catch (error) {
-  console.error('[CLOUD MEDIA REQUEST ERROR]', error);
-  unresolvableMediaCache.add(ref);
-  return '';
-}
-
-if (!response.ok) {
-  console.error('[CLOUD MEDIA RESPONSE ERROR]', await response.clone().text());
-  unresolvableMediaCache.add(ref);
-  return '';
-}
+    if (!response.ok) {
+      console.error('[CLOUD MEDIA RESPONSE ERROR]', response.status);
+      unresolvableMediaCache.add(ref);
+      return '';
+    }
     const objectUrl = createSafeObjectURL(await response.blob());
     if (objectUrl) persistentObjectUrlCache.set(ref, objectUrl);
     return objectUrl;
   }
+
   const parsed = parseLocalMediaReference(ref);
   if (!parsed || !uid || parsed.uid !== uid) {
     unresolvableMediaCache.add(ref);
@@ -431,7 +426,7 @@ if (!response.ok) {
       return '';
     }
     const blob = record.blob instanceof Blob ? record.blob
-      : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], {type: record.mimeType}) : null;
+      : record.bytes instanceof ArrayBuffer ? new Blob([record.bytes], { type: record.mimeType }) : null;
     if (!blob) {
       unresolvableMediaCache.add(ref);
       return '';
@@ -477,73 +472,85 @@ export async function deleteLocalImageReference(ref: string, uid = currentStored
   persistentObjectUrlCache.delete(ref);
 }
 
+/* ==========================================================================
+   DOM RESOLVER (fixed: no more infinite MutationObserver loop)
+   ========================================================================== */
+
+const MEDIA_REF_PATTERN = /au-(?:local|cloud)-media:\/\/[^)'"\s]+/g;
+const isMediaRef = (value: string) =>
+  value.startsWith(LOCAL_MEDIA_PREFIX) || value.startsWith(CLOUD_MEDIA_PREFIX);
+
+const FAILED_PLACEHOLDER =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E';
 
 async function resolveElementLocalMedia(element: Element): Promise<void> {
-  // Gunakan Firebase Auth sebagai sumber UID utama.
-  const { auth } = await import('../firebase');
-  await auth.authStateReady();
+  // 1. Synchronous checks first: if there is no media reference, exit immediately.
+  const isMediaTag =
+    element instanceof HTMLImageElement || element instanceof HTMLSourceElement;
+  const currentSrc = isMediaTag ? element.getAttribute('src') || '' : '';
+  const storedRef = isMediaTag ? element.getAttribute('data-au-local-media-ref') || '' : '';
+  const style = element.getAttribute('style') || '';
+  const styleRefs = style.match(MEDIA_REF_PATTERN) || [];
 
+  // If src is still a reference use it; if it is already blob:, use the stored ref.
+  const imageRef = isMediaTag ? (isMediaRef(currentSrc) ? currentSrc : storedRef) : '';
+  const hasImageRef = isMediaRef(imageRef);
+
+  if (!hasImageRef && styleRefs.length === 0) return;
+
+  // Already resolved (src is the cached blob) and nothing in style: do not process again.
+  if (
+    hasImageRef &&
+    styleRefs.length === 0 &&
+    currentSrc.startsWith('blob:') &&
+    persistentObjectUrlCache.get(storedRef) === currentSrc
+  ) {
+    return;
+  }
+
+  // 2. Only now wait for auth.
+  const { auth } = await loadFirebase();
+  await auth.authStateReady();
   const uid = auth.currentUser?.uid;
   if (!uid) return;
 
-  if (element instanceof HTMLImageElement || element instanceof HTMLSourceElement) {
-    const currentSrc = element.getAttribute('src') || '';
-    const storedRef = element.getAttribute('data-au-local-media-ref') || '';
+  // 3. <img> / <source>
+  if (hasImageRef) {
+    if (element.getAttribute('data-au-local-media-ref') !== imageRef) {
+      element.setAttribute('data-au-local-media-ref', imageRef);
+    }
 
-    // Prioritaskan src jika masih berupa referensi media.
-    // Jika src sudah blob:, gunakan referensi stabil yang disimpan di data attribute.
-    const ref = currentSrc.startsWith(LOCAL_MEDIA_PREFIX) ||
-      currentSrc.startsWith(CLOUD_MEDIA_PREFIX)
-      ? currentSrc
-      : storedRef;
+    const objectUrl = await resolveLocalImageReference(imageRef, uid);
 
-    if (
-      ref.startsWith(LOCAL_MEDIA_PREFIX) ||
-      ref.startsWith(CLOUD_MEDIA_PREFIX)
-    ) {
-      element.setAttribute('data-au-local-media-ref', ref);
-
-      const objectUrl = await resolveLocalImageReference(ref, uid);
-
-      if (!objectUrl) {
+    if (!objectUrl) {
+      if (element.getAttribute('data-au-media-failed') !== 'true') {
         element.setAttribute('data-au-media-failed', 'true');
-        const latestSrc = element.getAttribute('src') || '';
-        if (latestSrc.startsWith(LOCAL_MEDIA_PREFIX)) {
-          element.setAttribute('src', 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E');
-        }
-        return;
       }
-
-      if (!element.isConnected) return;
-
-      const latestSrc = element.getAttribute('src') || '';
-      const boundRef = element.getAttribute('data-au-local-media-ref') || '';
-
-      // Pasang objectUrl jika elemen memang terikat ke referensi media ini
-      if (
-        boundRef === ref ||
-        latestSrc === ref ||
-        latestSrc.startsWith('blob:')
-      ) {
-        element.setAttribute('data-au-local-media-ref', ref);
-        element.setAttribute('src', objectUrl);
+      const failedSrc = element.getAttribute('src') || '';
+      if (failedSrc.startsWith(LOCAL_MEDIA_PREFIX)) {
+        element.setAttribute('src', FAILED_PLACEHOLDER);
       }
+      return;
+    }
+
+    if (!element.isConnected) return;
+
+    const latestSrc = element.getAttribute('src') || '';
+    const boundRef = element.getAttribute('data-au-local-media-ref') || '';
+
+    if (boundRef === imageRef || latestSrc === imageRef || latestSrc.startsWith('blob:')) {
+      // Never rewrite the same value: setAttribute always triggers the MutationObserver.
+      if (latestSrc !== objectUrl) element.setAttribute('src', objectUrl);
     }
   }
 
-  const style = element.getAttribute('style') || '';
-  const refs = style.match(/au-(?:local|cloud)-media:\/\/[^)'"\s]+/g) || [];
-
-  if (refs.length > 0) {
+  // 4. References inside the style attribute (background-image etc.)
+  if (styleRefs.length > 0) {
     let resolvedStyle = style;
-
-    for (const ref of refs) {
+    for (const ref of styleRefs) {
       const objectUrl = await resolveLocalImageReference(ref, uid);
-      if (objectUrl) {
-        resolvedStyle = resolvedStyle.split(ref).join(objectUrl);
-      }
+      if (objectUrl) resolvedStyle = resolvedStyle.split(ref).join(objectUrl);
     }
-
     if (
       resolvedStyle !== style &&
       element.isConnected &&
@@ -557,7 +564,13 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 function scanLocalMedia(root: ParentNode): void {
   const elements: Element[] = [];
   if (root instanceof Element && !root.hasAttribute('data-au-media-failed')) elements.push(root);
-  elements.push(...Array.from(root.querySelectorAll('img[src^="au-local-media://"]:not([data-au-media-failed]), source[src^="au-local-media://"]:not([data-au-media-failed]), img[src^="au-cloud-media://"]:not([data-au-media-failed]), source[src^="au-cloud-media://"]:not([data-au-media-failed]), [style*="au-local-media://"], [style*="au-cloud-media://"]')));
+  elements.push(
+    ...Array.from(
+      root.querySelectorAll(
+        'img[src^="au-local-media://"]:not([data-au-media-failed]), source[src^="au-local-media://"]:not([data-au-media-failed]), img[src^="au-cloud-media://"]:not([data-au-media-failed]), source[src^="au-cloud-media://"]:not([data-au-media-failed]), [style*="au-local-media://"], [style*="au-cloud-media://"]'
+      )
+    )
+  );
   elements.forEach((element) => void resolveElementLocalMedia(element));
 }
 
