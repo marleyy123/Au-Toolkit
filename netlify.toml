@@ -14,6 +14,18 @@
   node_bundler = "nft"
 
 [[redirects]]
+  from = "/__/auth/*"
+  to = "https://au-toolkit-production.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/__/firebase/*"
+  to = "https://au-toolkit-production.firebaseapp.com/__/firebase/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/verify-buyer"
   to = "/.netlify/functions/verify-buyer"
   status = 200
@@ -47,15 +59,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
-[[redirects]]
-  from = "/__/auth/*"
-  to = "https://au-toolkit-production.firebaseapp.com/__/auth/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/__/firebase/*"
-  to = "https://au-toolkit-production.firebaseapp.com/__/firebase/:splat"
-  status = 200
-  force = true
