@@ -99,6 +99,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.6.1(postcss@8.5.28)
+      eruda:
+        specifier: ^3.4.3
+        version: 3.4.3
       esbuild:
         specifier: ^0.25.0
         version: 0.25.12
@@ -1709,6 +1712,9 @@ packages:
   enhanced-resolve@5.25.1:
     resolution: {integrity: sha512-nGXts5znJzmWPu+mIE9izCOzdg63oJca2mDzGWWTth7sr4aCToKcoyFVBQwN75Ij5Pf6p510EwkTqViTRzDV+w==}
     engines: {node: '>=10.13.0'}
+
+  eruda@3.4.3:
+    resolution: {integrity: sha512-J2TsF4dXSspOXev5bJ6mljv0dRrxj21wklrDzbvPmYaEmVoC+2psylyRi70nUPFh1mTQfIBsSusUtAMZtUN+/w==}
 
   es-define-property@1.0.1:
     resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
@@ -4216,6 +4222,8 @@ snapshots:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.3
+
+  eruda@3.4.3: {}
 
   es-define-property@1.0.1: {}
 
