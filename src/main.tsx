@@ -9,33 +9,6 @@ import { installPersistentLocalImageResolver } from './utils/imageManager';
 import { MaintenancePage } from './components/MaintenancePage';
 import './index.css';
 
-// Mobile DevTools - Vercel Preview only
-// Mobile DevTools: Vercel testing, atau jika diminta lewat ?debug=1 (matikan dengan ?debug=0)
-const isDebugRequested = (() => {
-  if (typeof window === 'undefined') return false;
-  try {
-    const q = new URLSearchParams(window.location.search).get('debug');
-    if (q === '1') localStorage.setItem('au_debug', '1');
-    if (q === '0') localStorage.removeItem('au_debug');
-    return localStorage.getItem('au_debug') === '1';
-  } catch {
-    return false;
-  }
-})();
-
-if (
-  typeof window !== 'undefined' &&
-  import.meta.env.DEV === false &&
-  (window.location.hostname === 'au-toolkit-testing.vercel.app' || isDebugRequested)
-) {
-  import('eruda').then(({ default: eruda }) => {
-    eruda.init({
-      tool: ['console', 'network', 'elements', 'resources', 'info'],
-    });
-    console.log('[DEBUG] Eruda initialized');
-  });
-}
-
 const LandingPage = lazy(() => import('./features/landing/LandingPage'));
 const App = lazy(() => import('./App.tsx'));
 
@@ -44,41 +17,19 @@ function RouteLoading({ editor = false }: { editor?: boolean }) {
   return <AppLoadingScreen stage={editor ? 'EDITOR_LOADING' : 'UNAUTHENTICATED'} language={language} />;
 }
 
-// Intercept global runtime exceptions
 if (typeof window !== 'undefined') {
-  installPersistentLocalImageResolver();
-  window.addEventListener(
-    'unhandledrejection',
-    (event) => {
-      console.warn('Unhandled rejection captured in main:', event?.reason);
-      if (event) {
-        if (typeof event.preventDefault === 'function') event.preventDefault();
-        if (typeof event.stopPropagation === 'function') event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-      }
-    },
-    true
-  );
+  // One-time cleanup of the old debug flag so Eruda never reappears for existing users.
+  try {
+    localStorage.removeItem('au_debug');
+  } catch {}
 
-  window.addEventListener(
-    'error',
-    (event) => {
-      console.warn('Runtime error captured in main:', event?.message || event);
-      if (event) {
-        if (typeof event.preventDefault === 'function') event.preventDefault();
-        if (typeof event.stopPropagation === 'function') event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-      }
-    },
-    true
-  );
+  installPersistentLocalImageResolver();
 }
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
-  const maintenanceMode =
-    import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+  const maintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
 
   const publicPage = maintenanceMode
     ? <MaintenancePage />
