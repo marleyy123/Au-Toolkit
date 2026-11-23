@@ -491,7 +491,27 @@ async function processPendingRedirectResult(): Promise<void> {
       console.log("[Auth Debug] Auth app:", authInstance.app.name);
       console.log("[Auth Debug] Auth domain:", authInstance.config.authDomain);
 
+      console.log("[IOS AUTH TRACE] Before getRedirectResult", {
+        currentUserExists: Boolean(authInstance.currentUser),
+        authStateReady: false,
+      });
+
       const result = await getRedirectResult(authInstance);
+
+      console.log("[IOS AUTH TRACE] After getRedirectResult", {
+        resultExists: Boolean(result),
+        resultUserExists: Boolean(result?.user),
+        currentUserExists: Boolean(authInstance.currentUser),
+        providerId: result?.providerId ?? null,
+      });
+
+      await authInstance.authStateReady();
+
+      console.log("[IOS AUTH TRACE] After authStateReady", {
+        currentUserExists: Boolean(authInstance.currentUser),
+        currentUserUidExists: Boolean(authInstance.currentUser?.uid),
+        emailExists: Boolean(authInstance.currentUser?.email),
+      });
 
       sendIOSAuthDebug("REDIRECT_RESULT_RECEIVED", {
         stage: "get_redirect_result_completed",
