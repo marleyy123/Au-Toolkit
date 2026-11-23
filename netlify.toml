@@ -47,3 +47,15 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/__/auth/*"
+  to = "https://au-toolkit-production.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/__/firebase/*"
+  to = "https://au-toolkit-production.firebaseapp.com/__/firebase/:splat"
+  status = 200
+  force = true
