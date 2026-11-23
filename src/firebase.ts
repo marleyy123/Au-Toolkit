@@ -209,21 +209,52 @@ let googleSignInInFlight = false;
 
 // Memulai Google Sign-In Redirect memakai Firebase Auth instance utama.
 // Browser akan navigasi keluar; hasilnya diproses di processPendingRedirectResult().
+
 async function startGoogleRedirect(stage: string): Promise<null> {
   const platform = getAuthPlatform();
   const isIOS = platform === "ios";
   let flagSaved = false;
 
-  // Flag ini khusus konteks redirect iOS; fallback Android/Desktop tidak menyetelnya.
+  console.log("[IOS FLAG TRACE] Before save", {
+    platform,
+    isIOS,
+    hostname: window.location.hostname,
+    localStorageAvailable: (() => {
+      try {
+        return typeof localStorage !== "undefined";
+      } catch {
+        return false;
+      }
+    })(),
+  });
+
   if (isIOS) {
     try {
       localStorage.setItem(IOS_REDIRECT_FLAG, "1");
-      flagSaved = true;
+      flagSaved = localStorage.getItem(IOS_REDIRECT_FLAG) === "1";
+
+      console.log("[IOS FLAG TRACE] After save", {
+        flagSaved,
+        storedValue: localStorage.getItem(IOS_REDIRECT_FLAG),
+      });
     } catch (storageError) {
-      // Kegagalan storage tidak boleh menghentikan proses login.
-      console.warn("[Auth] Could not save redirect flag:", storageError);
+      console.error("[IOS FLAG TRACE] Storage failed", storageError);
     }
   }
+
+  console.log("[IOS FLAG TRACE] Before Firebase redirect", {
+    platform,
+    isIOS,
+    flagSaved,
+    storedValue: (() => {
+      try {
+        return localStorage.getItem(IOS_REDIRECT_FLAG);
+      } catch {
+        return "unavailable";
+      }
+    })(),
+    authDomain: auth.config.authDomain,
+  });
 
   sendIOSAuthDebug(
     isIOS ? "IOS_REDIRECT_STARTED" : "REDIRECT_FALLBACK_STARTED",
@@ -239,15 +270,13 @@ async function startGoogleRedirect(stage: string): Promise<null> {
   try {
     await signInWithRedirect(auth, googleProvider);
   } catch (redirectError) {
-    // Redirect gagal dimulai, jadi tidak ada hasil yang akan diproses saat kembali.
     if (isIOS) clearIOSRedirectFlag();
     throw redirectError;
   }
 
-  // The browser will navigate away.
-  // Authentication result will be processed after returning.
   return null;
 }
+
 
 // Google Sign-in
 // iOS: Redirect using the primary Firebase Auth instance.
