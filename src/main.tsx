@@ -9,6 +9,23 @@ import { installPersistentLocalImageResolver } from './utils/imageManager';
 import { MaintenancePage } from './components/MaintenancePage';
 import './index.css';
 
+// Mobile DevTools - Vercel Preview only
+if (
+  typeof window !== 'undefined' &&
+  window.location.hostname === 'au-toolkit-testing.vercel.app' &&
+  import.meta.env.DEV === false
+) {
+  import('eruda').then(({ default: eruda }) => {
+    eruda.init({
+      tool: ['console', 'network', 'elements', 'resources', 'info'],
+    });
+
+    console.log('[DEBUG] Eruda initialized');
+    console.log('[DEBUG] Current URL:', window.location.href);
+    console.log('[DEBUG] User Agent:', navigator.userAgent);
+  });
+}
+
 const LandingPage = lazy(() => import('./features/landing/LandingPage'));
 const App = lazy(() => import('./App.tsx'));
 
