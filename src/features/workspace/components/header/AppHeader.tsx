@@ -50,24 +50,23 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   setIsPasswordModalOpen,
   setIsResetConfirmOpen,
 }) => (
-  <header className={`au-editor-header shrink-0 sticky top-0 z-40 backdrop-blur-md border-b py-2.5 sm:py-3 transition-colors ${
-    uiTheme === 'dark' ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200 shadow-xs'
-  }`}>
+  <header className={`au-editor-header shrink-0 sticky top-0 z-40 lg:backdrop-blur-md border-b py-2.5 sm:py-3 transition-colors ${uiTheme === 'dark'
+      ? 'bg-slate-900 lg:bg-slate-900/90 border-slate-800'
+      : 'bg-white lg:bg-white/90 border-slate-200 shadow-xs'
+    }`}>
     <div className="w-full flex flex-col gap-1.5">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex min-w-0 items-center space-x-3 pt-0.5">
           <AuBrand className="au-editor-brand-mark shrink-0" />
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
-              <h1 className={`font-extrabold text-base lg:text-lg tracking-tight leading-tight ${
-                uiTheme === 'dark' ? 'bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent' : 'text-slate-900'
-              }`}>
+              <h1 className={`font-extrabold text-base lg:text-lg tracking-tight leading-tight ${uiTheme === 'dark' ? 'bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent' : 'text-slate-900'
+                }`}>
                 AU Toolkit
               </h1>
             </div>
-            <p className={`text-[11px] hidden sm:block leading-tight ${
-              uiTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
-            }`}>
+            <p className={`text-[11px] hidden sm:block leading-tight ${uiTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+              }`}>
               Fake social media generator for Alternate Universe writers & storytellers
             </p>
           </div>
@@ -88,11 +87,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsResetConfirmOpen(true)}
-                className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer shrink-0 shadow-2xs ${
-                  uiTheme === 'dark'
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all border cursor-pointer shrink-0 shadow-2xs ${uiTheme === 'dark'
                     ? 'bg-rose-950/50 text-rose-300 border-rose-900/80 hover:bg-rose-900/70 hover:text-white'
                     : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                }`}
+                  }`}
                 title={language === 'id' ? 'Reset Total (Bersihkan seluruh data & cache)' : 'Hard Reset (Clear all data & cache)'}
               >
                 <RotateCcw className="w-3.5 h-3.5 text-rose-500 shrink-0" />

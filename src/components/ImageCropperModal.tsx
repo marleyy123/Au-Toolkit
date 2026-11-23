@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import { Crop, X, Check, RotateCw, RotateCcw, Circle, Square, ZoomIn, Loader2 } from 'lucide-react';
@@ -281,8 +282,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   if (!isOpen || !imageSrc) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-fadeIn select-none">
+  const host = (document.querySelector('.au-editor') as HTMLElement | null) ?? document.body;
+
+ return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 sm:backdrop-blur-md p-3 sm:p-4 animate-fadeIn select-none">
       <style>{`
         .cropper-modal {
           background-color: rgba(2, 6, 23, 0.7) !important;
@@ -627,6 +630,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         </div>
 
       </div>
-    </div>
+    </div>,
+    host
   );
 };
