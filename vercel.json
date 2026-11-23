@@ -22,9 +22,17 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
-  ]
+  {
+    "source": "/__/auth/:path*",
+    "destination": "https://au-toolkit-production.firebaseapp.com/__/auth/:path*"
+  },
+  {
+    "source": "/__/firebase/:path*",
+    "destination": "https://au-toolkit-production.firebaseapp.com/__/firebase/:path*"
+  },
+  {
+    "source": "/((?!api/).*)",
+    "destination": "/index.html"
+  }
+]
 }
