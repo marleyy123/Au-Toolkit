@@ -390,14 +390,17 @@ async function resolveLocalImageReferenceInternal(ref: string, uid: string): Pro
     try {
       response = await cloudMediaRequest(`/media?key=${encodeURIComponent(cloud.key)}`);
     } catch (error) {
-      console.error('[CLOUD MEDIA REQUEST ERROR]', error);
-      unresolvableMediaCache.add(ref);
+      // Transient (no auth yet, offline, ...): do NOT cache, it is retried later.
+      console.warn('[CLOUD MEDIA REQUEST ERROR]', error);
       return '';
     }
 
     if (!response.ok) {
-      console.error('[CLOUD MEDIA RESPONSE ERROR]', response.status);
-      unresolvableMediaCache.add(ref);
+      console.warn('[CLOUD MEDIA RESPONSE ERROR]', response.status);
+      // Only definitive answers are cached. 401/5xx/429 may succeed on a retry.
+      if (response.status === 404 || response.status === 403 || response.status === 410) {
+        unresolvableMediaCache.add(ref);
+      }
       return '';
     }
     const objectUrl = createSafeObjectURL(await response.blob());
@@ -405,8 +408,9 @@ async function resolveLocalImageReferenceInternal(ref: string, uid: string): Pro
     return objectUrl;
   }
 
+  if (!uid) return ''; // transient: auth not ready yet
   const parsed = parseLocalMediaReference(ref);
-  if (!parsed || !uid || parsed.uid !== uid) {
+  if (!parsed || parsed.uid !== uid) {
     unresolvableMediaCache.add(ref);
     return '';
   }
@@ -473,7 +477,10 @@ export async function deleteLocalImageReference(ref: string, uid = currentStored
 }
 
 /* ==========================================================================
-   DOM RESOLVER (fixed: no more infinite MutationObserver loop)
+   DOM RESOLVER
+   - never rewrites an identical attribute value (no MutationObserver loop)
+   - transient failures (no auth yet, 401, offline) are NOT cached; they are
+     retried after login, when the network returns, and right before export
    ========================================================================== */
 
 const MEDIA_REF_PATTERN = /au-(?:local|cloud)-media:\/\/[^)'"\s]+/g;
@@ -483,8 +490,13 @@ const isMediaRef = (value: string) =>
 const FAILED_PLACEHOLDER =
   'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E';
 
+const MEDIA_SELECTOR =
+  'img[src^="au-local-media://"], source[src^="au-local-media://"], img[src^="au-cloud-media://"], source[src^="au-cloud-media://"], [style*="au-local-media://"], [style*="au-cloud-media://"]';
+
+let authRetryHooked = false;
+
 async function resolveElementLocalMedia(element: Element): Promise<void> {
-  // 1. Synchronous checks first: if there is no media reference, exit immediately.
+  // 1. Synchronous checks first: no media reference -> exit immediately.
   const isMediaTag =
     element instanceof HTMLImageElement || element instanceof HTMLSourceElement;
   const currentSrc = isMediaTag ? element.getAttribute('src') || '' : '';
@@ -498,7 +510,10 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 
   if (!hasImageRef && styleRefs.length === 0) return;
 
-  // Already resolved (src is the cached blob) and nothing in style: do not process again.
+  // Definitive failure already handled (placeholder in place).
+  if (hasImageRef && styleRefs.length === 0 && unresolvableMediaCache.has(imageRef)) return;
+
+  // Already resolved (src is the cached blob) and nothing in style.
   if (
     hasImageRef &&
     styleRefs.length === 0 &&
@@ -510,25 +525,40 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
 
   // 2. Only now wait for auth.
   const { auth } = await loadFirebase();
+
+  if (!authRetryHooked) {
+    authRetryHooked = true;
+    let firstCall = true;
+    auth.onAuthStateChanged((user) => {
+      if (firstCall) { firstCall = false; return; } // initial callback = current state
+      if (user) void ensureMediaResolved(document);
+    });
+    window.addEventListener('online', () => void ensureMediaResolved(document));
+  }
+
   await auth.authStateReady();
   const uid = auth.currentUser?.uid;
-  if (!uid) return;
+  if (!uid) return; // transient: retried by the auth listener / ensureMediaResolved
 
   // 3. <img> / <source>
   if (hasImageRef) {
     if (element.getAttribute('data-au-local-media-ref') !== imageRef) {
       element.setAttribute('data-au-local-media-ref', imageRef);
+      element.removeAttribute('data-au-media-failed');
     }
 
     const objectUrl = await resolveLocalImageReference(imageRef, uid);
 
     if (!objectUrl) {
-      if (element.getAttribute('data-au-media-failed') !== 'true') {
-        element.setAttribute('data-au-media-failed', 'true');
-      }
-      const failedSrc = element.getAttribute('src') || '';
-      if (failedSrc.startsWith(LOCAL_MEDIA_PREFIX)) {
-        element.setAttribute('src', FAILED_PLACEHOLDER);
+      // Only a definitive failure gets the placeholder. The browser can never load
+      // au-*-media:// itself (ERR_UNKNOWN_URL_SCHEME), so leaving it would block export.
+      if (unresolvableMediaCache.has(imageRef)) {
+        if (element.getAttribute('data-au-media-failed') !== 'true') {
+          element.setAttribute('data-au-media-failed', 'true');
+        }
+        if (isMediaRef(element.getAttribute('src') || '')) {
+          element.setAttribute('src', FAILED_PLACEHOLDER);
+        }
       }
       return;
     }
@@ -561,17 +591,29 @@ async function resolveElementLocalMedia(element: Element): Promise<void> {
   }
 }
 
-function scanLocalMedia(root: ParentNode): void {
+function collectMediaElements(root: ParentNode): Element[] {
   const elements: Element[] = [];
-  if (root instanceof Element && !root.hasAttribute('data-au-media-failed')) elements.push(root);
-  elements.push(
-    ...Array.from(
-      root.querySelectorAll(
-        'img[src^="au-local-media://"]:not([data-au-media-failed]), source[src^="au-local-media://"]:not([data-au-media-failed]), img[src^="au-cloud-media://"]:not([data-au-media-failed]), source[src^="au-cloud-media://"]:not([data-au-media-failed]), [style*="au-local-media://"], [style*="au-cloud-media://"]'
-      )
-    )
+  if (root instanceof Element) elements.push(root);
+  elements.push(...Array.from(root.querySelectorAll(MEDIA_SELECTOR)));
+  return elements;
+}
+
+function scanLocalMedia(root: ParentNode): void {
+  collectMediaElements(root).forEach((element) => void resolveElementLocalMedia(element));
+}
+
+/**
+ * Retries every unresolved au-local/au-cloud media element under `root` and waits
+ * for it. Call this right before export/copy so a stale failure can never block it.
+ */
+export async function ensureMediaResolved(
+  root: ParentNode = document,
+  timeoutMs = 15000
+): Promise<void> {
+  const work = Promise.all(
+    collectMediaElements(root).map((element) => resolveElementLocalMedia(element).catch(() => {}))
   );
-  elements.forEach((element) => void resolveElementLocalMedia(element));
+  await Promise.race([work, new Promise<void>((resolve) => setTimeout(resolve, timeoutMs))]);
 }
 
 /** Installs one shared resolver for every generator preview and export DOM. */

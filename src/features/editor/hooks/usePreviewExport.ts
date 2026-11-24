@@ -3,12 +3,19 @@ import type { MouseEvent, RefObject } from 'react';
 import type { AppLanguage } from '../../../context/LanguageContext';
 import type { PlatformTab } from '../../../types';
 import { findRegisteredExportElement, getRegisteredExportContext } from '../../../export/exportContext';
+import { ensureMediaResolved } from '../../../utils/imageManager';
 import {
   copyElementToClipboard,
   downloadElementAsJpg,
   downloadElementAsPng,
   exportPreviewToImage,
 } from '../../../utils/exportUtils';
+
+
+// Retries any au-local/au-cloud image that is still unresolved, so a stale
+// failure can never block the export.
+const prepareMedia = () =>
+  ensureMediaResolved(document.getElementById('preview-canvas-container') || document);
 
 type UsePreviewExportArgs = {
   activeTab: PlatformTab;
@@ -87,6 +94,7 @@ export function usePreviewExport({
     setExportStatusText(language === 'id' ? `Menyiapkan ${scaleSuffix}...` : `Preparing ${scaleSuffix}...`);
 
     try {
+      await prepareMedia();
       const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.png`;
       if (await prepareAppleImage(targetElement, filename, effectiveScale, 'png')) return;
       const success = await downloadElementAsPng(targetElement, filename, effectiveScale, (step) => {
@@ -130,6 +138,7 @@ export function usePreviewExport({
     setExportStatusText(language === 'id' ? `Menyiapkan ${scaleSuffix} JPG...` : `Preparing ${scaleSuffix} JPG...`);
 
     try {
+      await prepareMedia();
       const filename = `AU-Toolkit-${activeTab}-${scaleSuffix}.jpg`;
       if (await prepareAppleImage(targetElement, filename, effectiveScale, 'jpeg')) return;
       const success = await downloadElementAsJpg(targetElement, filename, effectiveScale, 1.0, (step) => {
@@ -169,6 +178,7 @@ export function usePreviewExport({
     setIsExporting(true);
 
     try {
+      await prepareMedia();
       const isStoryModule = activeTab === 'instagram-story' || activeTab === 'instagram-story-reply' || activeTab === 'instagram-story-viewers';
       const effectiveScale = isStoryModule ? Math.max(exportScale || 1, 3) : exportScale;
       const success = await copyElementToClipboard(targetElement, effectiveScale);

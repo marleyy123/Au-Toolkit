@@ -82,7 +82,6 @@ export function useEntitlementLifecycle({
       }
 
       if (isRevalidatingRef.current) {
-        console.log("[Entitlement] Revalidation already in-flight, skipping.");
         return;
       }
 
@@ -100,11 +99,7 @@ export function useEntitlementLifecycle({
         .toLowerCase();
 
       if (!emailToCheck) {
-        console.log(
-          "[Entitlement] No email found to check. Setting UNAUTHENTICATED.",
-        );
         if (isInitial) {
-          console.log("[Entitlement] reset @ no-email");
           setIsAuthenticated(false);
           setAuthLifecycleStage("UNAUTHENTICATED");
         }
@@ -131,14 +126,12 @@ export function useEntitlementLifecycle({
           cached.daysRemaining === undefined ||
           cached.daysRemaining > 0),
       );
-      const activeSession = auth.currentUser || stored;
+      // PATCH 3: hanya sesi Firebase yang AKTIF yang dihitung. Data di localStorage
+      // saja tidak cukup untuk membuka editor (Firestore dan cloud media butuh token).
+      const activeSession = auth.currentUser;
       const canFastTrack = isInitial && isCachedValid && Boolean(activeSession);
 
       if (canFastTrack && cached) {
-        console.log(
-          "[Entitlement] Fast-track boot using cached valid entitlement for:",
-          emailToCheck,
-        );
         setBuyerEntitlement(cached);
         setIsAuthenticated(true);
         if (activeSession) {
@@ -160,13 +153,19 @@ export function useEntitlementLifecycle({
 
       isRevalidatingRef.current = true;
       try {
-        console.log(
-          "[Entitlement] Checking buyer entitlement for:",
-          emailToCheck,
-          { isInitial, canFastTrack },
-        );
         const requestedUid = auth.currentUser?.uid;
-        const entitlement = await checkBuyerEntitlement(emailToCheck);
+        // PATCH 4: kalau token ditolak, coba refresh token sekali sebelum menyerah.
+        let entitlement = await checkBuyerEntitlement(emailToCheck);
+        if (
+          (entitlement.status === "AUTH_REQUIRED" ||
+            entitlement.status === "INVALID_FIREBASE_TOKEN") &&
+          auth.currentUser
+        ) {
+          try {
+            await auth.currentUser.getIdToken(true);
+            entitlement = await checkBuyerEntitlement(emailToCheck);
+          } catch {}
+        }
         if (requestedUid && auth.currentUser?.uid !== requestedUid) return;
         lastRevalidatedAtRef.current = Date.now();
 
@@ -185,9 +184,7 @@ export function useEntitlementLifecycle({
             authLifecycleStageRef.current === "LOAD_USER_DATA" ||
             authLifecycleStageRef.current === "HYDRATE_DATA"
           ) {
-            console.log(
-              "[Entitlement] Session preserved via valid cache during temporary backend downtime.",
-            );
+            // Sesi dipertahankan lewat cache yang valid selama backend sementara down.
             return;
           }
           if (isInitial) {
@@ -201,11 +198,8 @@ export function useEntitlementLifecycle({
             if (
               auth.app.options.projectId !== "au-toolkit-staging-20261005" &&
               isCachedFallbackValid &&
-              (auth.currentUser || getStoredAuthUser())
+              auth.currentUser
             ) {
-              console.log(
-                "[Entitlement] Using cached valid entitlement with active Firebase session, proceeding to LOAD_USER_DATA",
-              );
               setAuthLifecycleStage("LOAD_USER_DATA");
             } else {
               console.warn(
@@ -226,12 +220,11 @@ export function useEntitlementLifecycle({
           entitlement.status === "AUTH_REQUIRED" ||
           entitlement.status === "INVALID_FIREBASE_TOKEN"
         ) {
-          console.log(
-            "[Entitlement] Auth session required:",
-            entitlement.status,
-          );
-          if (isInitial) {
-            console.log("[Entitlement] reset @ auth-required");
+          // PATCH 5: boot awal, atau sesi Firebase sudah hilang -> kembali ke login
+          // supaya Firestore dan cloud media tidak pernah jalan tanpa autentikasi.
+          // Kalau currentUser masih ada tapi token tetap ditolak setelah refresh,
+          // user tidak dikeluarkan di tengah mengedit (kemungkinan masalah backend).
+          if (isInitial || !auth.currentUser) {
             setIsAuthenticated(false);
             setAuthLifecycleStage("UNAUTHENTICATED");
           }
@@ -258,7 +251,6 @@ export function useEntitlementLifecycle({
             entitlement.statusAccount,
           );
           clearCachedEntitlement(emailToCheck);
-          console.log("[Entitlement] reset @ expired-or-locked");
           setIsAuthenticated(false);
           setBuyerEntitlement(entitlement);
           setAuthLifecycleStage("ACCESS_EXPIRED");
@@ -297,7 +289,6 @@ export function useEntitlementLifecycle({
           return;
         }
 
-        console.log("[Entitlement] ACCESS_GRANTED for:", emailToCheck);
         setBuyerEntitlement(entitlement);
         try {
           localStorage.setItem("au_is_authenticated", "true");
@@ -328,7 +319,6 @@ export function useEntitlementLifecycle({
               buyerEmail,
             });
             await signOutUser();
-            console.log("[Entitlement] reset @ email-mismatch");
             setIsAuthenticated(false);
             setAuthLifecycleStage("UNAUTHENTICATED");
             setLoadingErrorMessage(
@@ -340,11 +330,7 @@ export function useEntitlementLifecycle({
 
         const activeFirebaseUser: any = currentUser || getStoredAuthUser();
         if (!activeFirebaseUser || !currentUser) {
-          console.log(
-            "[Auth] Google Sign-In required for verified buyer:",
-            emailToCheck,
-          );
-          console.log("[Entitlement] reset @ no-firebase-user");
+          // Pembeli terverifikasi, tapi belum ada sesi Firebase: perlu login ulang.
           setIsAuthenticated(false);
           setAuthLifecycleStage("UNAUTHENTICATED");
           return;
@@ -367,9 +353,6 @@ export function useEntitlementLifecycle({
           } catch (err) {
             console.warn("Device slot registration notice:", err);
           }
-          console.log(
-            "[Lifecycle] Transitioning from CHECK_ACCESS -> LOAD_USER_DATA",
-          );
           setAuthLifecycleStage("LOAD_USER_DATA");
         } else {
           try {
@@ -406,7 +389,6 @@ export function useEntitlementLifecycle({
   useEffect(() => {
     if (initialBootExecutedRef.current) return;
     initialBootExecutedRef.current = true;
-    console.log("[Lifecycle] Initial boot started, evaluating access...");
     revalidateEntitlement(true);
   }, [revalidateEntitlement]);
 
@@ -418,11 +400,6 @@ export function useEntitlementLifecycle({
       const user = (e as CustomEvent).detail?.user;
 
       if (!user?.email) return;
-
-      console.log(
-        "[Lifecycle] iOS redirect resolved, re-running entitlement for:",
-        user.email,
-      );
 
       revalidateEntitlement(true);
     };

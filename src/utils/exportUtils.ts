@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { resolveHighestResolutionSource } from './imageRegistry';
 import { waitForPendingEmojiAssets } from './emojiUtils';
 import { getRegisteredExportContext } from '../export/exportContext';
+import { ensureMediaResolved } from './imageManager';
 
 const EXPORT_ASSET_TIMEOUT_MS = 15000;
 const DESKTOP_EXPORT_VIEWPORT_WIDTH = 1920;
@@ -337,32 +338,42 @@ function readDiagnosticMetrics(root: HTMLElement): ExportDiagnosticRecord[] {
   });
 }
 
+const UNRESOLVED_MEDIA_PATTERN = /^au-(?:local|cloud)-media:\/\//;
+
 async function waitForImageReady(img: HTMLImageElement): Promise<void> {
-  if (!img.getAttribute('src') && !img.src) return;
-  if (!img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
+  const rawSrc = img.getAttribute('src') || img.src || '';
+  if (!rawSrc) return;
+  const label = img.alt || 'media preview';
+
+  // Browser tidak bisa memuat skema ini sendiri. Menunggu hanya menghabiskan 15 detik
+  // dan menyembunyikan penyebab aslinya.
+  if (UNRESOLVED_MEDIA_PATTERN.test(rawSrc)) {
+    throw new Error(`Gambar cloud belum siap (sesi login mungkin berakhir). Login ulang lalu coba lagi: ${label}`);
+  }
+
+  // Sudah gagal: event 'error' tidak akan terpicu lagi, jadi langsung gagal.
+  if (img.complete && img.naturalWidth <= 0) {
+    throw new Error(`Gambar gagal dimuat: ${label}`);
+  }
+
+  if (!img.complete) {
     await withExportTimeout(
       new Promise<void>((resolve, reject) => {
         img.addEventListener('load', () => resolve(), { once: true });
-        img.addEventListener('error', () => reject(new Error(`Gambar gagal dimuat: ${img.alt || 'media preview'}`)), { once: true });
+        img.addEventListener('error', () => reject(new Error(`Gambar gagal dimuat: ${label}`)), { once: true });
       }),
-      `Gambar belum selesai dimuat: ${img.alt || 'media preview'}`
+      `Gambar belum selesai dimuat: ${label}`
     );
   }
   if (typeof img.decode === 'function') {
     try {
-      await withExportTimeout(
-        img.decode(),
-        `Gambar belum selesai didekode: ${img.alt || 'media preview'}`
-      );
+      await withExportTimeout(img.decode(), `Gambar belum selesai didekode: ${label}`);
     } catch (error) {
-      // Chromium may reject decode() on a freshly cloned image even though its
-      // complete natural-size pixels are already available. That is safe to
-      // capture; a zero-sized/failed image still remains a hard export error.
       if (!img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) throw error;
     }
   }
   if (!img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
-    throw new Error(`Gambar gagal dimuat: ${img.alt || 'media preview'}`);
+    throw new Error(`Gambar gagal dimuat: ${label}`);
   }
 }
 
@@ -1183,6 +1194,9 @@ export async function exportPreviewToImage(
   if (!getRegisteredExportContext(targetEl)) {
     throw new Error('Preview bukan canonical export source yang terdaftar.');
   }
+
+    options.onProgress?.('Resolving cloud images...');
+  await ensureMediaResolved(targetEl);
 
   const chatScrollPositions = readChatScrollPositions(targetEl);
   const chatViewportHeight = chatScrollPositions.length ? targetEl.offsetHeight : 0;
