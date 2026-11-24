@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getStoredAuthUser, onAuthUserChanged } from '../../../firebase';
-import { getUserAccountStorageKey } from '../../workspace/workspaceStorage';
-import { detectDeviceSlot } from '../../../utils/deviceAuthService';
-import { EntitlementCheckResult } from '../../../services/buyerEntitlementService';
-import { AuthLifecycleStage } from '../components/access/AppLoadingScreen';
+import { useEffect, useMemo, useState } from "react";
+import { getStoredAuthUser, onAuthUserChanged } from "../../../firebase";
+import { getUserAccountStorageKey } from "../../workspace/workspaceStorage";
+import { detectDeviceSlot, type DeviceSlot } from "../../../utils/deviceAuthService";import { EntitlementCheckResult } from "../../../services/buyerEntitlementService";
+import { AuthLifecycleStage } from "../components/access/AppLoadingScreen";
 
 export function useAuthSessionState() {
   const [authUser, setAuthUser] = useState<any>(() => {
@@ -23,31 +22,46 @@ export function useAuthSessionState() {
     return () => unsubscribe();
   }, []);
 
-  const userAccountKey = useMemo(() => getUserAccountStorageKey(authUser), [authUser]);
+  const userAccountKey = useMemo(
+    () => getUserAccountStorageKey(authUser),
+    [authUser],
+  );
 
-  const [authLifecycleStage, setAuthLifecycleStage] = useState<AuthLifecycleStage>(() => {
-    try {
-      const emailOrCode = localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code');
-      if (!emailOrCode) return 'UNAUTHENTICATED';
-      return 'AUTH_LOADING';
-    } catch {
-      return 'UNAUTHENTICATED';
-    }
-  });
-  const [buyerEntitlement, setBuyerEntitlement] = useState<EntitlementCheckResult | null>(null);
-  const [loadingErrorMessage, setLoadingErrorMessage] = useState<string | null>(null);
+  const [authLifecycleStage, setAuthLifecycleStage] =
+    useState<AuthLifecycleStage>(() => {
+      try {
+        const emailOrCode =
+          localStorage.getItem("au_user_email") ||
+          localStorage.getItem("au_access_code");
+        if (!emailOrCode) return "UNAUTHENTICATED";
+        return "AUTH_LOADING";
+      } catch {
+        return "UNAUTHENTICATED";
+      }
+    });
+  const [buyerEntitlement, setBuyerEntitlement] =
+    useState<EntitlementCheckResult | null>(null);
+  const [loadingErrorMessage, setLoadingErrorMessage] = useState<string | null>(
+    null,
+  );
   const [accessCode, setAccessCode] = useState<string>(() => {
     try {
-      return localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code') || '';
+      return (
+        localStorage.getItem("au_user_email") ||
+        localStorage.getItem("au_access_code") ||
+        ""
+      );
     } catch {
-      return '';
+      return "";
     }
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
-      const emailOrCode = localStorage.getItem('au_user_email') || localStorage.getItem('au_access_code');
+      const emailOrCode =
+        localStorage.getItem("au_user_email") ||
+        localStorage.getItem("au_access_code");
       if (!emailOrCode) return false;
-      const expiryStr = localStorage.getItem('au_session_expires_at');
+      const expiryStr = localStorage.getItem("au_session_expires_at");
       if (expiryStr) {
         const expiry = parseInt(expiryStr, 10);
         if (!isNaN(expiry) && Date.now() > expiry) {
@@ -59,7 +73,7 @@ export function useAuthSessionState() {
       return false;
     }
   });
-  const [clientDeviceSlot] = useState<'mobile' | 'desktop'>(() => detectDeviceSlot());
+  const [clientDeviceSlot] = useState<DeviceSlot>(() => detectDeviceSlot());
 
   return {
     authUser,

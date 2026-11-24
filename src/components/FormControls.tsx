@@ -144,6 +144,7 @@ interface ImageUploaderProps {
   aspectHint?: string;
   onClear?: () => void;
   forceAspect?: number;
+  initialAspect?: number
   allow916?: boolean;
   cropShape?: 'round' | 'rect';
   skipCompression?: boolean;
@@ -165,6 +166,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   aspectHint,
   onClear,
   forceAspect,
+  initialAspect,
   allow916 = true,
   cropShape,
   skipCompression = false,
@@ -620,6 +622,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           onClose={handleCancelCrop}
           cropShape={derivedCropShape}
           forceAspect={forceAspect}
+          initialAspect={initialAspect}
           allow916={allow916}
           maxOutputDimension={maxOutputDimension}
           quality={quality}

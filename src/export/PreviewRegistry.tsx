@@ -27,6 +27,7 @@ import { NotesPreview } from '../features/notes/components/notes/NotesPreview';
 import { PushNotificationPreview } from '../features/notifications/components/pushNotification/PushNotificationPreview';
 import { SpotifyPlayerPreview } from '../features/spotify/components/player/SpotifyPlayerPreview';
 import { registerExportContext } from './exportContext';
+import { useResolvedMediaData } from '../utils/useResolvedMediaData';
 
 export interface PreviewRegistryHandlers {
   onChange?: (value: any) => void;
@@ -51,13 +52,15 @@ export function PreviewRegistry({
   fontCss,
   handlers = {},
 }: PreviewRegistryProps) {
+  const resolvedData = useResolvedMediaData(data);
+
   useLayoutEffect(() => {
     if (previewRef.current) {
       registerExportContext(previewRef.current, { previewKey, data, fontCss });
     }
   }, [data, fontCss, previewKey, previewRef]);
 
-  const shared = { data, previewRef: previewRef as any };
+  const shared = { data: resolvedData, previewRef: previewRef as any };
   switch (previewKey) {
     case 'twitter':
       return <TwitterPreview {...shared} onChange={handlers.onChange} />;
@@ -66,7 +69,7 @@ export function PreviewRegistry({
     case 'instagram-story':
       return <InstagramStoryPreview {...shared} />;
     case 'instagram-story-reply':
-      return <InstagramStoryReplyPreview ref={previewRef} data={data} onChange={handlers.onChange} />;
+      return <InstagramStoryReplyPreview ref={previewRef} data={resolvedData} onChange={handlers.onChange} />;
     case 'instagram-story-viewers':
       return <InstagramStoryViewersPreview {...shared} />;
     case 'instagram-profile':
@@ -76,7 +79,7 @@ export function PreviewRegistry({
     case 'instagram-live':
       return <InstagramLivePreview {...shared} />;
     case 'instagram-notes':
-      return <InstagramNotesPreview ref={previewRef as any} data={data} />;
+      return <InstagramNotesPreview ref={previewRef as any} data={resolvedData} />;
     case 'instagram-activity':
       return <InstagramActivityPreview {...shared} />;
     case 'instagram-dm':

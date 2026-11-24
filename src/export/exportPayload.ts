@@ -1,17 +1,18 @@
-import type { PlatformTab, TikTokLiveData } from '../types';
-import { prepareTikTokLiveExportData } from '../features/tiktok/liveExport';
-import { getOriginalImage } from '../utils/imageRegistry';
+import type { PlatformTab, TikTokLiveData } from "../types";
+import { prepareTikTokLiveExportData } from "../features/tiktok/liveExport";
+import { getOriginalImage } from "../utils/imageRegistry";
 import {
   getLocalMediaOwnerUid,
   resolveLocalImageReference,
-} from '../utils/imageManager';
+} from "../utils/imageManager";
 import {
   detectDeviceSlot,
   getDeviceFriendlyLabel,
   getOrCreateDeviceId,
-} from '../utils/deviceAuthService';
+  type DeviceSlot,
+} from "../utils/deviceAuthService";
 
-export type ExportImageFormat = 'png' | 'jpeg';
+export type ExportImageFormat = "png" | "jpeg";
 
 export interface ExportFontFacePayload {
   family: string;
@@ -26,13 +27,13 @@ export interface NativeExportPayload {
   fontFaces: ExportFontFacePayload[];
   canonicalWidth: number;
   canonicalHeight: number;
-  ratio: '1:1' | '4:5' | '9:16' | 'component';
+  ratio: "1:1" | "4:5" | "9:16" | "component";
   scale: 1 | 2 | 3;
   format: ExportImageFormat;
   quality: number;
   backgroundColor: string;
   device: {
-    deviceType: 'mobile' | 'desktop';
+    deviceType: DeviceSlot;
     deviceId: string;
     deviceLabel: string;
   };
@@ -43,27 +44,34 @@ interface PreparedNativeExportRequest {
   payload: NativeExportPayload;
 }
 
-const LOCAL_MEDIA_PREFIX = 'au-local-media://';
-const CLOUD_MEDIA_PREFIX = 'au-cloud-media://';
-const INTERNAL_MEDIA_PREFIX = 'https://au-toolkit-export.local/media/';
+const LOCAL_MEDIA_PREFIX = "au-local-media://";
+const CLOUD_MEDIA_PREFIX = "au-cloud-media://";
+const INTERNAL_MEDIA_PREFIX = "https://au-toolkit-export.local/media/";
 
-function ratioForDimensions(width: number, height: number): NativeExportPayload['ratio'] {
-  if (width === 380 && height === 380) return '1:1';
-  if (width === 380 && height === 475) return '4:5';
-  if (width === 380 && height === 676) return '9:16';
-  return 'component';
+function ratioForDimensions(
+  width: number,
+  height: number,
+): NativeExportPayload["ratio"] {
+  if (width === 380 && height === 380) return "1:1";
+  if (width === 380 && height === 475) return "4:5";
+  if (width === 380 && height === 676) return "9:16";
+  return "component";
 }
 
 function readCustomFontFaces(fontCss: string): ExportFontFacePayload[] {
   try {
-    const raw = localStorage.getItem('global_custom_fonts_list');
+    const raw = localStorage.getItem("global_custom_fonts_list");
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter((entry) => {
-        const family = String(entry?.family || '');
-        return family && fontCss.includes(family) && /^data:font\//i.test(String(entry?.dataUrl || ''));
+        const family = String(entry?.family || "");
+        return (
+          family &&
+          fontCss.includes(family) &&
+          /^data:font\//i.test(String(entry?.dataUrl || ""))
+        );
       })
       .map((entry) => ({
         family: String(entry.family),
@@ -76,13 +84,19 @@ function readCustomFontFaces(fontCss: string): ExportFontFacePayload[] {
 
 async function blobForMediaSource(source: string): Promise<Blob | null> {
   let resolvedSource = source;
-  if (source.startsWith(LOCAL_MEDIA_PREFIX) || source.startsWith(CLOUD_MEDIA_PREFIX)) {
-    resolvedSource = await resolveLocalImageReference(source, getLocalMediaOwnerUid());
+  if (
+    source.startsWith(LOCAL_MEDIA_PREFIX) ||
+    source.startsWith(CLOUD_MEDIA_PREFIX)
+  ) {
+    resolvedSource = await resolveLocalImageReference(
+      source,
+      getLocalMediaOwnerUid(),
+    );
   }
 
   const original = getOriginalImage(resolvedSource || source)?.source;
-  if (typeof Blob !== 'undefined' && original instanceof Blob) return original;
-  if (typeof original === 'string') resolvedSource = original;
+  if (typeof Blob !== "undefined" && original instanceof Blob) return original;
+  if (typeof original === "string") resolvedSource = original;
 
   if (!/^(?:blob:|data:image\/)/i.test(resolvedSource)) return null;
   try {
@@ -97,30 +111,34 @@ async function blobForMediaSource(source: string): Promise<Blob | null> {
 async function replaceLocalMediaDeep(
   value: unknown,
   files: Array<{ id: string; blob: Blob }>,
-  seen: WeakMap<object, unknown>
+  seen: WeakMap<object, unknown>,
 ): Promise<unknown> {
-  if (typeof value === 'string') {
-    if (!/^(?:blob:|data:image\/|au-(?:local|cloud)-media:\/\/)/i.test(value)) return value;
+  if (typeof value === "string") {
+    if (!/^(?:blob:|data:image\/|au-(?:local|cloud)-media:\/\/)/i.test(value))
+      return value;
     const blob = await blobForMediaSource(value);
-    if (!blob) throw new Error('Media lokal tidak dapat dibaca untuk export.');
+    if (!blob) throw new Error("Media lokal tidak dapat dibaca untuk export.");
     const id = `media-${files.length + 1}-${crypto.randomUUID?.() || Date.now()}`;
     files.push({ id, blob });
     return `${INTERNAL_MEDIA_PREFIX}${encodeURIComponent(id)}`;
   }
 
-  if (!value || typeof value !== 'object') return value;
+  if (!value || typeof value !== "object") return value;
   if (seen.has(value)) return seen.get(value);
 
   if (Array.isArray(value)) {
     const output: unknown[] = [];
     seen.set(value, output);
-    for (const item of value) output.push(await replaceLocalMediaDeep(item, files, seen));
+    for (const item of value)
+      output.push(await replaceLocalMediaDeep(item, files, seen));
     return output;
   }
 
   const output: Record<string, unknown> = {};
   seen.set(value, output);
-  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+  for (const [key, nested] of Object.entries(
+    value as Record<string, unknown>,
+  )) {
     output[key] = await replaceLocalMediaDeep(nested, files, seen);
   }
   return output;
@@ -138,8 +156,10 @@ export async function prepareNativeExportRequest(args: {
   backgroundColor: string;
 }): Promise<PreparedNativeExportRequest> {
   const files: Array<{ id: string; blob: Blob }> = [];
-  const exportData = args.previewKey === 'tiktok-live'
-    ? await prepareTikTokLiveExportData(args.data as TikTokLiveData) : args.data;
+  const exportData =
+    args.previewKey === "tiktok-live"
+      ? await prepareTikTokLiveExportData(args.data as TikTokLiveData)
+      : args.data;
   const data = await replaceLocalMediaDeep(exportData, files, new WeakMap());
   const scale = Math.min(3, Math.max(1, Math.round(args.scale))) as 1 | 2 | 3;
   const slot = detectDeviceSlot();
@@ -164,9 +184,9 @@ export async function prepareNativeExportRequest(args: {
   };
 
   const formData = new FormData();
-  formData.append('payload', JSON.stringify(payload));
+  formData.append("payload", JSON.stringify(payload));
   for (const file of files) {
-    formData.append('media', file.blob, file.id);
+    formData.append("media", file.blob, file.id);
   }
   return { formData, payload };
 }

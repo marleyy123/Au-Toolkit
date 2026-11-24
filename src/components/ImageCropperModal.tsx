@@ -13,6 +13,7 @@ interface ImageCropperModalProps {
   onCropComplete: (croppedDataUrl: string, sessionId?: string) => void;
   cropShape?: 'round' | 'rect';
   forceAspect?: number;
+  initialAspect?: number;
   allow916?: boolean;
   maxOutputDimension?: number;
   quality?: number;
@@ -26,6 +27,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   onCropComplete,
   cropShape: initialCropShape = 'rect',
   forceAspect,
+  initialAspect,
   allow916 = true,
   maxOutputDimension,
   quality,
@@ -45,12 +47,16 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   const [imageError, setImageError] = useState('');
   const resolvedSrc = resolvedImage.input === imageSrc ? resolvedImage.src : '';
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
-    forceAspect !== undefined ? forceAspect : initialCropShape === 'round' ? 1 : undefined
+    forceAspect !== undefined
+      ? forceAspect
+      : initialCropShape === 'round'
+        ? 1
+        : initialAspect
   );
 
   const rafZoomId = useRef<number | null>(null);
   const isZoomingRaf = useRef<boolean>(false);
-  const initCropperRef = useRef<() => void>(() => {});
+  const initCropperRef = useRef<() => void>(() => { });
 
   const isLocal = !resolvedSrc || resolvedSrc.startsWith('blob:') || resolvedSrc.startsWith('data:');
 
@@ -103,10 +109,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       shape === 'round'
         ? 1
         : forceAspect !== undefined
-        ? forceAspect
-        : aspectRatio !== undefined
-        ? aspectRatio
-        : NaN;
+          ? forceAspect
+          : aspectRatio !== undefined
+            ? aspectRatio
+            : NaN;
 
     const cropper = new Cropper(imageRef.current, {
       aspectRatio: currentAspect,
@@ -284,7 +290,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   const host = (document.querySelector('.au-editor') as HTMLElement | null) ?? document.body;
 
- return createPortal(
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 sm:backdrop-blur-md p-3 sm:p-4 animate-fadeIn select-none">
       <style>{`
         .cropper-modal {
@@ -375,7 +381,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       `}</style>
 
       <div className="bg-[#0B1120] border border-[#1E293B] rounded-2xl w-full max-w-xl shadow-2xl shadow-black/80 flex flex-col max-h-[94vh] sm:max-h-[88vh] overflow-hidden text-slate-100">
-        
+
         {/* Modal Header */}
         <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b border-[#1E293B] bg-[#0B1120] shrink-0">
           <div className="flex items-center space-x-2.5">
@@ -407,9 +413,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
         {/* Modal Body - Cropper Area with Checkerboard Background */}
         <div
-          className={`relative w-full flex-1 min-h-[200px] h-[240px] sm:h-[300px] md:h-[340px] max-h-[46vh] bg-[#090D16] flex items-center justify-center overflow-hidden ${
-            shape === 'round' ? 'cropper-circle-guide' : ''
-          }`}
+          className={`relative w-full flex-1 min-h-[200px] h-[240px] sm:h-[300px] md:h-[340px] max-h-[46vh] bg-[#090D16] flex items-center justify-center overflow-hidden ${shape === 'round' ? 'cropper-circle-guide' : ''
+            }`}
           style={{
             backgroundImage: `
               linear-gradient(45deg, #1E293B 25%, transparent 25%),
@@ -457,7 +462,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
         {/* Modal Controls / Zoom & Shape Toolbar */}
         <div className="px-4 py-2.5 sm:px-5 sm:py-3 border-t border-[#1E293B] bg-[#0B1120] flex flex-col gap-2.5 text-xs shrink-0">
-          
+
           {/* Zoom Slider */}
           <div className="flex items-center space-x-3 w-full">
             <div className="flex items-center space-x-1.5 text-slate-200 text-xs font-medium shrink-0">
@@ -488,11 +493,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSetShape('round')}
-                  className={`px-3 py-1 rounded-full font-bold text-xs border transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    shape === 'round'
+                  className={`px-3 py-1 rounded-full font-bold text-xs border transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${shape === 'round'
                       ? 'bg-purple-600 border-purple-500 text-white shadow-md shadow-purple-600/30'
                       : 'bg-transparent border-[#334155] text-slate-300 hover:text-white hover:bg-[#1E293B]'
-                  }`}
+                    }`}
                 >
                   <Circle className={`w-3.5 h-3.5 ${shape === 'round' ? 'fill-current' : ''}`} />
                   <span>Circle</span>
@@ -500,11 +504,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSetShape('rect')}
-                  className={`px-3 py-1 rounded-full font-bold text-xs border transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    shape === 'rect'
+                  className={`px-3 py-1 rounded-full font-bold text-xs border transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${shape === 'rect'
                       ? 'bg-purple-600 border-purple-500 text-white shadow-md shadow-purple-600/30'
                       : 'bg-transparent border-[#334155] text-slate-300 hover:text-white hover:bg-[#1E293B]'
-                  }`}
+                    }`}
                 >
                   <Square className={`w-3.5 h-3.5 ${shape === 'rect' ? 'fill-current' : ''}`} />
                   <span>Rectangle</span>
@@ -517,33 +520,30 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSetAspect(undefined)}
-                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                      aspectRatio === undefined
+                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${aspectRatio === undefined
                         ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
                         : 'bg-[#1E293B] border-[#334155] text-slate-300 hover:text-white hover:bg-[#334155]'
-                    }`}
+                      }`}
                   >
                     Free
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSetAspect(1)}
-                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                      aspectRatio === 1
+                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${aspectRatio === 1
                         ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
                         : 'bg-[#1E293B] border-[#334155] text-slate-300 hover:text-white hover:bg-[#334155]'
-                    }`}
+                      }`}
                   >
                     1:1
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSetAspect(4 / 5)}
-                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                      aspectRatio === 4 / 5
+                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${aspectRatio === 4 / 5
                         ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
                         : 'bg-[#1E293B] border-[#334155] text-slate-300 hover:text-white hover:bg-[#334155]'
-                    }`}
+                      }`}
                   >
                     4:5
                   </button>
@@ -551,11 +551,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleSetAspect(9 / 16)}
-                      className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                        aspectRatio === 9 / 16
+                      className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${aspectRatio === 9 / 16
                           ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
                           : 'bg-[#1E293B] border-[#334155] text-slate-300 hover:text-white hover:bg-[#334155]'
-                      }`}
+                        }`}
                     >
                       9:16
                     </button>
@@ -563,11 +562,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSetAspect(16 / 9)}
-                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                      aspectRatio === 16 / 9
+                    className={`px-2 py-0.5 rounded-md font-bold text-[10px] border transition-all cursor-pointer shrink-0 whitespace-nowrap ${aspectRatio === 16 / 9
                         ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
                         : 'bg-[#1E293B] border-[#334155] text-slate-300 hover:text-white hover:bg-[#334155]'
-                    }`}
+                      }`}
                   >
                     16:9
                   </button>
