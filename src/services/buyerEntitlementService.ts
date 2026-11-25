@@ -262,7 +262,7 @@ export async function checkBuyerEmailBeforeGoogle(rawEmail: string): Promise<Ent
     const data = await res.json().catch(() => null);
     const reason = String(data?.reason || data?.status || '').trim();
 
-    if (res.status === 403 || reason === 'CORS_ORIGIN_BLOCKED') {
+    if (reason === 'CORS_ORIGIN_BLOCKED' || (res.status === 403 && !reason)) {
       return { isRegisteredBuyer: false, isValid: false, status: 'CORS_ORIGIN_BLOCKED', email: cleanEmail, message: data?.message || 'Preview ini tidak diizinkan mengakses server verifikasi buyer.' };
     }
     if (res.status === 503 || reason === 'APPS_SCRIPT_UNAVAILABLE') {
@@ -462,7 +462,7 @@ export async function validateLoginAccess(email?: string): Promise<ValidateAcces
   }
 
   // 3. CORS_ORIGIN_BLOCKED
-  if (httpStatus === 403 || reasonCode === 'CORS_ORIGIN_BLOCKED') {
+  if (reasonCode === 'CORS_ORIGIN_BLOCKED' || (httpStatus === 403 && !reasonCode)) {
     return {
       allowed: false,
       status: 'CORS_ORIGIN_BLOCKED',
