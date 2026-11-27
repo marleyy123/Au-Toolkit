@@ -86,6 +86,15 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       // Match the verifier to the frontend Firebase project during local development.
       proxy: {
+        '/api/cloud-media': {
+          target: 'https://au-toolkit-media.denowstudio.workers.dev',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (requestPath) => requestPath.replace(/^\/api\/cloud-media/, '/media'),
+          headers: {
+            Origin: verificationOrigin,
+          },
+        },
         '/api/verify-buyer': {
           target: verificationOrigin,
           changeOrigin: true,

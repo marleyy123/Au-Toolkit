@@ -56,6 +56,14 @@
   force = true
 
 [[redirects]]
+  from = "/api/cloud-media"
+  to = "https://au-toolkit-media.denowstudio.workers.dev/media"
+  status = 200
+  force = true
+  [redirects.headers]
+    Origin = "https://autoolkit.com"
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

@@ -120,7 +120,16 @@ async function cloudMediaRequest(path: string, init: RequestInit = {}): Promise<
   const token = await user.getIdToken();
   const headers = new Headers(init.headers);
   headers.set('Authorization', `Bearer ${token}`);
-  return fetch(`${endpoint}${path}`, { ...init, headers });
+  try {
+    return await fetch(`${endpoint}${path}`, { ...init, headers });
+  } catch (error) {
+    // Fallback to same-origin proxy when *.workers.dev is blocked/intercepted by ISP or DNS.
+    if (error instanceof TypeError && path.startsWith('/media')) {
+      const proxyPath = `/api/cloud-media${path.slice('/media'.length)}`;
+      return await fetch(proxyPath, { ...init, headers });
+    }
+    throw error;
+  }
 }
 
 async function uploadCloudMediaBlob(uid: string, blob: Blob): Promise<string> {

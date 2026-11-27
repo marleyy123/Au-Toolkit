@@ -23,6 +23,10 @@
   ],
   "rewrites": [
   {
+    "source": "/api/cloud-media",
+    "destination": "https://au-toolkit-media.denowstudio.workers.dev/media"
+  },
+  {
     "source": "/__/auth/:path*",
     "destination": "https://au-toolkit-production.firebaseapp.com/__/auth/:path*"
   },
